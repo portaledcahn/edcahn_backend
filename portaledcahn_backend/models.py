@@ -8,6 +8,7 @@ class AlembicVersion(models.Model):
     class Meta:
         managed = False
         db_table = 'alembic_version'
+        app_label = 'kingfisher'
 
 
 class Collection(models.Model):
@@ -26,7 +27,7 @@ class Collection(models.Model):
         managed = False
         db_table = 'collection'
         unique_together = (('source_id', 'data_version', 'sample', 'transform_from_collection', 'transform_type'),)
-
+        app_label = 'kingfisher'
 
 class CollectionFile(models.Model):
     collection = models.ForeignKey(Collection, models.DO_NOTHING)
@@ -41,7 +42,7 @@ class CollectionFile(models.Model):
         managed = False
         db_table = 'collection_file'
         unique_together = (('collection', 'filename'),)
-
+        app_label = 'kingfisher'
 
 class CollectionFileItem(models.Model):
     collection_file = models.ForeignKey(CollectionFile, models.DO_NOTHING)
@@ -55,7 +56,7 @@ class CollectionFileItem(models.Model):
         managed = False
         db_table = 'collection_file_item'
         unique_together = (('collection_file', 'number'),)
-
+        app_label = 'kingfisher'
 
 class CollectionNote(models.Model):
     collection = models.ForeignKey(Collection, models.DO_NOTHING)
@@ -65,7 +66,7 @@ class CollectionNote(models.Model):
     class Meta:
         managed = False
         db_table = 'collection_note'
-
+        app_label = 'kingfisher'
 
 class CompiledRelease(models.Model):
     collection_file_item = models.ForeignKey(CollectionFileItem, models.DO_NOTHING)
@@ -75,7 +76,7 @@ class CompiledRelease(models.Model):
     class Meta:
         managed = False
         db_table = 'compiled_release'
-
+        app_label = 'kingfisher'
 
 class Data(models.Model):
     hash_md5 = models.TextField(unique=True)
@@ -84,7 +85,7 @@ class Data(models.Model):
     class Meta:
         managed = False
         db_table = 'data'
-
+        app_label = 'kingfisher'
 
 class PackageData(models.Model):
     hash_md5 = models.TextField(unique=True)
@@ -93,7 +94,7 @@ class PackageData(models.Model):
     class Meta:
         managed = False
         db_table = 'package_data'
-
+        app_label = 'kingfisher'
 
 class Record(models.Model):
     collection_file_item = models.ForeignKey(CollectionFileItem, models.DO_NOTHING)
@@ -104,7 +105,7 @@ class Record(models.Model):
     class Meta:
         managed = False
         db_table = 'record'
-
+        app_label = 'kingfisher'
 
 class RecordCheck(models.Model):
     record = models.ForeignKey(Record, models.DO_NOTHING)
@@ -115,7 +116,7 @@ class RecordCheck(models.Model):
         managed = False
         db_table = 'record_check'
         unique_together = (('record', 'override_schema_version'),)
-
+        app_label = 'kingfisher'
 
 class RecordCheckError(models.Model):
     record = models.ForeignKey(Record, models.DO_NOTHING)
@@ -126,7 +127,7 @@ class RecordCheckError(models.Model):
         managed = False
         db_table = 'record_check_error'
         unique_together = (('record', 'override_schema_version'),)
-
+        app_label = 'kingfisher'
 
 class Release(models.Model):
     collection_file_item = models.ForeignKey(CollectionFileItem, models.DO_NOTHING)
@@ -138,7 +139,7 @@ class Release(models.Model):
     class Meta:
         managed = False
         db_table = 'release'
-
+        app_label = 'kingfisher'
 
 class ReleaseCheck(models.Model):
     release = models.ForeignKey(Release, models.DO_NOTHING)
@@ -149,7 +150,7 @@ class ReleaseCheck(models.Model):
         managed = False
         db_table = 'release_check'
         unique_together = (('release', 'override_schema_version'),)
-
+        app_label = 'kingfisher'
 
 class ReleaseCheckError(models.Model):
     release = models.ForeignKey(Release, models.DO_NOTHING)
@@ -160,7 +161,7 @@ class ReleaseCheckError(models.Model):
         managed = False
         db_table = 'release_check_error'
         unique_together = (('release', 'override_schema_version'),)
-
+        app_label = 'kingfisher'
 
 class TransformUpgrade10To11StatusRecord(models.Model):
     source_record = models.ForeignKey(Record, models.DO_NOTHING, primary_key=True)
@@ -168,7 +169,7 @@ class TransformUpgrade10To11StatusRecord(models.Model):
     class Meta:
         managed = False
         db_table = 'transform_upgrade_1_0_to_1_1_status_record'
-
+        app_label = 'kingfisher'
 
 class TransformUpgrade10To11StatusRelease(models.Model):
     source_release = models.ForeignKey(Release, models.DO_NOTHING, primary_key=True)
@@ -176,3 +177,54 @@ class TransformUpgrade10To11StatusRelease(models.Model):
     class Meta:
         managed = False
         db_table = 'transform_upgrade_1_0_to_1_1_status_release'
+        app_label = 'kingfisher'
+
+####Otros###
+
+class Contract(models.Model):
+    id = models.TextField(blank=True, null=True)
+    amount = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+    currency = models.TextField(blank=True, null=True)
+    date = models.DateField(auto_now=False, auto_now_add=False, null=True)
+    buyerId = models.TextField(blank=True, null=True)
+    buyerName = models.TextField(blank=True, null=True)
+    buyerMemberOf = JSONField()
+
+    class Meta:
+        managed = False
+        db_table = 'contracts'
+        app_label = 'kingfisher'
+
+class TasasDeCambio(models.Model):
+    id = models.TextField(blank=True, null=True)
+    year_er = models.DecimalField(null=True, max_digits=10, decimal_places=4)
+    currency = models.TextField(blank=True, null=True)
+    exchange_rate = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+
+    class Meta:
+        managed = False
+        db_table = '"edcahn"."tasas_de_cambio"'
+        app_label = 'kingfisher'
+
+class Buyer(models.Model):
+    id = models.TextField(blank=True, null=True)
+    buyerId = models.TextField(blank=True, null=True)
+    buyerName = models.TextField(blank=True, null=True)
+    buyerMemberOf = JSONField()
+    numberOfContracts = models.IntegerField(null=True)
+    sum_amount_hnl = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+    sum_amount_usd = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+    avg_amount_hnl = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+    avg_amount_usd = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+    max_amount_hnl = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+    max_amount_usd = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+    min_amount_hnl = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+    min_amount_usd = models.DecimalField(null=True, max_digits=16, decimal_places=4)
+    last_date_contract = models.DateField(auto_now=False, auto_now_add=False, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'buyers'
+        app_label = 'kingfisher'
+
+

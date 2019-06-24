@@ -75,15 +75,21 @@ WSGI_APPLICATION = 'portaledcahn.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'bdkingfisher': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'ocdskingfisher',
         'USER': 'ocdskingfisher',
         'PASSWORD': 'ocdskingfisher',
         'HOST': '34.74.53.102',
         'PORT': '5432',
+    },
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase',
     }
 }
+
+DATABASE_ROUTERS = ['portaledcahn.dbrouters.dbRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

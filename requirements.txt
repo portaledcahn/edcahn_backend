@@ -1,3 +1,4 @@
-pip install djangorestframework
-pip install markdown    
-pip install django-filter
+Django==2.2.2
+djangorestframework==3.9.4
+django-filter==2.1.0   
+Markdown==3.1.1
