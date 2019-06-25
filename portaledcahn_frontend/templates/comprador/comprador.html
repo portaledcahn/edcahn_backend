@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block head_content %}
+<title>Portal de Contrataciones Abiertas de Honduras - Comprador</title>
+{% endblock %}
+
+{% load static %}
+
+{% block container %}
+<div class="container ">
+   <div class="row mt-5">
+      <div class="col-md-12">
+         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Comprador "Alcaldía Municipal de Danli"</h1>
+      </div>
+   </div>
+   <div class="row mt-5">
+      <h4 class="text-primary-edcax col-md-6">
+         Datos del Comprador
+      </h4>
+      <!--
+         <div class="col-md-6 textoAlineadoDerecha"><h4 ><span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano"><i class="fas fa-file-download"></i>&nbsp;.CSV</span></h4> </div>
+         -->
+   </div>
+   <div class="row ">
+      <div class="col-md-12">
+         <div class=" cajonSombreado contenedorDetalleProcesoDatos">
+            <div class="contenedorProceso informacionProceso">
+               <div class="contenedorTablaCaracteristicas" style="width:100%">
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Localidad:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              DANLI
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Región:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              El Paraiso
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Dirección:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              Danli, El Paraiso
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12">
+         <h4 class="text-primary-edcax">Datos de Contacto</h4>
+         <div class=" cajonSombreado ">
+            <div class="contenedorProceso informacionProceso">
+               <div class="contenedorTablaCaracteristicas">
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Nombre:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              LUZ VICTORIA OLIVA LOVO
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Telefono:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              763-2405
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Correo Electrónico:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              mesadeayuda@honducompras.gob.hn
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row mb-5 mt-3">
+      <div class="col-md-12 textoAlineadoDerecha mb-5">
+         <a href="/procesos_comprador" class="botonGeneral fondoColorSecundario  tamanoExtra">Ver Procesos de Comprador</a>
+      </div>
+   </div>
+   <div class="row mb-5"></div>
+</div>
+{% endblock %}
+
+{% block script_content %}
+<script src="{% static 'js/comprador.js' %}"></script>
+{% endblock %}
