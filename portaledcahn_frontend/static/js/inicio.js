@@ -10,12 +10,12 @@ $(function(){
       });
     /*Anadir eventos a los elementos*/
     $('#campoBlancoBusquedaProcesosBoton').on('click',function(e){
-        window.location.href="busqueda.html";
+        window.location.href="/busqueda";
     });
     $('#campoBlancoBusquedaProcesos').on('keydown',function(e){
         teclaCodigo=e.keyCode ? e.keyCode : e.which;
         if(teclaCodigo=='13'){
-            window.location.href="busqueda.html";
+            window.location.href="/busqueda";
         }
     });
     /*Anadir Titles a los campos de busqueda*/
