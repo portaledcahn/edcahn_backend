@@ -228,3 +228,12 @@ class Buyer(models.Model):
         app_label = 'kingfisher'
 
 
+class Contrato(models.Model):
+    id = models.TextField()
+    ocid = models.TextField(blank=True, null=True)
+    data = JSONField()
+
+    class Meta:
+        managed = False
+        db_table = 'contratos'
+        app_label = 'kingfisher'
