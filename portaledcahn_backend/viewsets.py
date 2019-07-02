@@ -27,6 +27,8 @@ from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
 from portaledcahn_backend import serializers as articles_serializers  
 
+import json
+
 tasas_de_cambio = {
 	2000: {"HNL": 15.0143, "USD": 1},
 	2001: {"HNL": 15.6513, "USD": 1},
@@ -80,7 +82,24 @@ class BuyerList(APIView):
 
 		data = articles_documents.DataDocument.search()
 
-		contador = data.count()
+		results = data.aggs\
+					.metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
+					.aggs\
+					.metric('distinct_buyers', 'cardinality', field='data.compiledRelease.contracts.buyer.id.keyword')\
+					.aggs\
+					.metric('distinct_contracts', 'cardinality', field='data.compiledRelease.contracts.id.keyword')\
+					.execute()
+
+		# for r in results.aggregations:
+		# 	print(r)
+
+		context = {
+			"distinct_contracts": results.aggregations.distinct_contracts.value,
+			"distinct_buyers": results.aggregations.distinct_buyers.value,
+			"distinct_suppliers": results.aggregations.distinct_suppliers.value
+		}
+
+		# contador = data.count()
 
 		# for r in results:
 			# contador += 1
@@ -101,11 +120,9 @@ class BuyerList(APIView):
 		# 		print("ok", contador)
 
 		# 	contador += 1 
-		
-		# print("ok", contador)
 
 		# return Response(contador)
-		return Response(contador)
+		return Response(context)
 
 class ContractsViewSet(viewsets.ModelViewSet):
 	sql = '''

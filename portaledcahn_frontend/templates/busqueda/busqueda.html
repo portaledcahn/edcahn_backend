@@ -4,6 +4,7 @@
 <title>Portal de Contrataciones Abiertas de Honduras - Busqueda</title>
 {% endblock %}
 
+{% load humanize %}
 
 {% load static %}
 {% block head_style %}
@@ -98,17 +99,20 @@
          <div class="contenedorResultadosBusqueda">
             <div class="container-fluid">
                <div class="row mt-3 mb-3">
-                  <div class="campoAzulBusquedaPadre" >
-                     <input class="form-control form-control-lg campoAzulBusqueda" id="campoBusquedaProceso" type="text" placeholder="Busca una contratación..." title="Busca una contratación...">
-                     <i class="fas fa-search cursorMano" id="botonBusquedaProceso"></i>	
-                  </div>
-                  <div class="contenedorBotonAzulFiltroBusqueda"  style="display:none">
-                     <button class="botonAzulFiltroBusqueda" title="Filtros">
-                     <i class="fas fa-filter"></i> 
-                     </button>
-                  </div>
+                    <div class="campoAzulBusquedaPadre" >
+                       <form id="form_buscar"  action="" method="get">
+                       <input class="form-control form-control-lg campoAzulBusqueda" id="campoBusquedaProceso" type="text" placeholder="Busca una contratación..." title="Busca una contratación..." name="q" value="{{q}}">
+                        <i class="fas fa-search cursorMano" id="botonBusquedaProceso"></i>
+                       </form>
+                    </div>
+                    <div class="contenedorBotonAzulFiltroBusqueda"  style="display:none">
+                       <button class="botonAzulFiltroBusqueda" title="Filtros" type="submit">
+                       <i class="fas fa-filter"></i> 
+                       </button>
+                    </div>
                </div>
             </div>
+
             <div class="container-fluid">
                <div class="row">
                   <div class="contenedorFiltros">
@@ -117,7 +121,7 @@
                            <div class="tituloFiltrosAplicados">Filtros Aplicados:</div>
                         </div>
                         <div class="col-6 col-sm-5 col-md-6 textoAlineadoDerecha">
-                           <a href="javascript:void(0)" class="botonGeneral fondoColorSecundario">Quitar Todos</a>
+                           <a href="/busqueda/" class="botonGeneral fondoColorSecundario">Quitar Todos</a>
                         </div>
                      </div>
                      <div class="row">
@@ -180,13 +184,13 @@
                                  <tr >
                                     <td class="tituloTablaCaracteristicas pb-1">Total de Procesos:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario" >45</span>
+                                       <span class="botonGeneral fondoColorPrimario">{{resumen.distinct_contracts.value|intcomma}}</span>
                                     </td>
                                  </tr>
                                  <tr>
                                     <td class="tituloTablaCaracteristicas pb-1">Promedio de Monto:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario" >45,5666,545 HNL</span>
+                                       <span class="botonGeneral fondoColorPrimario" >{%if resumen.avg_amount.value %}{{resumen.avg_amount.value|floatformat:0|intcomma}} HNL{%else%}0{%endif%}</span>
                                     </td>
                                  </tr>
                               </tbody>
@@ -198,13 +202,13 @@
                                  <tr >
                                     <td class="tituloTablaCaracteristicas pb-1">Total de Compradores:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario" >45</span>
+                                       <span class="botonGeneral fondoColorPrimario">{{resumen.distinct_buyers.value|intcomma}}</span>
                                     </td>
                                  </tr>
                                  <tr>
                                     <td class="tituloTablaCaracteristicas pb-1"> Total de Proveedores:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario ">78</span>
+                                       <span class="botonGeneral fondoColorPrimario "> {%if resumen.distinct_suppliers.value %} {{resumen.distinct_suppliers.value|intcomma}}{%else%}0 {%endif%}</span>
                                     </td>
                                  </tr>
                               </tbody>
@@ -229,6 +233,76 @@
                               
                         </h4>
                   </div>
+
+                  {% for resultado in resultados %}
+
+                  {% if resultado.data.compiledRelease.contracts %}
+
+                  {% for contrato in resultado.data.compiledRelease.contracts %}                  
+                  <div class="resultadoBusquedaProceso cursorMano transicion">
+                     <div class="title-result">
+                        <div class="textoTituloResultadoBusqueda">
+                           {{contrato.description|upper}} <span class="textoColorGris textoAlineadoDerecha"> {%if contrato.dateSigned %} {{contrato.dateSigned}} {% else %} {{contrato.period.startDate}} {% endif %}</span>
+                        </div>
+                     </div>
+                     <div class="contenedorProceso">
+                        <div class="contenedorTablaCaracteristicas">
+                           <table>
+                              <tbody>
+                                 <tr>
+                                    <td class="tituloTablaCaracteristicas">ID Proceso (OCID):</td>
+                                    <td class="contenidoTablaCaracteristicas"> 
+                                       {{resultado.data.ocid}}
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="tituloTablaCaracteristicas">Comprador:</td>
+                                    <td class="contenidoTablaCaracteristicas"> 
+                                       {{resultado.data.compiledRelease.buyer.name}}
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="tituloTablaCaracteristicas">Estado:</td>
+                                    <td class="contenidoTablaCaracteristicas"> 
+                                       {{contrato.status}}
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                        <div class="contenedorTablaCaracteristicas">
+                           <table class="anchoTotal">
+                              <tbody>
+                                 <tr>
+                                    <td class="textoAlineadoDerecha">
+                                       <div class="montoTotalProceso">
+                                          <img src="img/otros/moneda.png" alt="" >
+                                          <div class="contenedorMonto">
+                                             <div class="textoColorGris">Monto del contrato:</div>
+                                             <div class="valorMonto">
+                                                {{contrato.value.amount|floatformat:2|intcomma}} <span class="textoColorPrimario">{{contrato.value.currency}}</span>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
+                  {% endfor %}
+                  {% endif %}
+                  {% empty %}
+                  <div class="container-fluid">
+                    <div class="row">
+                      <div class="col-12 col-sm-12 col-md-12">
+                        <h5 class="textoColorPrimario">Lo sentimos, no hay contratos....</h5>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+<!--                  
                   <div class="resultadoBusquedaProceso cursorMano transicion">
                      <div class="title-result">
                         <div class="textoTituloResultadoBusqueda">
@@ -385,58 +459,7 @@
                         </div>
                      </div>
                   </div>
-                  <div class="resultadoBusquedaProceso cursorMano transicion">
-                     <div class="title-result">
-                        <div class="textoTituloResultadoBusqueda">
-                           Lorem ipsum dolor sit amet consectetur, adipisicing elit. m <span class="textoColorGris textoAlineadoDerecha">2018-02-19 10:02:54</span>
-                        </div>
-                     </div>
-                     <div class="contenedorProceso">
-                        <div class="contenedorTablaCaracteristicas">
-                           <table>
-                              <tbody>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">ID Proceso (OCID):</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       ocds-213czf-000-00001
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Comprador:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       Alcaldia Municipal
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Estado:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       Adjudicación
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                        <div class="contenedorTablaCaracteristicas">
-                           <table class="anchoTotal">
-                              <tbody>
-                                 <tr>
-                                    <td class="textoAlineadoDerecha">
-                                       <div class="montoTotalProceso">
-                                          <img src="img/otros/moneda.png" alt="" >
-                                          <div class="contenedorMonto">
-                                             <div class="textoColorGris">Monto Estimado:</div>
-                                             <div class="valorMonto">
-                                                87,456.00 <span class="textoColorPrimario">HNL</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                     </div>
-                  </div>
+-->
                   <div class="col-md-12 textoAlineadoCentrado">
                      <nav class="navegacionTablaGeneral">
                         <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
@@ -459,4 +482,14 @@
 <script src="{% static 'plugins/elastic-list/data.js' %}"></script>
 <script src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>
 <script src="{% static 'js/busqueda.js' %}"></script>
+
+<script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", function () {
+      var form = document.getElementById("form_buscar");
+
+      document.getElementById("botonBusquedaProceso").addEventListener("click", function () {
+        form.submit();
+      });
+    });
+</script>
 {% endblock %}

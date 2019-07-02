@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'portaledcahn_frontend',
     'django_elasticsearch_dsl',
     'django_elasticsearch_dsl_drf',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
