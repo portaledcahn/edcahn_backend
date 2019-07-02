@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block head_content %}
+<title>Portal de Contrataciones Abiertas de Honduras - Proveedor</title>
+{% endblock %}
+
+{% load static %}
+
+{% block container %}
+
+<div class="container">
+   <div class="row mt-5">
+      <div class="col-md-12">
+         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Proveedor "CAMIONES Y MOTORES S.A. (CAMOSA)"</h1>
+      </div>
+   </div>
+   <div class="row mt-5">
+      <h4 class="text-primary-edcax col-md-6">
+         Datos del Proveedor
+      </h4>
+      <!--
+         <div class="col-md-6 textoAlineadoDerecha"><h4 ><span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano"><i class="fas fa-file-download"></i>&nbsp;.CSV</span></h4> </div>
+         -->
+   </div>
+   <div class="row ">
+      <div class="col-md-12">
+         <div class=" cajonSombreado contenedorDetalleProcesoDatos">
+            <div class="contenedorProceso informacionProceso">
+               <div class="contenedorTablaCaracteristicas" style="width:100%">
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Identificación:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              <span class="botonGeneral fondoColorPrimario">HN-RTN</span> <span>08019998389463</span>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Dirección:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              BOULEVARD COMUNIDAD ECONOMICA EUROPEA, DESVIO A LA COLONIA SAN JOSE DEL PEDREGAL 
+                              Distrito Central , Francisco Morazan , Honduras
+                              Tel: 2246-7875 , Fax: -  2246-7875 
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12 mb-5">
+         <h4 class="text-primary-edcax">Datos de Contacto</h4>
+         <div class=" cajonSombreado mb-5">
+            <div class="contenedorProceso informacionProceso">
+               <div class="contenedorTablaCaracteristicas">
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Nombre:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              JOSE EDUARDO ATALA ZABLAH 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Telefono:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              9999-9999
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Correo Electrónico:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              esteban146161@gmail.com
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row mb-5 mt-3">
+      <div class="col-md-12 textoAlineadoDerecha">
+         <a href="/procesos_proveedor" class="botonGeneral fondoColorSecundario  tamanoExtra">Ver Procesos de Proveedor</a>
+      </div>
+   </div>
+</div>
+{% endblock %}
+{% block script_content %}
+<script src="{% static 'js/proveedor.js' %}"></script>
+{% endblock %}

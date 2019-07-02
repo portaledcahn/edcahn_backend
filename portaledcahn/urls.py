@@ -16,8 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from portaledcahn_backend import urls
+from portaledcahn_frontend import urls as frontend_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(urls)),
+    path('', include(frontend_urls)),
 ]
