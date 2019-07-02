@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'portaledcahn_backend',
     'rest_framework',
     'portaledcahn_frontend',
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
 ]
 
 MIDDLEWARE = [
@@ -136,5 +138,11 @@ STATICFILES_DIRS=(
 )
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5
+    'PAGE_SIZE': 10
+}
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': '192.168.1.3:9200'
+    },
 }

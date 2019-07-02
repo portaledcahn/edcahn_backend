@@ -8,6 +8,25 @@ from django.db.models import Avg, Count, Min, Sum
 from decimal import Decimal 
 from .serializers import *
 
+from django_elasticsearch_dsl_drf.constants import (
+    LOOKUP_FILTER_RANGE,
+    LOOKUP_QUERY_IN,
+    LOOKUP_QUERY_GT,
+    LOOKUP_QUERY_GTE,
+    LOOKUP_QUERY_LT,
+    LOOKUP_QUERY_LTE,
+)
+from django_elasticsearch_dsl_drf.filter_backends import (
+    FilteringFilterBackend,
+    OrderingFilterBackend,
+    DefaultOrderingFilterBackend,
+    SearchFilterBackend,
+)
+
+from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
+from portaledcahn_backend import documents as articles_documents
+from portaledcahn_backend import serializers as articles_serializers  
+
 tasas_de_cambio = {
 	2000: {"HNL": 15.0143, "USD": 1},
 	2001: {"HNL": 15.6513, "USD": 1},
@@ -57,37 +76,36 @@ class BuyerList(APIView):
 
 	def get(self, request, format=None):
 
-		sql = '''
-			select 
-				 contract->'buyer'->>'id' as "id"
-				,partie->'identifier'->>'scheme' as "scheme"
-				,contract->'buyer'->>'name' as "name"
-				,partie->'memberOf' as "memberOf"
-				,SUM((contract->'value'->>'amount')::numeric) as "sum amount"
-				,contract->'value'->>'currency' as "currency"
-			from 
-				"data" d, 
-				jsonb_array_elements(d.data->'compiledRelease'->'contracts') as contract
-				,jsonb_array_elements(d.data->'compiledRelease'->'parties') as partie
-			where 
-				exists (select * from record where data_id= d.id)
-				and partie->'id' = contract->'buyer'->'id'
-				and contract->'value'->>'amount' is not null
-			group by
-				 contract->'buyer'->>'id'
-				,partie->'identifier'->>'scheme'
-				,contract->'buyer'->>'name'
-				,partie->'memberOf'
-				,contract->'value'->>'currency'
-		'''
+		contador = 0
 
-		cursor = connections['bdkingfisher'].cursor()
-		cursor.execute(sql)
-		datos = cursor.fetchall()
+		data = articles_documents.DataDocument.search()
 
-		# serializer = BuyerSerializer(parties, many=True)
+		contador = data.count()
+
+		# for r in results:
+			# contador += 1
+
+		# for d in data: 
+			# contador += 1
+
+		# serializer = articles_serializers.DataDocumentSerializer(data, many=True)		
+
+		# contratos = Contrato.objects.all()
+		# data = Data.objects.all()
+
+		# serializer = DataSerializer(data, many=True)
+		# for d in data.iterator(chunk_size=10):
+
+		# for d in data:
+		# 	if contador%10 == 0:
+		# 		print("ok", contador)
+
+		# 	contador += 1 
 		
-		return Response(datos)
+		# print("ok", contador)
+
+		# return Response(contador)
+		return Response(contador)
 
 class ContractsViewSet(viewsets.ModelViewSet):
 	sql = '''
@@ -142,4 +160,59 @@ class BuyerViewSet(viewsets.ModelViewSet):
 	queryset = Buyer.objects.all()
 	serializer_class = BuyerSerializer
 	http_method_names = ['get']
+
+class ContratoViewSet(viewsets.ModelViewSet):
+	queryset = Contrato.objects.all()
+	serializer_class = ContratoSerializer
+	http_method_names = ['get']
+
+class DataViewSet(DocumentViewSet):
+	document = articles_documents.DataDocument
+	serializer_class = articles_serializers.DataDocumentSerializer
+
+#     lookup_field = 'id'
+#     filter_backends = [
+#         FilteringFilterBackend,
+#         OrderingFilterBackend,
+#         DefaultOrderingFilterBackend,
+#         SearchFilterBackend,
+#     ]
+ 
+#     # Define search fields
+#     search_fields = (
+#         'data'
+#     )
+ 
+#     # Filter fields
+#     filter_fields = {
+#         'id': {
+#             'field': 'id',
+#             'lookups': [
+#                 LOOKUP_FILTER_RANGE,
+#                 LOOKUP_QUERY_IN,
+#                 LOOKUP_QUERY_GT,
+#                 LOOKUP_QUERY_GTE,
+#                 LOOKUP_QUERY_LT,
+#                 LOOKUP_QUERY_LTE,
+#             ],
+#         },
+#         'data': 'title.raw',
+#     }
+ 
+#     # Define ordering fields
+#     ordering_fields = {
+#         'id': 'id',
+#         'data': 'title.raw',
+#     }
+
+#     # Specify default ordering
+#     ordering = ('id',)   
+
+
+class DataRecordViewSet(DocumentViewSet):
+    document = articles_documents.RecordDocument
+    serializer_class = articles_serializers.RecordDocumentSerializer
+
+
+
 
