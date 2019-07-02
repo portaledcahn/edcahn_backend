@@ -81,10 +81,11 @@ class CompiledRelease(models.Model):
 class Data(models.Model):
     hash_md5 = models.TextField(unique=True)
     data = JSONField()  # This field type is a guess.
+    # data = models.TextField()
 
     class Meta:
         managed = False
-        db_table = 'data'
+        db_table = 'v_data'
         app_label = 'kingfisher'
 
 class PackageData(models.Model):

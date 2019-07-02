@@ -18,20 +18,30 @@ html_strip = analyzer(
 
 @data_index.doc_type
 class DataDocument(DocType):
-	"""Data elasticsearch document"""
-
-	# id = fields.IntegerField(attr='id')
-	# data = fields.StringField(
-	# 	analyzer=html_strip,
-	# 	fields={
-	# 		'raw': fields.StringField(analyzer='keyword'),
-	# 	}
-	# )
+	data = fields.ObjectField()
 
 	class Meta:
 		model = articles_models.Data
-		managed = False
-		db_table = 'data'
-		app_label = 'kingfisher'
+		fields = [
+			'id', 
+			'hash_md5', 
+		]
 
-		# fields = ['id', 'data']
+	def prepare_data(self, instance):
+		return instance.data
+
+record_index = Index('record')
+record_index.settings(
+	number_of_shards=1,
+	number_of_replicas=0
+)
+
+@record_index.doc_type
+class RecordDocument(DocType):
+
+	class Meta:
+		model = articles_models.Record
+		fields = [
+			'id', 
+			'ocid', 
+		]

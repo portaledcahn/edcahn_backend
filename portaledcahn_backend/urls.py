@@ -10,9 +10,14 @@ router.register(r'contract', viewsets.ContractsViewSet)
 router.register(r'contrato', viewsets.ContratoViewSet)
 router.register(r'buyer', viewsets.BuyerViewSet)
 router.register(
-    prefix=r'data',
-    base_name='data',
-    viewset=viewsets.DataViewSet
+	prefix=r'data',
+	base_name='data',
+	viewset=viewsets.DataViewSet
+)
+router.register(
+	prefix=r'datarecord',
+	base_name='datarecord',
+	viewset =viewsets.DataRecordViewSet
 )
 
 urlpatterns = [

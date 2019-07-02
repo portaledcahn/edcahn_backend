@@ -78,18 +78,33 @@ class BuyerList(APIView):
 
 		contador = 0
 
+		data = articles_documents.DataDocument.search()
+
+		contador = data.count()
+
+		# for r in results:
+			# contador += 1
+
+		# for d in data: 
+			# contador += 1
+
+		# serializer = articles_serializers.DataDocumentSerializer(data, many=True)		
+
 		# contratos = Contrato.objects.all()
-		data = Data.objects.all()[0:1000]
+		# data = Data.objects.all()
 
-		for d in data.iterator(chunk_size=10):
+		# serializer = DataSerializer(data, many=True)
+		# for d in data.iterator(chunk_size=10):
 
-			if contador%10 == 0:
-				print("ok", contador)
+		# for d in data:
+		# 	if contador%10 == 0:
+		# 		print("ok", contador)
 
-			contador += 1 
+		# 	contador += 1 
 		
-		print("ok", contador)
+		# print("ok", contador)
 
+		# return Response(contador)
 		return Response(contador)
 
 class ContractsViewSet(viewsets.ModelViewSet):
@@ -152,43 +167,52 @@ class ContratoViewSet(viewsets.ModelViewSet):
 	http_method_names = ['get']
 
 class DataViewSet(DocumentViewSet):
-    document = articles_documents.DataDocument
-    serializer_class = articles_serializers.DataDocumentSerializer
- 
-    lookup_field = 'id'
-    filter_backends = [
-        FilteringFilterBackend,
-        OrderingFilterBackend,
-        DefaultOrderingFilterBackend,
-        SearchFilterBackend,
-    ]
- 
-    # Define search fields
-    search_fields = (
-        'data'
-    )
- 
-    # Filter fields
-    filter_fields = {
-        'id': {
-            'field': 'id',
-            'lookups': [
-                LOOKUP_FILTER_RANGE,
-                LOOKUP_QUERY_IN,
-                LOOKUP_QUERY_GT,
-                LOOKUP_QUERY_GTE,
-                LOOKUP_QUERY_LT,
-                LOOKUP_QUERY_LTE,
-            ],
-        },
-        'data': 'title.raw',
-    }
- 
-    # Define ordering fields
-    ordering_fields = {
-        'id': 'id',
-        'data': 'title.raw',
-    }
+	document = articles_documents.DataDocument
+	serializer_class = articles_serializers.DataDocumentSerializer
 
-    # Specify default ordering
-    ordering = ('id',)   
+#     lookup_field = 'id'
+#     filter_backends = [
+#         FilteringFilterBackend,
+#         OrderingFilterBackend,
+#         DefaultOrderingFilterBackend,
+#         SearchFilterBackend,
+#     ]
+ 
+#     # Define search fields
+#     search_fields = (
+#         'data'
+#     )
+ 
+#     # Filter fields
+#     filter_fields = {
+#         'id': {
+#             'field': 'id',
+#             'lookups': [
+#                 LOOKUP_FILTER_RANGE,
+#                 LOOKUP_QUERY_IN,
+#                 LOOKUP_QUERY_GT,
+#                 LOOKUP_QUERY_GTE,
+#                 LOOKUP_QUERY_LT,
+#                 LOOKUP_QUERY_LTE,
+#             ],
+#         },
+#         'data': 'title.raw',
+#     }
+ 
+#     # Define ordering fields
+#     ordering_fields = {
+#         'id': 'id',
+#         'data': 'title.raw',
+#     }
+
+#     # Specify default ordering
+#     ordering = ('id',)   
+
+
+class DataRecordViewSet(DocumentViewSet):
+    document = articles_documents.RecordDocument
+    serializer_class = articles_serializers.RecordDocumentSerializer
+
+
+
+

@@ -41,11 +41,24 @@ class BuyerSerializer(serializers.ModelSerializer):
 			'avg_amount_usd', 'max_amount_hnl', 'max_amount_usd',
 			'min_amount_hnl', 'min_amount_usd', 'last_date_contract' ]
 
+class DataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Data
+        fields = ['id', 'hash_md5', 'data']
+
 class DataDocumentSerializer(DocumentSerializer):
     class Meta:
         document = articles_documents.DataDocument
         fields = (
             'id',
+            'hash_md5',
             'data',
         )
 
+class RecordDocumentSerializer(DocumentSerializer):
+    class Meta:
+        document = articles_documents.RecordDocument
+        fields = (
+            'id',
+            'ocid',
+        )
