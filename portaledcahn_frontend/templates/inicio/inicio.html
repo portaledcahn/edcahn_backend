@@ -38,8 +38,10 @@
                </div>
             </div>
             <div class="campoBlancoBusquedaPadre">
-               <input class="form-control form-control-lg campoBlancoBusqueda" type="text" placeholder="Busca una contratación..." id="campoBlancoBusquedaProcesos">
-               <i class="fas fa-search cursorMano" id="campoBlancoBusquedaProcesosBoton" title="Buscar"></i>	
+               <form id="form_buscar"  action="/busqueda/" method="get">
+               <input class="form-control form-control-lg campoBlancoBusqueda" type="text" placeholder="Busca una contratación..." id="campoBlancoBusquedaProcesos" name="q">
+               <i class="fas fa-search cursorMano" id="botonBusquedaProceso" title="Buscar"></i>	
+               </form>
             </div>
          </div>
          <div class="row">
@@ -93,5 +95,15 @@
 
 {% block script_content %}
 <script src="{% static 'js/inicio.js' %}"></script>
+
+<script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", function () {
+      var form = document.getElementById("form_buscar");
+
+      document.getElementById("botonBusquedaProceso").addEventListener("click", function () {
+        form.submit();
+      });
+    });
+</script>
 {% endblock %}
 

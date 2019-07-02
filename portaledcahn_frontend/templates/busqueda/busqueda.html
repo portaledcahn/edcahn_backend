@@ -102,7 +102,7 @@
                     <div class="campoAzulBusquedaPadre" >
                        <form id="form_buscar"  action="" method="get">
                        <input class="form-control form-control-lg campoAzulBusqueda" id="campoBusquedaProceso" type="text" placeholder="Busca una contratación..." title="Busca una contratación..." name="q" value="{{q}}">
-                        <i class="fas fa-search cursorMano" id="botonBusquedaProceso"></i>
+                        <i class="fas fa-search cursorMano" id="campoBlancoBusquedaProcesos"></i>
                        </form>
                     </div>
                     <div class="contenedorBotonAzulFiltroBusqueda"  style="display:none">
@@ -487,7 +487,7 @@
     window.addEventListener("DOMContentLoaded", function () {
       var form = document.getElementById("form_buscar");
 
-      document.getElementById("botonBusquedaProceso").addEventListener("click", function () {
+      document.getElementById("campoBlancoBusquedaProcesos").addEventListener("click", function () {
         form.submit();
       });
     });
