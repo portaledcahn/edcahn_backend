@@ -102,7 +102,7 @@
                     <div class="campoAzulBusquedaPadre" >
                        <form id="form_buscar"  action="" method="get">
                        <input class="form-control form-control-lg campoAzulBusqueda" id="campoBusquedaProceso" type="text" placeholder="Busca una contratación..." title="Busca una contratación..." name="q" value="{{q}}">
-                        <i class="fas fa-search cursorMano" id="campoBlancoBusquedaProcesos"></i>
+                        <i class="fas fa-search cursorMano" id="botonBusquedaProceso"></i>
                        </form>
                     </div>
                     <div class="contenedorBotonAzulFiltroBusqueda"  style="display:none">
@@ -302,175 +302,48 @@
                     </div>
                   </div>
                   {% endfor %}
-<!--                  
-                  <div class="resultadoBusquedaProceso cursorMano transicion">
-                     <div class="title-result">
-                        <div class="textoTituloResultadoBusqueda">
-                           Lorem ipsum dolor sit amet consectetur, adipisicing elit. m <span class="textoColorGris textoAlineadoDerecha">2018-02-19 10:02:54</span>
-                        </div>
-                     </div>
-                     <div class="contenedorProceso">
-                        <div class="contenedorTablaCaracteristicas">
-                           <table>
-                              <tbody>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">ID Proceso (OCID):</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       ocds-213czf-000-00001
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Comprador:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       Alcaldia Municipal
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Estado:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       Adjudicación
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                        <div class="contenedorTablaCaracteristicas">
-                           <table class="anchoTotal">
-                              <tbody>
-                                 <tr>
-                                    <td class="textoAlineadoDerecha">
-                                       <div class="montoTotalProceso">
-                                          <img src="img/otros/moneda.png" alt="" >
-                                          <div class="contenedorMonto">
-                                             <div class="textoColorGris">Monto Estimado:</div>
-                                             <div class="valorMonto">
-                                                87,456.00 <span class="textoColorPrimario">HNL</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="resultadoBusquedaProceso cursorMano transicion">
-                     <div class="title-result">
-                        <div class="textoTituloResultadoBusqueda">
-                           Lorem ipsum dolor sit amet consectetur, adipisicing elit. m <span class="textoColorGris textoAlineadoDerecha">2018-02-19 10:02:54</span>
-                        </div>
-                     </div>
-                     <div class="contenedorProceso">
-                        <div class="contenedorTablaCaracteristicas">
-                           <table>
-                              <tbody>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">ID Proceso (OCID):</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       ocds-213czf-000-00001
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Comprador:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       Alcaldia Municipal
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Estado:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       Adjudicación
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                        <div class="contenedorTablaCaracteristicas">
-                           <table class="anchoTotal">
-                              <tbody>
-                                 <tr>
-                                    <td class="textoAlineadoDerecha">
-                                       <div class="montoTotalProceso">
-                                          <img src="img/otros/moneda.png" alt="" >
-                                          <div class="contenedorMonto">
-                                             <div class="textoColorGris">Monto Estimado:</div>
-                                             <div class="valorMonto">
-                                                87,456.00 <span class="textoColorPrimario">HNL</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="resultadoBusquedaProceso cursorMano transicion">
-                     <div class="title-result">
-                        <div class="textoTituloResultadoBusqueda">
-                           Lorem ipsum dolor sit amet consectetur, adipisicing elit. m <span class="textoColorGris textoAlineadoDerecha">2018-02-19 10:02:54</span>
-                        </div>
-                     </div>
-                     <div class="contenedorProceso">
-                        <div class="contenedorTablaCaracteristicas">
-                           <table>
-                              <tbody>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">ID Proceso (OCID):</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       ocds-213czf-000-00001
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Comprador:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       Alcaldia Municipal
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Estado:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       Adjudicación
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                        <div class="contenedorTablaCaracteristicas">
-                           <table class="anchoTotal">
-                              <tbody>
-                                 <tr>
-                                    <td class="textoAlineadoDerecha">
-                                       <div class="montoTotalProceso">
-                                          <img src="img/otros/moneda.png" alt="" >
-                                          <div class="contenedorMonto">
-                                             <div class="textoColorGris">Monto Estimado:</div>
-                                             <div class="valorMonto">
-                                                87,456.00 <span class="textoColorPrimario">HNL</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                     </div>
-                  </div>
--->
+
+                  {% if posts.has_next or posts.has_previous %}
                   <div class="col-md-12 textoAlineadoCentrado">
                      <nav class="navegacionTablaGeneral">
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
+                        {% if posts.has_previous %}
+                        <a href="?q={{q}}&page={{ posts.previous_page_number }};" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
+                        {% endif %}
+
+                        {% if posts.number != 1 %}
+                        <a href="?q={{q}}&page=1;" class="numerosNavegacionTablaGeneral "><span>1</span></a>
+                        {% endif %}
+
+                        {% if posts.has_previous and posts.number != 1 %}
                         <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1410</span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1411</span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>1412</span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1413</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
+                        {% endif %}
+
+                        {% if posts.has_previous and posts.previous_page_number != 1 %}
+                        <a href="?q={{q}}&page={{ posts.previous_page_number }}" class="numerosNavegacionTablaGeneral "><span>{{ posts.previous_page_number }}</span></a>
+                        {% endif %}
+
+                        <a href="?q={{q}}&page={{ posts.number }}" class="numerosNavegacionTablaGeneral current"><span>{{ posts.number }}</span></a>
+
+                        {% if posts.has_next and posts.next_page_number != posts.paginator.num_pages %}
+                        <a href="?q={{q}}&page={{posts.next_page_number}}" class="numerosNavegacionTablaGeneral"><span>{{ posts.next_page_number }}</span></a>
+                        {% endif %}
+
+                        {% if posts.has_next and posts.number != posts.paginator.num_pages %}
+                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
+                        {% endif %}
+
+                        {% if posts.number != posts.paginator.num_pages %}
+                        <a href="?q={{q}}&page={{posts.paginator.num_pages}}" class="numerosNavegacionTablaGeneral"><span>{{ posts.paginator.num_pages }}</span></a>
+                        {% endif %}
+                        
+                        {% if posts.has_next %}
+                        <a href="?q={{q}}&page={{posts.next_page_number}}" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
+                        {% endif %}
+
                      </nav>
                   </div>
+                  {% endif %}
+
                </div>
             </div>
          </div>
@@ -487,7 +360,7 @@
     window.addEventListener("DOMContentLoaded", function () {
       var form = document.getElementById("form_buscar");
 
-      document.getElementById("campoBlancoBusquedaProcesos").addEventListener("click", function () {
+      document.getElementById("botonBusquedaProceso").addEventListener("click", function () {
         form.submit();
       });
     });
