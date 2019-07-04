@@ -91,3 +91,4 @@ function OcultarEspera(selector){
         $(selector+' .espera').hide();
     }
 }
+

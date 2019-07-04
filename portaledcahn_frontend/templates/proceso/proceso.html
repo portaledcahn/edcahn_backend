@@ -11,7 +11,16 @@
       <input type="hidden" value="{{ ocid }}" id="procesoOcid">
    <div class="row">
       <div class="col-md-12">
-         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso pl-2 pr-2" id="tituloProceso"></h1>
+         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion titulo tituloOcultar"  style="display: none">
+            </div>
+         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria titulo tituloOcultar"  style="display: none">
+            </div>
+         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 adjudicacion titulo tituloOcultar"  style="display: none">
+            </div>
+         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 contrato titulo tituloOcultar"  style="display: none">
+            </div>
+         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion titulo tituloOcultar"  style="display: none">
+            </div>
       </div>
    </div>
    <div class="row mt-3 mb-3 contenedorElementosProceso">
@@ -124,4 +133,9 @@
 
 {% block script_content %}
 <script src="{% static 'js/proceso.js' %}"></script>
+<script src="{% static 'js/procesoPlaneacion.js' %}"></script>
+<script src="{% static 'js/procesoConvocatoria.js' %}"></script>
+<script src="{% static 'js/procesoAdjudicacion.js' %}"></script>
+<script src="{% static 'js/procesoContrato.js' %}"></script>
+<script src="{% static 'js/procesoImplementacion.js' %}"></script>
 {% endblock %}
