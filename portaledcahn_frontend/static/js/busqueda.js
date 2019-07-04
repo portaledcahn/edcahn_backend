@@ -28,14 +28,14 @@ $('.opcionFiltroBusquedaPagina').on('click',function(e){
   });
   
   
-  $('.resultadoBusquedaProceso').on('click',function(e){
-    window.location.href="proceso.html";
-  });
-  tippy('#informacionTipoDatos', {
-    arrow: true,
-    arrowType: 'round',
-    content:'¿Que son estos tipos de datos?'
-  });
+  // $('.resultadoBusquedaProcesoASD').on('click',function(e){
+  //   window.location.href="proceso.html";
+  // });
+  // tippy('#informacionTipoDatos', {
+  //   arrow: true,
+  //   arrowType: 'round',
+  //   content:'¿Que son estos tipos de datos?'
+  // });
   
   $(function () {
     view = new ElasticList({
