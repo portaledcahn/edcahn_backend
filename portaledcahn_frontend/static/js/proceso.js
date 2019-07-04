@@ -1,10 +1,11 @@
 /*OCID del proceso de contratacion*/
 var procesoOcid='';
-procesoOcid=$('#procesoOcid').val()
 var procesoRecord={};
+
 
 /*Onload de la Página*/
 $(function(){
+    procesoOcid=$('#procesoOcid').val();
     /*Añadir evento click a los pasos del proceso de contratación para mostrar el div de su contenido*/
     $('.botonPasoProceso').on('click',function(evento){
       if(!$(evento.currentTarget).hasClass('deshabilitado')){
@@ -12,7 +13,9 @@ $(function(){
         $(evento.currentTarget).addClass('activo');
 
         $('.pasoOcultar').hide();
+        $('.tituloOcultar').hide();
         var estado=$(evento.currentTarget).attr('estado');
+        $('.'+estado+'.titulo').show();
         var panel=ObtenerPrimeraPropiedad(estado);
         if(panel){
           $('.botonPropiedadProceso').removeClass('activo');
@@ -93,7 +96,9 @@ function MostrarPrimerProceso(){
     $(pasos[0]).addClass('activo');
 
     $('.pasoOcultar').hide();
+    $('.tituloOcultar').hide();
     var estado=$(pasos[0]).attr('estado');
+    $('.'+estado+'.titulo').show();
     var panel=ObtenerPrimeraPropiedad(estado);
     if(panel){
       $('.botonPropiedadProceso').removeClass('activo');
@@ -118,6 +123,7 @@ function ObtenerProceso(){
       DefinirElementosConvocatoria();
       DefinirElementosAdjudicacion();
       DefinirElementosContrato();
+      //DefinirElementosImplementacion();
       DeshabilitarItems();
       MostrarPrimerProceso();
       OcultarEspera('body .tamanoMinimo');
@@ -174,170 +180,7 @@ function ObtenerPrimeraPropiedad(paso){
         return '';
       }
 }
-function DefinirElementosConvocatoria(){
-  if(procesoRecord.compiledRelease){
-    if(procesoRecord.compiledRelease.tender){
-      if(procesoRecord.compiledRelease.tender.title){
-        $('#tituloProceso').text(procesoRecord.compiledRelease.tender.title);
-      }
-      $('.convocatoria.informacion').append(
-        $('<div>',{class:'row'}).append(
-          $('<h4>',{class:'col-6 col-sm-6 col-md-6 titularCajonSombreado',text:'Datos de la Convocatoria'}),
-          $('<div>',{class:'col-6 col-sm-6 col-md-6 textoAlineadoDerecha'}).append(
-            $('<h4>',{class:'descargaIconos enLinea'}).append(
-              $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<i>',{class:'fas fa-file-download'}),
-                '&nbsp;.JSON'
-              ),
-              $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<i>',{class:'fas fa-file-download'}),
-                '&nbsp;.CSV'
-              )
-            ),
-            $('<h4>',{class:'enLinea mb-0 enLinea alineadoArriba'}).append(
-              $('<a>',{href:'/preguntas'}).append(
-                $('<div>',{class:'textoAlineadoCentrado cursorMano botonAyuda transicion', id:'informacionTipoDatos'}).append(
-                
-                  $('<i>',{class:'fas fa-question'})
-                
-              )
-              )
-              
-            )
-          )
-        ),
-        
-        $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos'}).append(
-          $('<div>',{class:'contenedorProceso informacionProceso'}).append(
-            $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-              $('<table>').append(
-                $('<tbody>').append(
-                  procesoRecord.compiledRelease.buyer&&procesoRecord.compiledRelease.buyer.name ? 
-                  ObtenerCompradores(procesoRecord.compiledRelease.parties,procesoRecord.compiledRelease.buyer) : null
-                  ,
-                  procesoRecord.compiledRelease.tender.status ? $('<tr>').append(
-                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Estado'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:TraduceTexto(procesoRecord.compiledRelease.tender.status)})
-                  ) : null
-                  ,
-                  /*Consultas*/
-                  procesoRecord.compiledRelease.tender.enquiryPeriod ? ([
-                    procesoRecord.compiledRelease.tender.enquiryPeriod.startDate ? 
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Inicio de Consultas'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.enquiryPeriod.startDate)})
-                    ) : null,
-                    procesoRecord.compiledRelease.tender.enquiryPeriod.endDate ?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Finalización de Consultas'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.enquiryPeriod.endDate)})
-                    ) : null
-                  ]
-                  ) : null
-                  ,/*Licitación*/
-                  procesoRecord.compiledRelease.tender.tenderPeriod ? ([
-                    procesoRecord.compiledRelease.tender.tenderPeriod.startDate ? 
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Inicio de Recepción de Ofertas'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.tenderPeriod.startDate)})
-                    ) : null,
-                    procesoRecord.compiledRelease.tender.tenderPeriod.endDate ?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Finalización de Recepción de Ofertas'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.tenderPeriod.endDate)})
-                    ) : null
-                  ]
-                  ) : null
-                  ,
-                  procesoRecord.compiledRelease.tender.procurementMethodDetails ?
-                  $('<tr>').append(
-                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Método de Contratación'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.compiledRelease.tender.procurementMethodDetails})
-                  ) : null,
-                  $('<tr>').append(
-                    $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proceso (OCID):'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.ocid})
-                  )
-                  )
-                  )
-            ),
-            (procesoRecord.compiledRelease.tender.value&&procesoRecord.compiledRelease.tender.value.amount?
-              $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-                $('<table>',{class:'tablaAncho'}).append(
-                  $('<tbody>').append(
-                    $('<tr>').append(
-                      $('<td>',{class:'textoAlineadoDerecha'}).append(
-                        $('<div>',{
-                          class:'montoTotalProceso pr-3'
-                        }).append(
-                          $('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),
-                          $('<div>',{class:'contenedorMonto procesoMonto'}).append(
-                            $('<div>',{class:'textoColorGris',text:'Monto'}),
-                            $('<div>',{class:'valorMonto'}).append(
-                              ValorMoneda(procesoRecord.compiledRelease.tender.value.amount),
-                              $('<span>',{class:'textoColorPrimario',text:procesoRecord.compiledRelease.tender.value.currency})
-                            )
-  
-                            
-                          )
-                        )
-                      )
-                    )
-                    )
-                    )
-              ):null)
-          )
-        ),
-        procesoRecord.compiledRelease.parties ? 
-        $('<div>',{class:'row mb-5 mt-5'}).append(
-          ObtenerDatosContacto(procesoRecord.compiledRelease.parties,'buyer',['Unidad Ejecutora:','Comprador'])
-        ) : null
-      );
-      if(procesoRecord.compiledRelease.tender.items&&procesoRecord.compiledRelease.tender.items.length){
-        $('.convocatoria.solicitados').append(
-          $('<div>', {class:' cajonSombreado '}).append(
-            $('<table>',{class:'tablaGeneral'}).append(
-              $('<thead>').append(
-                $('<tr>').append(
-                  $('<th>',{text:'Id'}),
-                  $('<th>',{text:'Clasificación'}),
-                  $('<th>',{text:'Descripción'}),
-                  /*$('<th>',{text:'Especificaciones'}),*/
-                  $('<th>',{text:'Cantidad'}),
-                  $('<th>',{text:'Precio'}),
-                  $('<th>',{text:'Unidad'})
-                )
-              ),
-              $('<tbody>').append(
-                ObtenerItems(procesoRecord.compiledRelease.tender.items)
-              )
-            )
-          )
-        )
-      }
-      if(procesoRecord.compiledRelease.tender.documents&&procesoRecord.compiledRelease.tender.documents.length){
-        $('.convocatoria.documentos').append(
-          $('<div>', {class:' cajonSombreado '}).append(
-            $('<table>',{class:'tablaGeneral'}).append(
-              $('<thead>').append(
-                $('<tr>').append(
-                  $('<th>',{text:'Nombre'}),
-                  $('<th>',{text:'Descripción'}),
-                  $('<th>',{text:'Tipo'}),
-                  $('<th>',{text:'Fecha'}),
-                  $('<th>',{text:''})
-                )
-              ),
-              $('<tbody>').append(
-                ObtenerDocumentos(procesoRecord.compiledRelease.tender.documents)
-              )
-            )
-          )
-        )
-      }
-    }
-  }
-}
+
 function ObtenerItems(items){
   var elementos=[];
   for(var i=0;i<items.length;i++){
@@ -380,7 +223,6 @@ function ObtenerCompradores(partes,comprador){
 function ObtenerDatosContacto(partes,tipo,nombres){
   var elementos=[]
   for(i=0;i<partes.length;i++){
-    
     if(partes[i].roles&&partes[i].roles.includes(tipo)){
       elementos.push(
         $('<div>',{class:'col-md-6'}).append(
@@ -457,141 +299,115 @@ function ObtenerDatosContacto(partes,tipo,nombres){
   return elementos;
 }
 
-function DefinirElementosPlaneacion(){
-  if(procesoRecord.compiledRelease){
-    if(procesoRecord.compiledRelease.planning){
-      $('.planificacion.informacion').append(
-        $('<div>',{class:'row'}).append(
-          $('<h4>',{class:'col-6 col-sm-6 col-md-6 titularCajonSombreado',text:'Datos de la Planificación'}),
-          $('<div>',{class:'col-6 col-sm-6 col-md-6 textoAlineadoDerecha'}).append(
-            $('<h4>',{class:'descargaIconos enLinea'}).append(
-              $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<i>',{class:'fas fa-file-download'}),
-                '&nbsp;.JSON'
-              ),
-              $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<i>',{class:'fas fa-file-download'}),
-                '&nbsp;.CSV'
-              )
-            ),
-            $('<h4>',{class:'enLinea mb-0 enLinea alineadoArriba'}).append(
-              $('<a>',{href:'/preguntas'}).append(
-                $('<div>',{class:'textoAlineadoCentrado cursorMano botonAyuda transicion', id:'informacionTipoDatos'}).append(
-                
-                  $('<i>',{class:'fas fa-question'})
-                
-              )
-              )
-              
-            )
-          )
-        ),
-        
-        $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos'}).append(
+
+function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
+  var elementos=[]
+  for(var i=0;i<desglosePresupuesto.length;i++){
+    if(desglosePresupuesto[i].classifications){
+      elementos.push(
+        $('<div>', {class:' cajonSombreado contenedorDetalleProcesoDatos mt-1'}).append(
           $('<div>',{class:'contenedorProceso informacionProceso'}).append(
             $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
               $('<table>').append(
                 $('<tbody>').append(
-                  (procesoRecord.compiledRelease.planning&&procesoRecord.compiledRelease.planning.budget&&procesoRecord.compiledRelease.planning.budget.budgetBreakdown ? 
-                  ObtenerProporcionadoresFondos(procesoRecord.compiledRelease.planning.budget.budgetBreakdown) : null)
-                  ,
-                  /*Consultas*/
-                  procesoRecord.compiledRelease.tender.enquiryPeriod ? ([
-                    procesoRecord.compiledRelease.tender.enquiryPeriod.startDate ? 
+                  (desglosePresupuesto[i].classifications.actividadObra?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Inicio de Consultas'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.enquiryPeriod.startDate)})
-                    ) : null,
-                    procesoRecord.compiledRelease.tender.enquiryPeriod.endDate ?
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Actividad Obra:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.actividadObra})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.fuente?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Finalización de Consultas'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.enquiryPeriod.endDate)})
-                    ) : null
-                  ]
-                  ) : null
-                  ,
-                  $('<tr>').append(
-                    $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proceso (OCID):'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.ocid})
-                  )
-                  )
-                  )
-            ),
-            (procesoRecord.compiledRelease.planning.value&&procesoRecord.compiledRelease.planning.value.amount?
-              $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-                $('<table>',{class:'tablaAncho'}).append(
-                  $('<tbody>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.fuente})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.ga?
                     $('<tr>').append(
-                      $('<td>',{class:'textoAlineadoDerecha'}).append(
-                        $('<div>',{
-                          class:'montoTotalProceso pr-3'
-                        }).append(
-                          $('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),
-                          $('<div>',{class:'contenedorMonto procesoMonto'}).append(
-                            $('<div>',{class:'textoColorGris',text:'Monto'}),
-                            $('<div>',{class:'valorMonto'}).append(
-                              ValorMoneda(procesoRecord.compiledRelease.planning.value.amount),
-                              $('<span>',{class:'textoColorPrimario',text:procesoRecord.compiledRelease.planning.value.currency})
-                            )
-  
-                            
-                          )
-                        )
-                      )
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Gerencia Administrativa:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ga})
                     )
+                    :null),
+                  (desglosePresupuesto[i].classifications.gestion?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Periodo de Gestión:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.gestion})
                     )
+                    :null),
+                  (desglosePresupuesto[i].classifications.institucion?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Institución:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.institucion})
                     )
-              ):null)
-          )
-        )
-      );
-      if(procesoRecord.compiledRelease.tender.items&&procesoRecord.compiledRelease.tender.items.length){
-        $('.planificacion.solicitados').append(
-          $('<div>', {class:' cajonSombreado '}).append(
-            $('<table>',{class:'tablaGeneral'}).append(
-              $('<thead>').append(
-                $('<tr>').append(
-                  $('<th>',{text:'Id'}),
-                  $('<th>',{text:'Clasificación'}),
-                  $('<th>',{text:'Descripción'}),
-                  $('<th>',{text:'Cantidad'}),
-                  $('<th>',{text:'Precio'}),
-                  $('<th>',{text:'Unidad'})
+                    :null),
+                  (desglosePresupuesto[i].classifications.objeto?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Objeto:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.objeto})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.organismo?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Organismo:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.organismo})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.programa?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Programa:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.programa})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.proyecto?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Proyecto:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.proyecto})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.subPrograma?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Sub Programa:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.subPrograma})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.trfBeneficiario?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Transferencia al Beneficiario:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.trfBeneficiario})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.ue?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Unidad Ejecutora:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ue})
+                    )
+                    :null)
                 )
-              ),
-              $('<tbody>').append(
-                ObtenerItems(procesoRecord.compiledRelease.tender.items)
               )
             )
           )
         )
-      }
-
-      if(procesoRecord.compiledRelease.planning.documents&&procesoRecord.compiledRelease.planning.documents.length){
-        $('.planificacion.documentos').append(
-          $('<div>', {class:' cajonSombreado '}).append(
-            $('<table>',{class:'tablaGeneral'}).append(
-              $('<thead>').append(
-                $('<tr>').append(
-                  $('<th>',{text:'Nombre'}),
-                  $('<th>',{text:'Descripción'}),
-                  $('<th>',{text:'Tipo'}),
-                  $('<th>',{text:'Fecha'}),
-                  $('<th>',{text:''})
+      )
+    }else{
+      elementos.push(
+        $('<div>', {class:' cajonSombreado contenedorDetalleProcesoDatos mt-2'}).append(
+          $('<div>',{class:'contenedorProceso informacionProceso'}).append(
+            $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+              $('<table>').append(
+                $('<tbody>').append(
+                  ObtenerProporcionadoresFondos(desglosePresupuesto)
                 )
-              ),
-              $('<tbody>').append(
-                ObtenerDocumentos(procesoRecord.compiledRelease.planning.documents)
               )
             )
           )
         )
-      }
+      )
+      
     }
   }
+  return elementos;
 }
 
-/*Planning*/
 function ObtenerProporcionadoresFondos(fondos){
   var elementos=[]
   for(i=0;i<fondos.length;i++){
@@ -602,330 +418,19 @@ function ObtenerProporcionadoresFondos(fondos){
         $('<td>',{class:'contenidoTablaCaracteristicas',text:fondos[i].description})
       )
       )
-      if(fondos[i].sourceParty&&fondos[i].sourceParty.name){
-        elementos.push(
-          $('<tr>').append(
-          $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente del Presupuesto'}),
-          $('<td>',{class:'contenidoTablaCaracteristicas',text:fondos[i].sourceParty.name})
-        )
-        )
-      }
-      
     }
-  }
-  return elementos;
-}
-
-function DefinirElementosAdjudicacion(){
-  if(procesoRecord.compiledRelease){
-    if(procesoRecord.compiledRelease.awards&&procesoRecord.compiledRelease.awards.length){
-      $('.adjudicacion.informacion').append(
-        $('<div>',{class:'row'}).append(
-          $('<h4>',{class:'col-6 col-sm-6 col-md-6 titularCajonSombreado',text:'Datos de la Adjudicación'}),
-          $('<div>',{class:'col-6 col-sm-6 col-md-6 textoAlineadoDerecha'}).append(
-            $('<h4>',{class:'descargaIconos enLinea'}).append(
-              $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<i>',{class:'fas fa-file-download'}),
-                '&nbsp;.JSON'
-              ),
-              $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<i>',{class:'fas fa-file-download'}),
-                '&nbsp;.CSV'
-              )
-            ),
-            $('<h4>',{class:'enLinea mb-0 enLinea alineadoArriba'}).append(
-              $('<a>',{href:'/preguntas'}).append(
-                $('<div>',{class:'textoAlineadoCentrado cursorMano botonAyuda transicion', id:'informacionTipoDatos'}).append(
-                
-                  $('<i>',{class:'fas fa-question'})
-                
-                )
-              )
-              
-            )
-          )
-        ),
-        AdjuntarInformacionAdjudicacion(procesoRecord.compiledRelease.awards),
-        
-      );
-      
-    }
-  }
-}
-function AdjuntarInformacionAdjudicacion(adjudicaciones){
-  var elementos=[];
-  for(var i=0;i<adjudicaciones.length;i++){
-    elementos.push(
-      $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos'}).append(
-        $('<div>',{class:'contenedorProceso informacionProceso'}).append(
-          $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-            $('<table>').append(
-              $('<tbody>').append(
-                (adjudicaciones[i].suppliers&&adjudicaciones[i].suppliers.length ? 
-                  ObtenerProveedoresAdjudicados(adjudicaciones[i].suppliers) : null)
-                ,
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proceso (OCID):'}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.ocid})
-                )
-                )
-                )
-          )
-        )
-      ),
-      (adjudicaciones[i].value&&adjudicaciones[i].value.amount?
-        $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-          $('<table>',{class:'tablaAncho'}).append(
-            $('<tbody>').append(
-              $('<tr>').append(
-                $('<td>',{class:'textoAlineadoDerecha'}).append(
-                  $('<div>',{
-                    class:'montoTotalProceso pr-3'
-                  }).append(
-                    $('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),
-                    $('<div>',{class:'contenedorMonto procesoMonto'}).append(
-                      $('<div>',{class:'textoColorGris',text:'Monto'}),
-                      $('<div>',{class:'valorMonto'}).append(
-                        ValorMoneda(adjudicaciones[i].value.amount),
-                        $('<span>',{class:'textoColorPrimario',text:adjudicaciones[i].value.currency})
-                      )
-
-                      
-                    )
-                  )
-                )
-              )
-              )
-              )
-        ):null)
-    );
-    if(adjudicaciones[i].items&&adjudicaciones[i].items.length){
-      $('.adjudicacion.solicitados').append(
-        $('<div>', {class:' cajonSombreado '}).append(
-          $('<table>',{class:'tablaGeneral'}).append(
-            $('<thead>').append(
-              $('<tr>').append(
-                $('<th>',{text:'Id'}),
-                $('<th>',{text:'Clasificación'}),
-                $('<th>',{text:'Descripción'}),
-                /*$('<th>',{text:'Especificaciones'}),*/
-                $('<th>',{text:'Cantidad'}),
-                $('<th>',{text:'Precio'}),
-                $('<th>',{text:'Unidad'})
-              )
-            ),
-            $('<tbody>').append(
-              ObtenerItems(adjudicaciones[i].items)
-            )
-          )
-        )
-      )
-    }
-    if(adjudicaciones[i].documents&&adjudicaciones[i].documents.length){
-      $('.adjudicacion.documentos').append(
-        $('<div>', {class:' cajonSombreado '}).append(
-          $('<table>',{class:'tablaGeneral'}).append(
-            $('<thead>').append(
-              $('<tr>').append(
-                $('<th>',{text:'Nombre'}),
-                $('<th>',{text:'Descripción'}),
-                $('<th>',{text:'Tipo'}),
-                $('<th>',{text:'Fecha'}),
-                $('<th>',{text:''})
-              )
-            ),
-            $('<tbody>').append(
-              ObtenerDocumentos(adjudicaciones[i].documents)
-            )
-          )
-        )
-      )
-    }
-  }
-  return elementos;
-}
-
-function ObtenerProveedoresAdjudicados(proveedores){
-  var elementos=[]
-  for(i=0;i<proveedores.length;i++){
-    if(proveedores[i].name){
+    if(fondos[i].sourceParty&&fondos[i].sourceParty.name){
       elementos.push(
         $('<tr>').append(
-        $('<td>',{class:'tituloTablaCaracteristicas',text:'Proveedor Adjudicado'}),
-        $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-          $('<a>',{text:proveedores[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+proveedores[i].id})
-        )
+        $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente del Presupuesto'}),
+        $('<td>',{class:'contenidoTablaCaracteristicas',text:fondos[i].sourceParty.name})
       )
-      )
-      
-    }
-  }
-  return elementos;
-}
-
-function DefinirElementosContrato(){
-  if(procesoRecord.compiledRelease){
-    if(procesoRecord.compiledRelease.contracts&&procesoRecord.compiledRelease.contracts.length){
-      $('.contrato.informacion').append(
-        $('<div>',{class:'row'}).append(
-          $('<h4>',{class:'col-6 col-sm-6 col-md-6 titularCajonSombreado',text:'Datos del Contrato'}),
-          $('<div>',{class:'col-6 col-sm-6 col-md-6 textoAlineadoDerecha'}).append(
-            $('<h4>',{class:'descargaIconos enLinea'}).append(
-              $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<i>',{class:'fas fa-file-download'}),
-                '&nbsp;.JSON'
-              ),
-              $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<i>',{class:'fas fa-file-download'}),
-                '&nbsp;.CSV'
-              )
-            ),
-            $('<h4>',{class:'enLinea mb-0 enLinea alineadoArriba'}).append(
-              $('<a>',{href:'/preguntas'}).append(
-                $('<div>',{class:'textoAlineadoCentrado cursorMano botonAyuda transicion', id:'informacionTipoDatos'}).append(
-                
-                  $('<i>',{class:'fas fa-question'})
-                
-                )
-              )
-              
-            )
-          )
-        ),
-        AdjuntarInformacionContrato(procesoRecord.compiledRelease.contracts),
-        
-      );
-      
-    }
-  }
-}
-
-function AdjuntarInformacionContrato(contratos){
-  var elementos=[];
-  for(var i=0;i<contratos.length;i++){
-    elementos.push(
-      $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos'}).append(
-        $('<div>',{class:'contenedorProceso informacionProceso'}).append(
-          $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-            $('<table>').append(
-              $('<tbody>').append(
-                (contratos[i].buyer&&contratos[i].buyer.name ? 
-                  $('<tr>').append(
-                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Comprador'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                      $('<a>',{text:contratos[i].buyer.name,class:'enlaceTablaGeneral',href:'/comprador/'+contratos[i].buyer.id})
-                    )
-                  ) : null),
-                (contratos[i].suppliers&&contratos[i].suppliers.length ? 
-                  ObtenerProveedoresContratos(contratos[i].suppliers) : null)
-                ,
-                (contratos[i].dateSigned ? 
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Firma'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(contratos[i].dateSigned)})
-                    ) : null),
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proceso (OCID):'}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.ocid})
-                )
-                )
-                )
-          ),
-          (contratos[i].value&&contratos[i].value.amount?
-            $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-              $('<table>',{class:'tablaAncho'}).append(
-                $('<tbody>').append(
-                  $('<tr>').append(
-                    $('<td>',{class:'textoAlineadoDerecha'}).append(
-                      $('<div>',{
-                        class:'montoTotalProceso pr-3'
-                      }).append(
-                        $('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),
-                        $('<div>',{class:'contenedorMonto procesoMonto'}).append(
-                          $('<div>',{class:'textoColorGris',text:'Monto'}),
-                          $('<div>',{class:'valorMonto'}).append(
-                            ValorMoneda(contratos[i].value.amount),
-                            $('<span>',{class:'textoColorPrimario',text:contratos[i].value.currency})
-                          )
-
-                          
-                        )
-                      )
-                    )
-                  )
-                  )
-                  )
-            ):null)
-        )
-      ),
-        (procesoRecord.compiledRelease.parties&&procesoRecord.compiledRelease.contracts[i]&&procesoRecord.compiledRelease.contracts[i].suppliers ? 
-        $('<div>',{class:'row mb-5 mt-5'}).append(
-          ObtenerDatosContacto(procesoRecord.compiledRelease.parties,'supplier',['Unidad de Proveedor:','Proveedor:'])
-        ) : null)
-    );
-    if(contratos[i].items&&contratos[i].items.length){
-      $('.contrato.solicitados').append(
-        $('<div>', {class:' cajonSombreado '}).append(
-          $('<table>',{class:'tablaGeneral'}).append(
-            $('<thead>').append(
-              $('<tr>').append(
-                $('<th>',{text:'Id'}),
-                $('<th>',{text:'Clasificación'}),
-                $('<th>',{text:'Descripción'}),
-                /*$('<th>',{text:'Especificaciones'}),*/
-                $('<th>',{text:'Cantidad'}),
-                $('<th>',{text:'Precio'}),
-                $('<th>',{text:'Unidad'})
-              )
-            ),
-            $('<tbody>').append(
-              ObtenerItems(contratos[i].items)
-            )
-          )
-        )
-      )
-    }
-    if(contratos[i].documents&&contratos[i].documents.length){
-      $('.contrato.documentos').append(
-        $('<div>', {class:' cajonSombreado '}).append(
-          $('<table>',{class:'tablaGeneral'}).append(
-            $('<thead>').append(
-              $('<tr>').append(
-                $('<th>',{text:'Nombre'}),
-                $('<th>',{text:'Descripción'}),
-                $('<th>',{text:'Tipo'}),
-                $('<th>',{text:'Fecha'}),
-                $('<th>',{text:''})
-              )
-            ),
-            $('<tbody>').append(
-              ObtenerDocumentos(contratos[i].documents)
-            )
-          )
-        )
       )
     }
   }
   return elementos;
 }
 
-function ObtenerProveedoresContratos(proveedores){
-  var elementos=[]
-  for(i=0;i<proveedores.length;i++){
-    if(proveedores[i].name){
-      elementos.push(
-        $('<tr>').append(
-        $('<td>',{class:'tituloTablaCaracteristicas',text:'Contrato de Proveedor'}),
-        $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-          $('<a>',{text:proveedores[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+proveedores[i].id})
-        )
-      )
-      );
-      
-    }
-  }
-  return elementos;
-}
 
 function ObtenerDocumentos(documentos){
   var elementos=[];

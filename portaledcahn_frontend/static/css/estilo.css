@@ -36,8 +36,17 @@ body{
 .textoColorPrimario{
 	color: #3B53A4;
 }
+.textoColorPeligro{
+	color:#ff3133;
+}
+.textoColorAdvertencia{
+	color:#F89101;
+}
 .textoColorGris{
 	color:#c4c4c4;
+}
+.textoColorGrisNormal{
+	color:gray;
 }
 .fondoColorGris{
 	background:#c4c4c4;
@@ -441,6 +450,8 @@ body{
 .contenedorTablaCaracteristicas table .tituloTablaCaracteristicas{
 	color:#3B53A4;
 	vertical-align: top;
+	font-family: 'poppins';
+    font-weight: 500;
 }
 .contenedorTablaCaracteristicas table .contenidoTablaCaracteristicas{
 	padding-left: 20px;
@@ -635,7 +646,7 @@ button.botonBlancoFiltroBusqueda:hover + .preContenedorFiltroBusqueda,button.bot
 	border-bottom: solid 5px #B3B3B3;
 }
 .tituloDetalleProceso{
-	font-size: 30px;
+	font-size: 25px;
 	font-family: 'poppins';
     font-weight: 700;
 }
@@ -1783,6 +1794,11 @@ vertical-align: top;
 	color: gray;
 	font-size: 20px;
 }
+.titularColor{
+	font-family: 'poppins';
+    font-weight: 700;
+	font-size: 20px;
+}
 .espera{
 	position:absolute;
 	width:100%;
@@ -1800,4 +1816,10 @@ vertical-align: top;
 	display:block;
 	margin-top:calc(40vh - 50px);
 
+}
+.fuente18{
+	font-size: 18px;
+}
+.contenedorTablaCaracteristicas td{
+	padding-bottom:5px;
 }
