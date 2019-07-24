@@ -813,10 +813,10 @@ table.tablaGeneral th {
  }
 	.tituloTablaGeneral{
  }
- .tablaGeneral.mostrarEncabezados thead th{
+ .tablaGeneral.mostrarEncabezados > thead > th{
 	display: block;
 	}
-	table.tablaGeneral.mostrarEncabezados thead{
+	table.tablaGeneral.mostrarEncabezados > thead{
 		position: static;
 	}
 }
