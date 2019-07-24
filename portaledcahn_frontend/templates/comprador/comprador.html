@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+
+{% block head_content %}
+<title>Portal de Contrataciones Abiertas de Honduras - Comprador</title>
+{% endblock %}
+
+{% load static %}
+
+{% block head_style %}
+<link rel="stylesheet" href="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.css' %}" >
+{% endblock %}
+
+{% block container %}
+<div class="container-fluid" style="max-width: 1600px">
+   <div class="row mt-5">
+      <div class="col-md-12">
+         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Alcaldía Municipal de Danli</h1>
+      </div>
+   </div>
+   <div class="row ">
+      <div class="col-md-6">
+            <h4 class="text-primary-edcax titularCajonSombreado">
+                  Dirección del Comprador
+               </h4>
+         <div class=" cajonSombreado contenedorDetalleProcesoDatos">
+            <div class="contenedorProceso informacionProceso">
+               <div class="contenedorTablaCaracteristicas" style="width:100%">
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Localidad:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              DANLI
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Región:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              El Paraiso
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="tituloTablaCaracteristicas">Dirección:</td>
+                           <td class="contenidoTablaCaracteristicas"> 
+                              Danli, El Paraiso
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+      
+      <div class="col-md-6">
+            <h4 class="text-primary-edcax titularCajonSombreado">Datos de Contacto</h4>
+            <div class=" cajonSombreado ">
+               <div class="contenedorProceso informacionProceso">
+                  <div class="contenedorTablaCaracteristicas">
+                     <table>
+                        <tbody>
+                           <tr>
+                              <td class="tituloTablaCaracteristicas">Nombre:</td>
+                              <td class="contenidoTablaCaracteristicas"> 
+                                 LUZ VICTORIA OLIVA LOVO
+                              </td>
+                           </tr>
+                           <tr>
+                              <td class="tituloTablaCaracteristicas">Telefono:</td>
+                              <td class="contenidoTablaCaracteristicas"> 
+                                 763-2405
+                              </td>
+                           </tr>
+                           <tr>
+                              <td class="tituloTablaCaracteristicas">Correo Electrónico:</td>
+                              <td class="contenidoTablaCaracteristicas"> 
+                                 mesadeayuda@honducompras.gob.hn
+                              </td>
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+   </div>
+</div>
+
+<div class="container-fluid mt-3" style="max-width: 1600px">
+      
+      <div class="row">
+
+         <div class="col-md-12">
+            <div class=" cajonSombreado ">
+
+                  <div class="row">
+                        <div class="col-md-12 mt-2">
+                           <!--<h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Procesos de Contratación</h1>-->
+                           <h4 class="text-primary-edcax titularCajonSombreado">Procesos de Contratación</h4>
+                        </div>
+                     </div>
+                     <div class="row mt-1 mb-3 ">
+                        <div class="col-lg-6">
+                           <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
+                              <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un proceso de Contratación...">
+                              <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
+                           </div>
+                        </div>
+                        <div class="col-lg-6 textoAlineadoDerecha">
+                           <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">Mostrar&nbsp;</h5>
+                           <select name="" id="" class="campoSeleccion ancho70 mt-3 enLinea">
+                              <option value="5">5</option>
+                              <option value="10">10</option>
+                              <option value="20">20</option>
+                           </select>
+                           <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
+                     </div>
+                     </div>
+               <table class="tablaGeneral">
+                  <thead>
+                     <tr> 
+                        <th class="textoAlineadoCentrado">
+                              <span>Dependencia</span>
+                              <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                              </th>
+                              <th class="textoAlineadoCentrado">
+                                    <span>ID del Proceso</span>
+                                    <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                        <th class="textoAlineadoCentrado">
+                           <span>Titulo del Proceso</span>
+                           <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                        </th>
+
+                           <th class="textoAlineadoCentrado">
+                                 <span>Categoría de Compra</span>
+                                 <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                              </th>
+                              <th class="textoAlineadoCentrado">
+                                    <span>Monto Estimado</span>
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+
+                              <th class="textoAlineadoCentrado">
+                                    <span>Fecha de Publicación de la licitación</span>
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                              <th class="textoAlineadoCentrado">
+                                    <span>Fecha de recepción de ofertas</span>
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                              <th class="textoAlineadoCentrado">
+                                    <span>Estado</span>
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                              <th class="textoAlineadoCentrado">
+                                    <span>Monto Adjudicado</span>
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                              <th class="textoAlineadoCentrado">
+                                    <span>Monto Contratado</span>
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                        
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr>
+
+                        <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
+                        <td data-label="ID Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                        <td data-label="Titulo del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                        <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
+                        <td data-label="Monto Estimado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                        <td data-label="Fecha de Publicación de la licitación">2018-02-19 10:02:54</td>
+                        <td data-label="Fecha de recepción de ofertas">2018-02-19 10:02:54</td>
+                        <td data-label="Estado">Contratado</td>
+                        <td data-label="Monto Adjudicado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                        <td data-label="Monto Contratado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                     </tr>
+                  </tbody>
+               </table>
+
+               <div class="row">
+                     <div class="col-md-6">
+                           <h5 class="tituloTablaGeneral textoColorPrimario mt-3 mb-0" >Mostrando 0 a 4 de 4 Procesos de Contratación</h5>
+                        </div>
+                        <div class="col-md-6 textoAlineadoCentrado">
+                              <nav class="navegacionTablaGeneral">
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>10</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>11</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>12</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>13</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
+                              </nav>
+                           </div>
+               </div>
+               
+               <!--cajon-->
+
+
+            </div>
+         </div>
+       
+         <div class="col-md-12 textoAlineadoDerecha">
+            <h4 class="textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba" style="margin-top:18px">
+                  <span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span>
+                  <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span>
+                  <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span>
+               </h4>
+               <h4 class="enLinea mb-0 mt-3 enLinea alineadoArriba" onclick="location.href='/preguntas'">
+                  <div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos">
+                        <i class="fas fa-question" ></i>
+                     </div>
+                     
+               </h4>
+         
+      </div>
+         
+      </div>
+   </div>
+
+   <div class="container-fluid" style="max-width: 1600px">
+         
+         <div class="row">
+            <div class="col-md-12">
+               <div class=" cajonSombreado ">
+                     <div class="row">
+                           <div class="col-md-12 mt-2">
+                              <h4 class="text-primary-edcax titularCajonSombreado">Contratos del Comprador</h4>
+                           </div>
+                        </div>
+                        <div class="row mt-1 mb-3 ">
+                           <div class="col-lg-6">
+                              <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
+                                 <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un contrato...">
+                                 <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
+                              </div>
+                           </div>
+                           <div class="col-lg-6 textoAlineadoDerecha">
+                              <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">Mostrar&nbsp;</h5>
+                              <select name="" id="" class="campoSeleccion ancho70 mt-3 enLinea">
+                                 <option value="5">5</option>
+                                 <option value="10">10</option>
+                                 <option value="20">20</option>
+                              </select>
+                              <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
+                        </div>
+                        </div>
+                  <table class="tablaGeneral">
+                     <thead>
+                        <tr> 
+                           <th class="textoAlineadoCentrado">
+                                 <span>Dependencia</span>
+                                 <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <span>Proveedor</span>
+                                       <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       </th>
+                           <th class="textoAlineadoCentrado">
+                              <span>Titulo</span>
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Buscar">
+                           </th>
+   
+                              <th class="textoAlineadoCentrado">
+                                    <span>Descripción</span>
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <span>Nombre del Proceso</span>
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+   
+                                 <th class="textoAlineadoCentrado">
+                                       <span>Categoría de Compra</span>
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <span>Monto del Contrato</span>
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <span>Fecha del Contrato</span>
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <span>Estado</span>
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                           
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr>
+                           <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
+                           <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                           <td data-label="Titulo">Lorem ipsum dolor sit amet consect </td>
+                           <td data-label="Descripción">Lorem ipsum dolor sit amet consect</td>
+                           <td data-label="Nombre del Proceso">Lorem ipsum dolor sit amet consect</td>
+                           <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
+                           <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                           <td data-label="Fecha del Contrato">2018-02-19 10:02:54</td>
+                           <td data-label="Estado">Firmado</td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <div class="row">
+                        <div class="col-md-6">
+                              <h5 class="tituloTablaGeneral textoColorPrimario mt-3 mb-0" >Mostrando 0 a 4 de 4 Contratos</h5>
+                           </div>
+      
+                           <div class="col-md-6 textoAlineadoCentrado">
+                                 <nav class="navegacionTablaGeneral">
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>10</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>11</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>12</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>13</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
+                                 </nav>
+                              </div>
+                  </div>
+               </div>
+            </div>
+          
+            
+            <div class="col-md-12 textoAlineadoDerecha">
+               <h4 class="textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba" style="margin-top:18px">
+                     <span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span>
+                     <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span>
+                     <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span>
+                  </h4>
+                  <h4 class="enLinea mb-0 mt-3 enLinea alineadoArriba" onclick="location.href='/preguntas'">
+                     <div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos">
+                           <i class="fas fa-question" ></i>
+                        </div>
+                        
+                  </h4>
+            
+         </div>
+            
+         </div>
+      </div>
+
+      <div class="container-fluid" style="max-width: 1600px">
+         
+            <div class="row">
+               <div class="col-md-12">
+                  <div class=" cajonSombreado ">
+                        <div class="row">
+                              <div class="col-md-12 mt-2">
+                                 <!--<h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Procesos de Contratación</h1>-->
+                                 <h4 class="text-primary-edcax titularCajonSombreado">Procesos de Pago del Comprador</h4>
+                              </div>
+                           </div>
+                           <div class="row mt-1 mb-3 ">
+                              <div class="col-lg-6">
+                                 <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
+                                    <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un proceso de pago...">
+                                    <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
+                                 </div>
+                              </div>
+                              <div class="col-lg-6 textoAlineadoDerecha">
+                                 <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">Mostrar&nbsp;</h5>
+                                 <select name="" id="" class="campoSeleccion ancho70 mt-3 enLinea">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                 </select>
+                                 <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
+                           </div>
+                           </div>
+                     <table class="tablaGeneral">
+                        <thead>
+                           <tr> 
+                              <th class="textoAlineadoCentrado">
+                                    <span>Dependencia</span>
+                                    <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                                    <th class="textoAlineadoCentrado">
+                                          <span>Proveedor</span>
+                                          <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                          </th>
+                              <th class="textoAlineadoCentrado">
+                                 <span>Titulo del contrato</span>
+                                 <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                              </th>
+      
+                                 <th class="textoAlineadoCentrado">
+                                       <span>Monto del contrato</span>
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                                    <th class="textoAlineadoCentrado">
+                                          <span>Suma de todos los pagos</span>
+                                          <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       </th>
+      
+                                    <th class="textoAlineadoCentrado">
+                                          <span>Estado</span>
+                                          <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       </th>
+                                    <th class="textoAlineadoCentrado">
+                                          <span>Fecha del ultimo pago</span>
+                                          <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       </th>
+                              
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr>
+                                 <td data-label="Dependencia"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                              <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Larach</a> </td>
+                              <td data-label="Titulo del Contrato">Lorem ipsum dolor sit amet consect</td>
+                              <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Suma de todos los pagos">1,900,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Estado">Compromiso</td>
+                              <td data-label="Fecha del ultimo pago">2018-02-19 10:02:54</td>
+                     
+                           </tr>
+                        </tbody>
+                     </table>
+
+                     <div class="row">
+                           <div class="col-md-6">
+                                 <h5 class="tituloTablaGeneral textoColorPrimario mt-3 mb-0" >Mostrando 0 a 4 de 4 Procesos de Pago</h5>
+                              </div>
+                              <div class="col-md-6 textoAlineadoCentrado">
+                                    <nav class="navegacionTablaGeneral">
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>10</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>11</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>12</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>13</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
+                                    </nav>
+                                 </div>
+                     </div>
+
+
+                  </div>
+               </div>
+           
+               <div class="col-md-12 textoAlineadoDerecha mb-5">
+                  <h4 class="textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba" style="margin-top:18px">
+                        <span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span>
+                        <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span>
+                        <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span>
+                     </h4>
+                     <h4 class="enLinea mb-0 mt-3 enLinea alineadoArriba" onclick="location.href='/preguntas'">
+                        <div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos">
+                              <i class="fas fa-question" ></i>
+                           </div>
+                           
+                     </h4>
+               
+            </div>
+               
+            </div>
+         </div>
+{% endblock %}
+
+{% block script_content %}
+<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+<script src="{% static 'plugins/jquery-mask-1.14.15/jquery.mask.min.js' %}"></script>
+<script src="{% static 'js/comprador.js' %}"></script>
+{% endblock %}
