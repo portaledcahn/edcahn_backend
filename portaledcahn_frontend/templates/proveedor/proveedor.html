@@ -5,7 +5,9 @@
 {% endblock %}
 
 {% load static %}
-
+{% block head_style %}
+<link rel="stylesheet" href="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.css' %}" >
+{% endblock %}
 {% block container %}
 
 <div class="container-fluid" style="max-width: 1600px">
@@ -114,20 +116,82 @@
                            <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
                      </div>
                      </div>
-               <table class="tablaGeneral">
+               <table class="tablaGeneral mostrarEncabezados">
                   <thead>
                      <tr> 
                         <th class="textoAlineadoCentrado">
                               <span>Clasificación</span>
+                              <span class="ordenEncabezado" opcion="neutro">
+                                    <div class="contenedorFlechasOrden">
+                                          <i class="fas fa-sort-up flechaArriba"></i>
+                                          <i class="fas fa-sort-down flechaAbajo"></i>
+                                    </div>
+                                 </span>
                               <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
                               </th>
                         <th class="textoAlineadoCentrado">
                                     <span>Cantidad de Contratos</span>
-                                    <input class="campoBlancoTextoSeleccion" placeholder="Número">
+                                    <span class="ordenEncabezado" opcion="neutro">
+                                          <div class="contenedorFlechasOrden">
+                                                <i class="fas fa-sort-up flechaArriba"></i>
+                                                <i class="fas fa-sort-down flechaAbajo"></i>
+                                          </div>
+                                       </span>
+                                    <div class="contenedorFiltroNumerico">
+                                          <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                          <button class="btnFiltroNumerico">&lt;</button>
+                                          <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                <div class=" contenedorFiltroBusqueda" >
+                                                   <div class="flechaArribaBlanca"></div>
+                                                   <div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                         <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                         <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                         <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                    </div>
                         </th>
                         <th class="textoAlineadoCentrado">
                            <span>Monto de los Items Adjudicados</span>
-                           <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                           <span class="ordenEncabezado" opcion="neutro">
+                                 <div class="contenedorFlechasOrden">
+                                       <i class="fas fa-sort-up flechaArriba"></i>
+                                       <i class="fas fa-sort-down flechaAbajo"></i>
+                                 </div>
+                              </span>
+                           <div class="contenedorFiltroNumerico">
+                                 <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                 <button class="btnFiltroNumerico">&lt;</button>
+                                 <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                       <div class=" contenedorFiltroBusqueda" >
+                                          <div class="flechaArribaBlanca"></div>
+                                          <div>
+                                             <div class="OpcionFiltroBusquedaNumerico">
+                                                <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                             </div>
+                                             <div class="OpcionFiltroBusquedaNumerico">
+                                                <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                             </div>
+                                             <div class="OpcionFiltroBusquedaNumerico">
+                                                <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                           </div>
                         </th>
                         
                      </tr>
@@ -232,47 +296,168 @@
                               <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
                         </div>
                         </div>
-                  <table class="tablaGeneral">
+                  <table class="tablaGeneral mostrarEncabezados">
                      <thead>
                         <tr> 
                        
                                  <th class="textoAlineadoCentrado">
                                        <span>Comprador</span>
+                                       <span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span>
                                        <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                        </th>
-                                       <th class="textoAlineadoCentrado">
-                                             <span>Dependencia</span>
-                                             <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
-                                             </th>
                            <th class="textoAlineadoCentrado">
-                              <span>Titulo</span>
+                              <span>Titulo del contrato</span>
+                              <span class="ordenEncabezado" opcion="neutro">
+                                    <div class="contenedorFlechasOrden">
+                                          <i class="fas fa-sort-up flechaArriba"></i>
+                                          <i class="fas fa-sort-down flechaAbajo"></i>
+                                    </div>
+                                 </span>
                               <input  class="campoBlancoTextoSeleccion" placeholder="Buscar">
                            </th>
    
                               <th class="textoAlineadoCentrado">
                                     <span>Descripción</span>
+                                    <span class="ordenEncabezado" opcion="neutro">
+                                          <div class="contenedorFlechasOrden">
+                                                <i class="fas fa-sort-up flechaArriba"></i>
+                                                <i class="fas fa-sort-down flechaAbajo"></i>
+                                          </div>
+                                       </span>
                                     <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                  </th>
                                  <th class="textoAlineadoCentrado">
                                        <span>Nombre del Proceso</span>
+                                       <span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span>
                                        <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                     </th>
    
                                  <th class="textoAlineadoCentrado">
                                        <span>Categoría de Compra</span>
+                                       <span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span>
                                        <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                     </th>
                                  <th class="textoAlineadoCentrado">
                                        <span>Monto del Contrato</span>
-                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       <span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span>
+                                       <div class="contenedorFiltroNumerico">
+                                             <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                             <button class="btnFiltroNumerico">&lt;</button>
+                                             <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                   <div class=" contenedorFiltroBusqueda" >
+                                                      <div class="flechaArribaBlanca"></div>
+                                                      <div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                            <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                            <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                            <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                       </div>
+                                    </th>
+                                    <th class="textoAlineadoCentrado">
+                                          <span>Fecha de Firma del Contrato</span>
+                                          <span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span>
+                                          <div class="contenedorFiltroNumerico">
+                                                <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
+                                                <button class="btnFiltroNumerico">&lt;</button>
+                                                <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                      <div class=" contenedorFiltroBusqueda" >
+                                                         <div class="flechaArribaBlanca"></div>
+                                                         <div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                               <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                               <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                               <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                          </div>
+                                       </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <span>Fecha del Inicio Contrato</span>
+                                       <span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span>
+                                       <div class="contenedorFiltroNumerico">
+                                             <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
+                                             <button class="btnFiltroNumerico">&lt;</button>
+                                             <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                   <div class=" contenedorFiltroBusqueda" >
+                                                      <div class="flechaArribaBlanca"></div>
+                                                      <div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                            <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                            <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                            <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                       </div>
                                     </th>
                                  <th class="textoAlineadoCentrado">
-                                       <span>Fecha del Contrato</span>
+                                       <span>Estado</span> <span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span>
                                        <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
-                                    </th>
-                                 <th class="textoAlineadoCentrado">
-                                       <span>Estado</span>
-                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                      
+                                          
                                     </th>
                            
                         </tr>
@@ -280,14 +465,13 @@
                      <tbody>
                         <tr>
                               <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
-                           <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
-                           
                            <td data-label="Titulo">Lorem ipsum dolor sit amet consect </td>
                            <td data-label="Descripción">Lorem ipsum dolor sit amet consect</td>
                            <td data-label="Nombre del Proceso">Lorem ipsum dolor sit amet consect</td>
                            <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
                            <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
-                           <td data-label="Fecha del Contrato">2018-02-19 10:02:54</td>
+                           <td data-label="Fecha de Firma del Contrato">2018-02-19 10:02:54</td>
+                           <td data-label="Fecha de Inicio del Contrato">2018-02-19 10:02:54</td>
                            <td data-label="Estado">Firmado</td>
                         </tr>
                      </tbody>
@@ -360,40 +544,160 @@
                                  <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
                            </div>
                            </div>
-                     <table class="tablaGeneral">
+                     <table class="tablaGeneral mostrarEncabezados">
                         <thead>
                            <tr> 
                                     <th class="textoAlineadoCentrado">
                                           <span>Comprador</span>
+                                          <span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span>
                                           <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                           </th>
                               <th class="textoAlineadoCentrado">
                                  <span>Titulo del contrato</span>
+                                 <span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span>
                                  <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                               </th>
       
                                  <th class="textoAlineadoCentrado">
                                        <span>Monto del contrato</span>
-                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       <span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span>
+                                       <div class="contenedorFiltroNumerico">
+                                             <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                             <button class="btnFiltroNumerico">&lt;</button>
+                                             <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                   <div class=" contenedorFiltroBusqueda" >
+                                                      <div class="flechaArribaBlanca"></div>
+                                                      <div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                            <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                            <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                            <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                       </div>
                                     </th>
                                     <th class="textoAlineadoCentrado">
-                                          <span>Suma de todos los pagos</span>
-                                          <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                          <span>Suma de todos <br> los pagos</span>
+                                          <span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span>
+                                          <div class="contenedorFiltroNumerico">
+                                                <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                                <button class="btnFiltroNumerico">&lt;</button>
+                                                <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                      <div class=" contenedorFiltroBusqueda" >
+                                                         <div class="flechaArribaBlanca"></div>
+                                                         <div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                               <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                               <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                               <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                          </div>
                                        </th>
       
                                     <th class="textoAlineadoCentrado">
                                           <span>Estado</span>
+                                          <span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span>
                                           <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                        </th>
                                     <th class="textoAlineadoCentrado">
                                           <span>Fecha del ultimo pago</span>
-                                          <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                          <span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span>
+                                          <div class="contenedorFiltroNumerico">
+                                                <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
+                                                <button class="btnFiltroNumerico">&lt;</button>
+                                                <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                      <div class=" contenedorFiltroBusqueda" >
+                                                         <div class="flechaArribaBlanca"></div>
+                                                         <div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                               <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                               <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                               <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                          </div>
                                        </th>
                               
                            </tr>
                         </thead>
                         <tbody>
-                           <tr>
+                           <tr class="filaSubTabla transicion pagos">
+                                 <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                              <td data-label="Titulo del Contrato">Lorem ipsum dolor sit amet consect</td>
+                              <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Suma de todos los pagos">1,900,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Estado">Compromiso</td>
+                              <td data-label="Fecha del ultimo pago">2018-02-19 10:02:54</td>
+                     
+                           </tr>
+                           <tr class="filaSubTabla transicion pagos">
+                              
+                                 <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                              <td data-label="Titulo del Contrato">Lorem ipsum dolor sit amet consect</td>
+                              <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Suma de todos los pagos">1,900,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Estado">Compromiso</td>
+                              <td data-label="Fecha del ultimo pago">2018-02-19 10:02:54</td>
+                           </tr>
+                           <tr class="filaSubTabla transicion pagos">
                                  <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
                               <td data-label="Titulo del Contrato">Lorem ipsum dolor sit amet consect</td>
                               <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
@@ -445,5 +749,7 @@
          </div>
 {% endblock %}
 {% block script_content %}
+<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+<script src="{% static 'plugins/jquery-mask-1.14.15/jquery.mask.min.js' %}"></script>
 <script src="{% static 'js/proveedor.js' %}"></script>
 {% endblock %}

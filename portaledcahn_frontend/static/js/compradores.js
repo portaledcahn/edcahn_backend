@@ -40,4 +40,5 @@
     $('.OpcionFiltroBusquedaNumerico input').on('change',function(evento){
       cambiarFiltroNumerico(evento.currentTarget);
     });
+    AsignarOrdenTabla();
   })

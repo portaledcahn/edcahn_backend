@@ -20,7 +20,8 @@ var dataElastic = [
         "city": "Munich",
         "country": "Germany",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 2,
@@ -43,7 +44,8 @@ var dataElastic = [
         "city": "Leiden",
         "country": "the Netherlands",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 3,
@@ -66,7 +68,8 @@ var dataElastic = [
         "city": "Amsterdam",
         "country": "the Netherlands",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
         
   },
     {
@@ -90,7 +93,8 @@ var dataElastic = [
         "city": "Paris",
         "country": "France",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 5,
@@ -113,7 +117,8 @@ var dataElastic = [
         "city": "Paris",
         "country": "France",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 6,
@@ -136,7 +141,8 @@ var dataElastic = [
         "city": "",
         "country": "",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 6,
@@ -159,7 +165,8 @@ var dataElastic = [
         "city": "Paris",
         "country": "France",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 8,
@@ -182,7 +189,8 @@ var dataElastic = [
         "city": "London",
         "country": "United Kingdom",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 9,
@@ -205,7 +213,8 @@ var dataElastic = [
         "city": "Kiel",
         "country": "Germany",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 10,
@@ -228,7 +237,8 @@ var dataElastic = [
         "city": "Cambridge",
         "country": "United Kingdom",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 11,
@@ -251,7 +261,8 @@ var dataElastic = [
         "city": "Chicago, IL",
         "country": "USA",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 125,
@@ -274,7 +285,8 @@ var dataElastic = [
         "city": "Geneva",
         "country": "Switzerland",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 126,
@@ -297,7 +309,8 @@ var dataElastic = [
         "city": "Stuttgart",
         "country": "Federal Republic of Germany",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 127,
@@ -320,7 +333,8 @@ var dataElastic = [
         "city": "Berlin",
         "country": "Federal Republic of Germany",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 128,
@@ -343,7 +357,8 @@ var dataElastic = [
         "city": "Rüschlikon",
         "country": "Switzerland",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 129,
@@ -366,7 +381,8 @@ var dataElastic = [
         "city": "Rüschlikon",
         "country": "Switzerland",
         "coin":"HNL",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 130,
@@ -389,7 +405,8 @@ var dataElastic = [
         "city": "Rüschlikon",
         "country": "Switzerland",
         "coin":"USD",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 131,
@@ -412,7 +429,8 @@ var dataElastic = [
         "city": "Rüschlikon",
         "country": "Switzerland",
         "coin":"USD",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 132,
@@ -435,7 +453,8 @@ var dataElastic = [
         "city": "Batavia, IL",
         "country": "USA",
         "coin":"USD",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 133,
@@ -458,7 +477,8 @@ var dataElastic = [
         "city": "Mountain View, CA",
         "country": "USA",
         "coin":"USD",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 134,
@@ -481,7 +501,8 @@ var dataElastic = [
         "city": "Geneva",
         "country": "Switzerland",
         "coin":"USD",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 135,
@@ -504,7 +525,8 @@ var dataElastic = [
         "city": "Cambridge, MA",
         "country": "USA",
         "coin":"USD",
-        "selection":"Concurso Público Nacional"
+        "selection":"Concurso Público Nacional",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 136,
@@ -527,7 +549,8 @@ var dataElastic = [
         "city": "Seattle, WA",
         "country": "USA",
         "coin":"USD",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 137,
@@ -550,7 +573,8 @@ var dataElastic = [
         "city": "Bonn",
         "country": "Federal Republic of Germany",
         "coin":"USD",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 3'
   },
     {
         "id": 138,
@@ -573,7 +597,8 @@ var dataElastic = [
         "city": "Cambridge, MA",
         "country": "USA",
         "coin":"USD",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 139,
@@ -596,7 +621,8 @@ var dataElastic = [
         "city": "Cambridge, MA",
         "country": "USA",
         "coin":"USD",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 140,
@@ -619,7 +645,8 @@ var dataElastic = [
         "city": "Stanford, CA",
         "country": "USA",
         "coin":"USD",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 141,
@@ -642,7 +669,8 @@ var dataElastic = [
         "city": "Paris",
         "country": "France",
         "coin":"USD",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 3'
   },
     {
         "id": 142,
@@ -665,7 +693,8 @@ var dataElastic = [
         "city": "Paris",
         "country": "France",
         "coin":"USD",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 142,
@@ -688,7 +717,8 @@ var dataElastic = [
         "city": "Geneva",
         "country": "Switzerland",
         "coin":"USD",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 2'
   },
     {
         "id": 143,
@@ -711,7 +741,8 @@ var dataElastic = [
         "city": "Princeton, NJ",
         "country": "USA",
         "coin":"HNL",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 144,
@@ -734,7 +765,8 @@ var dataElastic = [
         "city": "Princeton, NJ",
         "country": "USA",
         "coin":"HNL",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 2'
   },
     {
         "id": 145,
@@ -757,7 +789,8 @@ var dataElastic = [
         "city": "Hamilton, Ontario",
         "country": "Canada",
         "coin":"HNL",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 4'
   },
     {
         "id": 146,
@@ -780,7 +813,8 @@ var dataElastic = [
         "city": "Cambridge, MA",
         "country": "USA",
         "coin":"HNL",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 1'
   },
     {
         "id": 147,
@@ -803,7 +837,8 @@ var dataElastic = [
         "city": "Stanford, CA",
         "country": "USA",
         "coin":"HNL",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 1'
   },
     {
         "id": 148,
@@ -826,7 +861,8 @@ var dataElastic = [
         "city": "Irvine, CA",
         "country": "USA",
         "coin":"HNL",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 1'
   },
     {
         "id": 149,
@@ -849,7 +885,8 @@ var dataElastic = [
         "city": "Ithaca, NY",
         "country": "USA",
         "coin":"HNL",
-        "selection":"Compras Menores"
+        "selection":"Compras Menores",
+        "proveedor":'Proveedor 1'
   }  ];
   var Instituciones=['Conade','CNA','Pani','Ministerio Publico','Copeco','UPNFM']
   var Ano=['2014','2015','2016','2017','2018','2019']

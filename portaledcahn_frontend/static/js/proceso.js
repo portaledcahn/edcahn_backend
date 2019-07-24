@@ -93,6 +93,9 @@ function MostrarPrimerProceso(){
   var pasos=$('.botonPasoProceso').not('.deshabilitado');
   if(pasos.length){
     $('.botonPasoProceso').removeClass('activo');
+    if(ObtenerValor( 'contrato')){
+      pasos=$('.botonPasoProceso[estado="contrato"]').not('.deshabilitado');
+    }
     $(pasos[0]).addClass('activo');
 
     $('.pasoOcultar').hide();

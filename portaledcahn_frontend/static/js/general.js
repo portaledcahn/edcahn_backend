@@ -115,6 +115,7 @@ if($(elemento).is(":checked")){
 
 }
 function cambiarOrden(evento){
+    var elemento=$(evento.currentTarget);
     switch($(elemento).attr('opcion')){
         case 'neutro':
            $(elemento).find('.flechaArriba').hide();
@@ -175,4 +176,40 @@ function ObtenerValor( nombre, url ) {
     var regex = new RegExp( regexS );
     var results = regex.exec( url );
     return results == null ? null : results[1];
+}
+
+
+function AnadirSubtabla(){
+    
+    $('.filaSubTabla.procesos').each(
+        function(llave,elemento){
+            $(elemento).on('click',function(e){
+                if(!$(e.currentTarget).hasClass('clicked')){
+                    $(e.currentTarget).after($('<tr>').append(
+                        $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
+                            '<table class="tablaGeneral cajonSombreado" > <thead> <tr> <th>Titulo</th> <th>Monto del contrato</th> <th>Fecha del contrato</th> <th>Estado</th> </tr></thead> <tbody> <tr> <td data-label="Titulo">Paga mensual</td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del contrato">2019-02-02 01:01:01</td><td data-label="Estado">Firmado</td></tr><tr> <td data-label="Titulo">Paga mensual</td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del contrato">2019-02-02 01:01:01</td><td data-label="Estado">Firmado</td></tr></tbody> </table>'
+                        )
+                    ));
+                    $(e.currentTarget).addClass('clicked');
+                }
+                
+            })
+        }
+    );
+    $('.filaSubTabla.pagos').each(
+        function(llave,elemento){
+            $(elemento).on('click',function(e){
+                if(!$(e.currentTarget).hasClass('clicked')){
+                    $(e.currentTarget).after($('<tr>').append(
+                        $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
+                            '<table class="tablaGeneral cajonSombreado" > <thead> <tr> <th>Descripción de la transacción</th> <th>Objeto de gasto</th> <th>Monto del pago</th> <th>Fecha del pago</th> </tr></thead> <tbody> <tr> <td data-label="Descripción de la transacción">paga mensual</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr><tr> <td data-label="Descripción de la transacción">paga mensual</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr></tbody> </table>'
+                        )
+                        
+                    ));
+                    $(e.currentTarget).addClass('clicked');
+                }
+                
+            })
+        }
+    );
 }

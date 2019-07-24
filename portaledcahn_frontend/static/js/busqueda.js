@@ -3,7 +3,8 @@ var filtrosAplicables={
   coin: {titulo:'Moneda'},
   name: {titulo:'Institución'},
   selection: {titulo:'Método de Selección'},
-  year: {titulo:'Año'}
+  year: {titulo:'Año'},
+  proveedor: {titulo:'Proveedor'}
 };
 var listaElastica={};
 
@@ -56,12 +57,27 @@ $('#campoBusquedaProceso').on('keydown',function(e){
           MostrarResultados(arregloProcesos)
       break;
     }
-    listaElastica = new ElasticList({
-        el: $("#elastic-list"),
-        data: dataElastic,
-        hasFilter: true,
-        onchange: MostrarFiltros,
-        columns: [
+    var columnas=[
+      {
+        title: "Método de Selección",
+          attr: "selection"
+      },{
+          title: "Categoría",
+          attr: "category"
+      },
+      {
+          title: "Institución",
+          attr: "name"
+      }, {
+          title: "Año",
+          attr: "year"
+      },{
+        title: "Moneda",
+          attr: "coin"
+      } ];
+    switch(  ObtenerValor( 'metodo')){
+      case 'contrato':
+          columnas=[
             {
               title: "Método de Selección",
                 attr: "selection"
@@ -78,7 +94,83 @@ $('#campoBusquedaProceso').on('keydown',function(e){
             },{
               title: "Moneda",
                 attr: "coin"
-            } ]
+            },{
+              title: "Proveedor",
+                attr: "proveedor"
+            } ];
+      break;
+      case 'pago':
+          columnas=[
+            {
+              title: "Método de Selección",
+                attr: "selection"
+            },{
+                title: "Categoría",
+                attr: "category"
+            },
+            {
+                title: "Institución",
+                attr: "name"
+            }, {
+                title: "Año",
+                attr: "year"
+            },{
+              title: "Moneda",
+                attr: "coin"
+            }
+            ,{
+              title: "Proveedor",
+                attr: "proveedor"
+            } ];
+      break;
+      case 'proceso':
+          columnas=[
+            {
+              title: "Método de Selección",
+                attr: "selection"
+            },{
+                title: "Categoría",
+                attr: "category"
+            },
+            {
+                title: "Institución",
+                attr: "name"
+            }, {
+                title: "Año",
+                attr: "year"
+            },{
+              title: "Moneda",
+                attr: "coin"
+            } ];
+      break;
+      default:
+          columnas=[
+            {
+              title: "Método de Selección",
+                attr: "selection"
+            },{
+                title: "Categoría",
+                attr: "category"
+            },
+            {
+                title: "Institución",
+                attr: "name"
+            }, {
+                title: "Año",
+                attr: "year"
+            },{
+              title: "Moneda",
+                attr: "coin"
+            } ];
+      break;
+    }
+    
+    listaElastica = new ElasticList({
+        el: $("#elastic-list"),
+        data: dataElastic,
+        hasFilter: true,
+        onchange: MostrarFiltros,
+        columns: columnas
     });
     AgregarToolTips();
     $('#quitarFiltros').on('click',function(e){
