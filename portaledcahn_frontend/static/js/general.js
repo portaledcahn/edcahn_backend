@@ -1,5 +1,47 @@
 var url=window.location.origin;
-var api=`${url}/api`;
+var api=url+"/api";
+function MostrarIntroduccion(){
+    introJs().setOption("nextLabel", "Siguiente").setOption("prevLabel", "Atras").setOption("skipLabel", "SALTAR").setOption("doneLabel", "LISTO").start();
+}
+
+function VerificarIntroduccion(variable,veces){
+    var introduccion=ObtenerCookie(variable);
+    if(introduccion===null){
+        DefinirCookie(variable,(veces?veces:1) - 1,365);
+        MostrarIntroduccion();
+    }else{
+        var restantes=ObtenerNumero(introduccion);
+        if(restantes>0){
+            DefinirCookie(variable,(restantes - 1),365);
+            MostrarIntroduccion();
+        }
+    }
+}
+
+function EliminarCookie(nombre){
+    document.cookie=nombre+'=;path=/;Max-Age=0';
+}
+function ObtenerCookie(nombre){
+    var vs = document.cookie.split(';');
+    if(vs.length>0){
+      for(let i=0;i<vs.length;i++){
+        var index=Number(vs[i].indexOf('='));
+        if(vs[i].substring(0, index).trim()==nombre){
+          return vs[i].substring(index+1);
+        }
+      }
+    }
+    return null;
+}
+function DefinirCookie(nombre,valor,dias){
+
+    document.cookie = nombre+'='+valor+'; path=/; expires='+ObtenerDuracionCookie(dias ? dias : 40);
+}
+function ObtenerDuracionCookie(dia) {
+    var d = new Date();
+    d.setTime(d.getTime() + (dia * 24 * 60 * 60 * 1000));
+    return d.toUTCString();
+}
 
 function ObtenerFecha(texto){
     if(texto){
@@ -153,7 +195,7 @@ function AsignarOrdenTabla(){
 }
 
 function AgregarToolTips(){
-    $('.toolTip').each(
+    $('[toolTexto]').each(
         function(llave,elemento){
             $(elemento).css('outline','0')
             var parametros={
@@ -180,36 +222,69 @@ function ObtenerValor( nombre, url ) {
 
 
 function AnadirSubtabla(){
-    
     $('.filaSubTabla.procesos').each(
         function(llave,elemento){
             $(elemento).on('click',function(e){
-                if(!$(e.currentTarget).hasClass('clicked')){
-                    $(e.currentTarget).after($('<tr>').append(
+                if(!$(e.currentTarget).hasClass('abierta')){
+                    $(e.currentTarget).after($('<tr class="subTabla">').append(
                         $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
-                            '<table class="tablaGeneral cajonSombreado" > <thead> <tr> <th>Titulo</th> <th>Monto del contrato</th> <th>Fecha del contrato</th> <th>Estado</th> </tr></thead> <tbody> <tr> <td data-label="Titulo">Paga mensual</td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del contrato">2019-02-02 01:01:01</td><td data-label="Estado">Firmado</td></tr><tr> <td data-label="Titulo">Paga mensual</td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del contrato">2019-02-02 01:01:01</td><td data-label="Estado">Firmado</td></tr></tbody> </table>'
+                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Procesos de Contratación</h6></div><table class="tablaGeneral"> <thead> <tr> <th toolTexto="buyer.name">Comprador</th> <th toolTexto="contracts[n].title">Título del Contrato</th> <th toolTexto="contracts[n].value.amount">Monto del contrato</th> </tr></thead> <tbody> <tr><td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato" >1,200.00 <span class="textoColorPrimario">HNL</span></td></tr><tr> <td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td></tr></tbody> </table></div>'
                         )
                     ));
-                    $(e.currentTarget).addClass('clicked');
+                    $(e.currentTarget).addClass('abierta');
+                }else{
+                    if($(e.currentTarget).next('.subTabla').length){
+                        $(e.currentTarget).next('.subTabla').remove();
+                        $(e.currentTarget).removeClass('abierta');
+                    }
+                    
                 }
-                
+                AgregarToolTips();
+            })
+        }
+    );
+    $('.filaSubTabla.contratos').each(
+        function(llave,elemento){
+            $(elemento).on('click',function(e){
+                if(!$(e.currentTarget).hasClass('abierta')){
+                    $(e.currentTarget).after($('<tr class="subTabla">').append(
+                        $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
+                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Contratos</h6></div><table class="tablaGeneral " > <thead> <tr> <th toolTexto="contracts[n].title">Título del Contrato</th> <th toolTexto="contracts[n].value.amount">Monto del contrato</th> <th toolTexto="contracts[n].dateSigned">Fecha del contrato</th> <th toolTexto="contracts[n].status">Estado</th> </tr></thead> <tbody> <tr> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del contrato">2019-02-02 01:01:01</td><td data-label="Estado">Firmado</td></tr><tr> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del contrato">2019-02-02 01:01:01</td><td data-label="Estado">Firmado</td></tr></tbody> </table></div>'
+                        )
+                    ));
+                    $(e.currentTarget).addClass('abierta');
+                }else{
+                    if($(e.currentTarget).next('.subTabla').length){
+                        $(e.currentTarget).next('.subTabla').remove();
+                        $(e.currentTarget).removeClass('abierta');
+                    }
+                    
+                }
+                AgregarToolTips();
             })
         }
     );
     $('.filaSubTabla.pagos').each(
         function(llave,elemento){
             $(elemento).on('click',function(e){
-                if(!$(e.currentTarget).hasClass('clicked')){
-                    $(e.currentTarget).after($('<tr>').append(
+                if(!$(e.currentTarget).hasClass('abierta')){
+                    $(e.currentTarget).after($('<tr class="subTabla">').append(
                         $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
-                            '<table class="tablaGeneral cajonSombreado" > <thead> <tr> <th>Descripción de la transacción</th> <th>Objeto de gasto</th> <th>Monto del pago</th> <th>Fecha del pago</th> </tr></thead> <tbody> <tr> <td data-label="Descripción de la transacción">paga mensual</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr><tr> <td data-label="Descripción de la transacción">paga mensual</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr></tbody> </table>'
+                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Pagos</h6></div><table class="tablaGeneral " > <thead> <tr> <th toolTexto="contracts[n].implementation .transactions[n].payee">Descripción de la transacción</th> <th toolTexto="planning.budget.budgetBreakdown.[n].classifications.objeto">Objeto de gasto</th> <th toolTexto="contracts[n].implementation. transactions[n].value.amount">Monto del pago</th> <th toolTexto="contracts[n].implemntation .transactions[n].date">Fecha del pago</th> </tr></thead> <tbody> <tr> <td data-label="Descripción de la transacción">Lorem ipsum</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr><tr> <td data-label="Descripción de la transacción">Lorem ipsum</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr></tbody> </table></div>'
                         )
                         
                     ));
-                    $(e.currentTarget).addClass('clicked');
+                    $(e.currentTarget).addClass('abierta');
+                }else{
+                    if($(e.currentTarget).next('.subTabla').length){
+                        $(e.currentTarget).next('.subTabla').remove();
+                        $(e.currentTarget).removeClass('abierta');
+                    }
+                    
                 }
-                
+                AgregarToolTips();
             })
         }
     );
+    
 }

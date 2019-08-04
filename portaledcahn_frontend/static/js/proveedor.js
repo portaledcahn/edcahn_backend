@@ -27,6 +27,8 @@ $(function(){
         });
 
 
-    AsignarOrdenTabla()
-    AnadirSubtabla()
+    AsignarOrdenTabla();
+    AnadirSubtabla();
+    AgregarToolTips();
+    VerificarIntroduccion('INTROJS_PROVEEDOR',1);
 })

@@ -39,7 +39,9 @@ $(function(){
   });
 
 
-AsignarOrdenTabla()
-AnadirSubtabla()
+AsignarOrdenTabla();
+AnadirSubtabla();
+AgregarToolTips();
+VerificarIntroduccion('INTROJS_COMPRADOR',1);
 });
 

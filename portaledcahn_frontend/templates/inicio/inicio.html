@@ -8,9 +8,9 @@
 {% load static %}
 <div class="container-fluid fondoColorPrimario fondoPrincipalInicio">
       <div class="container-fluid">
-         <div class="row contenedorBusquedaInicial" >
+         <div class="row contenedorBusquedaInicial"  >
             <div class="contenedorBotonBlancoFiltroBusqueda">
-               <button class="botonBlancoFiltroBusqueda toolTip" id="botonBlancoFiltroBusquedaInicio" toolTexto="Selecciona un Filtro">
+               <button class="botonBlancoFiltroBusqueda toolTip" id="botonBlancoFiltroBusquedaInicio" toolTexto="Selecciona un Filtro" data-step="2" data-intro="Puedes seleccionar un filtro para realizar tu búsqueda.">
                <i class="fas fa-filter"></i>	
                </button>
                <div class="preContenedorFiltroBusqueda animated fadeIn">
@@ -18,7 +18,7 @@
                      <div class="flechaArribaBlanca"></div>
                      <div>
                         <div class="OpcionFiltroBusqueda">
-                           <input type="radio" id="f-option" name="selector">
+                           <input type="radio" id="f-option" name="selector" checked>
                            <label for="f-option" class="etiquetaOpcionFiltroBusqueda textoColorPrimario">Buscar en Todos</label>
                         </div>
                         <div class="OpcionFiltroBusqueda">
@@ -37,7 +37,7 @@
                   </div>
                </div>
             </div>
-            <div class="campoBlancoBusquedaPadre">
+            <div class="campoBlancoBusquedaPadre" data-step="1" data-intro="Puedes buscar un texto relacionado con el titulo o descripción de un proceso de contratación, contrato, nombres de proveedores o compradores.">
                <input class="form-control form-control-lg campoBlancoBusqueda toolTip" toolPosicion="bottom" toolTexto="Ingresa un texto a buscar" type="text" placeholder="Busca una contratación..." id="campoBlancoBusquedaProcesos">
                <i class="fas fa-search cursorMano toolTip" toolTexto="Haz click para buscar" id="campoBlancoBusquedaProcesosBoton" title="Buscar"></i>	
             </div>

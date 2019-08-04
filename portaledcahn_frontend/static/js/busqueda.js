@@ -23,11 +23,15 @@ $('.opcionFiltroBusquedaPagina').on('click',function(e){
       $('.contenedorFiltrosBusqueda').addClass('cerrado');
     }
   });
-
+/*
   $('.metodoBusquedaContenedor input[type="radio"]').on('change',function(e){
     if($(e.currentTarget).is(':checked')){
       location.href='/busqueda?q='+$('#campoBusquedaProceso').val()+'&metodo='+$(e.currentTarget).attr('metodo')
     }
+  });*/
+  $('.metodoBusquedaContenedor a[name="metodoBusqueda"]').on('click',function(e){
+    console.dir('click')
+      location.href='/busqueda?q='+$('#campoBusquedaProceso').val()+'&metodo='+$(e.currentTarget).attr('metodo');
   });
 
 $('#botonBusquedaProceso').on('click',function(e){
@@ -43,6 +47,7 @@ $('#campoBusquedaProceso').on('keydown',function(e){
   
   
   $(function () {
+    console.dir('inicio')
     switch(  ObtenerValor( 'metodo')){
       case 'contrato':
           MostrarResultados(arregloContratos)
@@ -57,6 +62,7 @@ $('#campoBusquedaProceso').on('keydown',function(e){
           MostrarResultados(arregloProcesos)
       break;
     }
+
     var columnas=[
       {
         title: "Método de Selección",
@@ -176,6 +182,8 @@ $('#campoBusquedaProceso').on('keydown',function(e){
     $('#quitarFiltros').on('click',function(e){
       listaElastica.clean();
     });
+
+    VerificarIntroduccion('INTROJS_BUSQUEDA',1);
   });
 
 
@@ -216,15 +224,15 @@ function MostrarFiltros(filtros){
 
 $('<div>',{class:''}).append()
 function MostrarResultados(datos){
+  console.dir('mostrar resultados')
   $('#listaResultadosBusqueda').html('')
   for(var i=0;i<datos.length;i++){
     AgregarResultado(datos[i]);
   }
 }
 function AgregarResultado(datos){
-  console.dir(datos)
   $('#listaResultadosBusqueda').append(
-    $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado'}).append(
+    $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal'}).append(
       $('<div>',{class:'p-1'}).append(
         $('<div>',{class:'textoTituloResultadoBusqueda'}).append(
           $('<div>',{class:'row'}).append(
@@ -249,13 +257,13 @@ function AgregarResultado(datos){
           $('<table>',{class:''}).append(
             $('<tbody>',{class:''}).append(
               datos.ocid?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proceso (OCID):'}).append(),
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proceso (OCID):',toolTexto:'ocid'}).append(),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
                   $('<a>',{class:'enlaceTablaGeneral',text:datos.ocid,href:'/proceso/'+datos.ocid})
                 )
               ):null,
               datos.buyerId?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Comprador:'}).append(),
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'Comprador:',toolTexto:'buyer.name'}).append(),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
                   $('<a>',{class:'enlaceTablaGeneral',text:datos.buyerName,href:'/comprador/'+datos.buyerId})
                 )
@@ -265,13 +273,13 @@ function AgregarResultado(datos){
                 $('<td>',{class:'contenidoTablaCaracteristicas',text:datos.status})
               ):null,
               datos.supplierId?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Proveedor:'}).append(),
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'Proveedor:',toolTexto:'contracts[n].suppliers[n].name'}).append(),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
                   $('<a>',{class:'enlaceTablaGeneral',text:datos.supplierName,href:'/proveedor/'+datos.supplierId})
                 )
               ):null,
               datos.dateSigned?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Firma:'}),
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Firma:',toolTexto:'contracts[n].dateSigned'}),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
                   $('<span>',{toolTexto:'Fecha en que fue firmado el contrato por todas las partes',text:ObtenerFecha(datos.dateSigned)})
                 )

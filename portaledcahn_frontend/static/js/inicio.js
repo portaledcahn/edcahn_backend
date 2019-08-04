@@ -20,6 +20,7 @@ $(function(){
     });
     /*Anadir Titles a los campos de busqueda*/
     AgregarToolTips();
+    VerificarIntroduccion('INTROJS_INICIO',1);
 })
 
 

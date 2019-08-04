@@ -1,0 +1,1 @@
+web: gunicorn edcahn_backend.wsgi

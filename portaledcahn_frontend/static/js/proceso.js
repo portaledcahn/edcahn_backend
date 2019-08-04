@@ -121,6 +121,7 @@ function ObtenerProceso(){
       MostrarPrimerProceso();
       AgregarToolTips();
       AsignarOrdenTabla();
+      VerificarIntroduccion('INTROJS_PROCESO',1);
       return;
   MostrarEspera('body .tamanoMinimo');
   $.get(api+"/record/"+procesoOcid,function(datos){

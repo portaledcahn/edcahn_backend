@@ -42,5 +42,7 @@
     $('.OpcionFiltroBusquedaNumerico input').on('change',function(evento){
       cambiarFiltroNumerico(evento.currentTarget);
     });
-    AsignarOrdenTabla()
+    AsignarOrdenTabla();
+    AgregarToolTips();
+    VerificarIntroduccion('INTROJS_PROVEEDORES',1);
   })

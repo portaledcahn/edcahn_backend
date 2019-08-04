@@ -14,7 +14,7 @@
 <div class="container-fluid" style="max-width: 1600px">
    <div class="row mt-5">
       <div class="col-md-12">
-         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Alcaldía Municipal de Danli</h1>
+         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso"  tooltexto="buyer.name" >Alcaldía Municipal de Danli</h1>
       </div>
    </div>
    <div class="row ">
@@ -22,25 +22,25 @@
             <h4 class="text-primary-edcax titularCajonSombreado">
                   Dirección del Comprador
                </h4>
-         <div class=" cajonSombreado contenedorDetalleProcesoDatos">
+         <div class=" cajonSombreado contenedorDetalleProcesoDatos" data-step="1" data-intro="Puedes visualizar la dirección de un comprador en esta sección, en caso de que este disponible.">
             <div class="contenedorProceso informacionProceso">
                <div class="contenedorTablaCaracteristicas" style="width:100%">
                   <table>
                      <tbody>
                         <tr>
-                           <td class="tituloTablaCaracteristicas">Localidad:</td>
+                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.region">Localidad:</td>
                            <td class="contenidoTablaCaracteristicas"> 
                               DANLI
                            </td>
                         </tr>
                         <tr>
-                           <td class="tituloTablaCaracteristicas">Región:</td>
+                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.locality">Región:</td>
                            <td class="contenidoTablaCaracteristicas"> 
                               El Paraiso
                            </td>
                         </tr>
                         <tr>
-                           <td class="tituloTablaCaracteristicas">Dirección:</td>
+                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.streetAddress">Dirección:</td>
                            <td class="contenidoTablaCaracteristicas"> 
                               Danli, El Paraiso
                            </td>
@@ -54,25 +54,25 @@
       
       <div class="col-md-6">
             <h4 class="text-primary-edcax titularCajonSombreado">Datos de Contacto</h4>
-            <div class=" cajonSombreado ">
-               <div class="contenedorProceso informacionProceso">
-                  <div class="contenedorTablaCaracteristicas">
+            <div class=" cajonSombreado " data-step="2" data-intro="Puedes visualizar los datos de contacto de un comprador en esta sección, en caso de que este disponible.">
+               <div class="contenedorProceso informacionProceso" >
+                  <div class="contenedorTablaCaracteristicas" >
                      <table>
                         <tbody>
                            <tr>
-                              <td class="tituloTablaCaracteristicas">Nombre:</td>
+                              <td class="tituloTablaCaracteristicas" toolTexto="parties[n].contactPoint.name">Nombre:</td>
                               <td class="contenidoTablaCaracteristicas"> 
                                  LUZ VICTORIA OLIVA LOVO
                               </td>
                            </tr>
                            <tr>
-                              <td class="tituloTablaCaracteristicas">Telefono:</td>
+                              <td class="tituloTablaCaracteristicas" toolTexto="parties[n].contactPoint.telephone">Telefono:</td>
                               <td class="contenidoTablaCaracteristicas"> 
                                  763-2405
                               </td>
                            </tr>
                            <tr>
-                              <td class="tituloTablaCaracteristicas">Correo Electrónico:</td>
+                              <td class="tituloTablaCaracteristicas" toolTexto="parties[n].contactPoint.email">Correo Electrónico:</td>
                               <td class="contenidoTablaCaracteristicas"> 
                                  mesadeayuda@honducompras.gob.hn
                               </td>
@@ -91,7 +91,7 @@
       <div class="row">
 
          <div class="col-md-12">
-            <div class=" cajonSombreado ">
+            <div class=" cajonSombreado " data-step="3" data-intro="Puedes ver el historial de procesos de contratación en los que ha participado este comprador.">
 
                   <div class="row">
                         <div class="col-md-12 mt-2">
@@ -120,53 +120,73 @@
                   <thead>
                      <tr> 
                         <th class="textoAlineadoCentrado">
-                              <span>Dependencia</span>
-                              <span class="ordenEncabezado" opcion="neutro">
-                                    <div class="contenedorFlechasOrden">
-                                          <i class="fas fa-sort-up flechaArriba"></i>
-                                          <i class="fas fa-sort-down flechaAbajo"></i>
-                                    </div>
-                                 </span>
-                              <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
-                              </th>
-                              <th class="textoAlineadoCentrado">
-                                    <span>ID del Proceso</span>
-                                    <span class="ordenEncabezado" opcion="neutro">
+                              
+                              <table class="alineado">
+                                    <tr><td><span toolTexto="buyer.name" >Dependencia</span></td><td><span class="ordenEncabezado" opcion="neutro">
                                           <div class="contenedorFlechasOrden">
                                                 <i class="fas fa-sort-up flechaArriba"></i>
                                                 <i class="fas fa-sort-down flechaAbajo"></i>
                                           </div>
-                                       </span>
+                                       </span></td></tr>
+                                 </table>
+         
+                              
+                              <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                              </th>
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="ocid">ID del Proceso</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
                                     <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                     </th>
                         <th class="textoAlineadoCentrado">
-                           <span>Titulo del Proceso</span>
-                           <span class="ordenEncabezado" opcion="neutro">
-                                 <div class="contenedorFlechasOrden">
-                                       <i class="fas fa-sort-up flechaArriba"></i>
-                                       <i class="fas fa-sort-down flechaAbajo"></i>
-                                 </div>
-                              </span>
+                              <table class="alineado">
+                                    <tr><td><span toolTexto="planning.rationale">Título del Proceso</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                          <div class="contenedorFlechasOrden">
+                                                <i class="fas fa-sort-up flechaArriba"></i>
+                                                <i class="fas fa-sort-down flechaAbajo"></i>
+                                          </div>
+                                       </span></td></tr>
+                                 </table>
+         
+                           
+                           
                            <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                         </th>
 
                            <th class="textoAlineadoCentrado">
-                                 <span>Categoría de Compra</span>
-                                 <span class="ordenEncabezado" opcion="neutro">
-                                       <div class="contenedorFlechasOrden">
-                                             <i class="fas fa-sort-up flechaArriba"></i>
-                                             <i class="fas fa-sort-down flechaAbajo"></i>
-                                       </div>
-                                    </span>
+                                 <table class="alineado">
+                                       <tr><td><span toolTexto="tender.additionalProcurementCategories">Categoría de Compra</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span></td></tr>
+                                    </table>
+            
+                                 
+                                 
                                  <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                               </th>
                               <th class="textoAlineadoCentrado">
-                                    <span>Monto Estimado</span><span class="ordenEncabezado" opcion="neutro">
-                                          <div class="contenedorFlechasOrden">
-                                                <i class="fas fa-sort-up flechaArriba"></i>
-                                                <i class="fas fa-sort-down flechaAbajo"></i>
-                                          </div>
-                                       </span>
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="planning.budget.amount.amount">Monto Estimado</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
                                     <div class="contenedorFiltroNumerico">
                                           <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                                           <button class="btnFiltroNumerico">&lt;</button>
@@ -193,13 +213,17 @@
                                  </th>
 
                               <th class="textoAlineadoCentrado">
-                                    <span>Fecha de Publicación de la licitación</span>
-                                    <span class="ordenEncabezado" opcion="neutro">
-                                          <div class="contenedorFlechasOrden">
-                                                <i class="fas fa-sort-up flechaArriba"></i>
-                                                <i class="fas fa-sort-down flechaAbajo"></i>
-                                          </div>
-                                       </span>
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="tender.date*">Fecha de Publicación de la licitación</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
                                     <div class="contenedorFiltroNumerico">
                                           <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
                                           <button class="btnFiltroNumerico">&lt;</button>
@@ -225,13 +249,17 @@
                                     </div>
                                  </th>
                               <th class="textoAlineadoCentrado">
-                                    <span>Fecha de recepción de ofertas</span>
-                                    <span class="ordenEncabezado" opcion="neutro">
-                                          <div class="contenedorFlechasOrden">
-                                                <i class="fas fa-sort-up flechaArriba"></i>
-                                                <i class="fas fa-sort-down flechaAbajo"></i>
-                                          </div>
-                                       </span>
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="tender.tenderPeriod.startDate">Fecha de recepción de ofertas</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
                                     <div class="contenedorFiltroNumerico">
                                           <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
                                           <button class="btnFiltroNumerico">&lt;</button>
@@ -257,22 +285,30 @@
                                     </div>
                                  </th>
                               <th class="textoAlineadoCentrado">
-                                    <span>Estado</span>
-                                    <span class="ordenEncabezado" opcion="neutro">
-                                          <div class="contenedorFlechasOrden">
-                                                <i class="fas fa-sort-up flechaArriba"></i>
-                                                <i class="fas fa-sort-down flechaAbajo"></i>
-                                          </div>
-                                       </span>
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="planning, tender,awards, contracts">Estado</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
                                     <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                  </th>
                               <th class="textoAlineadoCentrado">
-                                    <span>Monto Adjudicado</span><span class="ordenEncabezado" opcion="neutro">
-                                          <div class="contenedorFlechasOrden">
-                                                <i class="fas fa-sort-up flechaArriba"></i>
-                                                <i class="fas fa-sort-down flechaAbajo"></i>
-                                          </div>
-                                       </span>
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="Suma de contracts[n].implementation .transactions[n].value.amount">Monto Pagado</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
                                     <div class="contenedorFiltroNumerico">
                                           <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                                           <button class="btnFiltroNumerico">&lt;</button>
@@ -298,12 +334,18 @@
                                     </div>
                                  </th>
                               <th class="textoAlineadoCentrado">
-                                    <span>Monto Contratado</span><span class="ordenEncabezado" opcion="neutro">
-                                          <div class="contenedorFlechasOrden">
-                                                <i class="fas fa-sort-up flechaArriba"></i>
-                                                <i class="fas fa-sort-down flechaAbajo"></i>
-                                          </div>
-                                       </span>
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="Suma de contracts[n].value.amount">Monto Contratado</span></td><td>
+                                                <span class="ordenEncabezado" opcion="neutro">
+                                                      <div class="contenedorFlechasOrden">
+                                                            <i class="fas fa-sort-up flechaArriba"></i>
+                                                            <i class="fas fa-sort-down flechaAbajo"></i>
+                                                      </div>
+                                                   </span>
+                                          </td></tr>
+                                       </table>
+               
+                                    
                                     <div class="contenedorFiltroNumerico">
                                           <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                                           <button class="btnFiltroNumerico">&lt;</button>
@@ -332,43 +374,43 @@
                      </tr>
                   </thead>
                   <tbody>
-                     <tr class="filaSubTabla transicion procesos">
+                     <tr class="filaSubTabla transicion contratos" toolTexto="Puedes ver una subtabla de contratos haciendo CLICK">
 
                         <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
                         <td data-label="ID Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
-                        <td data-label="Titulo del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                        <td data-label="Título del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
                         <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
                         <td data-label="Monto Estimado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                         <td data-label="Fecha de Publicación de la licitación">2018-02-19 10:02:54</td>
                         <td data-label="Fecha de recepción de ofertas">2018-02-19 10:02:54</td>
                         <td data-label="Estado">Contratado</td>
-                        <td data-label="Monto Adjudicado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                        <td data-label="Monto Pagado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                         <td data-label="Monto Contratado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                      </tr>
-                     <tr class="filaSubTabla transicion procesos">
+                     <tr class="filaSubTabla transicion contratos" toolTexto="Puedes ver una subtabla de contratos haciendo CLICK">
 
                            <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
                            <td data-label="ID Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
-                           <td data-label="Titulo del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                           <td data-label="Título del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
                            <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
                            <td data-label="Monto Estimado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                            <td data-label="Fecha de Publicación de la licitación">2018-02-19 10:02:54</td>
                            <td data-label="Fecha de recepción de ofertas">2018-02-19 10:02:54</td>
                            <td data-label="Estado">Contratado</td>
-                           <td data-label="Monto Adjudicado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                           <td data-label="Monto Pagado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                            <td data-label="Monto Contratado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                         </tr>
-                        <tr class="filaSubTabla transicion procesos">
+                        <tr class="filaSubTabla transicion contratos" toolTexto="Puedes ver una subtabla de contratos haciendo CLICK">
 
                               <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
                               <td data-label="ID Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
-                              <td data-label="Titulo del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                              <td data-label="Título del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
                               <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
                               <td data-label="Monto Estimado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                               <td data-label="Fecha de Publicación de la licitación">2018-02-19 10:02:54</td>
                               <td data-label="Fecha de recepción de ofertas">2018-02-19 10:02:54</td>
                               <td data-label="Estado">Contratado</td>
-                              <td data-label="Monto Adjudicado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Monto Pagado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                               <td data-label="Monto Contratado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                            </tr>
                   </tbody>
@@ -419,7 +461,7 @@
          
          <div class="row">
             <div class="col-md-12">
-               <div class=" cajonSombreado ">
+               <div class=" cajonSombreado " data-step="4" data-intro="Puedes ver los contratos de este comprador con sus proveedores.">
                      <div class="row">
                            <div class="col-md-12 mt-2">
                               <h4 class="text-primary-edcax titularCajonSombreado">Contratos del Comprador</h4>
@@ -446,75 +488,105 @@
                      <thead>
                         <tr> 
                            <th class="textoAlineadoCentrado">
-                                 <span>Dependencia</span>
-                                 <span class="ordenEncabezado" opcion="neutro">
-                                       <div class="contenedorFlechasOrden">
-                                             <i class="fas fa-sort-up flechaArriba"></i>
-                                             <i class="fas fa-sort-down flechaAbajo"></i>
-                                       </div>
-                                    </span>
-                                 <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
-                                 </th>
-                                 <th class="textoAlineadoCentrado">
-                                       <span>Proveedor</span>
-                                       <span class="ordenEncabezado" opcion="neutro">
+                                 <table class="alineado">
+                                       <tr><td><span toolTexto="buyer.name">Dependencia</span></td><td><span class="ordenEncabezado" opcion="neutro">
                                              <div class="contenedorFlechasOrden">
                                                    <i class="fas fa-sort-up flechaArriba"></i>
                                                    <i class="fas fa-sort-down flechaAbajo"></i>
                                              </div>
-                                          </span>
+                                          </span></td></tr>
+                                    </table>
+            
+                                 
+                                 
+                                 <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].suppliers[n].name">Proveedor</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
                                        <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                        </th>
                            <th class="textoAlineadoCentrado">
-                              <span>Titulo</span>
-                              <span class="ordenEncabezado" opcion="neutro">
-                                    <div class="contenedorFlechasOrden">
-                                          <i class="fas fa-sort-up flechaArriba"></i>
-                                          <i class="fas fa-sort-down flechaAbajo"></i>
-                                    </div>
-                                 </span>
+                                 <table class="alineado">
+                                       <tr><td><span toolTexto="contracts[n].title">Título del Contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span></td></tr>
+                                    </table>
+            
+                              
+                              
                               <input  class="campoBlancoTextoSeleccion" placeholder="Buscar">
                            </th>
    
                               <th class="textoAlineadoCentrado">
-                                    <span>Descripción</span>
-                                    <span class="ordenEncabezado" opcion="neutro">
-                                          <div class="contenedorFlechasOrden">
-                                                <i class="fas fa-sort-up flechaArriba"></i>
-                                                <i class="fas fa-sort-down flechaAbajo"></i>
-                                          </div>
-                                       </span>
+                                    <table class="alineado">
+                                          <tr><td>
+                                                <span toolTexto="contracts[n].description">Descripción</span></td><td>
+                                                      <span class="ordenEncabezado" opcion="neutro">
+                                                            <div class="contenedorFlechasOrden">
+                                                                  <i class="fas fa-sort-up flechaArriba"></i>
+                                                                  <i class="fas fa-sort-down flechaAbajo"></i>
+                                                            </div>
+                                                         </span>
+                                                </td></tr>
+                                       </table>
+               
+                                    
                                     <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                  </th>
                                  <th class="textoAlineadoCentrado">
-                                       <span>Nombre del Proceso</span>
-                                       <span class="ordenEncabezado" opcion="neutro">
-                                             <div class="contenedorFlechasOrden">
-                                                   <i class="fas fa-sort-up flechaArriba"></i>
-                                                   <i class="fas fa-sort-down flechaAbajo"></i>
-                                             </div>
-                                          </span>
+                                       <table class="alineado">
+                                             <tr><td> <span toolTexto="planning.rationale">Nombre del Proceso</span></td><td> <span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                      
+                                      
                                        <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                     </th>
    
                                  <th class="textoAlineadoCentrado">
-                                       <span>Categoría de Compra</span>
-                                       <span class="ordenEncabezado" opcion="neutro">
-                                             <div class="contenedorFlechasOrden">
-                                                   <i class="fas fa-sort-up flechaArriba"></i>
-                                                   <i class="fas fa-sort-down flechaAbajo"></i>
-                                             </div>
-                                          </span>
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="tender.additionalProcurementCategories">Categoría de Compra</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
                                        <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                     </th>
                                  <th class="textoAlineadoCentrado">
-                                       <span>Monto del Contrato</span>
-                                       <span class="ordenEncabezado" opcion="neutro">
-                                             <div class="contenedorFlechasOrden">
-                                                   <i class="fas fa-sort-up flechaArriba"></i>
-                                                   <i class="fas fa-sort-down flechaAbajo"></i>
-                                             </div>
-                                          </span>
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].value.amount">Monto del Contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
                                        <div class="contenedorFiltroNumerico">
                                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                                              <button class="btnFiltroNumerico">&lt;</button>
@@ -540,13 +612,19 @@
                                        </div>
                                     </th>
                                  <th class="textoAlineadoCentrado">
-                                       <span>Fecha del Contrato</span>
-                                       <span class="ordenEncabezado" opcion="neutro">
-                                             <div class="contenedorFlechasOrden">
-                                                   <i class="fas fa-sort-up flechaArriba"></i>
-                                                   <i class="fas fa-sort-down flechaAbajo"></i>
-                                             </div>
-                                          </span>
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].dateSigned">Fecha de Firma del Contrato</span></td><td>
+                                                   <span class="ordenEncabezado" opcion="neutro">
+                                                         <div class="contenedorFlechasOrden">
+                                                               <i class="fas fa-sort-up flechaArriba"></i>
+                                                               <i class="fas fa-sort-down flechaAbajo"></i>
+                                                         </div>
+                                                      </span>
+                                             </td></tr>
+                                          </table>
+                  
+                                       
+                                       
                                        <div class="contenedorFiltroNumerico">
                                              <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
                                              <button class="btnFiltroNumerico">&lt;</button>
@@ -572,13 +650,17 @@
                                        </div>
                                     </th>
                                  <th class="textoAlineadoCentrado">
-                                       <span>Estado</span>
-                                       <span class="ordenEncabezado" opcion="neutro">
-                                             <div class="contenedorFlechasOrden">
-                                                   <i class="fas fa-sort-up flechaArriba"></i>
-                                                   <i class="fas fa-sort-down flechaAbajo"></i>
-                                             </div>
-                                          </span>
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].status">Estado</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
                                        <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                     </th>
                            
@@ -588,12 +670,12 @@
                         <tr>
                            <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
                            <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
-                           <td data-label="Titulo">Lorem ipsum dolor sit amet consect </td>
+                           <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
                            <td data-label="Descripción">Lorem ipsum dolor sit amet consect</td>
                            <td data-label="Nombre del Proceso">Lorem ipsum dolor sit amet consect</td>
                            <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
                            <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
-                           <td data-label="Fecha del Contrato">2018-02-19 10:02:54</td>
+                           <td data-label="Fecha de Firma del Contrato">2018-02-19 10:02:54</td>
                            <td data-label="Estado">Firmado</td>
                         </tr>
                      </tbody>
@@ -641,7 +723,7 @@
          
             <div class="row">
                <div class="col-md-12">
-                  <div class=" cajonSombreado ">
+                  <div class=" cajonSombreado " data-step="5" data-intro="Puedes ver todos los pagos que ha efectuado este comprador.">
                         <div class="row">
                               <div class="col-md-12 mt-2">
                                  <!--<h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Procesos de Contratación</h1>-->
@@ -669,17 +751,21 @@
                         <thead>
                            <tr> 
                               <th class="textoAlineadoCentrado">
-                                    <span>Dependencia</span>
-                                    <span class="ordenEncabezado" opcion="neutro">
-                                          <div class="contenedorFlechasOrden">
-                                                <i class="fas fa-sort-up flechaArriba"></i>
-                                                <i class="fas fa-sort-down flechaAbajo"></i>
-                                          </div>
-                                       </span>
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="buyer.name">Dependencia</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
                                     <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                     </th>
                                     <th class="textoAlineadoCentrado">
-                                          <span>Proveedor</span>
+                                          <span toolTexto="contracts[n].suppliers[n].name">Proveedor</span>
                                           <span class="ordenEncabezado" opcion="neutro">
                                                 <div class="contenedorFlechasOrden">
                                                       <i class="fas fa-sort-up flechaArriba"></i>
@@ -689,13 +775,19 @@
                                           <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                           </th>
                               <th class="textoAlineadoCentrado">
-                                 <span>Titulo del contrato</span>
-                                 <span class="ordenEncabezado" opcion="neutro">
-                                       <div class="contenedorFlechasOrden">
-                                             <i class="fas fa-sort-up flechaArriba"></i>
-                                             <i class="fas fa-sort-down flechaAbajo"></i>
-                                       </div>
-                                    </span>
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="contracts[n].title">Título del Contrato</span></td><td>
+                                                <span class="ordenEncabezado" opcion="neutro">
+                                                      <div class="contenedorFlechasOrden">
+                                                            <i class="fas fa-sort-up flechaArriba"></i>
+                                                            <i class="fas fa-sort-down flechaAbajo"></i>
+                                                      </div>
+                                                   </span>
+                                          </td></tr>
+                                       </table>
+               
+                                 
+                                 
                                  <div class="contenedorFiltroNumerico">
                                        <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                                        <button class="btnFiltroNumerico">&lt;</button>
@@ -722,13 +814,17 @@
                               </th>
       
                                  <th class="textoAlineadoCentrado">
-                                       <span>Monto del contrato</span>
-                                       <span class="ordenEncabezado" opcion="neutro">
-                                             <div class="contenedorFlechasOrden">
-                                                   <i class="fas fa-sort-up flechaArriba"></i>
-                                                   <i class="fas fa-sort-down flechaAbajo"></i>
-                                             </div>
-                                          </span>
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].value.amount">Monto del contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
                                        <div class="contenedorFiltroNumerico">
                                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                                              <button class="btnFiltroNumerico">&lt;</button>
@@ -754,13 +850,17 @@
                                        </div>
                                     </th>
                                     <th class="textoAlineadoCentrado">
-                                          <span>Suma de todos los pagos</span>
-                                          <span class="ordenEncabezado" opcion="neutro">
-                                                <div class="contenedorFlechasOrden">
-                                                      <i class="fas fa-sort-up flechaArriba"></i>
-                                                      <i class="fas fa-sort-down flechaAbajo"></i>
-                                                </div>
-                                             </span>
+                                          <table class="alineado">
+                                                <tr><td><span toolTexto="Suma de contracts[n].implementation .transactions[n].value.amount">Suma de todos los pagos</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                      <div class="contenedorFlechasOrden">
+                                                            <i class="fas fa-sort-up flechaArriba"></i>
+                                                            <i class="fas fa-sort-down flechaAbajo"></i>
+                                                      </div>
+                                                   </span></td></tr>
+                                             </table>
+                     
+                                          
+                                          
                                           <div class="contenedorFiltroNumerico">
                                                 <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                                                 <button class="btnFiltroNumerico">&lt;</button>
@@ -787,17 +887,33 @@
                                        </th>
       
                                     <th class="textoAlineadoCentrado">
-                                          <span>Estado</span>
-                                          <span class="ordenEncabezado" opcion="neutro">
-                                                <div class="contenedorFlechasOrden">
-                                                      <i class="fas fa-sort-up flechaArriba"></i>
-                                                      <i class="fas fa-sort-down flechaAbajo"></i>
-                                                </div>
-                                             </span>
+                                          <table class="alineado">
+                                                <tr><td><span toolTexto="contracts[n].status">Estado</span></td><td>
+                                                      <span class="ordenEncabezado" opcion="neutro">
+                                                            <div class="contenedorFlechasOrden">
+                                                                  <i class="fas fa-sort-up flechaArriba"></i>
+                                                                  <i class="fas fa-sort-down flechaAbajo"></i>
+                                                            </div>
+                                                         </span>
+                                                </td></tr>
+                                             </table>
+                     
+                                          
+                                          
                                           <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                        </th>
                                     <th class="textoAlineadoCentrado">
-                                          <span>Fecha del ultimo pago</span>
+                                          <table class="alineado">
+                                                <tr><td><span toolTexto="Última contracts[n].implementation.transactions[n].date">Fecha del último pago</span></td><td>
+                                                      <span class="ordenEncabezado" opcion="neutro">
+                                                            <div class="contenedorFlechasOrden">
+                                                                  <i class="fas fa-sort-up flechaArriba"></i>
+                                                                  <i class="fas fa-sort-down flechaAbajo"></i>
+                                                            </div>
+                                                         </span>
+                                                </td></tr>
+                                             </table>
+                                          
                                           <div class="contenedorFiltroNumerico">
                                                 <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
                                                 <button class="btnFiltroNumerico">&lt;</button>
@@ -826,34 +942,34 @@
                            </tr>
                         </thead>
                         <tbody>
-                           <tr class="filaSubTabla transicion pagos">
+                           <tr class="filaSubTabla transicion pagos" toolTexto="Puedes ver una subtabla de pagos haciendo CLICK">
                                  <td data-label="Dependencia"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
                               <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Larach</a> </td>
-                              <td data-label="Titulo del Contrato">Lorem ipsum dolor sit amet consect</td>
+                              <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a></td>
                               <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                               <td data-label="Suma de todos los pagos">1,900,855,052 <span class="textoColorPrimario">HNL</span></td>
                               <td data-label="Estado">Compromiso</td>
-                              <td data-label="Fecha del ultimo pago">2018-02-19 10:02:54</td>
+                              <td data-label="Fecha del último pago">2018-02-19 10:02:54</td>
                      
                            </tr>
-                           <tr class="filaSubTabla transicion pagos">
+                           <tr class="filaSubTabla transicion pagos" toolTexto="Puedes ver una subtabla de pagos haciendo CLICK">
                                  <td data-label="Dependencia"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
                               <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Larach</a> </td>
-                              <td data-label="Titulo del Contrato">Lorem ipsum dolor sit amet consect</td>
+                              <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a></td>
                               <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                               <td data-label="Suma de todos los pagos">1,900,855,052 <span class="textoColorPrimario">HNL</span></td>
                               <td data-label="Estado">Compromiso</td>
-                              <td data-label="Fecha del ultimo pago">2018-02-19 10:02:54</td>
+                              <td data-label="Fecha del último pago">2018-02-19 10:02:54</td>
                      
                            </tr>
-                           <tr class="filaSubTabla transicion pagos">
+                           <tr class="filaSubTabla transicion pagos" toolTexto="Puedes ver una subtabla de pagos haciendo CLICK">
                                  <td data-label="Dependencia"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
                               <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Larach</a> </td>
-                              <td data-label="Titulo del Contrato">Lorem ipsum dolor sit amet consect</td>
+                              <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a></td>
                               <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
                               <td data-label="Suma de todos los pagos">1,900,855,052 <span class="textoColorPrimario">HNL</span></td>
                               <td data-label="Estado">Compromiso</td>
-                              <td data-label="Fecha del ultimo pago">2018-02-19 10:02:54</td>
+                              <td data-label="Fecha del último pago">2018-02-19 10:02:54</td>
                      
                            </tr>
                         </tbody>

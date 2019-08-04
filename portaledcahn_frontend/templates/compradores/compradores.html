@@ -12,14 +12,14 @@
 
 {% block container %}
 
-<div class="container">
+<div class="container-fluid" style="max-width: 1600px">
    <div class="row">
       <div class="col-md-6 col-lg-6">
          <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Compradores</h1>
 
       </div>
       <div class="col-md-6 col-lg-6 pt-3 textoAlineadoDerecha">
-            <label class="switchEdca" style="vertical-align:middle">
+            <label class="switchEdca" style="vertical-align:middle" data-step="2" data-intro="Puedes mostrar solo dependencias o instituciones compradoras.">
                   <input type="checkbox" >
                   <span class="sliderEdca circular"></span>
                   </label>
@@ -28,7 +28,7 @@
    </div>
    <div class="row mt-3 mb-3 ">
       <div class="col-lg-6">
-         <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
+         <div class="campoAzulBusquedaPadre normal" style="margin-left:0" data-step="1" data-intro="Puedes búscar un comprador, filtrando en todas las propiedades disponibles en la siguiente tabla, ingresando un texto aquí.">
             <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un Comprador...">
             <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
          </div>
@@ -46,27 +46,35 @@
    <div class="row">
       <div class="col-md-12">
          <div class=" cajonSombreado ">
-            <table class="tablaGeneral mostrarEncabezados">
+            <table class="tablaGeneral mostrarEncabezados" data-step="3" data-intro="Los resultados aparecerán en esta tabla.">
                <thead>
                   <tr>
                      <th class="textoAlineadoCentrado">
-                        <span>Comprador</span>
-                        <span class="ordenEncabezado" opcion="neutro">
-                              <div class="contenedorFlechasOrden">
-                                    <i class="fas fa-sort-up flechaArriba"></i>
-                                    <i class="fas fa-sort-down flechaAbajo"></i>
-                              </div>
-                           </span>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="buyer.name">Comprador</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                        
+                        
                         <input id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Nombre">
                      </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Procesos</span>
-                        <span class="ordenEncabezado" opcion="neutro">
-                              <div class="contenedorFlechasOrden">
-                                    <i class="fas fa-sort-up flechaArriba"></i>
-                                    <i class="fas fa-sort-down flechaAbajo"></i>
-                              </div>
-                           </span>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="Conteo de ocid">Procesos</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                        
+                        
                         <div class="contenedorFiltroNumerico">
                               <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                               <button class="btnFiltroNumerico">&lt;</button>
@@ -92,13 +100,17 @@
                         </div>
                      </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Total</span>
-                        <span class="ordenEncabezado" opcion="neutro">
-                              <div class="contenedorFlechasOrden">
-                                    <i class="fas fa-sort-up flechaArriba"></i>
-                                    <i class="fas fa-sort-down flechaAbajo"></i>
-                              </div>
-                           </span>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="Suma de contracts[n].value.amount"> Total de Monto Contratado</span>
+                                 </td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                         
                         <div class="contenedorFiltroNumerico">
                               <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                               <button class="btnFiltroNumerico">&lt;</button>
@@ -124,13 +136,17 @@
                         </div>
                         </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Promedio</span>
-                        <span class="ordenEncabezado" opcion="neutro">
-                              <div class="contenedorFlechasOrden">
-                                    <i class="fas fa-sort-up flechaArriba"></i>
-                                    <i class="fas fa-sort-down flechaAbajo"></i>
-                              </div>
-                           </span>
+                           <table class="alineado">
+                                 <tr><td> <span toolTexto="Promedio de contracts[n].value.amount">Promedio de Monto Contratado</span>
+                                 </td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                       
                         <div class="contenedorFiltroNumerico">
                               <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                               <button class="btnFiltroNumerico">&lt;</button>
@@ -156,13 +172,17 @@
                         </div>
                      </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Mayor</span>
-                        <span class="ordenEncabezado" opcion="neutro">
-                              <div class="contenedorFlechasOrden">
-                                    <i class="fas fa-sort-up flechaArriba"></i>
-                                    <i class="fas fa-sort-down flechaAbajo"></i>
-                              </div>
-                           </span>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="El mayor contracts[n].value.amount" >Mayor Monto Contratado</span>
+                                 </td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                        
                         <div class="contenedorFiltroNumerico">
                               <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                               <button class="btnFiltroNumerico">&lt;</button>
@@ -188,13 +208,17 @@
                         </div>
                         </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Menor</span>
-                        <span class="ordenEncabezado" opcion="neutro">
-                              <div class="contenedorFlechasOrden">
-                                    <i class="fas fa-sort-up flechaArriba"></i>
-                                    <i class="fas fa-sort-down flechaAbajo"></i>
-                              </div>
-                           </span>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="El menor contracts[n].value.amount">Menor Monto Contratado</span>
+                                 </td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                        
                         <div class="contenedorFiltroNumerico">
                               <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
                               <button class="btnFiltroNumerico">&lt;</button>
@@ -220,13 +244,19 @@
                         </div>
                      </th>
                      <th class="textoAlineadoCentrado">
-                           <span>Última Proceso</span>
-                           <span class="ordenEncabezado" opcion="neutro">
-                                 <div class="contenedorFlechasOrden">
-                                       <i class="fas fa-sort-up flechaArriba"></i>
-                                       <i class="fas fa-sort-down flechaAbajo"></i>
-                                 </div>
-                              </span>
+                           <table class="alineado">
+                                 <tr>
+                                    <td><span toolTexto="Último awards[n].date"> Fecha de Último Proceso</span>
+                                 </td>
+                                 <td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                           
                            <div class="contenedorFiltroNumerico">
                                  <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
                                  <button class="btnFiltroNumerico">&lt;</button>
@@ -257,47 +287,47 @@
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Conade</a> </td>
                      <td data-label="Procesos">15905 </td>
-                     <td data-label="Total">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">155,099 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor" >87,000,000 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">0 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio  de Monto Contratado">155,099 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado" >87,000,000 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">0 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">BCH</a></td>
                      <td data-label="Procesos">253</td>
-                     <td data-label="Total ">585,503,010 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">2,314,241 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor">79,823,428 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">11,657 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">585,503,010 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio  de Monto Contratado">2,314,241 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado">79,823,428 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">11,657 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">UPNFM</a></td>
                      <td data-label="Procesos">995</td>
-                     <td data-label="Total">232,603,843 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">570,480 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor">25,000 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">102 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">232,603,843 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio  de Monto Contratado">570,480 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado">25,000 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">102 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Copeco</a></td>
                      <td data-label="Procesos">1051</td>
-                     <td data-label="Total">1603,154,975 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">573,886 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor">30,000,000 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">0 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">1603,154,975 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio  de Monto Contratado">573,886 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado">30,000,000 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">0 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Pani</a></td>
                      <td data-label="Procesos">8</td>
-                     <td data-label="Total">345,085,077 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">493,683 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor">8,719,052 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">0 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">345,085,077 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio de Monto Contratado">493,683 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado">8,719,052 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">0 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                </tbody>
             </table>
@@ -321,7 +351,7 @@
          
       </div>
       <div class="col-md-12 textoAlineadoCentrado">
-         <nav class="navegacionTablaGeneral">
+         <nav class="navegacionTablaGeneral" data-step="4" data-intro="Puedes navegar entre los diversos resultados aquí.">
             <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
             <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
             <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
