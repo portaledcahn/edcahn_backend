@@ -10,29 +10,19 @@ $(function(){
       });
     /*Anadir eventos a los elementos*/
     $('#campoBlancoBusquedaProcesosBoton').on('click',function(e){
-        window.location.href="/busqueda";
+        window.location.href="/busqueda?q="+$('#campoBlancoBusquedaProcesos').val()+'&metodo=proceso';
     });
     $('#campoBlancoBusquedaProcesos').on('keydown',function(e){
         teclaCodigo=e.keyCode ? e.keyCode : e.which;
         if(teclaCodigo=='13'){
-            window.location.href="/busqueda";
+            window.location.href="/busqueda?q="+$('#campoBlancoBusquedaProcesos').val()+'&metodo=proceso';
         }
     });
     /*Anadir Titles a los campos de busqueda*/
-    tippy('#campoBlancoBusquedaProcesosBoton', {
-        arrow: true,
-        arrowType: 'round',
-        content:'Haz click para buscar'
-    });
-    tippy('#campoBlancoBusquedaProcesos', {
-        arrow: true,
-        arrowType: 'round',
-        content:'Ingresa un texto a buscar',
-        placement: 'bottom'
-    });
-    tippy('#botonBlancoFiltroBusquedaInicio', {
-        arrow: true,
-        arrowType: 'round',
-        content:'Selecciona un filtro'
-    });
+    AgregarToolTips();
+    VerificarIntroduccion('INTROJS_INICIO',1);
 })
+
+
+
+

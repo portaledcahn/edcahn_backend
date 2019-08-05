@@ -93,6 +93,9 @@ function MostrarPrimerProceso(){
   var pasos=$('.botonPasoProceso').not('.deshabilitado');
   if(pasos.length){
     $('.botonPasoProceso').removeClass('activo');
+    if(ObtenerValor( 'contrato')){
+      pasos=$('.botonPasoProceso[estado="contrato"]').not('.deshabilitado');
+    }
     $(pasos[0]).addClass('activo');
 
     $('.pasoOcultar').hide();
@@ -114,20 +117,28 @@ function MostrarPrimerProceso(){
 }
 
 function ObtenerProceso(){
+ 
+
   MostrarEspera('body .tamanoMinimo');
   $.get(api+"/record/"+procesoOcid,function(datos){
     if(datos&&!datos.detail){
       $('#procesoCargaContedor').show();
       procesoRecord=datos;
-      DefinirElementosPlaneacion();
+      DeshabilitarItems();
+      MostrarPrimerProceso();
+      AgregarToolTips();
+      AsignarOrdenTabla();
+      VerificarIntroduccion('INTROJS_PROCESO',1);
+      /*DefinirElementosPlaneacion();
       DefinirElementosConvocatoria();
       DefinirElementosAdjudicacion();
       DefinirElementosContrato();
       //DefinirElementosImplementacion();
       DeshabilitarItems();
-      MostrarPrimerProceso();
+      MostrarPrimerProceso();*/
       OcultarEspera('body .tamanoMinimo');
     }else{
+      OcultarEspera('body .tamanoMinimo');
       /*No se encontro el proceso de contratacion */
     }
     
@@ -135,6 +146,7 @@ function ObtenerProceso(){
 }).fail(function() {
   /*Error de Conexion al servidor */
   console.dir('error get')
+  OcultarEspera('body .tamanoMinimo');
   
 });
 }
