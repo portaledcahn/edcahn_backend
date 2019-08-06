@@ -8,7 +8,7 @@
 {% load static %}
 <div class="container mb-5 tamanoMinimo">
       <div id="procesoCargaContedor" style="">
-            <input type="hidden" value="ocds-lcuori-MLQmwL-CM-047-2018-1" id="procesoOcid">
+            <input type="hidden" value="{{ocid}}" id="procesoOcid">
          <div class="row">
             <div class="col-md-12">
                <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion titulo tituloOcultar" style="">
@@ -84,84 +84,6 @@
             <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion informacion pasoOcultar" id="planificacionInformacion" style="" data-step="2" data-intro="En esta sección puedes visualizar, documentos, archivos, e información de la etapa que este seleccionada en la parte superior.">
 
 
-                  <div class="row"><h4 class="col-12 col-sm-6 col-md-6 titularCajonSombreado">Datos de la Planificación</h4><div class="col-12 col-sm-6 col-md-6 textoAlineadoDerecha"><h4 class="descargaIconos enLinea"><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span></h4><h4 class="enLinea mb-0 enLinea alineadoArriba"><a href="/preguntas"><div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos"><i class="fas fa-question"></i></div></a></h4></div></div>
-                  
-                  <div class="cajonSombreadoantes contenedorDetalleProcesoDatos">
-                        <nav>
-                              <div class="nav nav-tabs" id="nav-tabplannning" role="tablist">
-                                <a class="nav-item nav-link active" id="nav-home-tabplanning" data-toggle="tab" href="#nav-homeplanning" role="tab" aria-controls="nav-homeplanning" aria-selected="true">
-                                   
-                                    <h4 class="titularColor" style="font-size: 15px">Información</h4>
-                                </a>
-                                <a class="nav-item nav-link" id="nav-contact-tabplanning" data-toggle="tab" href="#nav-contactplanning" role="tab" aria-controls="nav-contactplanning" aria-selected="false">
-                                    <h4 class="titularColor" style="font-size: 15px">Documentos</h4>
-                                </a>
-                              </div>
-                            </nav>
-                            <div class="tab-content cajonSombreado" id="nav-tabContentplanning">
-                              <div class="tab-pane fade show active" id="nav-homeplanning" role="tabpanel" aria-labelledby="nav-home-tabplanning">
-      
-                                    <div class="contenedorProceso informacionProceso">
-                                       
-                                          <div class="contenedorTablaCaracteristicas"><table><tbody><tr><td class="tituloTablaCaracteristicas" style="color:#333">
-                                                <span class="toolTip" toolTexto="planning.rationale">
-                                                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                          
-                                                </span>
-                                             
-                                           </td></tr></tbody></table></div>
-                                       <div class="contenedorTablaCaracteristicas"><table><tbody>
-                                       
-                                          <tr><td class="tituloTablaCaracteristicas">
-                                                       
-                                                   
-                                                   <span class="toolTip" toolTexto="buyer">Comprador</span>
-                                                   </td><td class="contenidoTablaCaracteristicas">
-                                                         <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-gLn5gr">
-                                                            Gerencia Administrativa
-                                                         </a>  de 
-                                                         <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-xsfsf
-                                                         5"> Secretaría de Coordinación General del Gobierno</a>   
-                                                   </td></tr>
-                                          <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="planning.budget.id" >ID partida presupuestaria:</span></td><td class="contenidoTablaCaracteristicas">MLQmwL-CM-047-2018-1</td></tr>
-                                          <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="planning.budget.description" >Fuente del presupuesto:</span></td><td class="contenidoTablaCaracteristicas">Recursos Propios</td></tr>
-                                          <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="planning.budget.project" >Proyecto de financiamiento:</span></td><td class="contenidoTablaCaracteristicas">Proyecto asa</td></tr>
-                                          <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="planning.budget.projectID" >ID Proyecto:</span></td><td class="contenidoTablaCaracteristicas">DRGDF434</td></tr>
-                                          <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="planning.budget.uri" >Enlace Presupuesto:</span></td><td class="contenidoTablaCaracteristicas">
-                                                <a class="enlaceTablaGeneral" href="#"> Presupuesto</a> 
-                                          </td></tr>
-                                       </tbody></table></div>
-                                    
-                                       <div class="contenedorTablaCaracteristicas"><table class="tablaAncho"><tbody><tr><td class="textoAlineadoDerecha"><div class="montoTotalProceso pr-3"><img class="imagenMonto mr-1" src="/static/img/otros/monedasHonduras.png"><div class="contenedorMonto procesoMonto"><div class="textoColorGris">
-                                          
-                                             Presupuesto
-                                      </div><div class="valorMonto"><span class="toolTip" toolTexto="planning.budget.amount.amount" >1,321.00</span><span class="textoColorPrimario toolTip"  toolTexto="planning.budget.amount.currency">HNL</span></div></div></div></td></tr></tbody></table></div>
-                                    </div>
-      
-                                    <!--<div style="border-bottom: 3px solid #dee2e6;" class="mt-1 mb-1"></div>
-                                    <div class="row"><div class="col-md-12 mt-3"><h4 class="titularCajonSombreado">Desglose de Presupuesto</h4></div></div>
-                  <div class=" cajonSombreadox contenedorDetalleProcesoDatos mt-2"><div class="contenedorProceso informacionProceso"><div class="contenedorTablaCaracteristicas">
-                     <table><tbody><tr><td class="tituloTablaCaracteristicas">
-                        <span class="toolTip" toolTexto="planning.budget.budgetBreakdown[0].description"></span>
-                        Origen de Fondos</td><td class="contenidoTablaCaracteristicas">Recursos Nacionales</td></tr><tr><td class="tituloTablaCaracteristicas">Fuente del Presupuesto</td><td class="contenidoTablaCaracteristicas">Entidad</td></tr></tbody></table>
-                  
-                  </div></div></div>-->
-      
-      
-                  
-                              </div>
-                              <div class="tab-pane fade" id="nav-contactplanning" role="tabpanel" aria-labelledby="nav-contact-tabplanning"><h4 class="titularColor textoColorPrimario mt-3">Esta etapa no posee documentos</h4></div>
-                            </div>
-                     
-                     
-                     
-                    
-      
-      
-                  </div>
-                  
-                  
-                  
                
                
                
@@ -171,138 +93,6 @@
 
             <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria informacion pasoOcultar" id="convocatoriaInformacion" style="display: none;">
 
-            <div class="row"><h4 class="col-12 col-sm-6 col-md-6 titularCajonSombreado">Datos de la Convocatoria</h4><div class="col-12 col-sm-6 col-md-6 textoAlineadoDerecha"><h4 class="descargaIconos enLinea"><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span></h4><h4 class="enLinea mb-0 enLinea alineadoArriba"><a href="/preguntas"><div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos"><i class="fas fa-question"></i></div></a></h4></div></div>
-            
-            
-            <div class="cajonSombreadoantes contenedorDetalleProcesoDatos">
-                  <nav>
-                        <div class="nav nav-tabs" id="nav-tabtender" role="tablist">
-                          <a class="nav-item nav-link active" id="nav-home-tabtender" data-toggle="tab" href="#nav-hometender" role="tab" aria-controls="nav-hometender" aria-selected="true">
-                             
-                              <h4 class="titularColor" style="font-size: 15px">Información</h4>
-                          </a>
-                          <a class="nav-item nav-link" id="nav-profile-tabtender" data-toggle="tab" href="#nav-profiletender" role="tab" aria-controls="nav-profiletender" aria-selected="false">
-                             
-                              <h4 class="titularColor" style="font-size: 15px">Items Solicitados</h4>
-                          </a>
-                          <a class="nav-item nav-link" id="nav-contact-tabtender" data-toggle="tab" href="#nav-contacttender" role="tab" aria-controls="nav-contacttender" aria-selected="false">
-                              <h4 class="titularColor" style="font-size: 15px">Documentos</h4>
-                          </a>
-                        </div>
-                      </nav>
-                      <div class="tab-content cajonSombreado" id="nav-tabContenttender">
-                        <div class="tab-pane fade show active" id="nav-hometender" role="tabpanel" aria-labelledby="nav-home-tabtender">
-                           
-                           <div class="contenedorProceso informacionProceso"><div class="contenedorTablaCaracteristicas"><table><tbody>
-                              <tr><td class="tituloTablaCaracteristicas toolTip" style="color:#333" toolTexto="tender.title">CM-047-2018</td></tr></tbody></table></div><div class="contenedorTablaCaracteristicas">
-                              <table><tbody>
-                                    <tr><td class="tituloTablaCaracteristicas">
-                                                       
-                                                   
-                                          <span class="toolTip" toolTexto="buyer">Comprador:</span>
-                                          </td><td class="contenidoTablaCaracteristicas">
-                                                <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-gLn5gr">
-                                                   Gerencia Administrativa
-                                                </a>  de 
-                                                <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-xsfsf
-                                                5"> Secretaría de Coordinación General del Gobierno</a>   
-                                          </td></tr>
-                                 
-                                 
-                                 <tr><td class="tituloTablaCaracteristicas">
-                                    <span class="toolTip" toolTexto="tender.status">Estado:</span>
-                                    </td><td class="contenidoTablaCaracteristicas">Completo</td></tr>
-                                    
-                                    <tr><td class="tituloTablaCaracteristicas">
-                                       <span class="toolTip" toolTexto="tender.procuringEntity.name">Entidad que gestiona el proceso:</span>
-                                       </td><td class="contenidoTablaCaracteristicas">
-                                    
-
-                                       <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-gLn5gr">Gerencia Administrativa</a>  de 
-                                       <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-xsfsf
-                                       5"> Secretaría de Coordinación General del Gobierno</a>   
-                                 </td></tr><tr><td class="tituloTablaCaracteristicas">
-                                    <span class="toolTip" toolTexto="tender.procurementMethodDetails"> Detalle del método de adjudicación</span>
-                                   </td><td class="contenidoTablaCaracteristicas">
-                                     Compra Menor
-                                    </td></tr>
-               
-               
-               
-               
-                           <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="tender.procurementMethod">Método de Contratación</span> </td><td class="contenidoTablaCaracteristicas">Compra Menor</td></tr></tbody></table></div></div>
-
-                           <div style="border-bottom: 3px solid #dee2e6;" class="mt-1 mb-1"></div>
-                           <div class="row" style="display: none"><h4 class="col-6 col-sm-6 col-md-6 titularCajonSombreado mt-2">Fechas Importantes</h4></div>
-                           <div class="row" >
-                                 <div class="cajonSombreadox contenedorDetalleProcesoDatos col-6 col-sm-6 col-md-6">
-                                       <div class="contenedorProceso informacionProceso">
-                                          <div class="contenedorTablaCaracteristicas">
-                                             <table>
-                                                <tbody>
-                                                   <tr>
-                                                      <td>
-                                                            <h4 class="titularColor textoColorPrimario">Recepción de Ofertas</h4>
-                                                      </td>
-                                                   </tr>
-                                                   
-                                                   
-                                                   
-                                                   
-                                                      <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="tender.tenderPeriod.startDate">Fecha de Inicio</span></td><td class="contenidoTablaCaracteristicas">2018-03-02 14:10:00</td></tr><tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="tender.tenderPeriod.endDate">Fecha de Finalización</span></td><td class="contenidoTablaCaracteristicas">2018-03-02 15:10:00</td></tr>
-                                                     
-                                                </tbody>
-                                             </table>
-                                          </div>
-                                       </div>
-                        
-                                    </div>
-
-                                    <div class="cajonSombreadox contenedorDetalleProcesoDato col-6 col-sm-6 col-md-6">
-                                          <div class="contenedorProceso informacionProceso">
-                                             <div class="contenedorTablaCaracteristicas">
-                                                <table>
-                                                   <tbody>
-                                                         <tr>
-                                                               <td>
-                                                                     <h4 class="titularColor textoColorPrimario">Consultas</h4>
-                                                               </td>
-                                                            </tr>
-                                                         <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="tender.enquiryPeriod.startDate">Fecha de Inicio</span></td><td class="contenidoTablaCaracteristicas">2018-03-02 14:10:00</td></tr>
-                                                         
-                                                         <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="tender.enquiryPeriod.endDate">Fecha de Finalización</span></td><td class="contenidoTablaCaracteristicas">2018-03-02 15:10:00</td></tr>
-                                                   </tbody>
-                                                </table>
-                                             </div>
-                                          </div>
-                           
-                                       </div>
-
-                           </div>
-                           
-
-                        </div>
-
-                        <div class="tab-pane fade" id="nav-profiletender" role="tabpanel" aria-labelledby="nav-profile-tabtender">
-                              <div class="  "><table class="tablaGeneral"><thead><tr><th>Id</th><th>Clasificación</th><th>Descripción</th><th>Cantidad</th><th>Precio</th><th>Unidad</th></tr></thead><tbody><tr><td data-label="id">90101604</td><td data-label="Clasificación">UNSPSC</td><td data-label="Descripción">Servicios de catering en la obra o lugar de trabajo</td><td data-label="Cantidad">1</td><td data-label="Precio"></td><td data-label="Unidad">Unidad</td></tr><tr><th style="vertical-align:top">Especificaciones</th><td colspan="4" class="textoAlineadoJustificado">2 ALMUERZOS EJECUTIVOS
-                                    02/03/2018</td></tr></tbody></table></div>
-                         
-                     </div>
-                        <div class="tab-pane fade" id="nav-contacttender" role="tabpanel" aria-labelledby="nav-contact-tabtender">
-                           <h4 class="titularColor textoColorPrimario mt-3">Esta etapa no posee documentos</h4>
-                        </div>
-                      </div>
-
-                      
-               
-               
-               
-               
-               
-            </div>
-
-              
-         
          </div>
             <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria documentos pasoOcultar" id="convocatoriaDocumentos" style="display:none">
             </div>
@@ -650,38 +440,7 @@
             <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion historial pasoOcultar" id="implementacionHistorial" style="display:none"></div>
             <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion invitados pasoOcultar" id="implementacionInvitados" style="display:none"></div>
             <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion solicitados pasoOcultar" id="implementacionSolicitados" style="display:none"></div>
-            <div class="col-12 col-sm-12 col-md-12 col-lg-12 mt-3" >
-               <div class="cajonSombreado" data-step="3" data-intro="En esta sección puedes visualizar los datos de contacto del comprador.">
-                     <div class="row mb-1 mt-1">
-                           <div class="col-md-12"><h4 class="titularCajonSombreado">Secretaría de Coordinación General del Gobierno</h4>
-                           <div class="cajonSombreadox"><div class="contenedorProceso informacionProceso"><div class="contenedorTablaCaracteristicas"><table><tbody>
-                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[0].address.streetAddress">Direccción:</span></td><td class="contenidoTablaCaracteristicas">SDP</td></tr>
-                              
-                              
-                              
-                              
-            
-                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[0].contactPoint.email">Correo Electronico:</span></td><td class="contenidoTablaCaracteristicas">x@scgg.gob.hn</td></tr>
-                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[0].contactPoint.faxNumber">Fax:</span></td><td class="contenidoTablaCaracteristicas">2222-2222</td></tr>
-                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[0].contactPoint.url">Sitio:</span></td><td class="contenidoTablaCaracteristicas"><a class="enlaceTablaGeneral" href="http://www.sdp.gob.hn/">http://www.sdp.gob.hn/</a></td></tr>
-                           </tbody></table></div></div></div></div>
-                           <div style="border-bottom: 3px solid #dee2e6;" class="mt-1 mb-1"></div>
-                        <div class="col-md-12"><h4 class="titularCajonSombreado">Gerencia Administrativa de la Secretaría de Coordinación General del Gobierno</h4>
-                           <div class="cajonSombreadox"><div class="contenedorProceso informacionProceso"><div class="contenedorTablaCaracteristicas"><table><tbody>
-                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[1].address.region">Departamento:</span></td><td class="contenidoTablaCaracteristicas">Francisco Morazan</td></tr>
-            
-                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[1].address.locality">Municipio:</span></td><td class="contenidoTablaCaracteristicas">DISTRITO CENTRAL</td></tr><tr>
-                                 <td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[1].address.streetAddress">Direccción:</span></td><td class="contenidoTablaCaracteristicas">Secretaria de Planificaciòn, Contiguo a Chiminike</td></tr>
-                                 <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[1].contactPoint.name">Encargado:</span></td><td class="contenidoTablaCaracteristicas">Sin informacíon aún</td></tr>
-                        
-                                 <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[1].contactPoint.email">Correo Electronico:</span></td><td class="contenidoTablaCaracteristicas">x@scgg.gob.hn</td></tr>
-                                 <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[1].contactPoint.telephone">Telefono:</span></td><td class="contenidoTablaCaracteristicas">2230-7000</td></tr>
-                                 <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[1].contactPoint.faxNumber">Fax:</span></td><td class="contenidoTablaCaracteristicas">-</td></tr>
-                                 <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="parties[1].contactPoint.url">Sitio:</span></td><td class="contenidoTablaCaracteristicas"><a class="enlaceTablaGeneral" href="http://www.sdp.gob.hn">http://www.sdp.gob.hn</a></td></tr></tbody></table></div></div></div>
-                        </div>
-                     </div>
-               </div>
-            </div>
+          
          </div>
          </div>
    
