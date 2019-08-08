@@ -7,126 +7,442 @@
 {% block container %}
 {% load static %}
 <div class="container mb-5 tamanoMinimo">
-   <div  id="procesoCargaContedor" style="display:none">
-      <input type="hidden" value="{{ ocid }}" id="procesoOcid">
-   <div class="row">
-      <div class="col-md-12">
-         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion titulo tituloOcultar"  style="display: none">
+      <div id="procesoCargaContedor" style="">
+            <input type="hidden" value="{{ocid}}" id="procesoOcid">
+         <div class="row">
+            <div class="col-md-12">
+               <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion titulo tituloOcultar" style="">
+                  </div>
+               <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria titulo tituloOcultar" style="display: none">
+                  </div>
+               <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 adjudicacion titulo tituloOcultar" style="display: none">
+                  </div>
+               <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 contrato titulo tituloOcultar" style="display: none">
+                  </div>
+               <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion titulo tituloOcultar" style="display: none">
+                  </div>
             </div>
-         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria titulo tituloOcultar"  style="display: none">
+         </div>
+         <div class="row mt-3 mb-3 contenedorElementosProceso">
+            <div class=" col-12 col-sm-12 col-md-12 contenedorProceso1" data-step="1" data-intro="Puedes seleccionar una etapa del proceso de contratación para visualizar la información de esta.">
+               <div class=" contenedorPasosProceso mb-3">
+                  <div class="botonPasoProceso fondoColorPrimario activo" id="planificacionProceso" estado="planificacion" title="Planificación">
+                     <div class="circuloNumeroPasoProceso ">
+                        <span>1</span>
+                     </div>
+                     <div class="textoBotonPasoProceso"> <span>Planificación </span></div>
+                  </div>
+                  <div class="botonPasoProceso fondoColorPrimario" id="convocatoriaProceso" estado="convocatoria" title="Convocatoria">
+                     <div class="circuloNumeroPasoProceso ">
+                        <span>2</span>
+                     </div>
+                     <div class="textoBotonPasoProceso"> <span>Convocatoria </span></div>
+                  </div>
+                  <div class="botonPasoProceso fondoColorPrimario" id="adjudicacionProceso" estado="adjudicacion" title="Adjudicación">
+                     <div class="circuloNumeroPasoProceso ">
+                        <span>3</span>
+                     </div>
+                     <div class="textoBotonPasoProceso"> <span>Adjudicación</span></div>
+                  </div>
+                  <div class="botonPasoProceso fondoColorPrimario" id="contratoProceso" estado="contrato" title="Contrato">
+                     <div class="circuloNumeroPasoProceso ">
+                        <span>4</span>
+                     </div>
+                     <div class="textoBotonPasoProceso"> <span>Contratos </span></div>
+                  </div>
+                  <!--
+                  <div class="botonPasoProceso fondoColorPrimario deshabilitado" id="implementacionProceso" estado="implementacion" title="Implementación">
+                     <div class="circuloNumeroPasoProceso ">
+                        <span>5</span>
+                     </div>
+                     <div class="textoBotonPasoProceso"> <span>Implementación</span></div>
+                  </div>-->
+               </div>
             </div>
-         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 adjudicacion titulo tituloOcultar"  style="display: none">
+            <div class="col-12 col-sm-12 col-md-2 col-lg-2 contenedorProceso2 mb-3" style="display: none">
+               <div class="botonPropiedadProceso activo" propiedad="informacion" title="Información" style="" tabindex="0">
+                  <img src="/static/img/proceso/data.png" alt="Información">
+                  <div class="textoBotonPropiedadProceso">Información</div>
+               </div>
+               <div class="botonPropiedadProceso" propiedad="documentos" title="Documentos" style="display:none" tabindex="0">
+                  <img src="/static/img/proceso/documentos.png" alt="Documentos">
+                  <div class="textoBotonPropiedadProceso">Documentos</div>
+               </div>
+               <div class="botonPropiedadProceso" propiedad="historial" title="Historial de Publicaciones" style="display:none" tabindex="0">
+                  <img src="/static/img/proceso/historial.png" alt="Historial de Publicaciones">
+                  <div class="textoBotonPropiedadProceso">Historial de Publicaciones</div>
+               </div>
+               <div class="botonPropiedadProceso" propiedad="invitados" title="Invitados" style="display:none" tabindex="0">
+                  <img src="/static/img/proceso/invitados.png" alt="Invitados">
+                  <div class="textoBotonPropiedadProceso"> Proveedores Invitados</div>
+               </div>
+               <div class="botonPropiedadProceso" propiedad="solicitados" title="Items Solicitados" style="" tabindex="0">
+                  <img src="/static/img/proceso/items.png" alt="Items Solicitados">
+                  <div class="textoBotonPropiedadProceso">Productos Solicitados</div>
+               </div>
             </div>
-         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 contrato titulo tituloOcultar"  style="display: none">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion informacion pasoOcultar" id="planificacionInformacion" style="" data-step="2" data-intro="En esta sección puedes visualizar, documentos, archivos, e información de la etapa que este seleccionada en la parte superior.">
+
+
+               
+               
+               
+               </div>
+
+
+
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria informacion pasoOcultar" id="convocatoriaInformacion" style="display: none;">
+
+         </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria documentos pasoOcultar" id="convocatoriaDocumentos" style="display:none">
             </div>
-         <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion titulo tituloOcultar"  style="display: none">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria historial pasoOcultar" id="convocatoriaHistorial" style="display:none">
             </div>
-      </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria invitados pasoOcultar" id="convocatoriaInvitados" style="display:none">
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 convocatoria solicitados pasoOcultar" id="convocatoriaSolicitados" style="display:none">
+            </div>
+           
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion documentos pasoOcultar" id="planificacionDocumentos" style="display:none">
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion historial pasoOcultar" id="planificacionHistorial" style="display:none">
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion invitados pasoOcultar" id="planificacionInvitados" style="display:none">
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 planificacion solicitados pasoOcultar" id="planificacionSolicitados" style="display:none">
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 adjudicacion informacion pasoOcultar" id="adjudicacionInformacion" style="display:none">
+
+
+            <div class="row"><h4 class="col-12 col-sm-6 col-md-6 titularCajonSombreado">Datos de la Adjudicación</h4><div class="col-12 col-sm-6 col-md-6 textoAlineadoDerecha"><h4 class="descargaIconos enLinea"><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span></h4><h4 class="enLinea mb-0 enLinea alineadoArriba"><a href="/preguntas"><div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos"><i class="fas fa-question"></i></div></a></h4></div></div>
+            <div class="cajonSombreadox contenedorDetalleProcesoDatos">
+               
+                  <nav>
+                        <div class="nav nav-tabs" id="nav-tabaward" role="tablist">
+                          <a class="nav-item nav-link active" id="nav-home-tabaward" data-toggle="tab" href="#nav-homeaward" role="tab" aria-controls="nav-homeaward" aria-selected="true">
+                             
+                              <h4 class="titularColor" style="font-size: 15px">Información</h4>
+                          </a>
+                          <a class="nav-item nav-link" id="nav-profile-tabaward" data-toggle="tab" href="#nav-profileaward" role="tab" aria-controls="nav-profileaward" aria-selected="false">
+                             
+                              <h4 class="titularColor" style="font-size: 15px">Items Solicitados</h4>
+                          </a>
+                          <a class="nav-item nav-link" id="nav-contact-tabaward" data-toggle="tab" href="#nav-contactaward" role="tab" aria-controls="nav-contactaward" aria-selected="false">
+                              <h4 class="titularColor" style="font-size: 15px">Documentos</h4>
+                          </a>
+                        </div>
+                      </nav>
+                      <div class="tab-content cajonSombreado" id="nav-tabContentaward">
+                        <div class="tab-pane fade show active" id="nav-homeaward" role="tabpanel" aria-labelledby="nav-home-tabaward">
+
+                              <div class="contenedorProceso informacionProceso">
+                                 <div class="contenedorTablaCaracteristicas"><table><tbody>
+                                    
+
+                                    <tr>
+                                       
+                                       <td class="tituloTablaCaracteristicas">
+                                              
+                                          
+                                          <span class="toolTip" toolTexto="buyer">Comprador</span>
+                                          </td><td class="contenidoTablaCaracteristicas">
+                                                <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-gLn5gr">Gerencia Administrativa</a>  de 
+                                                <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-xsfsf
+                                                5"> Secretaría de Coordinación General del Gobierno</a>   
+                                          </td></tr>
+                                  </tbody></table></div>
+                                 
+                                 
+                                    <div class=" contenedorProceso informacionProceso "><table class="tablaGeneral"><thead>
+                                       <tr><th>Id Adjudicación</th><th>Titulo</th><th>Descripción</th><th>Fecha de Adjudicación</th><th>Monto</th><th>Contrato</th></tr></thead><tbody>
+                                          <tr><td data-label="Id Adjudicación">FRF23rr</td><td data-label="Titulo">Lorem ipsum dolor sit amet consectetur adipisicing elit.</td><td data-label="Descripción">Servicios de catering en la obra o lugar de trabajo</td><td data-label="Fecha de Adjudicación">2019-05-04 04:02:00</td><td data-label="Monto">
+                                                1,321.00 <span class="textoColorPrimario">HNL</span> </td><td data-label="Contrato">
+                                                <a href="/proceso/ocdi-1949-466226-1212/?contrato=1" class="botonGeneral fondoColorSecundario" >ver contrato</a>
+                                          </td></tr>
+                                    </tbody></table></div>
+                                 
+                                 </div>
+
+                        </div>
+                        <div class="tab-pane fade" id="nav-profileaward" role="tabpanel" aria-labelledby="nav-profile-tabaward">
+                              <div class="  "><table class="tablaGeneral"><thead><tr><th>Id</th><th>Id Adjudicación</th><th>Clasificación</th><th>Descripción</th><th>Cantidad</th><th>Precio</th><th>Unidad</th></tr></thead><tbody><tr><td data-label="id">90101604</td><td data-label="Id Adjudicación">FRF23rr</td><td data-label="Clasificación">UNSPSC</td><td data-label="Descripción">Servicios de catering en la obra o lugar de trabajo</td><td data-label="Cantidad">1</td><td data-label="Precio">2645</td><td data-label="Unidad">Unidad</td></tr><tr><th style="vertical-align:top">Especificaciones</th><td colspan="4" class="textoAlineadoJustificado">2 ALMUERZOS EJECUTIVOS
+                                    02/03/2018</td></tr></tbody></table></div>
+
+                        </div>
+                        <div class="tab-pane fade" id="nav-contactaward" role="tabpanel" aria-labelledby="nav-contact-tabaward"><h4 class="titularColor textoColorPrimario mt-3">Esta etapa no posee documentos</h4></div>
+                      </div>
+         
+            
+            
+            </div></div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 adjudicacion documentos pasoOcultar" id="adjudicacionDocumentos" style="display:none">
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 adjudicacion historial pasoOcultar" id="adjudicacionHistorial" style="display:none">
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 adjudicacion invitados pasoOcultar" id="adjudicacionInvitados" style="display:none">
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 adjudicacion solicitados pasoOcultar" id="adjudicacionSolicitados" style="display:none">
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 contrato informacion pasoOcultar" id="contratoInformacion" style="display:none">
+                 
+                  <div class="row"><h4 class="col-12 col-sm-6 col-md-6 titularCajonSombreado">Datos de los Contratos</h4><div class="col-12 col-sm-6 col-md-6 textoAlineadoDerecha"><h4 class="descargaIconos enLinea"><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span></h4><h4 class="enLinea mb-0 enLinea alineadoArriba"><a href="/preguntas"><div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos"><i class="fas fa-question"></i></div></a></h4></div></div>
+<div class="cajonSombreado" data-step="2" data-intro="En esta sección puedes visualizar la información de los contratos del proceso de contratación.">
+      <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical" style="width: 200px;display:inline-block;vertical-align: top">
+            <a class="nav-link enlaceContrato active transicion" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">CM-047-2018</a>
+            <a class="nav-link enlaceContrato transicion" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">CM-048-2018</a>
+           
+          </div>
+          <div class="tab-content" id="v-pills-tabContent" style="width: calc( 100% - 210px);display:inline-block;vertical-align: top">
+            <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+               
+
+                  <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                          <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">
+                              <h4 class="titularColor" style="font-size: 15px">Información</h4>
+                          </a>
+                          <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">
+                              <h4 class="titularColor" style="font-size: 15px">Items Solicitados</h4>
+                          </a>
+                          <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">
+                              <h4 class="titularColor" style="font-size: 15px">Documentos</h4>
+                          </a>
+                          <a class="nav-item nav-link" id="nav-imple-tab" data-toggle="tab" href="#nav-imple" role="tab" aria-controls="nav-imple" aria-selected="false">
+                              <h4 class="titularColor" style="font-size: 15px">Implementación</h4>
+                          </a>
+                        </div>
+      
+                      </nav>
+                      <div class="tab-content cajonSombreado" id="nav-tabContent" style="/*border-left:3px solid #dee2e6;*/padding-left: 10px">
+                        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" >
+      
+      
+                              <div class="cajonSombreadox contenedorDetalleProcesoDatos " style="border-bottom: 3px solid #dee2e6;padding-bottom:10px;"><div class="contenedorProceso informacionProceso">
+                        
+                                    <div class="contenedorTablaCaracteristicas">
+                                       
+                                       <table><tbody><tr><td class="tituloTablaCaracteristicas" style="color:#333">
+                                             <span class="toolTip" toolTexto="contracts[0].title">CM-047-2018</span>
+                                             </td></tr>
+                                          <tr><td class="" style="color:#333">
+                                                <span class="toolTip" toolTexto="contracts[0].description">31100</span>
+                                                </td></tr></tbody></table>
+                                    </div>
+                                    
+                                    <div class="contenedorTablaCaracteristicas"><table><tbody>
+                                       
+                                       
+                                          <tr>
+                                       
+                                                <td class="tituloTablaCaracteristicas">
+                                                       
+                                                      <span class="toolTip" toolTexto="buyer">Comprador:</span>
+                                                   
+                                                   </td><td class="contenidoTablaCaracteristicas">
+                                                         <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-gLn5gr">Gerencia Administrativa</a>  de 
+                                                         <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-xsfsf
+                                                         5"> Secretaría de Coordinación General del Gobierno</a>   
+                                                   </td></tr>
+                                       
+                                       <tr>
+                                          <td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="contracts[0].suppliers[0].name">Proveedor:</span></td><td class="contenidoTablaCaracteristicas"><a class="enlaceTablaGeneral" href="/proveedor/HN-RTN-08019006042676">Productos Cruz Abadie, S.A.</a></td></tr>
+                                          <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="contracts[0].dateSigned">Fecha de Firma</span>
+                                             </td><td class="contenidoTablaCaracteristicas">2018-04-13 00:00:00</td></tr>
+                                          <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="contracts[0].id">ID Contrato</span></td><td class="contenidoTablaCaracteristicas">MLQmwL-CM-047-2018</td></tr>
+                                          <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" toolTexto="contracts[0].awardID">ID Adjudicación</span></td><td class="contenidoTablaCaracteristicas">MLQmwL-CM-047-2018-1</td></tr>
+                                       </tbody></table></div><div class="contenedorTablaCaracteristicas"><table class="tablaAncho"><tbody>
+                                          <tr><td class="textoAlineadoDerecha"><div class="montoTotalProceso pr-3"><img class="imagenMonto mr-1" src="/static/img/otros/monedasHonduras.png"><div class="contenedorMonto procesoMonto"><div class="textoColorGris">Monto</div><div class="valorMonto"><span class="toolTip" tooltexto="contracts[0].value.amount">1,321.00</span><span class="textoColorPrimario toolTip" tooltexto="contracts[0].value.currency">HNL</span></div></div></div></td></tr>
+                                       </tbody></table></div></div></div>
+                                       
+                                       
+                                       <div class="row mb-3 mt-3"><div class="col-md-12"><h4 class="titularCajonSombreado">Datos de Contacto de Proveedor:</h4><div class="cajonSombreadox"><div class="contenedorProceso informacionProceso"><div class="contenedorTablaCaracteristicas"><table><tbody>
+                                          <tr>
+                                          <td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].address.streetAddress">Direccción:</span></td><td class="contenidoTablaCaracteristicas">Sobre el Anillo Periferico, 400 metros del Ministerio Tsebaoth
+                           Distrito Central, Francisco Morazan</td></tr>
+                           <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].contactPoint.name">Encargado:</span></td><td class="contenidoTablaCaracteristicas">Milton AlejandroCruz Abadie</td></tr>
+                           <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].contactPoint.email" >Correo Electronico:</span></td><td class="contenidoTablaCaracteristicas">info.cruzadi@gmail.com</td></tr>
+                           <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].contactPoint.telephone">Telefono:</span></td><td class="contenidoTablaCaracteristicas">2236-5450</td></tr>
+                           <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].contactPoint.faxNumber">Fax:</span></td><td class="contenidoTablaCaracteristicas">-</td></tr></tbody></table></div></div></div></div></div>
+      
+      
+                        </div>
+                        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                              <div class=" cajonSombreadox "><table class="tablaGeneral"><thead><tr><th>Id</th><th>Clasificación</th><th>Descripción</th><th>Cantidad</th><th>Precio</th><th>Unidad</th></tr></thead><tbody><tr><td data-label="id">90101604</td><td data-label="Clasificación">UNSPSC</td><td data-label="Descripción">Servicios de catering en la obra o lugar de trabajo</td><td data-label="Cantidad">1</td><td data-label="Precio"></td><td data-label="Unidad">Unidad</td></tr><tr><th style="vertical-align:top">Especificaciones</th><td colspan="5" class="textoAlineadoJustificado">2 ALMUERZOS EJECUTIVOS
+                                    02/03/2018</td></tr></tbody></table></div>
+                        </div>
+                        <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                           
+                           
+                  <div class=" cajonSombreadox"><table class="tablaGeneral"><thead><tr><th>Nombre</th><th>Descripción</th><th>Tipo</th><th>Fecha</th><th></th></tr></thead><tbody><tr><td data-label="Nombre">Contrato u Orden de Compra</td><td data-label="Descripción">Contrato u Orden de Compra</td><td data-label="Tipo">Contrato Firmado</td><td data-label="Fecha">2018-04-13 14:08:59</td><td class="textoAlineadoDerecha" data-label=""><h4 class="descargaIconos"><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><a href="http://h1.honducompras.gob.hn/Docs/Con749CM-047-20181200-ContratouOrdendeCompra.pdf" download="a" class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.PDF</a></span></h4></td></tr><tr><td data-label="Nombre">Contrato u Orden de Compra</td><td data-label="Descripción">Contrato u Orden de Compra</td><td data-label="Tipo">Contrato Firmado</td><td data-label="Fecha">2018-04-13 14:09:02</td><td class="textoAlineadoDerecha" data-label=""><h4 class="descargaIconos"><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><a href="http://h1.honducompras.gob.hn/Docs/Con749CM-047-20181200-ContratouOrdendeCompra.pdf" download="a" class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.PDF</a></span></h4></td></tr></tbody></table></div>
+                        </div>
+
+
+                        <div class="tab-pane fade" id="nav-imple" role="tabpanel" aria-labelledby="nav-imple-tab">
+                              <h4 class="titularCajonSombreado">Transacciones</h4>
+                              <div class="mb-3" style="    border-bottom: 3px solid #dee2e6;">
+                                    <div class="contenedorTablaCaracteristicas"><table><tbody>
+                                    
+                                          <tr>
+                                             
+                                                <td class="tituloTablaCaracteristicas">
+                                                       
+                                                   
+                                                   <span class="toolTip" toolTexto="contracts[0].transactions[0].date">Fecha:</span>
+                                                   </td><td class="contenidoTablaCaracteristicas">2019-05-05 12:05:06 
+                                                   </td></tr>
+                                          <tr>
+                                             
+                                             <td class="tituloTablaCaracteristicas">
+                                                    
+                                                
+                                                <span class="toolTip" toolTexto="contracts[0].transactions[0].payer.name">Proveedor de Fondos</span>
+                                                </td><td class="contenidoTablaCaracteristicas">
+                                                      <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-gLn5gr">Gerencia Administrativa</a>  de 
+                                                      <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-xsfsf
+                                                      5"> Secretaría de Coordinación General del Gobierno</a>   
+                                                </td></tr>
+                                                <tr>
+                                             
+                                                      <td class="tituloTablaCaracteristicas">
+                                                             
+                                                         
+                                                         <span class="toolTip" toolTexto="contracts[0].transactions[0].payee.name">Receptor de Fondos</span>
+                                                         </td><td class="contenidoTablaCaracteristicas">
+                                                               <a class="enlaceTablaGeneral" href="/proveedor/HN-RTN-08019006042676">Productos Cruz Abadie, S.A.</a>  
+                                                         </td></tr>
+                                        </tbody></table></div>
+                                    <div class="montoTotalProceso pb-3">
+                                       <div class="contenedorMonto procesoMonto"><div class="textoColorGris">Monto</div><div class="valorMonto">
+                                          <span class="toolTip" toolTexto="contracts[0].transactions[0].amount.amount">
+                                                500.00
+                                          </span>
+                                         <span class="textoColorPrimario toolTip" toolTexto="contracts[0].transactions[0].amount.currency"> HNL</span></div></div></div>
+                              </div>
+
+                              <h4 class="titularCajonSombreado">Obligaciones Financieras </h4>
+                        </div>
+
+                      </div>
+
+
+            </div>
+            <div class="tab-pane fade " id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+
+                  <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                          <a class="nav-item nav-link active" id="nav-home-tab2" data-toggle="tab" href="#nav-home2" role="tab" aria-controls="nav-home2" aria-selected="true">
+                              <h4 class="titularColor" style="font-size: 15px">Información</h4>
+                          </a>
+                          <a class="nav-item nav-link" id="nav-profile-tab2" data-toggle="tab" href="#nav-profile2" role="tab" aria-controls="nav-profile2" aria-selected="false">
+                              <h4 class="titularColor" style="font-size: 15px">Items Solicitados</h4>
+                          </a>
+                          <a class="nav-item nav-link" id="nav-contact-tab2" data-toggle="tab" href="#nav-contact2" role="tab" aria-controls="nav-contact2" aria-selected="false">
+                              <h4 class="titularColor" style="font-size: 15px">Documentos</h4>
+                          </a>
+                          <a class="nav-item nav-link" id="nav-imple-tab2" data-toggle="tab" href="#nav-imple2" role="tab" aria-controls="nav-imple2" aria-selected="false">
+                              <h4 class="titularColor" style="font-size: 15px">Implementación</h4>
+                          </a>
+                        </div>
+      
+                      </nav>
+                      <style>
+                     
+                      </style>
+                      <div class="tab-content cajonSombreado" id="nav-tabContent2" style="/*border-left:3px solid #dee2e6;*/padding-left: 10px">
+                        <div class="tab-pane fade show active" id="nav-home2" role="tabpanel" aria-labelledby="nav-home-tab2" >
+      
+      
+                              <div class="cajonSombreadox contenedorDetalleProcesoDatos " style="border-bottom: 3px solid #dee2e6;padding-bottom:10px;"><div class="contenedorProceso informacionProceso">
+                        
+                                    <div class="contenedorTablaCaracteristicas">
+                                       
+                                       <table><tbody><tr><td class="tituloTablaCaracteristicas" style="color:#333"><span class="toolTip" tooltexto="contracts[1].title" >CM-048-2018</span></td></tr><tr><td class="" style="color:#333"><span class="toolTip" tooltexto="contracts[1].description" >31100</span></td></tr></tbody></table>
+                                    </div>
+                                    
+                                    <div class="contenedorTablaCaracteristicas"><table><tbody>
+                                       
+                                       
+                                          <tr>
+                                       
+                                                <td class="tituloTablaCaracteristicas">
+                                                       
+                                                      <span class="toolTip" tooltexto="buyer" >Comprador:</span>
+                                                   
+                                                   </td><td class="contenidoTablaCaracteristicas">
+                                                         <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-gLn5gr">Gerencia Administrativa</a>  de 
+                                                         <a class="enlaceTablaGeneral" href="/comprador/MLQmwL-xsfsf
+                                                         5"> Secretaría de Coordinación General del Gobierno</a>   
+                                                   </td></tr>
+                                       
+                                       
+                                       <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="contracts[1].suppliers[0].name">Proveedor:</span></td><td class="contenidoTablaCaracteristicas"><a class="enlaceTablaGeneral" href="/proveedor/HN-RTN-08019006042676">Productos Cruz Abadie, S.A.</a></td></tr>
+                                       <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="contracts[1].dateSigned" >Fecha de Firma</span></td><td class="contenidoTablaCaracteristicas">2018-04-13 00:00:00</td></tr>
+                                       <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="contracts[1].id">ID Contrato</span></td><td class="contenidoTablaCaracteristicas">MLQmwL-CM-047-2018</td></tr>
+                                       <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="contracts[1].awardID">ID Adjudicación</span></td><td class="contenidoTablaCaracteristicas">MLQmwL-CM-047-2018-1</td></tr>
+                                    </tbody></table></div><div class="contenedorTablaCaracteristicas"><table class="tablaAncho"><tbody><tr><td class="textoAlineadoDerecha"><div class="montoTotalProceso pr-3"><img class="imagenMonto mr-1" src="/static/img/otros/monedasHonduras.png"><div class="contenedorMonto procesoMonto"><div class="textoColorGris">Monto</div><div class="valorMonto">
+                                          <span class="toolTip" tooltexto="contracts[1].value.amount">2,645.00</span><span class="textoColorPrimario toolTip" tooltexto="contracts[1].value.currency">
+                                             HNL</span></div></div></div></td></tr>
+                                    </tbody></table></div></div></div>
+                                       
+                                       
+                                       <div class="row mb-3 mt-3"><div class="col-md-12"><h4 class="titularCajonSombreado">Datos de Contacto de Proveedor:</h4><div class="cajonSombreadox"><div class="contenedorProceso informacionProceso"><div class="contenedorTablaCaracteristicas"><table><tbody>
+                                             <tr>
+                                             <td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].address.streetAddress">Direccción:</span></td><td class="contenidoTablaCaracteristicas">Sobre el Anillo Periferico, 400 metros del Ministerio Tsebaoth
+                              Distrito Central, Francisco Morazan</td></tr>
+                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].contactPoint.name">Encargado:</span></td><td class="contenidoTablaCaracteristicas">Milton AlejandroCruz Abadie</td></tr>
+                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].contactPoint.email" >Correo Electronico:</span></td><td class="contenidoTablaCaracteristicas">info.cruzadi@gmail.com</td></tr>
+                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].contactPoint.telephone">Telefono:</span></td><td class="contenidoTablaCaracteristicas">2236-5450</td></tr>
+                              <tr><td class="tituloTablaCaracteristicas"><span class="toolTip" tooltexto="parties[2].contactPoint.faxNumber">Fax:</span></td><td class="contenidoTablaCaracteristicas">-</td></tr></tbody></table></div></div></div></div></div>
+      
+      
+                        </div>
+                        <div class="tab-pane fade" id="nav-profile2" role="tabpanel" aria-labelledby="nav-profile-tab2">
+                              <div class=" cajonSombreadox "><table class="tablaGeneral"><thead><tr><th>Id</th><th>Clasificación</th><th>Descripción</th><th>Cantidad</th><th>Precio</th><th>Unidad</th></tr></thead><tbody><tr><td data-label="id">90101604</td><td data-label="Clasificación">UNSPSC</td><td data-label="Descripción">Servicios de catering en la obra o lugar de trabajo</td><td data-label="Cantidad">1</td><td data-label="Precio"></td><td data-label="Unidad">Unidad</td></tr><tr><th style="vertical-align:top">Especificaciones</th><td colspan="5" class="textoAlineadoJustificado">2 ALMUERZOS EJECUTIVOS
+                                    02/03/2018</td></tr></tbody></table></div>
+                        </div>
+                        <div class="tab-pane fade" id="nav-contact2" role="tabpanel" aria-labelledby="nav-contact-tab2">
+                           
+                           
+                  <div class=" cajonSombreadox"><table class="tablaGeneral"><thead><tr><th>Nombre</th><th>Descripción</th><th>Tipo</th><th>Fecha</th><th></th></tr></thead><tbody><tr><td data-label="Nombre">Contrato u Orden de Compra</td><td data-label="Descripción">Contrato u Orden de Compra</td><td data-label="Tipo">Contrato Firmado</td><td data-label="Fecha">2018-04-13 14:08:59</td><td class="textoAlineadoDerecha" data-label=""><h4 class="descargaIconos"><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><a href="http://h1.honducompras.gob.hn/Docs/Con749CM-047-20181200-ContratouOrdendeCompra.pdf" download="a" class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.PDF</a></span></h4></td></tr><tr><td data-label="Nombre">Contrato u Orden de Compra</td><td data-label="Descripción">Contrato u Orden de Compra</td><td data-label="Tipo">Contrato Firmado</td><td data-label="Fecha">2018-04-13 14:09:02</td><td class="textoAlineadoDerecha" data-label=""><h4 class="descargaIconos"><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><a href="http://h1.honducompras.gob.hn/Docs/Con749CM-047-20181200-ContratouOrdendeCompra.pdf" download="a" class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.PDF</a></span></h4></td></tr></tbody></table></div>
+                        </div>
+                        <div class="tab-pane fade" id="nav-imple2" role="tabpanel" aria-labelledby="nav-imple-tab2">
+                              <h4 class="titularCajonSombreado">Transacciones</h4>
+                              <h4 class="titularColor textoColorPrimario">No hay transacciones disponibles</h4>
+
+                              <h4 class="titularCajonSombreado">Obligaciones Financieras </h4>
+                        </div>
+                      </div>
+
+
+            </div>
+          </div>
+
+</div>
+
+
+      
+
+
+
+      
+   
    </div>
-   <div class="row mt-3 mb-3 contenedorElementosProceso">
-      <div class=" col-2 col-sm-1 col-md-10 offset-md-2 contenedorProceso1">
-         <div class=" contenedorPasosProceso mb-3">
-            <div class="botonPasoProceso fondoColorPrimario" id="planificacionProceso" estado="planificacion" title="Planificación">
-               <div class="circuloNumeroPasoProceso ">
-                  <span>1</span>
-               </div>
-               <div class="textoBotonPasoProceso"> <span>Planificación </span></div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 contrato documentos pasoOcultar" id="contratoDocumentos" style="display:none">
+          </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 contrato historial pasoOcultar" id="contratoHistorial" style="display:none">
             </div>
-            <div class="botonPasoProceso fondoColorPrimario"  id="convocatoriaProceso" estado="convocatoria" title="Convocatoria">
-               <div class="circuloNumeroPasoProceso ">
-                  <span>2</span>
-               </div>
-               <div class="textoBotonPasoProceso"> <span>Convocatoria </span></div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 contrato invitados pasoOcultar" id="contratoInvitados" style="display:none">
             </div>
-            <div class="botonPasoProceso fondoColorPrimario"  id="adjudicacionProceso" estado="adjudicacion" title="Adjudicación">
-               <div class="circuloNumeroPasoProceso ">
-                  <span>3</span>
-               </div>
-               <div class="textoBotonPasoProceso"> <span>Adjudicación</span></div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 contrato solicitados pasoOcultar" id="contratoSolicitados" style="display:none">
             </div>
-            <div class="botonPasoProceso fondoColorPrimario"  id="contratoProceso" estado="contrato" title="Contrato">
-               <div class="circuloNumeroPasoProceso ">
-                  <span>4</span>
-               </div>
-               <div class="textoBotonPasoProceso"> <span>Contrato </span></div>
-            </div>
-            <div class="botonPasoProceso fondoColorPrimario"  id="implementacionProceso" estado="implementacion" title="Implementación">
-               <div class="circuloNumeroPasoProceso ">
-                  <span>5</span>
-               </div>
-               <div class="textoBotonPasoProceso"> <span>Implementación</span></div>
-            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion informacion pasoOcultar" id="implementacionInformacion" style="display:none"></div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion documentos pasoOcultar" id="implementacionDocumentos" style="display:none"></div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion historial pasoOcultar" id="implementacionHistorial" style="display:none"></div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion invitados pasoOcultar" id="implementacionInvitados" style="display:none"></div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 contenedorProceso3 implementacion solicitados pasoOcultar" id="implementacionSolicitados" style="display:none"></div>
+          
          </div>
-      </div>
-      <div class="col-12 col-sm-12 col-md-2 col-lg-2 contenedorProceso2 mb-3">
-         <div class="botonPropiedadProceso" propiedad="informacion" title="Información" style="display:none">
-            <img src="{% static 'img/proceso/data.png' %}" alt="Información">
-            <div class="textoBotonPropiedadProceso">Información</div>
          </div>
-         <div class="botonPropiedadProceso" propiedad="documentos" title="Documentos" style="display:none">
-            <img src="{% static 'img/proceso/documentos.png' %}" alt="Documentos" >
-            <div class="textoBotonPropiedadProceso">Documentos</div>
-         </div>
-         <div class="botonPropiedadProceso" propiedad="historial" title="Historial de Publicaciones" style="display:none">
-            <img src="{% static 'img/proceso/historial.png' %}" alt="Historial de Publicaciones" >
-            <div class="textoBotonPropiedadProceso">Historial de Publicaciones</div>
-         </div>
-         <div class="botonPropiedadProceso" propiedad="invitados" title="Invitados" style="display:none">
-            <img src="{% static 'img/proceso/invitados.png' %}" alt="Invitados">
-            <div class="textoBotonPropiedadProceso"> Proveedores Invitados</div>
-         </div>
-         <div class="botonPropiedadProceso" propiedad="solicitados" title="Items Solicitados" style="display:none">
-            <img src="{% static 'img/proceso/items.png' %}" alt="Items Solicitados">
-            <div class="textoBotonPropiedadProceso">Productos Solicitados</div>
-         </div>
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 convocatoria informacion pasoOcultar" id="convocatoriaInformacion">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 convocatoria documentos pasoOcultar" id="convocatoriaDocumentos" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 convocatoria historial pasoOcultar" id="convocatoriaHistorial" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 convocatoria invitados pasoOcultar" id="convocatoriaInvitados" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 convocatoria solicitados pasoOcultar" id="convocatoriaSolicitados" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 planificacion informacion pasoOcultar" id="planificacionInformacion" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 planificacion documentos pasoOcultar" id="planificacionDocumentos" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 planificacion historial pasoOcultar" id="planificacionHistorial" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 planificacion invitados pasoOcultar" id="planificacionInvitados" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 planificacion solicitados pasoOcultar" id="planificacionSolicitados" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 adjudicacion informacion pasoOcultar" id="adjudicacionInformacion" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 adjudicacion documentos pasoOcultar" id="adjudicacionDocumentos" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 adjudicacion historial pasoOcultar" id="adjudicacionHistorial" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 adjudicacion invitados pasoOcultar" id="adjudicacionInvitados" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 adjudicacion solicitados pasoOcultar" id="adjudicacionSolicitados" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 contrato informacion pasoOcultar" id="contratoInformacion" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 contrato documentos pasoOcultar" id="contratoDocumentos" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 contrato historial pasoOcultar" id="contratoHistorial" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 contrato invitados pasoOcultar" id="contratoInvitados" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 contrato solicitados pasoOcultar" id="contratoSolicitados" style="display:none">
-      </div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 implementacion informacion pasoOcultar" id="implementacionInformacion" style="display:none"></div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 implementacion documentos pasoOcultar" id="implementacionDocumentos" style="display:none"></div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 implementacion historial pasoOcultar" id="implementacionHistorial" style="display:none"></div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 implementacion invitados pasoOcultar" id="implementacionInvitados" style="display:none"></div>
-      <div class="col-10 col-sm-11 col-md-10 col-lg-10 contenedorProceso3 implementacion solicitados pasoOcultar" id="implementacionSolicitados" style="display:none"></div>
-   </div>
-   </div>
    
 </div>
 {% endblock %}

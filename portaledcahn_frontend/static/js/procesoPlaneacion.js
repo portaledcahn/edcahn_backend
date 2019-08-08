@@ -13,6 +13,10 @@ function DefinirElementosPlaneacion(){
                 $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
                   $('<i>',{class:'fas fa-file-download'}),
                   '&nbsp;.CSV'
+                ),
+                $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
+                  $('<i>',{class:'fas fa-file-download'}),
+                  '&nbsp;.XLS'
                 )
               ),
               $('<h4>',{class:'enLinea mb-0 enLinea alineadoArriba'}).append(
@@ -28,71 +32,119 @@ function DefinirElementosPlaneacion(){
             )
           ),
           
-          $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos'}).append(
-            $('<div>',{class:'contenedorProceso informacionProceso'}).append(
-
-                (procesoRecord.compiledRelease.planning.rationale?
-                    $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-                        $('<table>').append(
-                          $('<tbody>').append(
-                            $('<tr>').append(
-                                $('<td>',{class:'tituloTablaCaracteristicas',text:procesoRecord.compiledRelease.planning.rationale,style:'color:#333'}))
-                          ))):null),
-              $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-                $('<table>').append(
-                  $('<tbody>').append(
-                    /*Consultas*/
-                    (procesoRecord.compiledRelease.buyer&&procesoRecord.compiledRelease.buyer.name&&procesoRecord.compiledRelease.parties ? 
-                      ObtenerCompradores(procesoRecord.compiledRelease.parties,procesoRecord.compiledRelease.buyer) : null),
-                    procesoRecord.compiledRelease.tender&&procesoRecord.compiledRelease.tender.enquiryPeriod ? ([
-                      procesoRecord.compiledRelease.tender.enquiryPeriod.startDate ? 
-                      $('<tr>').append(
-                        $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Inicio de Consultas'}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.enquiryPeriod.startDate)})
-                      ) : null,
-                      procesoRecord.compiledRelease.tender.enquiryPeriod.endDate ?
-                      $('<tr>').append(
-                        $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Finalización de Consultas'}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.enquiryPeriod.endDate)})
-                      ) : null
-                    ]
-                    ) : null
-                    ,
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proceso (OCID):'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.ocid})
-                    )
-                    )
-                    )
+          $('<div>',{class:'cajonSombreadox contenedorDetalleProcesoDatos'}).append(
+            $('<nav>').append(
+              $('<div>',{class:'nav nav-tabs',role:'tablist'}).append(
+              $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabPlaneacion',href:'#informacionTabPlaneacion','aria-selected':'true'}).append(
+                $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Informacion'})
               ),
-              (procesoRecord.compiledRelease.planning.budget&&procesoRecord.compiledRelease.planning.budget.amount?
+              $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'documentosTabPlaneacion',href:'#documentosTabPlaneacion','aria-selected':'true'}).append(
+                $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Documentos'})
+              )
+                )
+            ),
+            $('<div>',{class:'tab-content cajonSombreado',id:'contenedorTabPlaneacion'}).append(
+              $('<div>',{class:'tab-pane fade show active',role:'tabpanel','aria-labelledby':'informacionTabPlaneacion',id:'informacionTabPlaneacion'}).append(
+                $('<div>',{class:'contenedorProceso informacionProceso'}).append(
+
+                  (procesoRecord.compiledRelease.planning.rationale?
+                      $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+                          $('<table>').append(
+                            $('<tbody>').append(
+                              $('<tr>').append(
+                                  $('<td>',{class:'tituloTablaCaracteristicas',text:procesoRecord.compiledRelease.planning.rationale,style:'color:#333',toolTexto:"planning.rationale"}))
+                            ))):null),
                 $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-                  $('<table>',{class:'tablaAncho'}).append(
+                  $('<table>').append(
                     $('<tbody>').append(
+                      /*Consultas*/
+                      (procesoRecord.compiledRelease.buyer&&procesoRecord.compiledRelease.buyer.name&&procesoRecord.compiledRelease.parties ?
+                        $('<tr>').append(
+                          $('<td>',{class:'tituloTablaCaracteristicas',text:'Comprador:',toolTexto:"buyer"}),
+                          $('<td>',{class:'contenidoTablaCaracteristicas'}).append(ObtenerElementosParte(procesoRecord.compiledRelease.buyer.id))
+                        ) : null),
+/*
+                        procesoRecord.compiledRelease.tender&&procesoRecord.compiledRelease.tender.enquiryPeriod ? ([
+                        procesoRecord.compiledRelease.tender.enquiryPeriod.startDate ? 
+                        $('<tr>').append(
+                          $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Inicio de Consultas'}),
+                          $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.enquiryPeriod.startDate)})
+                        ) : null,
+                        procesoRecord.compiledRelease.tender.enquiryPeriod.endDate ?
+                        $('<tr>').append(
+                          $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Finalización de Consultas'}),
+                          $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(procesoRecord.compiledRelease.tender.enquiryPeriod.endDate)})
+                        ) : null
+                      ]
+                      ) : null
+                      ,*/
+                      (procesoRecord.compiledRelease.planning.milestones ? 
+                      ObtenerHitosRelacionados(procesoRecord.compiledRelease.planning.milestones)
+                      : null),
+                      (procesoRecord.compiledRelease.planning.budget&&procesoRecord.compiledRelease.planning.budget.id?
                       $('<tr>').append(
-                        $('<td>',{class:'textoAlineadoDerecha'}).append(
-                          $('<div>',{
-                            class:'montoTotalProceso pr-3'
-                          }).append(
-                            $('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),
-                            $('<div>',{class:'contenedorMonto procesoMonto'}).append(
-                              $('<div>',{class:'textoColorGris',text:'Presupuesto'}),
-                              $('<div>',{class:'valorMonto'}).append(
-                                ValorMoneda(procesoRecord.compiledRelease.planning.budget.amount.amount),
-                                $('<span>',{class:'textoColorPrimario',text:' '+procesoRecord.compiledRelease.planning.budget.amount.currency})
+                        $('<td>',{class:'tituloTablaCaracteristicas',text:'ID partida presupuestaria:',toolTexto:"planning.budget.id"}),
+                        $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.compiledRelease.planning.budget.id})
+                      ):null),
+                      (procesoRecord.compiledRelease.planning.budget&&procesoRecord.compiledRelease.planning.budget.description?
+                      $('<tr>').append(
+                        $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente del presupuesto:',toolTexto:"planning.budget.description"}),
+                        $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.compiledRelease.planning.budget.description})
+                      ):null),
+                      (procesoRecord.compiledRelease.planning.budget&&procesoRecord.compiledRelease.planning.budget.project?
+                      $('<tr>').append(
+                        $('<td>',{class:'tituloTablaCaracteristicas',text:'Proyecto de financiamiento:',toolTexto:"planning.budget.project"}),
+                        $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.compiledRelease.planning.budget.project})
+                      ):null),
+                      (procesoRecord.compiledRelease.planning.budget&&procesoRecord.compiledRelease.planning.budget.projectID?
+                      $('<tr>').append(
+                        $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proyecto de financiamiento:',toolTexto:"planning.budget.projectID"}),
+                        $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.compiledRelease.planning.budget.projectID})
+                      ):null),
+                      (procesoRecord.compiledRelease.planning.budget&&procesoRecord.compiledRelease.planning.budget.uri?
+                      $('<tr>').append(
+                        $('<td>',{class:'tituloTablaCaracteristicas',text:'Enlace Presupuesto:',toolTexto:"planning.budget.uri"}),
+                        $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
+                          $('<a>',{text:'Presupuesto',class:'enlaceTablaGeneral',href:procesoRecord.compiledRelease.planning.budget.uri})
+                        )
+                      ):null)
+                      )
+                      )
+                ),
+                (procesoRecord.compiledRelease.planning.budget&&procesoRecord.compiledRelease.planning.budget.amount?
+                  $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+                    $('<table>',{class:'tablaAncho'}).append(
+                      $('<tbody>').append(
+                        $('<tr>').append(
+                          $('<td>',{class:'textoAlineadoDerecha'}).append(
+                            $('<div>',{
+                              class:'montoTotalProceso pr-3'
+                            }).append(
+                              /*$('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),*/
+                              $('<div>',{class:'contenedorMonto procesoMonto'}).append(
+                                $('<div>',{class:'textoColorGris',text:'Presupuesto'}),
+                                $('<div>',{class:'valorMonto'}).append(
+                                  $('<span>',{toolTexto:"planning.budget.amount.amount"}).append(ValorMoneda(procesoRecord.compiledRelease.planning.budget.amount.amount)),
+                                  $('<span>',{class:'textoColorPrimario',text:' '+procesoRecord.compiledRelease.planning.budget.amount.currency, toolTexto:"planning.budget.amount.currency"})
+                                )
+      
+                                
                               )
-    
-                              
                             )
                           )
                         )
-                      )
-                      )
-                      )
-                ):null)
+                        )
+                        )
+                  ):null)
+              )
+                ),
+                $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'documentosTabPlaneacion',id:'documentosTabPlaneacion'}).append(
+
+                  )
             )
+            
           )
-        );
+        );/*
         if(procesoRecord.compiledRelease.tender&&procesoRecord.compiledRelease.tender.items&&procesoRecord.compiledRelease.tender.items.length){
           $('.planificacion.solicitados').append(
             $('<div>', {class:' cajonSombreado '}).append(
@@ -113,11 +165,11 @@ function DefinirElementosPlaneacion(){
               )
             )
           )
-        }
-  
+        }*/
+
         if(procesoRecord.compiledRelease.planning.documents&&procesoRecord.compiledRelease.planning.documents.length){
-          $('.planificacion.documentos').append(
-            $('<div>', {class:' cajonSombreado '}).append(
+          $('#documentosTabPlaneacion').append(
+            $('<div>', {class:' cajonSombreadox '}).append(
               $('<table>',{class:'tablaGeneral'}).append(
                 $('<thead>').append(
                   $('<tr>').append(
@@ -134,10 +186,13 @@ function DefinirElementosPlaneacion(){
               )
             )
           )
-        }
-        DefinirHistorialPresupuesto();
+        }else{
+          $('#documentosTabPlaneacion').html('<h4 class="titularColor textoColorPrimario mt-3">Esta etapa no posee documentos</h4>')
+        }/*
+        DefinirHistorialPresupuesto();*/
         if(procesoRecord.compiledRelease.planning.budget&&procesoRecord.compiledRelease.planning.budget.budgetBreakdown){
-          $('.planificacion.informacion').append(
+          $('#informacionTabPlaneacion').append(
+            $('<div style="border-bottom: 3px solid #dee2e6;" class="mt-1 mb-1">'),
             $('<div>',{class:'row'}).append(
               $('<div>',{class:'col-md-12 mt-3'}).append(
                 $('<h4>',{class:'titularCajonSombreado',text:'Desglose de Presupuesto'})

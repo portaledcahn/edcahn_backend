@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block head_content %}
+<title>Portal de Contrataciones Abiertas de Honduras - Compradores</title>
+{% endblock %}
+
+{% load static %}
+
+{% block head_style %}
+<link rel="stylesheet" href="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.css' %}" >
+{% endblock %}
+
+{% block container %}
+
+<div class="container">
+   <div class="row">
+      <div class="col-md-12">
+         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Compradores</h1>
+      </div>
+   </div>
+   <div class="row mt-3 mb-3 ">
+      <div class="col-lg-6">
+         <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
+            <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un Comprador...">
+            <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
+         </div>
+      </div>
+      <div class="col-lg-6 textoAlineadoDerecha">
+            <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">Mostrar&nbsp;</h5>
+            <select name="" id="" class="campoSeleccion ancho70 mt-3 enLinea">
+               <option value="5">5</option>
+               <option value="10">10</option>
+               <option value="20">20</option>
+            </select>
+            <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12">
+         <div class=" cajonSombreado ">
+            <table class="tablaGeneral">
+               <thead>
+                  <tr>
+                     <th class="textoAlineadoCentrado">
+                        <span>Comprador</span>
+                        <input list="compradoresLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                           <datalist id="compradoresLista">
+                              <option value="Conade">
+                              <option value="BCH">
+                              <option value="UPNFM">
+                              <option value="Copeco">
+                              <option value="Pani">
+                              <option value="CNA">
+                              <option value="Ministerio Publico">
+                              <option value="Alcaldia Municipal de Danli">
+                           </datalist>
+                     </th>
+                     <th class="textoAlineadoCentrado">
+                        <span>Procesos</span>
+                        <input list="procesosLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
+                        <datalist id="procesosLista">
+                              <option value="45">
+                                    <option value="75">
+                                    <option value="57575">
+                                    <option value="2">
+                                    <option value="75">
+                                    <option value="8669">
+                                    <option value="2878">
+                                    <option value="78738">
+                        </datalist>
+                     </th>
+                     <th class="textoAlineadoCentrado">
+                        <span>Total</span>
+                        <input list="totalLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
+                        <datalist id="totalLista">
+                              <option value="45">
+                                    <option value="75">
+                                    <option value="57575">
+                                    <option value="2">
+                                    <option value="75">
+                                    <option value="8669">
+                                    <option value="2878">
+                                    <option value="78738">
+                        </datalist>
+                        </th>
+                     <th class="textoAlineadoCentrado">
+                        <span>Promedio</span>
+                        <input list="promedioLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
+                        <datalist id="promedioLista">
+                              <option value="45">
+                                    <option value="75">
+                                    <option value="57575">
+                                    <option value="2">
+                                    <option value="75">
+                                    <option value="8669">
+                                    <option value="2878">
+                                    <option value="78738">
+                        </datalist>
+                     </th>
+                     <th class="textoAlineadoCentrado">
+                        <span>Mayor</span>
+                        <input list="mayorLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
+                        <datalist id="mayorLista">
+                              <option value="45">
+                              <option value="75">
+                              <option value="57575">
+                              <option value="2">
+                              <option value="75">
+                              <option value="8669">
+                              <option value="2878">
+                              <option value="78738">
+                        </datalist>
+                        </th>
+                     <th class="textoAlineadoCentrado">
+                        <span>Menor</span>
+                        <input list="menorLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
+                        <datalist id="menorLista">
+                           <option value="45">
+                           <option value="75">
+                           <option value="57575">
+                           <option value="2">
+                           <option value="75">
+                           <option value="8669">
+                           <option value="2878">
+                           <option value="78738">
+                        </datalist>
+                     </th>
+                     <th class="textoAlineadoCentrado">
+                           <span>Última Licitación</span>
+                           <input type="text" id="licitacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha">
+                        </th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr>
+                     <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Conade</a> </td>
+                     <td data-label="Procesos">15905 </td>
+                     <td data-label="Total">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio">155,099 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor" >87,000,000 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor">0 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                  </tr>
+                  <tr>
+                     <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">BCH</a></td>
+                     <td data-label="Procesos">253</td>
+                     <td data-label="Total ">585,503,010 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio">2,314,241 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor">79,823,428 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor">11,657 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                  </tr>
+                  <tr>
+                     <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">UPNFM</a></td>
+                     <td data-label="Procesos">995</td>
+                     <td data-label="Total">232,603,843 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio">570,480 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor">25,000 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor">102 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                  </tr>
+                  <tr>
+                     <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Copeco</a></td>
+                     <td data-label="Procesos">1051</td>
+                     <td data-label="Total">1603,154,975 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio">573,886 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor">30,000,000 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor">0 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                  </tr>
+                  <tr>
+                     <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Pani</a></td>
+                     <td data-label="Procesos">8</td>
+                     <td data-label="Total">345,085,077 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio">493,683 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor">8,719,052 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor">0 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+      <div class="col-md-6">
+         <h5 class="tituloTablaGeneral textoColorPrimario mt-3 mb-0" >Mostrando 0 a 4 de 4 Compradores</h5>
+      </div>
+      <div class="col-md-6 textoAlineadoDerecha">
+            <h4 class="textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba" style="margin-top:18px">
+                  <span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span>
+                  <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span>
+               </h4>
+               <h4 class="enLinea mb-0 mt-3 enLinea alineadoArriba" onclick="location.href='/preguntas'">
+                  <div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos" >
+                        <i class="fas fa-question"></i>
+                     </div>
+                     
+               </h4>
+         
+      </div>
+      <div class="col-md-12 textoAlineadoCentrado">
+         <nav class="navegacionTablaGeneral">
+            <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
+            <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
+            <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
+            <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>10</span></a>
+            <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>11</span></a>
+            <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>12</span></a>
+            <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>13</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
+         </nav>
+      </div>
+   </div>
+</div>
+
+{% endblock %}
+
+{% block script_content %}
+<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+<script src="{% static 'plugins/jquery-mask-1.14.15/jquery.mask.min.js' %}"></script>
+<script src="{% static 'js/compradores.js' %}"></script>
+{% endblock %}

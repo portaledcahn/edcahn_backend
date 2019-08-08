@@ -3,7 +3,7 @@ from elasticsearch_dsl.connections import connections
 from django_elasticsearch_dsl import DocType, Index, fields 
 from portaledcahn_backend import models as articles_models
 
-data_index = Index('data')
+data_index = Index('edca')
 data_index.settings(
 	number_of_shards=1,
 	number_of_replicas=0

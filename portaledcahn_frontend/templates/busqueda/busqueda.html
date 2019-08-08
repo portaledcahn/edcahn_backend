@@ -4,7 +4,6 @@
 <title>Portal de Contrataciones Abiertas de Honduras - Busqueda</title>
 {% endblock %}
 
-{% load humanize %}
 
 {% load static %}
 {% block head_style %}
@@ -13,8 +12,8 @@
   
 {% block container %}
       <div class="container  busquedaEspaciadoHorizontal">
-         <div class="contenedorFiltrosBusqueda animated">
-            <h4 class="textoColorPrimario tituloFiltrosMenu">
+         <div class="contenedorFiltrosBusqueda animated" data-step="3" data-intro="Puedes aplicar un filtro según el método de busqueda que hayas seleccionado.">
+            <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
                Filtros 
                <div class="cursorMano cerrarContenedorFiltrosBusqueda" style="display:none"><i class="fas fa-times textoColorGris"></i></div>
             </h4>
@@ -98,34 +97,60 @@
          </div>
          <div class="contenedorResultadosBusqueda">
             <div class="container-fluid">
-               <div class="row mt-3 mb-3">
-                    <div class="campoAzulBusquedaPadre" >
-                       <form id="form_buscar"  action="" method="get">
-                       <input class="form-control form-control-lg campoAzulBusqueda" id="campoBusquedaProceso" type="text" placeholder="Busca una contratación..." title="Busca una contratación..." name="q" value="{{q}}">
-                        <i class="fas fa-search cursorMano" id="botonBusquedaProceso"></i>
-                       </form>
-                    </div>
-                    <div class="contenedorBotonAzulFiltroBusqueda"  style="display:none">
-                       <button class="botonAzulFiltroBusqueda" title="Filtros" type="submit">
-                       <i class="fas fa-filter"></i> 
-                       </button>
-                    </div>
+               <div class="row  ">
+                     <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
+                           Búsqueda
+                        </h4>
+                  <div class="campoAzulBusquedaPadre"  data-step="1" data-intro="Según el texto que ingreses en este campo puedes buscar, filtrando por alguno de los filtros que hayas seleccionado.">
+                     <input class="form-control form-control-lg campoAzulBusqueda toolTip" toolPosicio="bottom" toolTexto="Ingresa un texto a buscar" id="campoBusquedaProceso" type="text" placeholder="Busca una contratación..." title="Busca una contratación..." value="{% if request.GET.q %}{{request.GET.q}}{% endif %}">
+                     <i class="fas fa-search cursorMano toolTip" toolTexto="Haz click para buscar" id="botonBusquedaProceso"></i> 
+                  </div>
+                  <div class="contenedorBotonAzulFiltroBusqueda"  style="display:none">
+                     <button class="botonAzulFiltroBusqueda" title="Filtros">
+                     <i class="fas fa-filter"></i> 
+                     </button>
+                  </div>
+                  
+                     <div  class="metodoBusquedaContenedor anchoTotal mt-3 mb-3 textoAlineadoCentrado " data-step="2" data-intro="Puedes seleccionar un método de búsqueda para realizar un filtrado por procesos de contratación, contratos y procesos de pagos.">
+                           <div class="btn-group sombraBasica" role="group" aria-label="Metodo de Busqueda" >
+                              <a href="javascript:void(0)" id="opcionProcesosContratacion" name="metodoBusqueda" metodo="proceso"  class="btn btn-primary fondoColorSecundario {% if 'proceso' == request.GET.metodo %}activo{% endif %}"><span>Procesos de Contratación</span></a>
+                              <a href="javascript:void(0)" id="opcionContratos" name="metodoBusqueda" metodo="contrato"  class="btn btn-primary fondoColorSecundario {% if 'contrato' == request.GET.metodo %}activo{% endif %}"><span>Contratos</span></a>
+                              <a href="javascript:void(0)" id="opcionProcesosPago" name="metodoBusqueda" metodo="pago"  class="btn btn-primary fondoColorSecundario {% if 'pago' == request.GET.metodo %}activo{% endif %}"><span>Procesos de Pago</span></a>
+                               </div>
+                          <!-- <div class="OpcionFiltroBusqueda">
+                                 <input type="radio" id="opcionProcesosContratacion" name="metodoBusqueda" metodo="proceso" {% if 'proceso' == request.GET.metodo %}checked{% endif %}>
+                                 <label for="opcionProcesosContratacion" class="etiquetaOpcionFiltroBusqueda textoColorPrimario textoTitular2Grues">Procesos de Contratación</label>
+                              </div>
+                              <div class="OpcionFiltroBusqueda">
+                                    <input type="radio" id="opcionContratos" name="metodoBusqueda" metodo="contrato" {% if 'contrato' == request.GET.metodo %}checked{% endif %}>
+                                    <label for="opcionContratos" class="etiquetaOpcionFiltroBusqueda textoColorPrimario ">Contratos</label>
+                                 </div>
+                                 <div class="OpcionFiltroBusqueda">
+                                       <input type="radio" id="opcionProcesosPago" name="metodoBusqueda" metodo="pago" {% if 'pago' == request.GET.metodo %}checked{% endif %} >
+                                       <label for="opcionProcesosPago" class="etiquetaOpcionFiltroBusqueda textoColorPrimario ">Procesos de Pago</label>
+                                    </div>-->
+                     </div>
+                 
                </div>
             </div>
-
             <div class="container-fluid">
                <div class="row">
-                  <div class="contenedorFiltros">
+                  <div class="contenedorFiltrosx cajonSombreado anchoTotal">
                      <div class="row">
                         <div class="col-6 col-sm-7 col-md-6">
                            <div class="tituloFiltrosAplicados">Filtros Aplicados:</div>
                         </div>
-                        <div class="col-6 col-sm-5 col-md-6 textoAlineadoDerecha">
-                           <a href="/busqueda/" class="botonGeneral fondoColorSecundario">Quitar Todos</a>
+                        <div class="col-6 col-sm-5 col-md-6 textoAlineadoIzquierda" id="contenedorSinFiltros">
+                           
+                             <h4 class="textoColorPrimario titularColor">Ninguno</h4>
+                           </div>
+                        <div class="col-6 col-sm-5 col-md-6 textoAlineadoDerecha" id="contenedorFiltros" style="display: none">
+
+                           <a href="javascript:void(0)" class="botonGeneral fondoColorSecundario" id="quitarFiltros">Quitar Todos</a>
                         </div>
                      </div>
-                     <div class="row">
-                        <div class="grupoEtiquetaFiltro col-md-12 mb-1">
+                     <div class="row" id="listaFiltrosAplicados">
+                        <!--<div class="grupoEtiquetaFiltro col-md-12 mb-1">
                            <div class="grupoEtiquetaTitulo">
                               Moneda:
                            </div>
@@ -169,14 +194,15 @@
                                  <i class="fas fa-times"></i>
                               </div>
                            </div>
-                        </div>
+                        </div>-->
                      </div>
+                     
                   </div>
                </div>
             </div>
             <div class="container-fluid mt-3">
                <div class="row">
-                  <div class="informacionResultadosBusqueda">
+                  <div class="informacionResultadosBusqueda cajonSombreado anchoTotal" data-step="4" data-intro="Puedes ver un resumen de resultados en esta sección.">
                      <div class="row elementosResultadosResumen">
                         <div class="col-6 col-sm-6 col-md-6 col-lg-6">
                            <table>
@@ -184,13 +210,13 @@
                                  <tr >
                                     <td class="tituloTablaCaracteristicas pb-1">Total de Procesos:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario">{{resumen.distinct_contracts.value|intcomma}}</span>
+                                       <span class="botonGeneral fondoColorPrimario" >45</span>
                                     </td>
                                  </tr>
                                  <tr>
                                     <td class="tituloTablaCaracteristicas pb-1">Promedio de Monto:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario" >{%if resumen.avg_amount.value %}{{resumen.avg_amount.value|floatformat:0|intcomma}} HNL{%else%}0{%endif%}</span>
+                                       <span class="botonGeneral fondoColorPrimario" >45,5666,545 HNL</span>
                                     </td>
                                  </tr>
                               </tbody>
@@ -202,13 +228,13 @@
                                  <tr >
                                     <td class="tituloTablaCaracteristicas pb-1">Total de Compradores:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario">{{resumen.distinct_buyers.value|intcomma}}</span>
+                                       <span class="botonGeneral fondoColorPrimario" >45</span>
                                     </td>
                                  </tr>
                                  <tr>
                                     <td class="tituloTablaCaracteristicas pb-1"> Total de Proveedores:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario "> {%if resumen.distinct_suppliers.value %} {{resumen.distinct_suppliers.value|intcomma}}{%else%}0 {%endif%}</span>
+                                       <span class="botonGeneral fondoColorPrimario ">78</span>
                                     </td>
                                  </tr>
                               </tbody>
@@ -218,132 +244,33 @@
                   </div>
                </div>
             </div>
-            <div class="container-fluid contenedorBusqueda pt-3 mb-5" >
-               <div class="row">
-                  <div class="col-6 col-sm-6 col-md-6">
-                     <h4 class="textoColorPrimario">Resultados</h4>
+            <div class="container-fluid contenedorBusqueda pt-2 mb-5" >
+               <div class="row" data-step="5" data-intro="Una vez que buscaste, los resultados aparecen en esta sección, según el método de búsqueda podrás acceder a diversas propiedades del resultado.">
+                  <div class="col-12 col-sm-6 col-md-6 p-0">
+                     <h4 class="textoColorPrimario titularColor">Resultados</h4>
                   </div>
-                  <div class="col-6 col-sm-6 col-md-6 textoAlineadoDerecha">
-                     <h4 class="descargaIconos enLinea"><span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span></h4>
+                  <div class="col-12 col-sm-6 col-md-6 textoAlineadoDerecha">
+                     <h4 class="descargaIconos enLinea"><span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span></h4>
                      
                      <h4 class="enLinea mb-0 enLinea alineadoArriba" onclick="location.href='/preguntas'">
-                           <div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos">
+                           <div class="textoAlineadoCentrado cursorMano botonAyuda transicion toolTip" id="informacionTipoDatos" toolTexto="¿Que son estos tipos de datos?">
                                  <i class="fas fa-question"></i>
                               </div>
-                              
                         </h4>
                   </div>
-
-                  {% for resultado in resultados %}
-
-                  {% if resultado.data.compiledRelease.contracts %}
-
-                  {% for contrato in resultado.data.compiledRelease.contracts %}                  
-                  <div class="resultadoBusquedaProceso cursorMano transicion">
-                     <div class="title-result">
-                        <div class="textoTituloResultadoBusqueda">
-                           {{contrato.description|upper}} <span class="textoColorGris textoAlineadoDerecha"> {%if contrato.dateSigned %} {{contrato.dateSigned}} {% else %} {{contrato.period.startDate}} {% endif %}</span>
-                        </div>
-                     </div>
-                     <div class="contenedorProceso">
-                        <div class="contenedorTablaCaracteristicas">
-                           <table>
-                              <tbody>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">ID Proceso (OCID):</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       <a href="/proceso/{{resultado.data.ocid}}/" class="enlaceTablaGeneral">{{resultado.data.ocid}}</a>
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Comprador:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       {{resultado.data.compiledRelease.buyer.name}}
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td class="tituloTablaCaracteristicas">Estado:</td>
-                                    <td class="contenidoTablaCaracteristicas"> 
-                                       {{contrato.status}}
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                        <div class="contenedorTablaCaracteristicas">
-                           <table class="anchoTotal">
-                              <tbody>
-                                 <tr>
-                                    <td class="textoAlineadoDerecha">
-                                       <div class="montoTotalProceso">
-                                          <img src="img/otros/moneda.png" alt="" >
-                                          <div class="contenedorMonto">
-                                             <div class="textoColorGris">Monto del contrato:</div>
-                                             <div class="valorMonto">
-                                                {{contrato.value.amount|floatformat:2|intcomma}} <span class="textoColorPrimario">{{contrato.value.currency}}</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                     </div>
-                  </div>
-                  {% endfor %}
-                  {% endif %}
-                  {% empty %}
-                  <div class="container-fluid">
-                    <div class="row">
-                      <div class="col-12 col-sm-12 col-md-12">
-                        <h5 class="textoColorPrimario">Lo sentimos, no hay contratos....</h5>
-                      </div>
-                    </div>
-                  </div>
-                  {% endfor %}
-
-                  {% if posts.has_next or posts.has_previous %}
+                  <div id="listaResultadosBusqueda"></div>
+               
                   <div class="col-md-12 textoAlineadoCentrado">
                      <nav class="navegacionTablaGeneral">
-                        {% if posts.has_previous %}
-                        <a href="?q={{q}}&page={{ posts.previous_page_number }};" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
-                        {% endif %}
-
-                        {% if posts.number != 1 %}
-                        <a href="?q={{q}}&page=1;" class="numerosNavegacionTablaGeneral "><span>1</span></a>
-                        {% endif %}
-
-                        {% if posts.has_previous and posts.number != 1 %}
+                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
+                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
                         <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
-                        {% endif %}
-
-                        {% if posts.has_previous and posts.previous_page_number != 1 %}
-                        <a href="?q={{q}}&page={{ posts.previous_page_number }}" class="numerosNavegacionTablaGeneral "><span>{{ posts.previous_page_number }}</span></a>
-                        {% endif %}
-
-                        <a href="?q={{q}}&page={{ posts.number }}" class="numerosNavegacionTablaGeneral current"><span>{{ posts.number }}</span></a>
-
-                        {% if posts.has_next and posts.next_page_number != posts.paginator.num_pages %}
-                        <a href="?q={{q}}&page={{posts.next_page_number}}" class="numerosNavegacionTablaGeneral"><span>{{ posts.next_page_number }}</span></a>
-                        {% endif %}
-
-                        {% if posts.has_next and posts.number != posts.paginator.num_pages %}
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
-                        {% endif %}
-
-                        {% if posts.number != posts.paginator.num_pages %}
-                        <a href="?q={{q}}&page={{posts.paginator.num_pages}}" class="numerosNavegacionTablaGeneral"><span>{{ posts.paginator.num_pages }}</span></a>
-                        {% endif %}
-                        
-                        {% if posts.has_next %}
-                        <a href="?q={{q}}&page={{posts.next_page_number}}" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
-                        {% endif %}
-
+                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1410</span></a>
+                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1411</span></a>
+                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>1412</span></a>
+                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1413</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
                      </nav>
                   </div>
-                  {% endif %}
-
                </div>
             </div>
          </div>
@@ -355,14 +282,4 @@
 <script src="{% static 'plugins/elastic-list/data.js' %}"></script>
 <script src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>
 <script src="{% static 'js/busqueda.js' %}"></script>
-
-<script type="text/javascript">
-    window.addEventListener("DOMContentLoaded", function () {
-      var form = document.getElementById("form_buscar");
-
-      document.getElementById("botonBusquedaProceso").addEventListener("click", function () {
-        form.submit();
-      });
-    });
-</script>
 {% endblock %}

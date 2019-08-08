@@ -6,42 +6,41 @@
 
 {% load static %}
 
+{% block head_style %}
+<link rel="stylesheet" href="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.css' %}" >
+{% endblock %}
+
 {% block container %}
-<div class="container ">
+<div class="container-fluid" style="max-width: 1600px">
    <div class="row mt-5">
       <div class="col-md-12">
-         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Comprador "Alcaldía Municipal de Danli"</h1>
+         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso"  tooltexto="buyer.name" >Alcaldía Municipal de Danli</h1>
       </div>
    </div>
-   <div class="row mt-5">
-      <h4 class="text-primary-edcax col-md-6">
-         Datos del Comprador
-      </h4>
-      <!--
-         <div class="col-md-6 textoAlineadoDerecha"><h4 ><span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano"><i class="fas fa-file-download"></i>&nbsp;.CSV</span></h4> </div>
-         -->
-   </div>
    <div class="row ">
-      <div class="col-md-12">
-         <div class=" cajonSombreado contenedorDetalleProcesoDatos">
+      <div class="col-md-6">
+            <h4 class="text-primary-edcax titularCajonSombreado">
+                  Dirección del Comprador
+               </h4>
+         <div class=" cajonSombreado contenedorDetalleProcesoDatos" data-step="1" data-intro="Puedes visualizar la dirección de un comprador en esta sección, en caso de que este disponible.">
             <div class="contenedorProceso informacionProceso">
                <div class="contenedorTablaCaracteristicas" style="width:100%">
                   <table>
                      <tbody>
                         <tr>
-                           <td class="tituloTablaCaracteristicas">Localidad:</td>
+                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.region">Localidad:</td>
                            <td class="contenidoTablaCaracteristicas"> 
                               DANLI
                            </td>
                         </tr>
                         <tr>
-                           <td class="tituloTablaCaracteristicas">Región:</td>
+                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.locality">Región:</td>
                            <td class="contenidoTablaCaracteristicas"> 
                               El Paraiso
                            </td>
                         </tr>
                         <tr>
-                           <td class="tituloTablaCaracteristicas">Dirección:</td>
+                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.streetAddress">Dirección:</td>
                            <td class="contenidoTablaCaracteristicas"> 
                               Danli, El Paraiso
                            </td>
@@ -52,49 +51,972 @@
             </div>
          </div>
       </div>
-   </div>
-   <div class="row">
-      <div class="col-md-12">
-         <h4 class="text-primary-edcax">Datos de Contacto</h4>
-         <div class=" cajonSombreado ">
-            <div class="contenedorProceso informacionProceso">
-               <div class="contenedorTablaCaracteristicas">
-                  <table>
-                     <tbody>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas">Nombre:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              LUZ VICTORIA OLIVA LOVO
-                           </td>
-                        </tr>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas">Telefono:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              763-2405
-                           </td>
-                        </tr>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas">Correo Electrónico:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              mesadeayuda@honducompras.gob.hn
-                           </td>
-                        </tr>
-                     </tbody>
-                  </table>
+      
+      <div class="col-md-6">
+            <h4 class="text-primary-edcax titularCajonSombreado">Datos de Contacto</h4>
+            <div class=" cajonSombreado " data-step="2" data-intro="Puedes visualizar los datos de contacto de un comprador en esta sección, en caso de que este disponible.">
+               <div class="contenedorProceso informacionProceso" >
+                  <div class="contenedorTablaCaracteristicas" >
+                     <table>
+                        <tbody>
+                           <tr>
+                              <td class="tituloTablaCaracteristicas" toolTexto="parties[n].contactPoint.name">Nombre:</td>
+                              <td class="contenidoTablaCaracteristicas"> 
+                                 LUZ VICTORIA OLIVA LOVO
+                              </td>
+                           </tr>
+                           <tr>
+                              <td class="tituloTablaCaracteristicas" toolTexto="parties[n].contactPoint.telephone">Telefono:</td>
+                              <td class="contenidoTablaCaracteristicas"> 
+                                 763-2405
+                              </td>
+                           </tr>
+                           <tr>
+                              <td class="tituloTablaCaracteristicas" toolTexto="parties[n].contactPoint.email">Correo Electrónico:</td>
+                              <td class="contenidoTablaCaracteristicas"> 
+                                 mesadeayuda@honducompras.gob.hn
+                              </td>
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
                </div>
             </div>
          </div>
-      </div>
    </div>
-   <div class="row mb-5 mt-3">
-      <div class="col-md-12 textoAlineadoDerecha mb-5">
-         <a href="/procesos_comprador" class="botonGeneral fondoColorSecundario  tamanoExtra">Ver Procesos de Comprador</a>
-      </div>
-   </div>
-   <div class="row mb-5"></div>
 </div>
+
+<div class="container-fluid mt-3" style="max-width: 1600px">
+      
+      <div class="row">
+
+         <div class="col-md-12">
+            <div class=" cajonSombreado " data-step="3" data-intro="Puedes ver el historial de procesos de contratación en los que ha participado este comprador.">
+
+                  <div class="row">
+                        <div class="col-md-12 mt-2">
+                           <!--<h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Procesos de Contratación</h1>-->
+                           <h4 class="text-primary-edcax titularCajonSombreado">Procesos de Contratación</h4>
+                        </div>
+                     </div>
+                     <div class="row mt-1 mb-3 ">
+                        <div class="col-lg-6">
+                           <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
+                              <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un proceso de Contratación...">
+                              <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
+                           </div>
+                        </div>
+                        <div class="col-lg-6 textoAlineadoDerecha">
+                           <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">Mostrar&nbsp;</h5>
+                           <select name="" id="" class="campoSeleccion ancho70 mt-3 enLinea">
+                              <option value="5">5</option>
+                              <option value="10">10</option>
+                              <option value="20">20</option>
+                           </select>
+                           <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
+                     </div>
+                     </div>
+               <table class="tablaGeneral mostrarEncabezados">
+                  <thead>
+                     <tr> 
+                        <th class="textoAlineadoCentrado">
+                              
+                              <table class="alineado">
+                                    <tr><td><span toolTexto="buyer.name" >Dependencia</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                          <div class="contenedorFlechasOrden">
+                                                <i class="fas fa-sort-up flechaArriba"></i>
+                                                <i class="fas fa-sort-down flechaAbajo"></i>
+                                          </div>
+                                       </span></td></tr>
+                                 </table>
+         
+                              
+                              <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                              </th>
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="ocid">ID del Proceso</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
+                                    <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                        <th class="textoAlineadoCentrado">
+                              <table class="alineado">
+                                    <tr><td><span toolTexto="planning.rationale">Título del Proceso</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                          <div class="contenedorFlechasOrden">
+                                                <i class="fas fa-sort-up flechaArriba"></i>
+                                                <i class="fas fa-sort-down flechaAbajo"></i>
+                                          </div>
+                                       </span></td></tr>
+                                 </table>
+         
+                           
+                           
+                           <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                        </th>
+
+                           <th class="textoAlineadoCentrado">
+                                 <table class="alineado">
+                                       <tr><td><span toolTexto="tender.additionalProcurementCategories">Categoría de Compra</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span></td></tr>
+                                    </table>
+            
+                                 
+                                 
+                                 <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                              </th>
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="planning.budget.amount.amount">Monto Estimado</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    <div class="contenedorFiltroNumerico">
+                                          <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                          <button class="btnFiltroNumerico">&lt;</button>
+                                          <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                <div class=" contenedorFiltroBusqueda" >
+                                                   <div class="flechaArribaBlanca"></div>
+                                                   <div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                         <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                         <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                         <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                    </div>
+                                 </th>
+
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="tender.date*">Fecha de Publicación de la licitación</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
+                                    <div class="contenedorFiltroNumerico">
+                                          <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
+                                          <button class="btnFiltroNumerico">&lt;</button>
+                                          <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                <div class=" contenedorFiltroBusqueda" >
+                                                   <div class="flechaArribaBlanca"></div>
+                                                   <div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                         <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                         <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                         <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                    </div>
+                                 </th>
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="tender.tenderPeriod.startDate">Fecha de recepción de ofertas</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
+                                    <div class="contenedorFiltroNumerico">
+                                          <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
+                                          <button class="btnFiltroNumerico">&lt;</button>
+                                          <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                <div class=" contenedorFiltroBusqueda" >
+                                                   <div class="flechaArribaBlanca"></div>
+                                                   <div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                         <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                         <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                         <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                    </div>
+                                 </th>
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="planning, tender,awards, contracts">Estado</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="Suma de contracts[n].implementation .transactions[n].value.amount">Monto Pagado</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    <div class="contenedorFiltroNumerico">
+                                          <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                          <button class="btnFiltroNumerico">&lt;</button>
+                                          <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                <div class=" contenedorFiltroBusqueda" >
+                                                   <div class="flechaArribaBlanca"></div>
+                                                   <div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                         <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                         <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                         <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                    </div>
+                                 </th>
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="Suma de contracts[n].value.amount">Monto Contratado</span></td><td>
+                                                <span class="ordenEncabezado" opcion="neutro">
+                                                      <div class="contenedorFlechasOrden">
+                                                            <i class="fas fa-sort-up flechaArriba"></i>
+                                                            <i class="fas fa-sort-down flechaAbajo"></i>
+                                                      </div>
+                                                   </span>
+                                          </td></tr>
+                                       </table>
+               
+                                    
+                                    <div class="contenedorFiltroNumerico">
+                                          <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                          <button class="btnFiltroNumerico">&lt;</button>
+                                          <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                <div class=" contenedorFiltroBusqueda" >
+                                                   <div class="flechaArribaBlanca"></div>
+                                                   <div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                         <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                         <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                      </div>
+                                                      <div class="OpcionFiltroBusquedaNumerico">
+                                                         <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                         <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                    </div>
+                                 </th>
+                        
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr class="filaSubTabla transicion contratos" toolTexto="Puedes ver una subtabla de contratos haciendo CLICK">
+
+                        <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
+                        <td data-label="ID Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                        <td data-label="Título del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                        <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
+                        <td data-label="Monto Estimado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                        <td data-label="Fecha de Publicación de la licitación">2018-02-19 10:02:54</td>
+                        <td data-label="Fecha de recepción de ofertas">2018-02-19 10:02:54</td>
+                        <td data-label="Estado">Contratado</td>
+                        <td data-label="Monto Pagado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                        <td data-label="Monto Contratado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                     </tr>
+                     <tr class="filaSubTabla transicion contratos" toolTexto="Puedes ver una subtabla de contratos haciendo CLICK">
+
+                           <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
+                           <td data-label="ID Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                           <td data-label="Título del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                           <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
+                           <td data-label="Monto Estimado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                           <td data-label="Fecha de Publicación de la licitación">2018-02-19 10:02:54</td>
+                           <td data-label="Fecha de recepción de ofertas">2018-02-19 10:02:54</td>
+                           <td data-label="Estado">Contratado</td>
+                           <td data-label="Monto Pagado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                           <td data-label="Monto Contratado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                        </tr>
+                        <tr class="filaSubTabla transicion contratos" toolTexto="Puedes ver una subtabla de contratos haciendo CLICK">
+
+                              <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
+                              <td data-label="ID Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                              <td data-label="Título del Proceso"><a href="/proceso" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                              <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
+                              <td data-label="Monto Estimado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Fecha de Publicación de la licitación">2018-02-19 10:02:54</td>
+                              <td data-label="Fecha de recepción de ofertas">2018-02-19 10:02:54</td>
+                              <td data-label="Estado">Contratado</td>
+                              <td data-label="Monto Pagado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Monto Contratado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                           </tr>
+                  </tbody>
+               </table>
+
+               <div class="row">
+                     <div class="col-md-6">
+                           <h5 class="tituloTablaGeneral textoColorPrimario mt-3 mb-0" >Mostrando 0 a 4 de 4 Procesos de Contratación</h5>
+                        </div>
+                        <div class="col-md-6 textoAlineadoCentrado">
+                              <nav class="navegacionTablaGeneral">
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>10</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>11</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>12</span></a>
+                                 <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>13</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
+                              </nav>
+                           </div>
+               </div>
+               
+               <!--cajon-->
+
+
+            </div>
+         </div>
+       
+         <div class="col-md-12 textoAlineadoDerecha">
+            <h4 class="textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba" style="margin-top:18px">
+                  <span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span>
+                  <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span>
+                  <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span>
+               </h4>
+               <h4 class="enLinea mb-0 mt-3 enLinea alineadoArriba" onclick="location.href='/preguntas'">
+                  <div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos">
+                        <i class="fas fa-question" ></i>
+                     </div>
+                     
+               </h4>
+         
+      </div>
+         
+      </div>
+   </div>
+
+   <div class="container-fluid" style="max-width: 1600px">
+         
+         <div class="row">
+            <div class="col-md-12">
+               <div class=" cajonSombreado " data-step="4" data-intro="Puedes ver los contratos de este comprador con sus proveedores.">
+                     <div class="row">
+                           <div class="col-md-12 mt-2">
+                              <h4 class="text-primary-edcax titularCajonSombreado">Contratos del Comprador</h4>
+                           </div>
+                        </div>
+                        <div class="row mt-1 mb-3 ">
+                           <div class="col-lg-6">
+                              <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
+                                 <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un contrato...">
+                                 <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
+                              </div>
+                           </div>
+                           <div class="col-lg-6 textoAlineadoDerecha">
+                              <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">Mostrar&nbsp;</h5>
+                              <select name="" id="" class="campoSeleccion ancho70 mt-3 enLinea">
+                                 <option value="5">5</option>
+                                 <option value="10">10</option>
+                                 <option value="20">20</option>
+                              </select>
+                              <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
+                        </div>
+                        </div>
+                  <table class="tablaGeneral mostrarEncabezados">
+                     <thead>
+                        <tr> 
+                           <th class="textoAlineadoCentrado">
+                                 <table class="alineado">
+                                       <tr><td><span toolTexto="buyer.name">Dependencia</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span></td></tr>
+                                    </table>
+            
+                                 
+                                 
+                                 <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].suppliers[n].name">Proveedor</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
+                                       <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       </th>
+                           <th class="textoAlineadoCentrado">
+                                 <table class="alineado">
+                                       <tr><td><span toolTexto="contracts[n].title">Título del Contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <div class="contenedorFlechasOrden">
+                                                   <i class="fas fa-sort-up flechaArriba"></i>
+                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                             </div>
+                                          </span></td></tr>
+                                    </table>
+            
+                              
+                              
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Buscar">
+                           </th>
+   
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td>
+                                                <span toolTexto="contracts[n].description">Descripción</span></td><td>
+                                                      <span class="ordenEncabezado" opcion="neutro">
+                                                            <div class="contenedorFlechasOrden">
+                                                                  <i class="fas fa-sort-up flechaArriba"></i>
+                                                                  <i class="fas fa-sort-down flechaAbajo"></i>
+                                                            </div>
+                                                         </span>
+                                                </td></tr>
+                                       </table>
+               
+                                    
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                 </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <table class="alineado">
+                                             <tr><td> <span toolTexto="planning.rationale">Nombre del Proceso</span></td><td> <span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                      
+                                      
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+   
+                                 <th class="textoAlineadoCentrado">
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="tender.additionalProcurementCategories">Categoría de Compra</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].value.amount">Monto del Contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
+                                       <div class="contenedorFiltroNumerico">
+                                             <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                             <button class="btnFiltroNumerico">&lt;</button>
+                                             <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                   <div class=" contenedorFiltroBusqueda" >
+                                                      <div class="flechaArribaBlanca"></div>
+                                                      <div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                            <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                            <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                            <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                       </div>
+                                    </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].dateSigned">Fecha de Firma del Contrato</span></td><td>
+                                                   <span class="ordenEncabezado" opcion="neutro">
+                                                         <div class="contenedorFlechasOrden">
+                                                               <i class="fas fa-sort-up flechaArriba"></i>
+                                                               <i class="fas fa-sort-down flechaAbajo"></i>
+                                                         </div>
+                                                      </span>
+                                             </td></tr>
+                                          </table>
+                  
+                                       
+                                       
+                                       <div class="contenedorFiltroNumerico">
+                                             <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
+                                             <button class="btnFiltroNumerico">&lt;</button>
+                                             <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                   <div class=" contenedorFiltroBusqueda" >
+                                                      <div class="flechaArribaBlanca"></div>
+                                                      <div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                            <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                            <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                            <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                       </div>
+                                    </th>
+                                 <th class="textoAlineadoCentrado">
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].status">Estado</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                           
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr>
+                           <td data-label="Dependencia"><a href="/comprador/" class="enlaceTablaGeneral">Departamento Central</a> </td>
+                           <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                           <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                           <td data-label="Descripción">Lorem ipsum dolor sit amet consect</td>
+                           <td data-label="Nombre del Proceso">Lorem ipsum dolor sit amet consect</td>
+                           <td data-label="Categoría de Compra">Lorem ipsum dolor sit amet consect</td>
+                           <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                           <td data-label="Fecha de Firma del Contrato">2018-02-19 10:02:54</td>
+                           <td data-label="Estado">Firmado</td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <div class="row">
+                        <div class="col-md-6">
+                              <h5 class="tituloTablaGeneral textoColorPrimario mt-3 mb-0" >Mostrando 0 a 4 de 4 Contratos</h5>
+                           </div>
+      
+                           <div class="col-md-6 textoAlineadoCentrado">
+                                 <nav class="navegacionTablaGeneral">
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>10</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>11</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>12</span></a>
+                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>13</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
+                                 </nav>
+                              </div>
+                  </div>
+               </div>
+            </div>
+          
+            
+            <div class="col-md-12 textoAlineadoDerecha">
+               <h4 class="textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba" style="margin-top:18px">
+                     <span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span>
+                     <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span>
+                     <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span>
+                  </h4>
+                  <h4 class="enLinea mb-0 mt-3 enLinea alineadoArriba" onclick="location.href='/preguntas'">
+                     <div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos">
+                           <i class="fas fa-question" ></i>
+                        </div>
+                        
+                  </h4>
+            
+         </div>
+            
+         </div>
+      </div>
+
+      <div class="container-fluid" style="max-width: 1600px">
+         
+            <div class="row">
+               <div class="col-md-12">
+                  <div class=" cajonSombreado " data-step="5" data-intro="Puedes ver todos los pagos que ha efectuado este comprador.">
+                        <div class="row">
+                              <div class="col-md-12 mt-2">
+                                 <!--<h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Procesos de Contratación</h1>-->
+                                 <h4 class="text-primary-edcax titularCajonSombreado">Procesos de Pago del Comprador</h4>
+                              </div>
+                           </div>
+                           <div class="row mt-1 mb-3 ">
+                              <div class="col-lg-6">
+                                 <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
+                                    <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un proceso de pago...">
+                                    <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
+                                 </div>
+                              </div>
+                              <div class="col-lg-6 textoAlineadoDerecha">
+                                 <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">Mostrar&nbsp;</h5>
+                                 <select name="" id="" class="campoSeleccion ancho70 mt-3 enLinea">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                 </select>
+                                 <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
+                           </div>
+                           </div>
+                     <table class="tablaGeneral mostrarEncabezados">
+                        <thead>
+                           <tr> 
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="buyer.name">Dependencia</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span></td></tr>
+                                       </table>
+               
+                                    
+                                    
+                                    <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    </th>
+                                    <th class="textoAlineadoCentrado">
+                                          <span toolTexto="contracts[n].suppliers[n].name">Proveedor</span>
+                                          <span class="ordenEncabezado" opcion="neutro">
+                                                <div class="contenedorFlechasOrden">
+                                                      <i class="fas fa-sort-up flechaArriba"></i>
+                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                </div>
+                                             </span>
+                                          <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                          </th>
+                              <th class="textoAlineadoCentrado">
+                                    <table class="alineado">
+                                          <tr><td><span toolTexto="contracts[n].title">Título del Contrato</span></td><td>
+                                                <span class="ordenEncabezado" opcion="neutro">
+                                                      <div class="contenedorFlechasOrden">
+                                                            <i class="fas fa-sort-up flechaArriba"></i>
+                                                            <i class="fas fa-sort-down flechaAbajo"></i>
+                                                      </div>
+                                                   </span>
+                                          </td></tr>
+                                       </table>
+               
+                                 
+                                 
+                                 <div class="contenedorFiltroNumerico">
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                       <button class="btnFiltroNumerico">&lt;</button>
+                                       <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                             <div class=" contenedorFiltroBusqueda" >
+                                                <div class="flechaArribaBlanca"></div>
+                                                <div>
+                                                   <div class="OpcionFiltroBusquedaNumerico">
+                                                      <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                      <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                   </div>
+                                                   <div class="OpcionFiltroBusquedaNumerico">
+                                                      <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                      <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                   </div>
+                                                   <div class="OpcionFiltroBusquedaNumerico">
+                                                      <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                      <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                 </div>
+                              </th>
+      
+                                 <th class="textoAlineadoCentrado">
+                                       <table class="alineado">
+                                             <tr><td><span toolTexto="contracts[n].value.amount">Monto del contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                   <div class="contenedorFlechasOrden">
+                                                         <i class="fas fa-sort-up flechaArriba"></i>
+                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   </div>
+                                                </span></td></tr>
+                                          </table>
+                  
+                                       
+                                       
+                                       <div class="contenedorFiltroNumerico">
+                                             <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                             <button class="btnFiltroNumerico">&lt;</button>
+                                             <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                   <div class=" contenedorFiltroBusqueda" >
+                                                      <div class="flechaArribaBlanca"></div>
+                                                      <div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                            <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                            <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                         </div>
+                                                         <div class="OpcionFiltroBusquedaNumerico">
+                                                            <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                            <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                       </div>
+                                    </th>
+                                    <th class="textoAlineadoCentrado">
+                                          <table class="alineado">
+                                                <tr><td><span toolTexto="Suma de contracts[n].implementation .transactions[n].value.amount">Suma de todos los pagos</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                      <div class="contenedorFlechasOrden">
+                                                            <i class="fas fa-sort-up flechaArriba"></i>
+                                                            <i class="fas fa-sort-down flechaAbajo"></i>
+                                                      </div>
+                                                   </span></td></tr>
+                                             </table>
+                     
+                                          
+                                          
+                                          <div class="contenedorFiltroNumerico">
+                                                <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                                <button class="btnFiltroNumerico">&lt;</button>
+                                                <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                      <div class=" contenedorFiltroBusqueda" >
+                                                         <div class="flechaArribaBlanca"></div>
+                                                         <div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                               <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                               <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                               <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                          </div>
+                                       </th>
+      
+                                    <th class="textoAlineadoCentrado">
+                                          <table class="alineado">
+                                                <tr><td><span toolTexto="contracts[n].status">Estado</span></td><td>
+                                                      <span class="ordenEncabezado" opcion="neutro">
+                                                            <div class="contenedorFlechasOrden">
+                                                                  <i class="fas fa-sort-up flechaArriba"></i>
+                                                                  <i class="fas fa-sort-down flechaAbajo"></i>
+                                                            </div>
+                                                         </span>
+                                                </td></tr>
+                                             </table>
+                     
+                                          
+                                          
+                                          <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       </th>
+                                    <th class="textoAlineadoCentrado">
+                                          <table class="alineado">
+                                                <tr><td><span toolTexto="Última contracts[n].implementation.transactions[n].date">Fecha del último pago</span></td><td>
+                                                      <span class="ordenEncabezado" opcion="neutro">
+                                                            <div class="contenedorFlechasOrden">
+                                                                  <i class="fas fa-sort-up flechaArriba"></i>
+                                                                  <i class="fas fa-sort-down flechaAbajo"></i>
+                                                            </div>
+                                                         </span>
+                                                </td></tr>
+                                             </table>
+                                          
+                                          <div class="contenedorFiltroNumerico">
+                                                <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
+                                                <button class="btnFiltroNumerico">&lt;</button>
+                                                <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                                      <div class=" contenedorFiltroBusqueda" >
+                                                         <div class="flechaArribaBlanca"></div>
+                                                         <div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                               <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                               <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                            </div>
+                                                            <div class="OpcionFiltroBusquedaNumerico">
+                                                               <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                               <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                          </div>
+                                       </th>
+                              
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr class="filaSubTabla transicion pagos" toolTexto="Puedes ver una subtabla de pagos haciendo CLICK">
+                                 <td data-label="Dependencia"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                              <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Larach</a> </td>
+                              <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a></td>
+                              <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Suma de todos los pagos">1,900,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Estado">Compromiso</td>
+                              <td data-label="Fecha del último pago">2018-02-19 10:02:54</td>
+                     
+                           </tr>
+                           <tr class="filaSubTabla transicion pagos" toolTexto="Puedes ver una subtabla de pagos haciendo CLICK">
+                                 <td data-label="Dependencia"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                              <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Larach</a> </td>
+                              <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a></td>
+                              <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Suma de todos los pagos">1,900,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Estado">Compromiso</td>
+                              <td data-label="Fecha del último pago">2018-02-19 10:02:54</td>
+                     
+                           </tr>
+                           <tr class="filaSubTabla transicion pagos" toolTexto="Puedes ver una subtabla de pagos haciendo CLICK">
+                                 <td data-label="Dependencia"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
+                              <td data-label="Proveedor"><a href="/proveedor" class="enlaceTablaGeneral">Larach</a> </td>
+                              <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a></td>
+                              <td data-label="Monto del Contrato">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Suma de todos los pagos">1,900,855,052 <span class="textoColorPrimario">HNL</span></td>
+                              <td data-label="Estado">Compromiso</td>
+                              <td data-label="Fecha del último pago">2018-02-19 10:02:54</td>
+                     
+                           </tr>
+                        </tbody>
+                     </table>
+
+                     <div class="row">
+                           <div class="col-md-6">
+                                 <h5 class="tituloTablaGeneral textoColorPrimario mt-3 mb-0" >Mostrando 0 a 4 de 4 Procesos de Pago</h5>
+                              </div>
+                              <div class="col-md-6 textoAlineadoCentrado">
+                                    <nav class="navegacionTablaGeneral">
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>10</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>11</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>12</span></a>
+                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>13</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
+                                    </nav>
+                                 </div>
+                     </div>
+
+
+                  </div>
+               </div>
+           
+               <div class="col-md-12 textoAlineadoDerecha mb-5">
+                  <h4 class="textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba" style="margin-top:18px">
+                        <span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span>
+                        <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span>
+                        <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span>
+                     </h4>
+                     <h4 class="enLinea mb-0 mt-3 enLinea alineadoArriba" onclick="location.href='/preguntas'">
+                        <div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos">
+                              <i class="fas fa-question" ></i>
+                           </div>
+                           
+                     </h4>
+               
+            </div>
+               
+            </div>
+         </div>
 {% endblock %}
 
 {% block script_content %}
+<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+<script src="{% static 'plugins/jquery-mask-1.14.15/jquery.mask.min.js' %}"></script>
 <script src="{% static 'js/comprador.js' %}"></script>
 {% endblock %}

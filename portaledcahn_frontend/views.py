@@ -143,3 +143,9 @@ def Proveedores(request):
     
 def Visualizaciones(request):
     return render(request,'visualizaciones/visualizaciones.html')
+
+def Dashboard_Oncae(request):
+    return render(request,'dashboard_oncae/dashboard_oncae.html')
+
+def Dashboard_Sefin(request):
+    return render(request,'dashboard_sefin/dashboard_sefin.html')

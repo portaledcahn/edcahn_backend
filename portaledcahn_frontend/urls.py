@@ -17,4 +17,6 @@ urlpatterns = [
     path('proveedor/', frontend_views.Proveedor),
     path('proveedores/', frontend_views.Proveedores),
     path('visualizaciones/', frontend_views.Visualizaciones),
+    path('dashboard_oncae/', frontend_views.Dashboard_Oncae),
+    path('dashboard_sefin/', frontend_views.Dashboard_Sefin),
 ]

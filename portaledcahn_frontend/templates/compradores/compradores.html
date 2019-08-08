@@ -12,15 +12,23 @@
 
 {% block container %}
 
-<div class="container">
+<div class="container-fluid" style="max-width: 1600px">
    <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-6 col-lg-6">
          <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Compradores</h1>
+
+      </div>
+      <div class="col-md-6 col-lg-6 pt-3 textoAlineadoDerecha">
+            <label class="switchEdca" style="vertical-align:middle" data-step="2" data-intro="Puedes mostrar solo dependencias o instituciones compradoras.">
+                  <input type="checkbox" >
+                  <span class="sliderEdca circular"></span>
+                  </label>
+                  <span style="padding: 5px;padding-top:10px;font-size: 15px;font-weight:900;font-family: poppins" class="textoColorGrisOscuro">Mostrar por Dependencias</span>
       </div>
    </div>
    <div class="row mt-3 mb-3 ">
       <div class="col-lg-6">
-         <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
+         <div class="campoAzulBusquedaPadre normal" style="margin-left:0" data-step="1" data-intro="Puedes búscar un comprador, filtrando en todas las propiedades disponibles en la siguiente tabla, ingresando un texto aquí.">
             <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un Comprador...">
             <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
          </div>
@@ -38,96 +46,240 @@
    <div class="row">
       <div class="col-md-12">
          <div class=" cajonSombreado ">
-            <table class="tablaGeneral">
+            <table class="tablaGeneral mostrarEncabezados" data-step="3" data-intro="Los resultados aparecerán en esta tabla.">
                <thead>
                   <tr>
                      <th class="textoAlineadoCentrado">
-                        <span>Comprador</span>
-                        <input list="compradoresLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Nombre">
-                           <datalist id="compradoresLista">
-                              <option value="Conade">
-                              <option value="BCH">
-                              <option value="UPNFM">
-                              <option value="Copeco">
-                              <option value="Pani">
-                              <option value="CNA">
-                              <option value="Ministerio Publico">
-                              <option value="Alcaldia Municipal de Danli">
-                           </datalist>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="buyer.name">Comprador</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                        
+                        
+                        <input id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Nombre">
                      </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Procesos</span>
-                        <input list="procesosLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
-                        <datalist id="procesosLista">
-                              <option value="45">
-                                    <option value="75">
-                                    <option value="57575">
-                                    <option value="2">
-                                    <option value="75">
-                                    <option value="8669">
-                                    <option value="2878">
-                                    <option value="78738">
-                        </datalist>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="Conteo de ocid">Procesos</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                        
+                        
+                        <div class="contenedorFiltroNumerico">
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                              <button class="btnFiltroNumerico">&lt;</button>
+                              <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                    <div class=" contenedorFiltroBusqueda" >
+                                       <div class="flechaArribaBlanca"></div>
+                                       <div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroProcesosMayor" name="selectorProcesos" opcion="<" checked>
+                                             <label for="filtroProcesosMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroProcesosMenor" name="selectorProcesos" opcion=">">
+                                             <label for="filtroProcesosMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroProcesosIgual" name="selectorProcesos" opcion="=">
+                                             <label for="filtroProcesosIgual" >Igual a &nbsp;<span>=</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                        </div>
                      </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Total</span>
-                        <input list="totalLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
-                        <datalist id="totalLista">
-                              <option value="45">
-                                    <option value="75">
-                                    <option value="57575">
-                                    <option value="2">
-                                    <option value="75">
-                                    <option value="8669">
-                                    <option value="2878">
-                                    <option value="78738">
-                        </datalist>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="Suma de contracts[n].value.amount"> Total de Monto Contratado</span>
+                                 </td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                         
+                        <div class="contenedorFiltroNumerico">
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                              <button class="btnFiltroNumerico">&lt;</button>
+                              <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                    <div class=" contenedorFiltroBusqueda" >
+                                       <div class="flechaArribaBlanca"></div>
+                                       <div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroTotalMayor" name="selectorTotal" opcion="<" checked>
+                                             <label for="filtroTotalMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroTotalMenor" name="selectorTotal" opcion=">">
+                                             <label for="filtroTotalMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroTotalIgual" name="selectorTotal" opcion="=">
+                                             <label for="filtroTotalIgual" >Igual a &nbsp;<span>=</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                        </div>
                         </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Promedio</span>
-                        <input list="promedioLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
-                        <datalist id="promedioLista">
-                              <option value="45">
-                                    <option value="75">
-                                    <option value="57575">
-                                    <option value="2">
-                                    <option value="75">
-                                    <option value="8669">
-                                    <option value="2878">
-                                    <option value="78738">
-                        </datalist>
+                           <table class="alineado">
+                                 <tr><td> <span toolTexto="Promedio de contracts[n].value.amount">Promedio de Monto Contratado</span>
+                                 </td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                       
+                        <div class="contenedorFiltroNumerico">
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                              <button class="btnFiltroNumerico">&lt;</button>
+                              <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                    <div class=" contenedorFiltroBusqueda" >
+                                       <div class="flechaArribaBlanca"></div>
+                                       <div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroPromedioMayor" name="selectorPromedio" opcion="<" checked>
+                                             <label for="filtroPromedioMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroPromedioMenor" name="selectorPromedio" opcion=">">
+                                             <label for="filtroPromedioMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroPromedioIgual" name="selectorPromedio" opcion="=">
+                                             <label for="filtroPromedioIgual" >Igual a &nbsp;<span>=</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                        </div>
                      </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Mayor</span>
-                        <input list="mayorLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
-                        <datalist id="mayorLista">
-                              <option value="45">
-                              <option value="75">
-                              <option value="57575">
-                              <option value="2">
-                              <option value="75">
-                              <option value="8669">
-                              <option value="2878">
-                              <option value="78738">
-                        </datalist>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="El mayor contracts[n].value.amount" >Mayor Monto Contratado</span>
+                                 </td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                        
+                        <div class="contenedorFiltroNumerico">
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                              <button class="btnFiltroNumerico">&lt;</button>
+                              <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                    <div class=" contenedorFiltroBusqueda" >
+                                       <div class="flechaArribaBlanca"></div>
+                                       <div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroMayorMayor" name="selectorMayor" opcion="<" checked>
+                                             <label for="filtroMayorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroMayorMenor" name="selectorMayor" opcion=">">
+                                             <label for="filtroMayorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroMayorIgual" name="selectorMayor" opcion="=">
+                                             <label for="filtroMayorIgual" >Igual a &nbsp;<span>=</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                        </div>
                         </th>
                      <th class="textoAlineadoCentrado">
-                        <span>Menor</span>
-                        <input list="menorLista" id="proveedoresColumna" class="campoBlancoTextoSeleccion" placeholder="Número">
-                        <datalist id="menorLista">
-                           <option value="45">
-                           <option value="75">
-                           <option value="57575">
-                           <option value="2">
-                           <option value="75">
-                           <option value="8669">
-                           <option value="2878">
-                           <option value="78738">
-                        </datalist>
+                           <table class="alineado">
+                                 <tr><td><span toolTexto="El menor contracts[n].value.amount">Menor Monto Contratado</span>
+                                 </td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                        
+                        <div class="contenedorFiltroNumerico">
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                              <button class="btnFiltroNumerico">&lt;</button>
+                              <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                    <div class=" contenedorFiltroBusqueda" >
+                                       <div class="flechaArribaBlanca"></div>
+                                       <div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                             <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                             <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                          </div>
+                                          <div class="OpcionFiltroBusquedaNumerico">
+                                             <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                             <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                        </div>
                      </th>
                      <th class="textoAlineadoCentrado">
-                           <span>Última Licitación</span>
-                           <input type="text" id="licitacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha">
+                           <table class="alineado">
+                                 <tr>
+                                    <td><span toolTexto="Último awards[n].date"> Fecha de Último Proceso</span>
+                                 </td>
+                                 <td><span class="ordenEncabezado" opcion="neutro">
+                                       <div class="contenedorFlechasOrden">
+                                             <i class="fas fa-sort-up flechaArriba"></i>
+                                             <i class="fas fa-sort-down flechaAbajo"></i>
+                                       </div>
+                                    </span></td></tr>
+                              </table>
+      
+                           
+                           <div class="contenedorFiltroNumerico">
+                                 <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
+                                 <button class="btnFiltroNumerico">&lt;</button>
+                                 <div class="preContenedorFiltroBusqueda animated fadeIn">
+                                       <div class=" contenedorFiltroBusqueda" >
+                                          <div class="flechaArribaBlanca"></div>
+                                          <div>
+                                             <div class="OpcionFiltroBusquedaNumerico">
+                                                <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                             </div>
+                                             <div class="OpcionFiltroBusquedaNumerico">
+                                                <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                             </div>
+                                             <div class="OpcionFiltroBusquedaNumerico">
+                                                <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                           </div>
                         </th>
                   </tr>
                </thead>
@@ -135,47 +287,47 @@
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Conade</a> </td>
                      <td data-label="Procesos">15905 </td>
-                     <td data-label="Total">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">155,099 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor" >87,000,000 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">0 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">2,466,855,052 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio  de Monto Contratado">155,099 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado" >87,000,000 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">0 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">BCH</a></td>
                      <td data-label="Procesos">253</td>
-                     <td data-label="Total ">585,503,010 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">2,314,241 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor">79,823,428 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">11,657 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">585,503,010 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio  de Monto Contratado">2,314,241 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado">79,823,428 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">11,657 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">UPNFM</a></td>
                      <td data-label="Procesos">995</td>
-                     <td data-label="Total">232,603,843 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">570,480 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor">25,000 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">102 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">232,603,843 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio  de Monto Contratado">570,480 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado">25,000 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">102 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Copeco</a></td>
                      <td data-label="Procesos">1051</td>
-                     <td data-label="Total">1603,154,975 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">573,886 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor">30,000,000 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">0 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">1603,154,975 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio  de Monto Contratado">573,886 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado">30,000,000 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">0 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                   <tr>
                      <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Pani</a></td>
                      <td data-label="Procesos">8</td>
-                     <td data-label="Total">345,085,077 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Promedio">493,683 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Mayor">8,719,052 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Menor">0 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Última Licitación" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
+                     <td data-label="Total de Monto Contratado">345,085,077 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Promedio de Monto Contratado">493,683 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Mayor Monto Contratado">8,719,052 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Menor Monto Contratado">0 <span class="textoColorPrimario">HNL</span></td>
+                     <td data-label="Fecha de Último Proceso" class="textoAlineadoDerecha">2018-02-19 10:02:54</td>
                   </tr>
                </tbody>
             </table>
@@ -188,6 +340,7 @@
             <h4 class="textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba" style="margin-top:18px">
                   <span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span>
                   <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span>
+                  <span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span>
                </h4>
                <h4 class="enLinea mb-0 mt-3 enLinea alineadoArriba" onclick="location.href='/preguntas'">
                   <div class="textoAlineadoCentrado cursorMano botonAyuda transicion" id="informacionTipoDatos" >
@@ -198,7 +351,7 @@
          
       </div>
       <div class="col-md-12 textoAlineadoCentrado">
-         <nav class="navegacionTablaGeneral">
+         <nav class="navegacionTablaGeneral" data-step="4" data-intro="Puedes navegar entre los diversos resultados aquí.">
             <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
             <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
             <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
