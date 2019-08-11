@@ -23,4 +23,6 @@ router.register(
 urlpatterns = [
 	path('', include(router.urls)),
 	path('compradores/', viewsets.BuyerList.as_view()),
+	path('index/', viewsets.Index.as_view()),
+	path('search/', viewsets.Buscador.as_view()),	
 ]

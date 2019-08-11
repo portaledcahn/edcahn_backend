@@ -6,28 +6,17 @@ from rest_framework.views import APIView
 from django.db import connections
 from django.db.models import Avg, Count, Min, Sum
 from decimal import Decimal 
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search
 from .serializers import *
-
-from django_elasticsearch_dsl_drf.constants import (
-    LOOKUP_FILTER_RANGE,
-    LOOKUP_QUERY_IN,
-    LOOKUP_QUERY_GT,
-    LOOKUP_QUERY_GTE,
-    LOOKUP_QUERY_LT,
-    LOOKUP_QUERY_LTE,
-)
-from django_elasticsearch_dsl_drf.filter_backends import (
-    FilteringFilterBackend,
-    OrderingFilterBackend,
-    DefaultOrderingFilterBackend,
-    SearchFilterBackend,
-)
+from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
+import json
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
 from portaledcahn_backend import serializers as articles_serializers  
 
-import json
+from django.utils.functional import LazyObject
 
 tasas_de_cambio = {
 	2000: {"HNL": 15.0143, "USD": 1},
@@ -51,6 +40,34 @@ tasas_de_cambio = {
 	2018: {"HNL": 24.0701, "USD": 1},
 	2019: {"HNL": 24.5777, "USD": 1},
 }
+
+class DSEPaginator(Paginator):
+    """
+    Override Django's built-in Paginator class to take in a count/total number of items;
+    Elasticsearch provides the total as a part of the query results, so we can minimize hits.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DSEPaginator, self).__init__(*args, **kwargs)
+        self._count = self.object_list.hits.total
+
+    def page(self, number):
+        # this is overridden to prevent any slicing of the object_list - Elasticsearch has
+        # returned the sliced data already.
+        number = self.validate_number(number)
+        return Page(self.object_list, number, self)
+
+class SearchResults(LazyObject):
+    def __init__(self, search_object):
+        self._wrapped = search_object
+
+    def __len__(self):
+        return self._wrapped.count()
+
+    def __getitem__(self, index):
+        search_results = self._wrapped[index]
+        if isinstance(index, slice):
+            search_results = list(search_results)
+        return search_results
 
 class ReleaseViewSet(viewsets.ModelViewSet):
 	queryset = Release.objects.all()
@@ -187,49 +204,91 @@ class DataViewSet(DocumentViewSet):
 	document = articles_documents.DataDocument
 	serializer_class = articles_serializers.DataDocumentSerializer
 
-#     lookup_field = 'id'
-#     filter_backends = [
-#         FilteringFilterBackend,
-#         OrderingFilterBackend,
-#         DefaultOrderingFilterBackend,
-#         SearchFilterBackend,
-#     ]
- 
-#     # Define search fields
-#     search_fields = (
-#         'data'
-#     )
- 
-#     # Filter fields
-#     filter_fields = {
-#         'id': {
-#             'field': 'id',
-#             'lookups': [
-#                 LOOKUP_FILTER_RANGE,
-#                 LOOKUP_QUERY_IN,
-#                 LOOKUP_QUERY_GT,
-#                 LOOKUP_QUERY_GTE,
-#                 LOOKUP_QUERY_LT,
-#                 LOOKUP_QUERY_LTE,
-#             ],
-#         },
-#         'data': 'title.raw',
-#     }
- 
-#     # Define ordering fields
-#     ordering_fields = {
-#         'id': 'id',
-#         'data': 'title.raw',
-#     }
-
-#     # Specify default ordering
-#     ordering = ('id',)   
-
-
 class DataRecordViewSet(DocumentViewSet):
     document = articles_documents.RecordDocument
     serializer_class = articles_serializers.RecordDocumentSerializer
 
 
+class Index(APIView):
+
+	def get(self, request, format=None):
+
+		cliente = Elasticsearch('http://192.168.1.7:9200/')
+
+		s = Search(using=cliente, index='edca')
+
+		results = s.aggs\
+					.metric('distinct_suppliers', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')\
+					.aggs\
+					.metric('distinct_buyers', 'cardinality', field='doc.compiledRelease.contracts.buyer.id.keyword')\
+					.aggs\
+					.metric('distinct_contracts', 'cardinality', field='doc.compiledRelease.contracts.id.keyword')\
+					.aggs\
+					.metric('distinct_tenders', 'cardinality', field='doc.compiledRelease.tender.id.keyword')\
+					.aggs\
+					.metric('distinct_transactions', 'cardinality', field='doc.compiledRelease.contracts.implementation.transactions.id.keyword')\
+					.execute()
+
+		context = {
+			"contratos": results.aggregations.distinct_contracts.value,
+			"procesos": results.aggregations.distinct_tenders.value,
+			"pagos": results.aggregations.distinct_transactions.value,			
+			"compradores": results.aggregations.distinct_buyers.value,
+			"proveedores": results.aggregations.distinct_suppliers.value
+		}
+
+		return Response(context)
+
+class Buscador(APIView):
+
+	def get(self, request, format=None):
+		paginatedBy = 10
+		q='agua'
+		page = int(request.GET.get('page', '1'))
+		start = (page-1) * paginatedBy
+		end = start + paginatedBy
+
+		cliente = Elasticsearch('http://192.168.1.7:9200/')
+
+		s = Search(using=cliente, index='edca')
+
+		s = s.query("match", doc__compiledRelease__tender__title="2017")
+
+		# s = Search(using=cliente, index='edca').query("match", doc__compiledRelease__tender__title="2018")[start:end]
+
+		search_results = SearchResults(s)
+
+		results = s[start:end].execute()
+		# paginator = DSEPaginator(results, 1)
+
+		paginator = Paginator(search_results, paginatedBy)
+
+		print("La paginación:", paginator)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"items": results.hits.total
+		}
+
+		context = {
+			"paginador": pagination,
+			"resultados": results.hits.hits,
+			# "resultados": search_results.execute().hits.hits,
+			# "resumen": results.aggregations,
+			# "q": q,
+		}
 
 
+		return Response(context)

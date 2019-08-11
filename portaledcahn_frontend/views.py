@@ -10,6 +10,7 @@ class DSEPaginator(Paginator):
     def __init__(self, *args, **kwargs):
         super(DSEPaginator, self).__init__(*args, **kwargs)
         self._count = self.object_list.hits.total
+        print("Total", self.object_list.hits.total)
 
     def page(self, number):
         # this is overridden to prevent any slicing of the object_list - Elasticsearch has

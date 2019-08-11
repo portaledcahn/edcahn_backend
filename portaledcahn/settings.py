@@ -140,13 +140,13 @@ STATIC_ROOT = 'staticfiles'
 STATICFILES_DIRS=(
     os.path.join(BASE_DIR,'portaledcahn_frontend/static'),
 )
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+#     'PAGE_SIZE': 10
+# }
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': '34.74.53.102:9200'
+        'hosts': 'http://192.168.1.7:9200/'
     },
 }
