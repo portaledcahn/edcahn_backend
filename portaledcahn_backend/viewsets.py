@@ -17,6 +17,7 @@ from portaledcahn_backend import documents as articles_documents
 from portaledcahn_backend import serializers as articles_serializers  
 
 from django.utils.functional import LazyObject
+from django.conf import settings
 
 tasas_de_cambio = {
 	2000: {"HNL": 15.0143, "USD": 1},
@@ -41,20 +42,25 @@ tasas_de_cambio = {
 	2019: {"HNL": 24.5777, "USD": 1},
 }
 
-class DSEPaginator(Paginator):
-    """
-    Override Django's built-in Paginator class to take in a count/total number of items;
-    Elasticsearch provides the total as a part of the query results, so we can minimize hits.
-    """
-    def __init__(self, *args, **kwargs):
-        super(DSEPaginator, self).__init__(*args, **kwargs)
-        self._count = self.object_list.hits.total
+BASIC_FILTER = [
+    {"bool": {"should": []}},  # metodo.selección. 
+    {"bool": {"should": []}}   # currency
+]
 
-    def page(self, number):
-        # this is overridden to prevent any slicing of the object_list - Elasticsearch has
-        # returned the sliced data already.
-        number = self.validate_number(number)
-        return Page(self.object_list, number, self)
+# class DSEPaginator(Paginator):
+#     """
+#     Override Django's built-in Paginator class to take in a count/total number of items;
+#     Elasticsearch provides the total as a part of the query results, so we can minimize hits.
+#     """
+#     def __init__(self, *args, **kwargs):
+#         super(DSEPaginator, self).__init__(*args, **kwargs)
+#         self._count = self.object_list.hits.total
+
+#     def page(self, number):
+#         # this is overridden to prevent any slicing of the object_list - Elasticsearch has
+#         # returned the sliced data already.
+#         number = self.validate_number(number)
+#         return Page(self.object_list, number, self)
 
 class SearchResults(LazyObject):
     def __init__(self, search_object):
@@ -208,12 +214,11 @@ class DataRecordViewSet(DocumentViewSet):
     document = articles_documents.RecordDocument
     serializer_class = articles_serializers.RecordDocumentSerializer
 
-
 class Index(APIView):
 
 	def get(self, request, format=None):
 
-		cliente = Elasticsearch('http://192.168.1.7:9200/')
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
 		s = Search(using=cliente, index='edca')
 
@@ -242,26 +247,48 @@ class Index(APIView):
 class Buscador(APIView):
 
 	def get(self, request, format=None):
-		paginatedBy = 10
-		q='agua'
 		page = int(request.GET.get('page', '1'))
-		start = (page-1) * paginatedBy
-		end = start + paginatedBy
+		term = request.GET.get('term', '')
+		start = (page-1) * settings.PAGINATE_BY
+		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch('http://192.168.1.7:9200/')
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
 		s = Search(using=cliente, index='edca')
 
-		s = s.query("match", doc__compiledRelease__tender__title="2017")
+		#Monedas unicas 
+		s.aggs.metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
+
+		#Modalidades de contratación 
+		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
+
+		#Instituciones
+		s.aggs.metric('instituciones', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=100)		
+
+		#Tipo de adquisicion
+		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')		
+
+		#Anios de publicacion
+		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')		
+
+		# filtro por moneda
+		# s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency='HNL')
+
+		#filtro por sistema de donde provienen los datos 
+		s = s.filter('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+
+		#Filtro por modalidad de contratacion 
+		# s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails='Licitación privada')
+
+		# s = s.query("match", _id="31de132c-489b-4be2-ad27-0bb737d41bbd")
 
 		# s = Search(using=cliente, index='edca').query("match", doc__compiledRelease__tender__title="2018")[start:end]
 
 		search_results = SearchResults(s)
 
 		results = s[start:end].execute()
-		# paginator = DSEPaginator(results, 1)
 
-		paginator = Paginator(search_results, paginatedBy)
+		paginator = Paginator(search_results, settings.PAGINATE_BY)
 
 		print("La paginación:", paginator)
 
@@ -279,15 +306,16 @@ class Buscador(APIView):
 			"page": posts.number,
 			"next_page_number": posts.next_page_number() if posts.has_next() else None,
 			"num_pages": paginator.num_pages,
-			"items": results.hits.total
+			"total.items": results.hits.total
 		}
 
 		context = {
 			"paginador": pagination,
+			"filtros": results.aggregations.to_dict(),
 			"resultados": results.hits.hits,
-			# "resultados": search_results.execute().hits.hits,
-			# "resumen": results.aggregations,
-			# "q": q,
+			"parametros": {
+				"term": term
+			},
 		}
 
 
