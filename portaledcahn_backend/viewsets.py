@@ -42,11 +42,6 @@ tasas_de_cambio = {
 	2019: {"HNL": 24.5777, "USD": 1},
 }
 
-BASIC_FILTER = [
-    {"bool": {"should": []}},  # metodo.selección. 
-    {"bool": {"should": []}}   # currency
-]
-
 # class DSEPaginator(Paginator):
 #     """
 #     Override Django's built-in Paginator class to take in a count/total number of items;
@@ -247,50 +242,96 @@ class Index(APIView):
 class Buscador(APIView):
 
 	def get(self, request, format=None):
-		page = int(request.GET.get('page', '1'))
+		page = int(request.GET.get('pagina', '1'))
+		metodo = request.GET.get('metodo', 'proceso')
+		moneda = request.GET.get('moneda', None)
+		metodo_seleccion = request.GET.get('metodo_seleccion', None)
+		institucion = request.GET.get('institucion', None)
+		categoria = request.GET.get('categoria', None)
+		year = request.GET.get('year', None)
+
 		term = request.GET.get('term', '')
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
+
+		if metodo not in ['proceso', 'contrato', 'pago']:
+			metodo = 'proceso'
 
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
 		s = Search(using=cliente, index='edca')
 
-		#Monedas unicas 
+		#Filtros
+
 		s.aggs.metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
 
-		#Modalidades de contratación 
 		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
 
-		#Instituciones
 		s.aggs.metric('instituciones', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=100)		
 
-		#Tipo de adquisicion
 		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')		
 
-		#Anios de publicacion
 		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')		
 
-		# filtro por moneda
-		# s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency='HNL')
+		#Resumen 		
+		s.aggs.metric('proveedores_total', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')
+
+		s.aggs.metric('compradores_total', 'cardinality', field='doc.compiledRelease.contracts.buyer.id.keyword')
+
+		if metodo == 'proceso':
+			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.tender.id.keyword')
+
+		if metodo == 'contrato':
+			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.contracts.id.keyword')
+
+		if metodo == 'pago':
+			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.contracts.implementation.transactions.id.keyword')
+
+		if metodo in ['contrato', 'pago']:
+			s.aggs.metric('monto_promedio', 'avg', field='doc.compiledRelease.contracts.value.amount')
+
+		#Aplicando filtros
 
 		#filtro por sistema de donde provienen los datos 
-		s = s.filter('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		# s = s.filter('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
 
-		#Filtro por modalidad de contratacion 
-		# s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails='Licitación privada')
+		if metodo == 'proceso':
+			s = s.filter('exists', field='doc.compiledRelease.tender.id')
 
-		# s = s.query("match", _id="31de132c-489b-4be2-ad27-0bb737d41bbd")
+		if metodo == 'contrato':
+			s = s.filter('exists', field='doc.compiledRelease.contracts.id')
 
-		# s = Search(using=cliente, index='edca').query("match", doc__compiledRelease__tender__title="2018")[start:end]
+		if metodo == 'pago':
+			s = s.filter('exists', field='doc.compiledRelease.contracts.implementation.transactions.id')
+
+		if moneda is not None: 
+			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency=moneda)
+
+		if metodo_seleccion is not None:
+			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails=metodo_seleccion)
+
+		if institucion is not None:
+			s = s.filter('match_phrase', doc__compiledRelease__buyer__name=institucion)
+
+		if categoria is not None:
+			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory=categoria)
+
+		# Este filtro aun falta
+		if year is not None:
+			pass 
+
+		if term: 
+			if metodo == 'proceso':
+				s = s.filter('match', doc__compiledRelease__tender__description=term)
+
+			if metodo in  ['contrato', 'pago']:
+				s = s.filter('match', doc__compiledRelease__contracts__description=term)
 
 		search_results = SearchResults(s)
 
 		results = s[start:end].execute()
 
 		paginator = Paginator(search_results, settings.PAGINATE_BY)
-
-		print("La paginación:", paginator)
 
 		try:
 			posts = paginator.page(page)
@@ -309,14 +350,40 @@ class Buscador(APIView):
 			"total.items": results.hits.total
 		}
 
+		filtros = {}
+		filtros["monedas"] = results.aggregations.monedas.to_dict()
+		filtros["años"] = results.aggregations.años.to_dict()
+		filtros["categorias"] = results.aggregations.categorias.to_dict()
+		filtros["instituciones"] = results.aggregations.instituciones.to_dict()
+		filtros["metodos_de_seleccion"] = results.aggregations.metodos_de_seleccion.to_dict()
+
+		resumen = {}
+		resumen["proveedores_total"] = results.aggregations.proveedores_total.value
+		resumen["compradores_total"] = results.aggregations.compradores_total.value
+		resumen["procesos_total"] = results.aggregations.procesos_total.value
+
+		if metodo in ['contrato', 'pago']:
+			resumen["monto_promedio"] = results.aggregations.monto_promedio.value
+		else:
+			resumen["monto_promedio"] = None
+
+		parametros = {}
+		parametros["term"] = term
+		parametros["metodo"] = metodo
+		parametros["pagina"] = page
+		parametros["moneda"] = moneda
+		parametros["metodo_seleccion"] = metodo_seleccion
+		parametros["institucion"] = institucion
+		parametros["categoria"] = categoria
+		parametros["year"] = year
+
 		context = {
 			"paginador": pagination,
-			"filtros": results.aggregations.to_dict(),
-			"resultados": results.hits.hits,
-			"parametros": {
-				"term": term
-			},
+			"parametros": parametros,
+			"resumen": resumen,
+			"filtros": filtros,
+			"resultados": results.hits.hits
+			# "agregados": results.aggregations.to_dict(),
 		}
-
 
 		return Response(context)
