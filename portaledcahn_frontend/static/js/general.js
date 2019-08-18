@@ -1,9 +1,26 @@
 var url=window.location.origin;
 var api=url+"/api";
+var estadosContrato={
+    'pending':{titulo:'Pendiente',descripcion:'Este contrato se propuso pero aún no entra en vigor. Puede estar esperando ser firmado.'},
+    'active':{titulo:'Activo',descripcion:'Este contrato se ha firmado por todas las partes y ahora está legalmente en proceso.'},
+    'cancelled':{titulo:'Cancelado',descripcion:'Este contrato se canceló antes de ser firmado.'},
+    'unsuccessful':{titulo:'Sin Éxito',descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'}
+   };
+function TextoURL(texto){
+    return encodeURIComponent(texto);
+}
+function ObtenerTextoURL(texto){
+    return decodeURIComponent(texto);
+}
+
 function MostrarIntroduccion(){
     introJs().setOption("nextLabel", "Siguiente").setOption("prevLabel", "Atras").setOption("skipLabel", "SALTAR").setOption("doneLabel", "LISTO").start();
 }
-
+function DebugFecha(){
+    let d =new Date();
+    let fecha=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()+':'+d.getMilliseconds();
+    console.dir(fecha);
+}
 function VerificarIntroduccion(variable,veces){
     var introduccion=ObtenerCookie(variable);
     if(introduccion===null){
@@ -66,7 +83,7 @@ function ObtenerNumero(texto){
 }
 
 function ObtenerTexto(texto){
-    if(texto){
+    if(Validar(texto)){
         return texto.toString();
     }else{
         return '';
@@ -75,7 +92,7 @@ function ObtenerTexto(texto){
 function ReducirTexto(texto,maximo){
     texto=ObtenerTexto(texto);
     if(texto.length>maximo){
-       return texto.substring(0, maximo);
+       return texto.substring(0, maximo)+'...';
     }else{
         return texto;
     }
@@ -156,6 +173,14 @@ if($(elemento).is(":checked")){
 }
 
 }
+
+function Validar(valor){
+    if(valor!=null&&valor!=undefined){
+        return true;
+    }else{
+        return false;
+    }
+}
 function cambiarOrden(evento){
     var elemento=$(evento.currentTarget);
     switch($(elemento).attr('opcion')){
@@ -212,7 +237,7 @@ function AgregarToolTips(){
 }
 
 function ObtenerValor( nombre, url ) {
-    if (!url) url = location.href;
+    if (!url) {url = location.href};
     nombre = nombre.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
     var regexS = "[\\?&]"+nombre+"=([^&#]*)";
     var regex = new RegExp( regexS );
@@ -287,4 +312,76 @@ function AnadirSubtabla(){
         }
     );
     
+}
+
+/*Nuevo Codigo */
+function ObtenerEnlaceParte(id,arreglo,fuente){
+    var elementos=[];
+    if(arreglo){
+      elementos=arreglo;
+    }
+    var partes=fuente?fuente.parties:procesoRecord.compiledRelease.parties;
+    for(var i = 0; i < partes.length;i++){
+        if(partes[i].id == id){
+          elementos.push(partes[i]);
+          if(partes[i].memberOf){
+            for(var j = 0; j < partes[i].memberOf.length;j++){
+              ObtenerEnlaceParte(partes[i].memberOf[j].id,elementos,fuente);
+            }
+  
+          }
+        }
+    }
+    return elementos;
+  }
+  function ObtenerElementosParte(id,fuente){
+    var parte=ObtenerEnlaceParte(id,false,fuente);
+    var elementos=[];
+    for(var i=0;i<parte.length;i++){
+      elementos.push(
+        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+parte[i].id})):(parte[i].roles.includes('supplier')?(
+          $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
+        ):(
+          $('<span>',{text:parte[i].name})
+          ) 
+        ) 
+      )
+      if(elementos.length>=1&&i+1<parte.length){
+        elementos.push($('<span>',{text:' de '}));
+      }
+    }
+    return elementos;
+  }
+  function ObtenerProveedores(proveedores,fuente){
+    var elementos=[];
+    if(proveedores){
+      for(var i=0;i<proveedores.length;i++){
+        elementos=elementos.concat(ObtenerElementosParte(proveedores[i].id,fuente));
+      }
+    }
+    
+    return elementos;
+  }
+  function ObtenerPaginacion(paginaActual, ultimaPagina) {
+    var paginas=[];
+    var paginasPuntos=[];
+    var espaciado=2;
+    var izquierda=paginaActual - espaciado;
+    var derecha=paginaActual + espaciado;
+    var contador=0;
+    for(var i=1;i<=ultimaPagina;i++){
+        if (i==1||i==ultimaPagina||i>=izquierda&&i<=derecha){
+            paginas.push(i);
+        }
+    }
+    for(var i=0;i<paginas.length;i++){
+        if(contador){
+            if (paginas[i]-contador!=1) {
+                paginasPuntos.push('...');
+            }
+        }
+        paginasPuntos.push(paginas[i]);
+        contador=paginas[i];
+    }
+    return paginasPuntos;
 }

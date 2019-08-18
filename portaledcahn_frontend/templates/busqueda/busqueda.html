@@ -11,7 +11,7 @@
 {% endblock %}
   
 {% block container %}
-      <div class="container  busquedaEspaciadoHorizontal">
+      <div class="container  busquedaEspaciadoHorizontal tamanoMinimo">
          <div class="contenedorFiltrosBusqueda animated" data-step="3" data-intro="Puedes aplicar un filtro según el método de busqueda que hayas seleccionado.">
             <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
                Filtros 
@@ -102,8 +102,8 @@
                            Búsqueda
                         </h4>
                   <div class="campoAzulBusquedaPadre"  data-step="1" data-intro="Según el texto que ingreses en este campo puedes buscar, filtrando por alguno de los filtros que hayas seleccionado.">
-                     <input class="form-control form-control-lg campoAzulBusqueda toolTip" toolPosicio="bottom" toolTexto="Ingresa un texto a buscar" id="campoBusquedaProceso" type="text" placeholder="Busca una contratación..." title="Busca una contratación..." value="{% if request.GET.q %}{{request.GET.q}}{% endif %}">
-                     <i class="fas fa-search cursorMano toolTip" toolTexto="Haz click para buscar" id="botonBusquedaProceso"></i>	
+                     <input class="form-control form-control-lg campoAzulBusqueda toolTip" toolPosicio="bottom" toolTexto="Ingresa un texto a buscar" id="campoBusquedaProceso" type="text" placeholder="Busca una contratación..." title="Busca una contratación..." value="{% if request.GET.term %}{{request.GET.term}}{% endif %}" autocomplete="off">
+                     <i class="fas fa-search cursorMano toolTip" toolTexto="Haz click para buscar" id="botonBusquedaProceso"></i> 
                   </div>
                   <div class="contenedorBotonAzulFiltroBusqueda"  style="display:none">
                      <button class="botonAzulFiltroBusqueda" title="Filtros">
@@ -210,13 +210,13 @@
                                  <tr >
                                     <td class="tituloTablaCaracteristicas pb-1">Total de Procesos:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario" >45</span>
+                                       <span class="botonGeneral fondoColorPrimario" id="totalProcesos">0</span>
                                     </td>
                                  </tr>
                                  <tr>
                                     <td class="tituloTablaCaracteristicas pb-1">Promedio de Monto:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario" >45,5666,545 HNL</span>
+                                       <span class="botonGeneral fondoColorPrimario" id="promedioMonto">0.00 HNL</span>
                                     </td>
                                  </tr>
                               </tbody>
@@ -228,13 +228,13 @@
                                  <tr >
                                     <td class="tituloTablaCaracteristicas pb-1">Total de Compradores:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario" >45</span>
+                                       <span class="botonGeneral fondoColorPrimario" id="totalCompradores">0</span>
                                     </td>
                                  </tr>
                                  <tr>
                                     <td class="tituloTablaCaracteristicas pb-1"> Total de Proveedores:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario ">78</span>
+                                       <span class="botonGeneral fondoColorPrimario " id="totalProveedores">0</span>
                                     </td>
                                  </tr>
                               </tbody>
@@ -262,13 +262,6 @@
                
                   <div class="col-md-12 textoAlineadoCentrado">
                      <nav class="navegacionTablaGeneral">
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1410</span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1411</span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>1412</span></a>
-                        <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1413</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
                      </nav>
                   </div>
                </div>

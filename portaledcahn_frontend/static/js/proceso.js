@@ -38,46 +38,7 @@ $(function(){
       }
     });
     ObtenerProceso();
-    /*Añadir Titles a las propiedades del proceso de contratacion*/
-    tippy('.botonPropiedadProceso[propiedad="informacion"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Información',
-    placement:'bottom-end'
-    });
-  
-    tippy('.botonPropiedadProceso[propiedad="documentos"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Documentos',
-    placement:'bottom-end'
-    });
-  
-    tippy('.botonPropiedadProceso[propiedad="historial"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Historial',
-    placement:'bottom-end'
-    });
-  
-    tippy('.botonPropiedadProceso[propiedad="invitados"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Invitados',
-    placement:'bottom-end'
-    });
-  
-    tippy('.botonPropiedadProceso[propiedad="solicitados"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Items Solicitados',
-    placement:'bottom-end'
-    });
-    tippy('#informacionTipoDatos', {
-    arrow: true,
-    arrowType: 'round',
-    content:'¿Que son estos tipos de datos?'
-  });
+   
   
     
   });
@@ -120,7 +81,7 @@ function ObtenerProceso(){
  
 
   MostrarEspera('body .tamanoMinimo');
-  $.get(api+"/record/"+procesoOcid,function(datos){
+  $.get(api+"/record/"+procesoOcid/*url+"/static/"+procesoOcid+".json"*/,function(datos){
     if(datos&&!datos.detail){
      // download(JSON.stringify(datos), 'json.txt', 'text/plain');
       $('#procesoCargaContedor').show();
@@ -128,6 +89,8 @@ function ObtenerProceso(){
       
       DefinirElementosPlaneacion();
       DefinirElementosConvocatoria();
+      DefinirElementosAdjudicacion();
+      DefinirElementosContrato();
       AnadirPartes();
       DeshabilitarItems();
       MostrarPrimerProceso();
@@ -155,6 +118,8 @@ function ObtenerProceso(){
   
 });
 }
+
+
 
 
 
@@ -477,43 +442,7 @@ function ObtenerDocumentos(documentos){
   }
   return elementos;
 }
-/*Nuevo Codigo */
-function ObtenerEnlaceParte(id,arreglo){
-  var elementos=[];
-  if(arreglo){elementos=arreglo;
-  }
-  var partes=procesoRecord.compiledRelease.parties;
-  for(var i = 0; i < partes.length;i++){
-      if(partes[i].id == id){
-        elementos.push(partes[i]);
-        if(partes[i].memberOf){
-          for(var j = 0; j < partes[i].memberOf.length;j++){
-            ObtenerEnlaceParte(partes[i].memberOf[j].id,elementos);
-          }
 
-        }
-      }
-  }
-  return elementos;
-}
-function ObtenerElementosParte(id){
-  var parte=ObtenerEnlaceParte(id);
-  var elementos=[];
-  for(var i=0;i<parte.length;i++){
-    elementos.push(
-      parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+parte[i].id})):(parte[i].roles.includes('supplier')?(
-        $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
-      ):(
-        $('<span>',{text:parte[i].name})
-        ) 
-      ) 
-    )
-    if(elementos.length>=1&&i+1<parte.length){
-      elementos.push($('<span>',{text:' de '}));
-    }
-  }
-  return elementos;
-}
 //$('<a>',{text:contratos[i].buyer.name,class:'enlaceTablaGeneral',href:'/comprador/'+contratos[i].buyer.id})
 function download(content, fileName, contentType) {
   var a = document.createElement("a");

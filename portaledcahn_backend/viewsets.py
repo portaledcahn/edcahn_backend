@@ -6,26 +6,18 @@ from rest_framework.views import APIView
 from django.db import connections
 from django.db.models import Avg, Count, Min, Sum
 from decimal import Decimal 
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search
 from .serializers import *
-
-from django_elasticsearch_dsl_drf.constants import (
-    LOOKUP_FILTER_RANGE,
-    LOOKUP_QUERY_IN,
-    LOOKUP_QUERY_GT,
-    LOOKUP_QUERY_GTE,
-    LOOKUP_QUERY_LT,
-    LOOKUP_QUERY_LTE,
-)
-from django_elasticsearch_dsl_drf.filter_backends import (
-    FilteringFilterBackend,
-    OrderingFilterBackend,
-    DefaultOrderingFilterBackend,
-    SearchFilterBackend,
-)
+from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
+import json
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
 from portaledcahn_backend import serializers as articles_serializers  
+
+from django.utils.functional import LazyObject
+from django.conf import settings
 
 tasas_de_cambio = {
 	2000: {"HNL": 15.0143, "USD": 1},
@@ -49,6 +41,34 @@ tasas_de_cambio = {
 	2018: {"HNL": 24.0701, "USD": 1},
 	2019: {"HNL": 24.5777, "USD": 1},
 }
+
+# class DSEPaginator(Paginator):
+#     """
+#     Override Django's built-in Paginator class to take in a count/total number of items;
+#     Elasticsearch provides the total as a part of the query results, so we can minimize hits.
+#     """
+#     def __init__(self, *args, **kwargs):
+#         super(DSEPaginator, self).__init__(*args, **kwargs)
+#         self._count = self.object_list.hits.total
+
+#     def page(self, number):
+#         # this is overridden to prevent any slicing of the object_list - Elasticsearch has
+#         # returned the sliced data already.
+#         number = self.validate_number(number)
+#         return Page(self.object_list, number, self)
+
+class SearchResults(LazyObject):
+    def __init__(self, search_object):
+        self._wrapped = search_object
+
+    def __len__(self):
+        return self._wrapped.count()
+
+    def __getitem__(self, index):
+        search_results = self._wrapped[index]
+        if isinstance(index, slice):
+            search_results = list(search_results)
+        return search_results
 
 class ReleaseViewSet(viewsets.ModelViewSet):
 	queryset = Release.objects.all()
@@ -80,7 +100,24 @@ class BuyerList(APIView):
 
 		data = articles_documents.DataDocument.search()
 
-		contador = data.count()
+		results = data.aggs\
+					.metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
+					.aggs\
+					.metric('distinct_buyers', 'cardinality', field='data.compiledRelease.contracts.buyer.id.keyword')\
+					.aggs\
+					.metric('distinct_contracts', 'cardinality', field='data.compiledRelease.contracts.id.keyword')\
+					.execute()
+
+		# for r in results.aggregations:
+		# 	print(r)
+
+		context = {
+			"distinct_contracts": results.aggregations.distinct_contracts.value,
+			"distinct_buyers": results.aggregations.distinct_buyers.value,
+			"distinct_suppliers": results.aggregations.distinct_suppliers.value
+		}
+
+		# contador = data.count()
 
 		# for r in results:
 			# contador += 1
@@ -101,11 +138,9 @@ class BuyerList(APIView):
 		# 		print("ok", contador)
 
 		# 	contador += 1 
-		
-		# print("ok", contador)
 
 		# return Response(contador)
-		return Response(contador)
+		return Response(context)
 
 class ContractsViewSet(viewsets.ModelViewSet):
 	sql = '''
@@ -170,49 +205,185 @@ class DataViewSet(DocumentViewSet):
 	document = articles_documents.DataDocument
 	serializer_class = articles_serializers.DataDocumentSerializer
 
-#     lookup_field = 'id'
-#     filter_backends = [
-#         FilteringFilterBackend,
-#         OrderingFilterBackend,
-#         DefaultOrderingFilterBackend,
-#         SearchFilterBackend,
-#     ]
- 
-#     # Define search fields
-#     search_fields = (
-#         'data'
-#     )
- 
-#     # Filter fields
-#     filter_fields = {
-#         'id': {
-#             'field': 'id',
-#             'lookups': [
-#                 LOOKUP_FILTER_RANGE,
-#                 LOOKUP_QUERY_IN,
-#                 LOOKUP_QUERY_GT,
-#                 LOOKUP_QUERY_GTE,
-#                 LOOKUP_QUERY_LT,
-#                 LOOKUP_QUERY_LTE,
-#             ],
-#         },
-#         'data': 'title.raw',
-#     }
- 
-#     # Define ordering fields
-#     ordering_fields = {
-#         'id': 'id',
-#         'data': 'title.raw',
-#     }
-
-#     # Specify default ordering
-#     ordering = ('id',)   
-
-
 class DataRecordViewSet(DocumentViewSet):
     document = articles_documents.RecordDocument
     serializer_class = articles_serializers.RecordDocumentSerializer
 
+class Index(APIView):
 
+	def get(self, request, format=None):
 
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
+		s = Search(using=cliente, index='edca')
+
+		results = s.aggs\
+					.metric('distinct_suppliers', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')\
+					.aggs\
+					.metric('distinct_buyers', 'cardinality', field='doc.compiledRelease.contracts.buyer.id.keyword')\
+					.aggs\
+					.metric('distinct_contracts', 'cardinality', field='doc.compiledRelease.contracts.id.keyword')\
+					.aggs\
+					.metric('distinct_tenders', 'cardinality', field='doc.compiledRelease.tender.id.keyword')\
+					.aggs\
+					.metric('distinct_transactions', 'cardinality', field='doc.compiledRelease.contracts.implementation.transactions.id.keyword')\
+					.execute()
+
+		context = {
+			"contratos": results.aggregations.distinct_contracts.value,
+			"procesos": results.aggregations.distinct_tenders.value,
+			"pagos": results.aggregations.distinct_transactions.value,			
+			"compradores": results.aggregations.distinct_buyers.value,
+			"proveedores": results.aggregations.distinct_suppliers.value
+		}
+
+		return Response(context)
+
+class Buscador(APIView):
+
+	def get(self, request, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		metodo = request.GET.get('metodo', 'proceso')
+		moneda = request.GET.get('moneda', None)
+		metodo_seleccion = request.GET.get('metodo_seleccion', None)
+		institucion = request.GET.get('institucion', None)
+		categoria = request.GET.get('categoria', None)
+		year = request.GET.get('year', None)
+
+		term = request.GET.get('term', '')
+		start = (page-1) * settings.PAGINATE_BY
+		end = start + settings.PAGINATE_BY
+
+		if metodo not in ['proceso', 'contrato', 'pago']:
+			metodo = 'proceso'
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		#Filtros
+
+		s.aggs.metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
+
+		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
+
+		s.aggs.metric('instituciones', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=100)		
+
+		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')		
+
+		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')		
+
+		#Resumen 		
+		s.aggs.metric('proveedores_total', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')
+
+		s.aggs.metric('compradores_total', 'cardinality', field='doc.compiledRelease.contracts.buyer.id.keyword')
+
+		if metodo == 'proceso':
+			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.tender.id.keyword')
+
+		if metodo == 'contrato':
+			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.contracts.id.keyword')
+
+		if metodo == 'pago':
+			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.contracts.implementation.transactions.id.keyword')
+
+		if metodo in ['contrato', 'pago']:
+			s.aggs.metric('monto_promedio', 'avg', field='doc.compiledRelease.contracts.value.amount')
+
+		#Aplicando filtros
+
+		#filtro por sistema de donde provienen los datos 
+		# s = s.filter('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+
+		if metodo == 'proceso':
+			s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		if metodo == 'contrato':
+			s = s.filter('exists', field='doc.compiledRelease.contracts.id')
+
+		if metodo == 'pago':
+			s = s.filter('exists', field='doc.compiledRelease.contracts.implementation.transactions.id')
+
+		if moneda is not None: 
+			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency=moneda)
+
+		if metodo_seleccion is not None:
+			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails=metodo_seleccion)
+
+		if institucion is not None:
+			s = s.filter('match_phrase', doc__compiledRelease__buyer__name=institucion)
+
+		if categoria is not None:
+			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory=categoria)
+
+		# Este filtro aun falta
+		if year is not None:
+			pass 
+
+		if term: 
+			if metodo == 'proceso':
+				s = s.filter('match', doc__compiledRelease__tender__description=term)
+
+			if metodo in  ['contrato', 'pago']:
+				s = s.filter('match', doc__compiledRelease__contracts__description=term)
+
+		search_results = SearchResults(s)
+
+		results = s[start:end].execute()
+
+		paginator = Paginator(search_results, settings.PAGINATE_BY)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": results.hits.total
+		}
+
+		filtros = {}
+		filtros["monedas"] = results.aggregations.monedas.to_dict()
+		filtros["años"] = results.aggregations.años.to_dict()
+		filtros["categorias"] = results.aggregations.categorias.to_dict()
+		filtros["instituciones"] = results.aggregations.instituciones.to_dict()
+		filtros["metodos_de_seleccion"] = results.aggregations.metodos_de_seleccion.to_dict()
+
+		resumen = {}
+		resumen["proveedores_total"] = results.aggregations.proveedores_total.value
+		resumen["compradores_total"] = results.aggregations.compradores_total.value
+		resumen["procesos_total"] = results.aggregations.procesos_total.value
+
+		if metodo in ['contrato', 'pago']:
+			resumen["monto_promedio"] = results.aggregations.monto_promedio.value
+		else:
+			resumen["monto_promedio"] = None
+
+		parametros = {}
+		parametros["term"] = term
+		parametros["metodo"] = metodo
+		parametros["pagina"] = page
+		parametros["moneda"] = moneda
+		parametros["metodo_seleccion"] = metodo_seleccion
+		parametros["institucion"] = institucion
+		parametros["categoria"] = categoria
+		parametros["year"] = year
+
+		context = {
+			"paginador": pagination,
+			"parametros": parametros,
+			"resumen": resumen,
+			"filtros": filtros,
+			"resultados": results.hits.hits
+			# "agregados": results.aggregations.to_dict(),
+		}
+
+		return Response(context)

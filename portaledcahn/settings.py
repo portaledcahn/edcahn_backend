@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'portaledcahn_frontend',
     'django_elasticsearch_dsl',
     'django_elasticsearch_dsl_drf',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
@@ -144,8 +145,13 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
+ELASTICSEARCH_DSL_HOST = 'http://34.74.53.102:9200/'
+
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': '192.168.1.3:9200'
+        'hosts': ELASTICSEARCH_DSL_HOST
     },
 }
+
+
+PAGINATE_BY = 10

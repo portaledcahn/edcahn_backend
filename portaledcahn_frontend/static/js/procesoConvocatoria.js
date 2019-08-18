@@ -28,8 +28,7 @@ var metodosPresentacion={
   'electronicSubmission':{titulo:'Presentación electrónica',descripcion:'Las ofertas se recibirán a través de una plataforma electrónica de adquisiciones.'},
   'electronicAuction':{titulo:'Subasta electrónica',descripcion:'Las ofertas se recibirán a través de una plataforma electrónica de subasta'},
   'written':{titulo:'Escrita',descripcion:'Las ofertas se recibirán via documentos escritos, entregados como copias físicas, via sistemas de correo electrónico genérico o algún mecanismo similar.'},
-  'inPerson':{titulo:'En persona',descripcion:'Las ofertas sólo se recibirán si se entregan en persona en el tiempo y hora especificada en submissionMethodDetails o la documentación adjunta.'},
-
+  'inPerson':{titulo:'En persona',descripcion:'Las ofertas sólo se recibirán si se entregan en persona en el tiempo y hora especificada en submissionMethodDetails o la documentación adjunta.'}
 }
 function DefinirElementosConvocatoria(){
     if(procesoRecord.compiledRelease){
@@ -414,13 +413,13 @@ function DefinirElementosConvocatoria(){
               $('<table>',{class:'tablaGeneral'}).append(
                 $('<thead>').append(
                   $('<tr>').append(
-                    $('<th>',{text:'Id'}),
-                    $('<th>',{text:'Clasificación'}),
-                    $('<th>',{text:'Descripción'}),
+                    $('<th>',{text:'Id', toolTexto:'tender.items[n].classification.id'}),
+                    $('<th>',{text:'Clasificación', toolTexto:'tender.items[n].classification.scheme'}),
+                    $('<th>',{text:'Descripción', toolTexto:'tender.items[n].classification.description'}),
                     /*$('<th>',{text:'Especificaciones'}),*/
-                    $('<th>',{text:'Cantidad'}),
-                    $('<th>',{text:'Precio'}),
-                    $('<th>',{text:'Unidad'})
+                    $('<th>',{text:'Cantidad', toolTexto:'tender.items[n].quantity'}),
+                    $('<th>',{text:'Precio', toolTexto:'tender.items[n].unit.value.amount'}),
+                    $('<th>',{text:'Unidad', toolTexto:'tender.items[n].unit.name'})
                   )
                 ),
                 $('<tbody>').append(
@@ -436,10 +435,10 @@ function DefinirElementosConvocatoria(){
               $('<table>',{class:'tablaGeneral'}).append(
                 $('<thead>').append(
                   $('<tr>').append(
-                    $('<th>',{text:'Nombre'}),
-                    $('<th>',{text:'Descripción'}),
-                    $('<th>',{text:'Tipo'}),
-                    $('<th>',{text:'Fecha'}),
+                    $('<th>',{text:'Nombre', toolTexto:'tender.documents[n].title'}),
+                    $('<th>',{text:'Descripción',toolTexto:'tender.documents[n].description'}),
+                    $('<th>',{text:'Tipo',toolTexto:'tender.documents[n].documentType'}),
+                    $('<th>',{text:'Fecha',toolTexto:'tender.documents[n].datePublished'}),
                     $('<th>',{text:''})
                   )
                 ),

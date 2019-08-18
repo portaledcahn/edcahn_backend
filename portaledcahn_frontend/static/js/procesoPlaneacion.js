@@ -173,10 +173,10 @@ function DefinirElementosPlaneacion(){
               $('<table>',{class:'tablaGeneral'}).append(
                 $('<thead>').append(
                   $('<tr>').append(
-                    $('<th>',{text:'Nombre'}),
-                    $('<th>',{text:'Descripción'}),
-                    $('<th>',{text:'Tipo'}),
-                    $('<th>',{text:'Fecha'}),
+                    $('<th>',{text:'Nombre', toolTexto:'planning.documents[n].title'}),
+                    $('<th>',{text:'Descripción', toolTexto:'planning.documents[n].description'}),
+                    $('<th>',{text:'Tipo', toolTexto:'planning.documents[n].documentType'}),
+                    $('<th>',{text:'Fecha', toolTexto:'planning.documents[n].datePublished'}),
                     $('<th>',{text:''})
                   )
                 ),
