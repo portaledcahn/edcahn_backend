@@ -1,11 +1,13 @@
 var filtrosAplicables={
-  categorias:{titulo:'Categoría'},
-  monedas: {titulo:'Moneda'},
-  instituciones: {titulo:'Institución'},
-  metodos_de_seleccion: {titulo:'Método de Selección'},
-  años: {titulo:'Año'},
-  proveedor: {titulo:'Proveedor'}
+  categorias:{titulo:'Categoría',parametro:'categoria'},
+  monedas: {titulo:'Moneda',parametro:'moneda'},
+  instituciones: {titulo:'Institución',parametro:'institucion'},
+  metodos_de_seleccion: {titulo:'Método de Selección',parametro:'metodo_seleccion'},
+  años: {titulo:'Año',parametro:'year'},
+  proveedor: {titulo:'Proveedor',parametro:'proveedor'}
 };
+
+
 var listaElastica={};
 var resultadosElastic=[];
 
@@ -83,9 +85,13 @@ function CargarElementosBusqueda(cargaFiltro){
     MostrarResultados(datos)
     MostrarPaginacion(datos);
     AgregarToolTips();
-    if(!cargaFiltro){
-      InicializarElastic(datos);
-    }
+    //if(!cargaFiltro){
+     //InicializarElastic(datos);
+      
+      MostrarListaElastica(datos,'#elastic-list');
+      MostrarEtiquetaListaElasticaAplicada();
+      MostrarListaElasticaAplicados();
+   // }
     
     VerificarIntroduccion('INTROJS_BUSQUEDA',1);
   }).fail(function() {
@@ -169,139 +175,6 @@ function AccederBusqueda(opciones,desUrl){
   );
   return direccion;
 }
-function InicializarElastic(datos){
-  DebugFecha()
-  for(var i=0;i<ObtenerNumero(datos.paginador['total.items']);i++){
-    resultadosElastic.push({});
-  }
-  $.each(datos.filtros,function(llave,valor){
-    
-    $.each(valor.buckets,function(i,propiedades){
-      resultadosElastic=AsignarValor(resultadosElastic,llave,propiedades.key_as_string?propiedades.key_as_string:propiedades.key,propiedades.doc_count);
-    });
-    
-  });
-  var columnas=[
-    {
-      title: "Método de Selección",
-        attr: "selection"
-    },{
-        title: "Categoría",
-        attr: "category"
-    },
-    {
-        title: "Institución",
-        attr: "name"
-    }, {
-        title: "Año",
-        attr: "year"
-    },{
-      title: "Moneda",
-        attr: "coin"
-    } ];
-  switch(  ObtenerValor( 'metodo')){
-    case 'contrato':
-        columnas=[
-          {
-            title: "Método de Selección",
-              attr: "metodos_de_seleccion"
-          },{
-              title: "Categoría",
-              attr: "categorias"
-          },
-          {
-              title: "Institución",
-              attr: "instituciones"
-          }, {
-              title: "Año",
-              attr: "años"
-          },{
-            title: "Moneda",
-              attr: "monedas"
-          }/* ,{
-            title: "Proveedor",
-              attr: "proveedor"
-          } */];
-    break;
-    case 'pago':
-        columnas=[
-          {
-            title: "Método de Selección",
-              attr: "metodos_de_seleccion"
-          },{
-              title: "Categoría",
-              attr: "categorias"
-          },
-          {
-              title: "Institución",
-              attr: "instituciones"
-          }, {
-              title: "Año",
-              attr: "años"
-          },{
-            title: "Moneda",
-              attr: "monedas"
-          }/* ,{
-            title: "Proveedor",
-              attr: "proveedor"
-          } */];
-    break;
-    case 'proceso':
-        columnas=[
-          {
-            title: "Método de Selección",
-              attr: "metodos_de_seleccion"
-          },{
-              title: "Categoría",
-              attr: "categorias"
-          },
-          {
-              title: "Institución",
-              attr: "instituciones"
-          }, {
-              title: "Año",
-              attr: "años"
-          },{
-            title: "Moneda",
-              attr: "monedas"
-          } ];
-    break;
-    default:
-      columnas=[
-        {
-          title: "Método de Selección",
-            attr: "metodos_de_seleccion"
-        },{
-            title: "Categoría",
-            attr: "categorias"
-        },
-        {
-            title: "Institución",
-            attr: "instituciones"
-        }, {
-            title: "Año",
-            attr: "años"
-        },{
-          title: "Moneda",
-            attr: "monedas"
-        } ];
-    break;
-  }
-  
-  listaElastica = new ElasticList({
-      el: $("#elastic-list"),
-      data: resultadosElastic,
-      hasFilter: true,
-      onchange: MostrarFiltros,
-      columns: columnas
-  });
-  InicializarElasticFiltros();
-  AgregarToolTips();
-  $('#quitarFiltros').on('click',function(e){
-    listaElastica.clean();
-  });
-  DebugFecha()
-}  
 
 function AsignarValor(arreglo,propiedad,valor,cantidad){
   var contador=0;
@@ -337,92 +210,8 @@ CargarElementosBusqueda()
     
   });
 
-var quitarFiltro=false;
-function MostrarFiltros(filtros){
-  $('#listaFiltrosAplicados').html('')
-  if(!$.isEmptyObject(filtros)){
-    $('#contenedorSinFiltros').hide();
-    $('#contenedorFiltros').show();
-  }else{
-    $('#contenedorFiltros').hide();
-    $('#contenedorSinFiltros').show();
-    
 
-  }
-  $.each(filtros,function(llave,filtro){
-    $('#listaFiltrosAplicados').append(
-      $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(
-        $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicables[llave].titulo +':'}),
-        $('<div>',{class:'filtrosAplicados'}).append(
-          $('<div>',{class:'etiquetaFiltro','llave':llave,'valor':filtro}).append(
-            filtro,
-            '&nbsp;',
-            $('<i>',{class:'fas fa-times'}).on('click',function(e){
-              quitarFiltro=true;
-              var filtrosActuales=listaElastica.getFilters();
-              delete filtrosActuales[$(e.currentTarget).parent().attr('llave')];
-              listaElastica.clean();
-              listaElastica.setSelected(filtrosActuales);
-              MostrarFiltros(filtrosActuales);
-            
-              $(e.currentTarget).parent().remove();
-            })
-          )
-        )
-      )
-    )
-  });
-
-/*
-  años: "desconocido"
-categorias: "desconocido"
-instituciones: "centro de la cultura garinagu de honduras"
-metodos_de_seleccion: "desconocido"
-monedas: "hnl"
-*/
-var parametros={
-  pagina:1
-};
-if(Validar(filtros['años'])){
-  parametros['year']=filtros['años'];
-}
-if(Validar(filtros['categorias'])){
-  parametros['categoria']=encodeURIComponent(filtros['categorias']);
-}
-if(Validar(filtros['instituciones'])){
-  parametros['institucion']=encodeURIComponent(filtros['instituciones']);
-}
-if(Validar(filtros['metodos_de_seleccion'])){
-  parametros['metodo_seleccion']=encodeURIComponent(filtros['metodos_de_seleccion']);
-}
-if(Validar(filtros['monedas'])){
-  parametros['moneda']=filtros['monedas'];
-}
-if($.isEmptyObject(filtros)&&quitarFiltro){
-  quitarFiltro=false;
-}else{
-  window.history.pushState({}, document.title,AccederBusqueda(parametros,true) );
-  CargarElementosBusqueda(true);
-}
- console.dir(AccederBusqueda(parametros,true))
- //location.href=AccederBusqueda(parametros,true);
-/*
-categoria: null
-institucion: null
-metodo: "pago"
-metodo_seleccion: null
-moneda: null
-pagina: 367
-term: ""
-year: null*/
-  console.dir(filtros)
-}
-
-function InicializarElasticFiltros(){
-  
-  var parametros={
-  };
-  
+function ObtenerJsonFiltrosAplicados(parametros){
   if(Validar(ObtenerValor('year'))){
     parametros['años']=ObtenerValor('year');
   }
@@ -438,8 +227,10 @@ function InicializarElasticFiltros(){
   if(Validar(ObtenerValor('moneda'))){
     parametros['monedas']=ObtenerValor('moneda');
   }
-  listaElastica.setSelected(parametros);
+  return parametros;
+}
 
+function MostrarEtiquetasFiltrosAplicados(parametros){
   if(!$.isEmptyObject(parametros)){
     $('#contenedorSinFiltros').hide();
     $('#contenedorFiltros').show();
@@ -447,6 +238,7 @@ function InicializarElasticFiltros(){
     $('#contenedorFiltros').hide();
     $('#contenedorSinFiltros').show();
   }
+  $('#listaFiltrosAplicados').html('');
   $.each(parametros,function(llave,filtro){
     $('#listaFiltrosAplicados').append(
       $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(
@@ -456,34 +248,15 @@ function InicializarElasticFiltros(){
             filtro,
             '&nbsp;',
             $('<i>',{class:'fas fa-times'}).on('click',function(e){
-              
-              var filtros=listaElastica.getFilters();
-              delete filtros[$(e.currentTarget).parent().attr('llave')];
-              //listaElastica.clean();
-              //listaElastica.setSelected(filtrosActuales);
-              //MostrarFiltros(filtrosActuales);
-              var parametros={
+              var filtros={
                 pagina:1
               };
-              if(Validar(filtros['años'])){
-                parametros['year']=filtros['años'];
-              }
-              if(Validar(filtros['categorias'])){
-                parametros['categoria']=encodeURIComponent(filtros['categorias']);
-              }
-              if(Validar(filtros['instituciones'])){
-                parametros['institucion']=encodeURIComponent(filtros['instituciones']);
-              }
-              if(Validar(filtros['metodos_de_seleccion'])){
-                parametros['metodo_seleccion']=encodeURIComponent(filtros['metodos_de_seleccion']);
-              }
-              if(Validar(filtros['monedas'])){
-                parametros['moneda']=filtros['monedas'];
-              }
-              
-          
-              $(e.currentTarget).parent().remove();
-              location.href=AccederBusqueda(parametros,true);
+              $('li.list-group-item.active').each(function(cla,val){
+                filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+              });
+              delete filtros[filtrosAplicables[$(e.currentTarget).parent().attr('llave')]?filtrosAplicables[$(e.currentTarget).parent().attr('llave')].parametro:''];
+              window.history.pushState({}, document.title,AccederBusqueda(filtros,true) );
+              CargarElementosBusqueda(true);
             })
           )
         )
@@ -491,17 +264,26 @@ function InicializarElasticFiltros(){
     )
   });
 }
+function MostrarEtiquetaListaElasticaAplicada(){
+  
+  var parametros={
+  };
+  parametros=ObtenerJsonFiltrosAplicados(parametros);
+  MostrarEtiquetasFiltrosAplicados(parametros);
+}
 
 
+function MostrarListaElasticaAplicados(){
+  var filtros={
+  };
+  filtros=ObtenerJsonFiltrosAplicados(filtros);
+  $.each(filtros,function(llave,valor){
+    $('ul#ul'+llave).find(
+      'li[formato="'+(valor).toString().toLowerCase()+'"]'
+    ).addClass('active');
+  });
+}
 
-/*
-function MostrarResultados(datos){
-  console.dir('mostrar resultados')
-  $('#listaResultadosBusqueda').html('')
-  for(var i=0;i<datos.length;i++){
-    AgregarResultado(datos[i]);
-  }
-}*/
 function AgregarResultado(datos){
   $('#listaResultadosBusqueda').append(
     $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal'}).append(
@@ -1045,4 +827,78 @@ function TotalTransacciones(transacciones){
     value.currency=transacciones[i].value&&transacciones[i].value.currency?transacciones[i].value.currency:'HNL';
   }
   return value;
+}
+
+function MostrarListaElastica(datos,selector){
+  $(selector).html('');
+  $.each(datos.filtros,function(llave,valor){
+    $(selector).append(
+      $('<div class="list-container col-md-12 2">').append(
+        $('<div class="panel panel-default ">').append(
+          $('<div class="panel-heading">').text(
+            filtrosAplicables[llave]?filtrosAplicables[llave].titulo:llave
+          ),
+          $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[llave]?filtrosAplicables[llave].titulo:llave ,filtro:llave,on:{
+            keyup:function(e){
+              var texto=$(e.currentTarget).val();
+              if (texto.length > 0) {
+                texto = texto.toLocaleLowerCase();
+                var regla = " ul#" + 'ul'+llave + ' li[formato*="' + texto + '"]{display:block;} ';
+                regla += " ul#" + 'ul'+llave + ' li:not([formato*="' + texto + '"]){display:none;}';
+                $('#style'+llave).html(regla);
+              } else {
+                $('#style'+llave).html('');
+              }
+            }
+          }}),
+          $('<style>',{id:'style'+llave}),
+          $('<ul >',{class:'list-group',id:'ul'+llave}).append(
+            AgregarPropiedadesListaElastica(valor,llave)
+          )
+            
+          
+        )
+      )
+    )
+    
+    
+  });
+  AgregarToolTips();
+  $('#quitarFiltros').on('click',function(e){
+    window.history.pushState({}, document.title,AccederBusqueda({pagina:1},true) );
+    CargarElementosBusqueda(true);
+  });
+  
+}
+
+function AgregarPropiedadesListaElastica(valor,llave){
+  var elementos=[]
+  $.each(valor.buckets,function(i,propiedades){
+    //resultadosElastic=AsignarValor(resultadosElastic,llave,,propiedades.doc_count);
+    elementos.push(
+      $('<li >',{class:'list-group-item',valor:propiedades.key_as_string?propiedades.key_as_string:propiedades.key, formato: (propiedades.key_as_string?propiedades.key_as_string:propiedades.key).toString().toLowerCase(),'llave':llave,on:{
+        click:function(e){
+          var filtro=$(e.currentTarget);
+          if(filtro.hasClass('active')){
+            filtro.removeClass('active')
+          }else{
+            filtro.parent().find('.list-group-item.active').removeClass('active');
+            filtro.addClass('active');
+          }
+          var filtros={
+            pagina:1
+          };
+          $('li.list-group-item.active').each(function(cla,val){
+            filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+          });
+          window.history.pushState({}, document.title,AccederBusqueda(filtros,true) );
+          CargarElementosBusqueda(true);
+        }
+      }}).append(
+        $('<div class="badge">').text(propiedades.doc_count),
+        $('<div class="elastic-data">').text(propiedades.key_as_string?propiedades.key_as_string:propiedades.key)
+      )
+    )
+  });
+  return elementos;
 }
