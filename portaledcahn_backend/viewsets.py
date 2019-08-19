@@ -7,10 +7,10 @@ from django.db import connections
 from django.db.models import Avg, Count, Min, Sum
 from decimal import Decimal 
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Search, Q
 from .serializers import *
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
-import json
+import json, copy
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
@@ -387,3 +387,114 @@ class Buscador(APIView):
 		}
 
 		return Response(context)
+
+class Proveedores(APIView):
+
+	def get(self, request, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		metodo = request.GET.get('metodo', None)
+		nombre = request.GET.get('nombre', '')
+		identificacion = request.GET.get('identificacion', '')
+		procesos = request.GET.get('procesos', None)
+		total = request.GET.get('total', None)
+		promedio = request.GET.get('promedio', None)
+		maximo = request.GET.get('maximo', None)
+		minino = request.GET.get('minimo', None)
+		term = request.GET.get('term', '')
+		tmc = request.GET.get('tmc', '')
+
+		start = (page-1) * settings.PAGINATE_BY
+		end = start + settings.PAGINATE_BY
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		if metodo == 'proceso':
+			s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		if metodo == 'contrato':
+			s = s.filter('exists', field='doc.compiledRelease.contracts.id')
+
+		if metodo == 'pago':
+			s = s.filter('exists', field='doc.compiledRelease.contracts.implementation.transactions.id')
+
+		filtro = Q()
+		filtros = []
+
+		if nombre.replace(' ',''):
+			q_nombre = '*' + nombre + '*'
+			filtro = Q("wildcard", doc__compiledRelease__contracts__suppliers__name=q_nombre)
+			filtros.append(filtro)
+
+		if identificacion.replace(' ',''):
+			q_id = '*' + identificacion + '*'
+			filtro = Q("wildcard", doc__compiledRelease__contracts__suppliers__id=q_id)
+			filtros.append(filtro)
+
+		filtro = Q('bool', must=filtros)
+
+		# s = s.filter('exists', field='doc.compiledRelease..id')
+
+		# s = s.script_fields('test1', source="doc.compiledRelease.contracts.suppliers.name.keyword")
+
+		s.aggs.metric('proveedores', 'nested', path='doc.compiledRelease.contracts.suppliers')
+
+		s.aggs['proveedores'].metric('filtros', 'filter', filter=filtro)
+
+		s.aggs['proveedores']['filtros'].metric('id', 'terms', field='doc.compiledRelease.contracts.suppliers.id.keyword', size=2000)
+		
+		s.aggs['proveedores']['filtros']['id'].metric('totales','reverse_nested', path='doc.compiledRelease.contracts')
+		s.aggs['proveedores']['filtros']['id']['totales'].metric('total_monto_contratado', 'sum', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id'].metric('name', 'terms', field='doc.compiledRelease.contracts.suppliers.name.keyword', size=2000)
+
+		s.aggs['proveedores']['filtros']['id']['name'].metric('totales','reverse_nested', path='doc.compiledRelease.contracts')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('total_monto_contratado', 'sum', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('promedio_monto_contratado', 'avg', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('mayor_monto_contratado', 'max', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('menor_monto_contratado', 'min', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('fecha_ultima_adjudicacion', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
+
+		if tmc.replace(' ', ''): 
+			q_tmc = 'params.var1' + tmc 
+			print("buscando", q_tmc)
+
+			s.aggs['proveedores']['filtros']['id']['name'].metric('filtro_totales', 'bucket_selector', buckets_path={"var1": "totales.total_monto_contratado"}, script=q_tmc)
+
+		search_results = SearchResults(s)
+
+		results = s[start:end].execute()
+
+		proveedores = []
+
+		proveedoresES = results.aggregations.proveedores.to_dict()
+
+		for p in proveedoresES["filtros"]["id"]["buckets"]:
+			for n in p["name"]["buckets"]:
+				proveedor = {}
+				proveedor["id"] = p["key"]
+				proveedor["name"] = n["key"]
+				proveedor["procesos"] = n["doc_count"]
+				proveedor["total_monto_contratado"] = n["totales"]["total_monto_contratado"]["value"]
+				proveedor["promedio_monto_contratado"] = n["totales"]["promedio_monto_contratado"]["value"]
+				proveedor["mayor_monto_contratado"] = n["totales"]["mayor_monto_contratado"]["value"]
+				proveedor["menor_monto_contratado"] = n["totales"]["menor_monto_contratado"]["value"]
+				proveedor["fecha_ultima_adjudicacion"] = n["totales"]["fecha_ultima_adjudicacion"]["value"]
+				proveedor["url"] = proveedor["id"] + '->' + proveedor["name"]
+				proveedores.append(copy.deepcopy(proveedor))
+
+		parametros = {}
+		parametros["nombre"] = nombre
+		parametros["identificacion"] = identificacion
+		parametros["tmc"] = tmc 
+
+		context = {
+			# "paginador": pagination,
+			"parametros": parametros,
+			"resultados": proveedores,
+			# "proveedores2": results.aggregations.proveedores.to_dict(),
+		}
+
+		return Response(context)
+
+
