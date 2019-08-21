@@ -404,6 +404,11 @@ class Proveedores(APIView):
 		minino = request.GET.get('minimo', None)
 		term = request.GET.get('term', '')
 		tmc = request.GET.get('tmc', '')
+		pmc = request.GET.get('pmc', '')
+		mamc = request.GET.get('mamc', '')
+		memc = request.GET.get('memc', '')
+		fua = request.GET.get('fua', '')
+
 		ordenarPor = request.GET.get('ordenarPor', '')
 		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 
@@ -457,10 +462,29 @@ class Proveedores(APIView):
 
 		if tmc.replace(' ', ''):
 			q_tmc = 'params.tmc' + tmc
-			print("buscando", q_tmc)
+			s.aggs['proveedores']['filtros']['id']['name']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "totales.total_monto_contratado"}, script=q_tmc)
 
-			s.aggs['proveedores']['filtros']['id']['name'].metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "totales.total_monto_contratado"}, script=q_tmc)
+		if pmc.replace(' ', ''):
+			q_pmc = 'params.pmc' + pmc
+			s.aggs['proveedores']['filtros']['id']['name']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.promedio_monto_contratado"}, script=q_pmc)
 
+		if mamc.replace(' ', ''):
+			q_mamc = 'params.pmc' + mamc
+			s.aggs['proveedores']['filtros']['id']['name']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.mayor_monto_contratado"}, script=q_mamc)
+
+		if memc.replace(' ', ''):
+			q_memc = 'params.pmc' + memc
+			s.aggs['proveedores']['filtros']['id']['name']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.menor_monto_contratado"}, script=q_memc)
+
+		if fua.replace(' ', ''):
+			q_fua = 'params.pmc' + fua
+			s.aggs['proveedores']['filtros']['id']['name']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.menor_monto_contratado"}, script=q_fua)
+		
 		search_results = SearchResults(s)
 
 		results = s[start:end].execute()
@@ -490,7 +514,7 @@ class Proveedores(APIView):
 		parametros["tmc"] = tmc 
 
 		#Ordenamiento
-			#Ejemplo: /proveedores?sort_by=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
+		#Ejemplo: /proveedores?sort_by=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
 		dfProveedores = pd.DataFrame(proveedores)
 		ordenar = getSortBy(ordenarPor)
 
