@@ -9,8 +9,10 @@ from decimal import Decimal
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 from .serializers import *
+from .functions import *
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
-import json, copy
+import json, copy, urllib.parse
+import pandas as pd 
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
@@ -402,6 +404,8 @@ class Proveedores(APIView):
 		minino = request.GET.get('minimo', None)
 		term = request.GET.get('term', '')
 		tmc = request.GET.get('tmc', '')
+		ordenarPor = request.GET.get('ordenarPor', '')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
@@ -434,15 +438,11 @@ class Proveedores(APIView):
 
 		filtro = Q('bool', must=filtros)
 
-		# s = s.filter('exists', field='doc.compiledRelease..id')
-
-		# s = s.script_fields('test1', source="doc.compiledRelease.contracts.suppliers.name.keyword")
-
 		s.aggs.metric('proveedores', 'nested', path='doc.compiledRelease.contracts.suppliers')
 
 		s.aggs['proveedores'].metric('filtros', 'filter', filter=filtro)
 
-		s.aggs['proveedores']['filtros'].metric('id', 'terms', field='doc.compiledRelease.contracts.suppliers.id.keyword', size=2000)
+		s.aggs['proveedores']['filtros'].metric('id', 'terms', field='doc.compiledRelease.contracts.suppliers.id.keyword', size=2000, order={"totales>total_monto_contratado": "desc"})
 		
 		s.aggs['proveedores']['filtros']['id'].metric('totales','reverse_nested', path='doc.compiledRelease.contracts')
 		s.aggs['proveedores']['filtros']['id']['totales'].metric('total_monto_contratado', 'sum', field='doc.compiledRelease.contracts.value.amount')
@@ -455,11 +455,11 @@ class Proveedores(APIView):
 		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('menor_monto_contratado', 'min', field='doc.compiledRelease.contracts.value.amount')
 		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('fecha_ultima_adjudicacion', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
 
-		if tmc.replace(' ', ''): 
-			q_tmc = 'params.var1' + tmc 
+		if tmc.replace(' ', ''):
+			q_tmc = 'params.tmc' + tmc
 			print("buscando", q_tmc)
 
-			s.aggs['proveedores']['filtros']['id']['name'].metric('filtro_totales', 'bucket_selector', buckets_path={"var1": "totales.total_monto_contratado"}, script=q_tmc)
+			s.aggs['proveedores']['filtros']['id']['name'].metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "totales.total_monto_contratado"}, script=q_tmc)
 
 		search_results = SearchResults(s)
 
@@ -480,19 +480,54 @@ class Proveedores(APIView):
 				proveedor["mayor_monto_contratado"] = n["totales"]["mayor_monto_contratado"]["value"]
 				proveedor["menor_monto_contratado"] = n["totales"]["menor_monto_contratado"]["value"]
 				proveedor["fecha_ultima_adjudicacion"] = n["totales"]["fecha_ultima_adjudicacion"]["value"]
-				proveedor["url"] = proveedor["id"] + '->' + proveedor["name"]
+				proveedor["uri"] = urllib.parse.quote_plus(proveedor["id"] + '->' + proveedor["name"])
 				proveedores.append(copy.deepcopy(proveedor))
 
 		parametros = {}
+		parametros["pagina"] = page
 		parametros["nombre"] = nombre
 		parametros["identificacion"] = identificacion
 		parametros["tmc"] = tmc 
 
+		#Ordenamiento
+			#Ejemplo: /proveedores?sort_by=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
+		dfProveedores = pd.DataFrame(proveedores)
+		ordenar = getSortBy(ordenarPor)
+
+		for indice, columna in enumerate(ordenar["columnas"]):
+			if not columna in dfProveedores:
+				ordenar["columnas"].pop(indice)
+				ordenar["ascendentes"].pop(indice)
+
+		if ordenar["columnas"]:
+			dfProveedores = dfProveedores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+
+		proveedores = dfProveedores.to_dict('records')
+
+		paginator = Paginator(proveedores, paginarPor)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": len(proveedores)
+		}
+
 		context = {
-			# "paginador": pagination,
+			"paginador": pagination,
 			"parametros": parametros,
-			"resultados": proveedores,
-			# "proveedores2": results.aggregations.proveedores.to_dict(),
+			"resultados": posts.object_list,
+			# "elastic": results.aggregations.proveedores.to_dict(),
 		}
 
 		return Response(context)
