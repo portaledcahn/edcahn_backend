@@ -460,6 +460,9 @@ class Proveedores(APIView):
 		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('menor_monto_contratado', 'min', field='doc.compiledRelease.contracts.value.amount')
 		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('fecha_ultima_adjudicacion', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
 
+		s.aggs['proveedores']['filtros']['id']['name'].metric('tender','reverse_nested')
+		s.aggs['proveedores']['filtros']['id']['name']['tender'].metric('fecha_ultimo_proceso', 'sum', field='doc.compiledRelease.tender.tenderPeriod.startDate')
+
 		if tmc.replace(' ', ''):
 			q_tmc = 'params.tmc' + tmc
 			s.aggs['proveedores']['filtros']['id']['name']\
@@ -471,20 +474,15 @@ class Proveedores(APIView):
 			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.promedio_monto_contratado"}, script=q_pmc)
 
 		if mamc.replace(' ', ''):
-			q_mamc = 'params.pmc' + mamc
+			q_mamc = 'params.mamc' + mamc
 			s.aggs['proveedores']['filtros']['id']['name']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.mayor_monto_contratado"}, script=q_mamc)
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "totales.mayor_monto_contratado"}, script=q_mamc)
 
 		if memc.replace(' ', ''):
-			q_memc = 'params.pmc' + memc
+			q_memc = 'params.memc' + memc
 			s.aggs['proveedores']['filtros']['id']['name']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.menor_monto_contratado"}, script=q_memc)
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "totales.menor_monto_contratado"}, script=q_memc)
 
-		if fua.replace(' ', ''):
-			q_fua = 'params.pmc' + fua
-			s.aggs['proveedores']['filtros']['id']['name']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.menor_monto_contratado"}, script=q_fua)
-		
 		search_results = SearchResults(s)
 
 		results = s[start:end].execute()
@@ -503,7 +501,12 @@ class Proveedores(APIView):
 				proveedor["promedio_monto_contratado"] = n["totales"]["promedio_monto_contratado"]["value"]
 				proveedor["mayor_monto_contratado"] = n["totales"]["mayor_monto_contratado"]["value"]
 				proveedor["menor_monto_contratado"] = n["totales"]["menor_monto_contratado"]["value"]
-				proveedor["fecha_ultima_adjudicacion"] = n["totales"]["fecha_ultima_adjudicacion"]["value"]
+
+				if n["tender"]["fecha_ultimo_proceso"]["value"] == 0:
+					proveedor["fecha_ultimo_proceso"] = None
+				else:
+					proveedor["fecha_ultimo_proceso"] = n["tender"]["fecha_ultimo_proceso"]["value_as_string"]			
+
 				proveedor["uri"] = urllib.parse.quote_plus(proveedor["id"] + '->' + proveedor["name"])
 				proveedores.append(copy.deepcopy(proveedor))
 
@@ -512,9 +515,15 @@ class Proveedores(APIView):
 		parametros["nombre"] = nombre
 		parametros["identificacion"] = identificacion
 		parametros["tmc"] = tmc 
+		parametros["pmc"] = pmc 
+		parametros["mamc"] = mamc 
+		parametros["memc"] = memc 
+		parametros["fua"] = fua 
+		parametros["orderBy"] = ordenarPor
+		parametros["paginarPor"] = paginarPor
 
 		#Ordenamiento
-		#Ejemplo: /proveedores?sort_by=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
+		#Ejemplo: /proveedores?ordenarPor=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
 		dfProveedores = pd.DataFrame(proveedores)
 		ordenar = getSortBy(ordenarPor)
 
@@ -525,6 +534,11 @@ class Proveedores(APIView):
 
 		if ordenar["columnas"]:
 			dfProveedores = dfProveedores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+
+		# Ejemplo: fua=%3D%3D"2018-03-02T20:10:00.000Z"
+		if fua.replace(' ', ''):
+			q_fua = 'fecha_ultimo_proceso' + fua
+			dfProveedores = dfProveedores.query(q_fua)
 
 		proveedores = dfProveedores.to_dict('records')
 
@@ -548,8 +562,8 @@ class Proveedores(APIView):
 		}
 
 		context = {
-			"paginador": pagination,
-			"parametros": parametros,
+			# "paginador": pagination,
+			# "parametros": parametros,
 			"resultados": posts.object_list,
 			# "elastic": results.aggregations.proveedores.to_dict(),
 		}
