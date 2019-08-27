@@ -562,8 +562,8 @@ class Proveedores(APIView):
 		}
 
 		context = {
-			# "paginador": pagination,
-			# "parametros": parametros,
+			"paginador": pagination,
+			"parametros": parametros,
 			"resultados": posts.object_list,
 			# "elastic": results.aggregations.proveedores.to_dict(),
 		}
