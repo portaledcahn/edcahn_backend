@@ -96,7 +96,9 @@ function CargarElementosBusqueda(cargaFiltro){
     VerificarIntroduccion('INTROJS_BUSQUEDA',1);
   }).fail(function() {
       /*Error de Conexion al servidor */
-      console.dir('error conexion')
+      $('#listaResultadosBusqueda').html('<h4 class="titularColor textoColorNegro mt-3">No se encontraron resultados.</h4>')
+      AgregarToolTips();
+      console.dir('error de api')
       
     });
 }

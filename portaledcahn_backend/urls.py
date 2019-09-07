@@ -24,5 +24,6 @@ urlpatterns = [
 	path('', include(router.urls)),
 	# path('compradores/', viewsets.BuyerList.as_view()),
 	path('inicio/', viewsets.Index.as_view()),
-	path('buscador/', viewsets.Buscador.as_view()),	
+	path('buscador/', viewsets.Buscador.as_view()),
+	path('proveedores/', viewsets.Proveedores.as_view()),	
 ]

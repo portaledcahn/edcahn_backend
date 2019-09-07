@@ -2353,6 +2353,20 @@ table.alineado {
 	width: 100%;
 	margin-bottom: 5px;
 }
+
+.fondoContrataciones::before{
+	background-image: url(../img/landing/iconosEdca.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: bottom;
+    position: absolute;
+    content: '';
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0.3;
+}
 /*introjs-button introjs-skipbutton introjs-donebutton
 
 .botonGeneral{
@@ -2388,3 +2402,7 @@ table.alineado {
 .fondoColorSecundario{
 	background: #273F5B;
 }*/
+
+.tablaGeneral .espera .imagen {
+	margin-top: 100px;
+}

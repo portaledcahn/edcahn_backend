@@ -60,12 +60,19 @@ function ObtenerDuracionCookie(dia) {
     return d.toUTCString();
 }
 
-function ObtenerFecha(texto){
+function ObtenerFecha(texto,tipo){
     if(texto){
         try {
             fecha=new Date(texto);
-            return fecha.getFullYear()+'-'+('0' + (fecha.getMonth()+1)).slice(-2)+'-'+('0' +fecha.getDate()).slice(-2)+' '+('0' + fecha.getHours()).slice(-2)+':'+('0' +fecha.getMinutes()).slice(-2)+':'+('0' +fecha.getSeconds()).slice(-2);
-          }
+            switch(tipo){
+                case 'fecha':
+                    return fecha.getFullYear()+'-'+('0' + (fecha.getMonth()+1)).slice(-2)+'-'+('0' +fecha.getDate()).slice(-2);
+                    break;
+                default:
+                    return fecha.getFullYear()+'-'+('0' + (fecha.getMonth()+1)).slice(-2)+'-'+('0' +fecha.getDate()).slice(-2)+' '+('0' + fecha.getHours()).slice(-2)+':'+('0' +fecha.getMinutes()).slice(-2)+':'+('0' +fecha.getSeconds()).slice(-2);
+                    break;
+            }
+            }
           catch(error) {
             return ''
           }
@@ -111,6 +118,11 @@ function ObtenerExtension(direccion){
 function ValorMoneda(texto){
     var numero=ObtenerNumero(texto);
     numero=numero.toFixed(2);
+    numero=numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return numero;
+}
+function ValorNumerico(texto){
+    var numero=ObtenerNumero(texto);
     numero=numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return numero;
 }
@@ -168,14 +180,22 @@ if($(elemento).is(":checked")){
         $(elemento).attr('opcion')
     );
     $(elemento).parent().parent().parent().parent().parent().find('.campoBlancoTextoSeleccion').attr(
-        $(elemento).attr('opcion')
+        'opcion',$(elemento).attr('opcion')
     );
+    $(elemento).parent().parent().parent().parent().parent().find('.campoBlancoTextoSeleccion').trigger('change');
 }
 
 }
 
 function Validar(valor){
     if(valor!=null&&valor!=undefined){
+        return true;
+    }else{
+        return false;
+    }
+}
+function ValidarCadena(valor){
+    if(valor!=null&&valor!=undefined&&valor!==''){
         return true;
     }else{
         return false;
@@ -207,12 +227,62 @@ function cambiarOrden(evento){
     }  
 }
 
-
+function cambiarOrdenFiltro(evento,funcion){
+    var elemento=$(evento.currentTarget);
+    $('.ordenEncabezado').not($(elemento)).attr('opcion','neutro'); 
+    $('.ordenEncabezado').not($(elemento)).find('.flechaAbajo').show();
+    $('.ordenEncabezado').not($(elemento)).find('.flechaArriba').show();
+    var filtro=elemento.closest('.campoFiltrado');
+    switch($(elemento).attr('opcion')){
+        case 'neutro':
+           $(elemento).find('.flechaArriba').hide();
+           $(elemento).find('.flechaAbajo').show();
+           $(elemento).attr('opcion','descendente');
+           if(funcion){
+             funcion(filtro.attr('filtro'),'descendente')
+           }
+        break;
+        case 'ascendente':
+            $(elemento).find('.flechaArriba').show();
+            $(elemento).find('.flechaAbajo').show();
+            $(elemento).attr('opcion','neutro');
+            if(funcion){
+                funcion(filtro.attr('filtro'),'neutro')
+              } 
+        break;
+        case 'descendente':
+            $(elemento).find('.flechaArriba').show();
+            $(elemento).find('.flechaAbajo').hide();
+            $(elemento).attr('opcion','ascendente'); 
+            if(funcion){
+                funcion(filtro.attr('filtro'),'ascendente')
+              } 
+        break;
+        default:
+            $(elemento).find('.flechaArriba').show();
+            $(elemento).find('.flechaAbajo').show();
+            $(elemento).attr('opcion','neutro'); 
+            if(funcion){
+                funcion(filtro.attr('filtro'),'neutro')
+              }
+        break;
+    }  
+}
 function AsignarOrdenTabla(){
     $('.ordenEncabezado').each(function(llave,elemento){
             $(elemento).on('click',
             function(evento){
                 cambiarOrden(evento);
+            })
+            
+        }
+    )
+}
+function AsignarOrdenTablaFiltros(funcion){
+    $('.ordenEncabezado').each(function(llave,elemento){
+            $(elemento).on('click',
+            function(evento){
+                cambiarOrdenFiltro(evento,funcion);
             })
             
         }

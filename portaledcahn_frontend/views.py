@@ -20,7 +20,7 @@ class DSEPaginator(Paginator):
 
 # Create your views here.
 def Inicio(request):
-    """data = documents.DataDocument.search()
+    data = documents.DataDocument.search()
 
     results = data.aggs\
                 .metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
@@ -34,9 +34,9 @@ def Inicio(request):
         "distinct_contracts": results.aggregations.distinct_contracts.value,
         "distinct_buyers": results.aggregations.distinct_buyers.value,
         "distinct_suppliers": results.aggregations.distinct_suppliers.value
-    }"""
+    }
 
-    return render(request,'inicio/inicio.html')
+    return render(request,'inicio/inicio.html', context)
 
 def Proceso(request,ocid=''):
     return render(request,'proceso/proceso.html',{'ocid':ocid.replace('"','')})
@@ -48,7 +48,6 @@ def Acerca(request):
     return render(request,'acerca/acerca.html')
 
 def Busqueda(request):
-    """
     page = int(request.GET.get('page', '1'))
     start = (page-1) * 10
     end = start + 10
@@ -116,11 +115,11 @@ def Busqueda(request):
         "q": q,
         "posts": posts
     }
-    """
-    return render(request,'busqueda/busqueda.html')
 
-def Comprador(request):
-    return render(request,'comprador/comprador.html')
+    return render(request,'busqueda/busqueda.html', context)
+
+def Comprador(request,id=''):
+    return render(request,'comprador/comprador.html',{'id':id})
 
 def Compradores(request):
     return render(request,'compradores/compradores.html')
@@ -137,11 +136,36 @@ def Procesos_Comprador(request):
 def Procesos_Proveedor(request):
     return render(request,'procesos_proveedor/procesos_proveedor.html')
 
-def Proveedor(request):
-    return render(request,'proveedor/proveedor.html')
+def Proveedor(request,id=''):
+    return render(request,'proveedor/proveedor.html',{'id':id})
 
 def Proveedores(request):
-    return render(request,'proveedores/proveedores.html')
+    parametros = {
+      "nombre" : request.GET.get('nombre',''),
+      "identificacion" : request.GET.get('identificacion',''),
+      "tmc" : request.GET.get('tmc','').replace(">", "").replace("<", "").replace("=", ""),
+      "pmc" : request.GET.get('pmc','').replace(">", "").replace("<", "").replace("=", ""),
+      "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("=", ""),
+      "fua" : request.GET.get('fua','').replace(">", "").replace("<", "").replace("=", ""),
+      "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("=", ""),
+      "paginarPor" : int(request.GET.get('paginarPor','')),
+      "orderBy" : request.GET.get('orderBy','')
+    }
+    parametros['operadortmc'] = verificarOperador(request.GET.get('tmc',''))
+    parametros['operadorpmc'] = verificarOperador(request.GET.get('pmc',''))
+    parametros['operadormamc'] = verificarOperador(request.GET.get('mamc',''))
+    parametros['operadormemc'] = verificarOperador(request.GET.get('memc',''))
+    parametros['operadorfua'] = verificarOperador(request.GET.get('fua',''))
+
+    parametros['ordennombre'] = verificarOrden(request.GET.get('orderBy',''),'nombre')
+    parametros['ordenidentificacion'] = verificarOrden(request.GET.get('orderBy',''),'identificacion')
+    parametros['ordentmc'] = verificarOrden(request.GET.get('orderBy',''),'tmc')
+    parametros['ordenpmc'] = verificarOrden(request.GET.get('orderBy',''),'pmc')
+    parametros['ordenmamc'] = verificarOrden(request.GET.get('orderBy',''),'mamc')
+    parametros['ordenfua'] = verificarOrden(request.GET.get('orderBy',''),'fua')
+    parametros['ordenmemc'] = verificarOrden(request.GET.get('orderBy',''),'memc')
+    
+    return render(request,'proveedores/proveedores.html',parametros)
     
 def Visualizaciones(request):
     return render(request,'visualizaciones/visualizaciones.html')
@@ -151,3 +175,33 @@ def Dashboard_Oncae(request):
 
 def Dashboard_Sefin(request):
     return render(request,'dashboard_sefin/dashboard_sefin.html')
+
+
+def verificarOperador(filtro):
+    operador='<'
+    if(filtro):
+      if('>' in filtro):
+        operador='>'
+      if('=' in filtro):
+        operador='='
+    return operador
+
+def verificarOrden(filtro,nombre):
+    filtrosProveedoresPropiedades = {
+    "fecha_ultimo_proceso" : "fua",
+    "id" : "identificacion",
+    "mayor_monto_contratado" : "mamc",
+    "menor_monto_contratado" : "memc",
+    "name" : "nombre",
+    "procesos" : "procesos",
+    "promedio_monto_contratado" : "pmc",
+    "total_monto_contratado" : "tmc"
+    }
+    orden='neutro'
+    if((filtro.replace("desc(", "").replace("asc(", "").replace(")", "") in filtrosProveedoresPropiedades) and filtrosProveedoresPropiedades[filtro.replace("desc(", "").replace("asc(", "").replace(")", "")] == nombre):
+      if(filtro):
+        if('asc(' in filtro):
+          orden='ascendente'
+        if('desc(' in filtro):
+          orden='descendente'
+    return orden

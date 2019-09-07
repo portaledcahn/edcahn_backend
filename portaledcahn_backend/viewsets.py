@@ -7,10 +7,12 @@ from django.db import connections
 from django.db.models import Avg, Count, Min, Sum
 from decimal import Decimal 
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Search, Q
 from .serializers import *
+from .functions import *
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
-import json
+import json, copy, urllib.parse
+import pandas as pd 
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
@@ -387,3 +389,185 @@ class Buscador(APIView):
 		}
 
 		return Response(context)
+
+class Proveedores(APIView):
+
+	def get(self, request, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		metodo = request.GET.get('metodo', None)
+		nombre = request.GET.get('nombre', '')
+		identificacion = request.GET.get('identificacion', '')
+		procesos = request.GET.get('procesos', None)
+		total = request.GET.get('total', None)
+		promedio = request.GET.get('promedio', None)
+		maximo = request.GET.get('maximo', None)
+		minino = request.GET.get('minimo', None)
+		term = request.GET.get('term', '')
+		tmc = request.GET.get('tmc', '')
+		pmc = request.GET.get('pmc', '')
+		mamc = request.GET.get('mamc', '')
+		memc = request.GET.get('memc', '')
+		fua = request.GET.get('fua', '')
+
+		ordenarPor = request.GET.get('ordenarPor', '')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
+
+		start = (page-1) * settings.PAGINATE_BY
+		end = start + settings.PAGINATE_BY
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		if metodo == 'proceso':
+			s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		if metodo == 'contrato':
+			s = s.filter('exists', field='doc.compiledRelease.contracts.id')
+
+		if metodo == 'pago':
+			s = s.filter('exists', field='doc.compiledRelease.contracts.implementation.transactions.id')
+
+		filtro = Q()
+		filtros = []
+
+		if nombre.replace(' ',''):
+			q_nombre = '*' + nombre + '*'
+			filtro = Q("wildcard", doc__compiledRelease__contracts__suppliers__name=q_nombre)
+			filtros.append(filtro)
+
+		if identificacion.replace(' ',''):
+			q_id = '*' + identificacion + '*'
+			filtro = Q("wildcard", doc__compiledRelease__contracts__suppliers__id=q_id)
+			filtros.append(filtro)
+
+		filtro = Q('bool', must=filtros)
+
+		s.aggs.metric('proveedores', 'nested', path='doc.compiledRelease.contracts.suppliers')
+
+		s.aggs['proveedores'].metric('filtros', 'filter', filter=filtro)
+
+		s.aggs['proveedores']['filtros'].metric('id', 'terms', field='doc.compiledRelease.contracts.suppliers.id.keyword', size=2000, order={"totales>total_monto_contratado": "desc"})
+		
+		s.aggs['proveedores']['filtros']['id'].metric('totales','reverse_nested', path='doc.compiledRelease.contracts')
+		s.aggs['proveedores']['filtros']['id']['totales'].metric('total_monto_contratado', 'sum', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id'].metric('name', 'terms', field='doc.compiledRelease.contracts.suppliers.name.keyword', size=2000)
+
+		s.aggs['proveedores']['filtros']['id']['name'].metric('totales','reverse_nested', path='doc.compiledRelease.contracts')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('total_monto_contratado', 'sum', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('promedio_monto_contratado', 'avg', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('mayor_monto_contratado', 'max', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('menor_monto_contratado', 'min', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('fecha_ultima_adjudicacion', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
+
+		s.aggs['proveedores']['filtros']['id']['name'].metric('tender','reverse_nested')
+		s.aggs['proveedores']['filtros']['id']['name']['tender'].metric('fecha_ultimo_proceso', 'sum', field='doc.compiledRelease.tender.tenderPeriod.startDate')
+
+		if tmc.replace(' ', ''):
+			q_tmc = 'params.tmc' + tmc
+			s.aggs['proveedores']['filtros']['id']['name']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "totales.total_monto_contratado"}, script=q_tmc)
+
+		if pmc.replace(' ', ''):
+			q_pmc = 'params.pmc' + pmc
+			s.aggs['proveedores']['filtros']['id']['name']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.promedio_monto_contratado"}, script=q_pmc)
+
+		if mamc.replace(' ', ''):
+			q_mamc = 'params.mamc' + mamc
+			s.aggs['proveedores']['filtros']['id']['name']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "totales.mayor_monto_contratado"}, script=q_mamc)
+
+		if memc.replace(' ', ''):
+			q_memc = 'params.memc' + memc
+			s.aggs['proveedores']['filtros']['id']['name']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "totales.menor_monto_contratado"}, script=q_memc)
+
+		search_results = SearchResults(s)
+
+		results = s[start:end].execute()
+
+		proveedores = []
+
+		proveedoresES = results.aggregations.proveedores.to_dict()
+
+		for p in proveedoresES["filtros"]["id"]["buckets"]:
+			for n in p["name"]["buckets"]:
+				proveedor = {}
+				proveedor["id"] = p["key"]
+				proveedor["name"] = n["key"]
+				proveedor["procesos"] = n["doc_count"]
+				proveedor["total_monto_contratado"] = n["totales"]["total_monto_contratado"]["value"]
+				proveedor["promedio_monto_contratado"] = n["totales"]["promedio_monto_contratado"]["value"]
+				proveedor["mayor_monto_contratado"] = n["totales"]["mayor_monto_contratado"]["value"]
+				proveedor["menor_monto_contratado"] = n["totales"]["menor_monto_contratado"]["value"]
+
+				if n["tender"]["fecha_ultimo_proceso"]["value"] == 0:
+					proveedor["fecha_ultimo_proceso"] = None
+				else:
+					proveedor["fecha_ultimo_proceso"] = n["tender"]["fecha_ultimo_proceso"]["value_as_string"]			
+
+				proveedor["uri"] = urllib.parse.quote_plus(proveedor["id"] + '->' + proveedor["name"])
+				proveedores.append(copy.deepcopy(proveedor))
+
+		parametros = {}
+		parametros["pagina"] = page
+		parametros["nombre"] = nombre
+		parametros["identificacion"] = identificacion
+		parametros["tmc"] = tmc 
+		parametros["pmc"] = pmc 
+		parametros["mamc"] = mamc 
+		parametros["memc"] = memc 
+		parametros["fua"] = fua 
+		parametros["orderBy"] = ordenarPor
+		parametros["paginarPor"] = paginarPor
+
+		#Ordenamiento
+		#Ejemplo: /proveedores?ordenarPor=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
+		dfProveedores = pd.DataFrame(proveedores)
+		ordenar = getSortBy(ordenarPor)
+
+		for indice, columna in enumerate(ordenar["columnas"]):
+			if not columna in dfProveedores:
+				ordenar["columnas"].pop(indice)
+				ordenar["ascendentes"].pop(indice)
+
+		if ordenar["columnas"]:
+			dfProveedores = dfProveedores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+
+		# Ejemplo: fua=%3D%3D"2018-03-02T20:10:00.000Z"
+		if fua.replace(' ', ''):
+			q_fua = 'fecha_ultimo_proceso' + fua
+			dfProveedores = dfProveedores.query(q_fua)
+
+		proveedores = dfProveedores.to_dict('records')
+
+		paginator = Paginator(proveedores, paginarPor)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": len(proveedores)
+		}
+
+		context = {
+			"paginador": pagination,
+			"parametros": parametros,
+			"resultados": posts.object_list,
+			# "elastic": results.aggregations.proveedores.to_dict(),
+		}
+
+		return Response(context)
+
+
