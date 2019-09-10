@@ -11,7 +11,7 @@ from elasticsearch_dsl import Search, Q
 from .serializers import *
 from .functions import *
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
-import json, copy, urllib.parse
+import json, copy, urllib.parse, datetime
 import pandas as pd 
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
@@ -219,24 +219,51 @@ class Index(APIView):
 
 		s = Search(using=cliente, index='edca')
 
-		results = s.aggs\
-					.metric('distinct_suppliers', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')\
-					.aggs\
-					.metric('distinct_buyers', 'cardinality', field='doc.compiledRelease.contracts.buyer.id.keyword')\
-					.aggs\
-					.metric('distinct_contracts', 'cardinality', field='doc.compiledRelease.contracts.id.keyword')\
-					.aggs\
-					.metric('distinct_tenders', 'cardinality', field='doc.compiledRelease.tender.id.keyword')\
-					.aggs\
-					.metric('distinct_transactions', 'cardinality', field='doc.compiledRelease.contracts.implementation.transactions.id.keyword')\
-					.execute()
+
+		s.aggs.metric(
+			'contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+
+		s.aggs["contratos"].metric(
+			'distinct_suppliers', 
+			'cardinality', 
+			field='doc.compiledRelease.contracts.suppliers.id.keyword'
+		)
+		
+		s.aggs["contratos"].metric(
+			'distinct_buyers', 
+			'cardinality', 
+			field='doc.compiledRelease.contracts.buyer.id.keyword'
+		)
+		
+		s.aggs["contratos"].metric(
+			'distinct_contracts', 
+			'cardinality', 
+			field='doc.compiledRelease.contracts.id.keyword'
+		)
+		
+		s.aggs["contratos"].metric(
+			'distinct_transactions', 
+			'cardinality', 
+			field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
+		)
+
+		s.aggs.metric(
+			'distinct_tenders', 
+			'cardinality', 
+			field='doc.compiledRelease.tender.id.keyword'
+		)
+		
+		results = s.execute()
 
 		context = {
-			"contratos": results.aggregations.distinct_contracts.value,
+			"contratos": results.aggregations.contratos.distinct_contracts.value,
 			"procesos": results.aggregations.distinct_tenders.value,
-			"pagos": results.aggregations.distinct_transactions.value,			
-			"compradores": results.aggregations.distinct_buyers.value,
-			"proveedores": results.aggregations.distinct_suppliers.value
+			"pagos": results.aggregations.contratos.distinct_transactions.value,			
+			"compradores": results.aggregations.contratos.distinct_buyers.value,
+			"proveedores": results.aggregations.contratos.distinct_suppliers.value
 		}
 
 		return Response(context)
@@ -264,7 +291,6 @@ class Buscador(APIView):
 		s = Search(using=cliente, index='edca')
 
 		#Filtros
-
 		s.aggs.metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
 
 		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
@@ -275,10 +301,12 @@ class Buscador(APIView):
 
 		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')		
 
-		#Resumen 		
-		s.aggs.metric('proveedores_total', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')
+		#Resumen
+		s.aggs.metric('contratos', 'nested', path='doc.compiledRelease.contracts')
 
-		s.aggs.metric('compradores_total', 'cardinality', field='doc.compiledRelease.contracts.buyer.id.keyword')
+		s.aggs["contratos"].metric('proveedores_total', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')
+
+		s.aggs["contratos"].metric('compradores_total', 'cardinality', field='doc.compiledRelease.contracts.buyer.id.keyword')
 
 		if metodo == 'proceso':
 			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.tender.id.keyword')
@@ -301,13 +329,16 @@ class Buscador(APIView):
 			s = s.filter('exists', field='doc.compiledRelease.tender.id')
 
 		if metodo == 'contrato':
-			s = s.filter('exists', field='doc.compiledRelease.contracts.id')
-
+			filtro_contrato = Q('exists', field='doc.compiledRelease.contracts.id') 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=filtro_contrato)
+			
 		if metodo == 'pago':
-			s = s.filter('exists', field='doc.compiledRelease.contracts.implementation.transactions.id')
+			qContrato = Q('exists', field='doc.compiledRelease.contracts.implementation.transactions.id') 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=qContrato)
 
 		if moneda is not None: 
-			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency=moneda)
+			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
 
 		if metodo_seleccion is not None:
 			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails=metodo_seleccion)
@@ -320,14 +351,17 @@ class Buscador(APIView):
 
 		# Este filtro aun falta
 		if year is not None:
-			pass 
+			# s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory=categoria)
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
 
 		if term: 
 			if metodo == 'proceso':
 				s = s.filter('match', doc__compiledRelease__tender__description=term)
 
 			if metodo in  ['contrato', 'pago']:
-				s = s.filter('match', doc__compiledRelease__contracts__description=term)
+				# qDescripcion = Q('match', doc__compiledRelease__contracts__description=term)
+				qDescripcion = Q("wildcard", doc__compiledRelease__contracts__description='*'+term+'*')
+				s = s.query('nested', path='doc.compiledRelease.contracts', query=qDescripcion)
 
 		search_results = SearchResults(s)
 
@@ -360,8 +394,8 @@ class Buscador(APIView):
 		filtros["metodos_de_seleccion"] = results.aggregations.metodos_de_seleccion.to_dict()
 
 		resumen = {}
-		resumen["proveedores_total"] = results.aggregations.proveedores_total.value
-		resumen["compradores_total"] = results.aggregations.compradores_total.value
+		resumen["proveedores_total"] = results.aggregations.contratos.proveedores_total.value
+		resumen["compradores_total"] = results.aggregations.contratos.compradores_total.value
 		resumen["procesos_total"] = results.aggregations.procesos_total.value
 
 		if metodo in ['contrato', 'pago']:
@@ -408,6 +442,7 @@ class Proveedores(APIView):
 		mamc = request.GET.get('mamc', '')
 		memc = request.GET.get('memc', '')
 		fua = request.GET.get('fua', '')
+		cp = request.GET.get('cp', '')
 
 		ordenarPor = request.GET.get('ordenarPor', '')
 		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
@@ -482,6 +517,12 @@ class Proveedores(APIView):
 			q_memc = 'params.memc' + memc
 			s.aggs['proveedores']['filtros']['id']['name']\
 			.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "totales.menor_monto_contratado"}, script=q_memc)
+
+		# Falta el filtro cantidad de procesos
+		# if cp.replace(' ', ''):
+		# 	q_cp = 'params.memc' + cp
+		# 	s.aggs['proveedores']['filtros']['id']['name']\
+		# 	.metric('filtro_totales', 'bucket_selector', buckets_path={"cp": "doc_count"}, script=q_cp)
 
 		search_results = SearchResults(s)
 
