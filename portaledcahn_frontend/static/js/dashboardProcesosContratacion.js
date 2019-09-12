@@ -507,7 +507,7 @@ function CantidadProcesosCategoriaCompra(){
         },
         series : [
             {
-                name: '姓名',
+                name: 'Cantidad de Procesos por Categoría de Compra',
                 type: 'pie',
                 radius : '55%',
                 center: ['40%', '50%'],
@@ -534,6 +534,162 @@ function CantidadProcesosCategoriaCompra(){
     });
 }
 
+function MontoProcesosCategoriaCompra(){
+    var grafico=echarts.init(document.getElementById('MontoProcesosCategoriaCompra'));
+    var opciones = {
+        /*title : {
+            text: '同名数量统计',
+            subtext: '纯属虚构',
+            x:'center'
+        },*/
+        tooltip : {
+            trigger: 'item',
+            formatter:  function (e){
+                console.dir(e)
+                return "{a} <br/>{b}: {c} HNL ({d}%)".replace('{d}',e.percent).replace('{a}',e.seriesName).replace('{b}',e.name).replace('{c}',ValorMoneda(e.value));
+            }
+        },
+        legend: {
+            type: 'scroll',
+            orient: 'vertical',
+            right: 10,
+            top: 20,
+            bottom: 20/*,
+            data: ['lengend data 1','lengend data 2','lengend data 3'],
+    
+            selected: [false,false,true]*/
+        },
+        series : [
+            {
+                name: 'Monto de Procesos por Categoría de Compra',
+                type: 'pie',
+                radius : '55%',
+                center: ['40%', '50%'],
+                data: [{name:'Obras',value: 60912},{name:'Bienes',value: 50928},{name:'Servicios',value: 73490}],
+                itemStyle: {
+                    color: function(e){
+                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                        return colores[e.dataIndex];
+                    },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    grafico.setOption(opciones, true);
+
+    
+    window.addEventListener("resize", function(){
+        grafico.resize();
+    });
+}
+
+function CantidadProcesosMetodoContratacion(){
+    var grafico=echarts.init(document.getElementById('CantidadProcesosMetodoContratacion'));
+    var opciones = {
+        /*title : {
+            text: '同名数量统计',
+            subtext: '纯属虚构',
+            x:'center'
+        },*/
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            type: 'scroll',
+            orient: 'vertical',
+            right: 10,
+            top: 20,
+            bottom: 20/*,
+            data: ['lengend data 1','lengend data 2','lengend data 3'],
+    
+            selected: [false,false,true]*/
+        },
+        series : [
+            {
+                name: 'Cantidad de Procesos por Método de Contratación',
+                type: 'pie',
+                radius : '55%',
+                center: ['40%', '50%'],
+                data: [{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
+                itemStyle: {
+                    color: function(e){
+                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                        return colores[e.dataIndex];
+                    },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    grafico.setOption(opciones, true);
+
+    
+    window.addEventListener("resize", function(){
+        grafico.resize();
+    });
+}
+function MontoProcesosMetodoContratacion(){
+    var grafico=echarts.init(document.getElementById('MontoProcesosMetodoContratacion'));
+    var opciones = {
+        /*title : {
+            text: '同名数量统计',
+            subtext: '纯属虚构',
+            x:'center'
+        },*/
+        tooltip : {
+            trigger: 'item',
+            formatter: function (e){
+                return "{a} <br/>{b}: {c} HNL ({d}%)".replace('{d}',e.percent).replace('{a}',e.seriesName).replace('{b}',e.name).replace('{c}',ValorMoneda(e.value));
+            }
+        },
+        legend: {
+            type: 'scroll',
+            orient: 'vertical',
+            right: 10,
+            top: 20,
+            bottom: 20/*,
+            data: ['lengend data 1','lengend data 2','lengend data 3'],
+    
+            selected: [false,false,true]*/
+        },
+        series : [
+            {
+                name: 'Monto de Procesos por Método de Contratación',
+                type: 'pie',
+                radius : '55%',
+                center: ['40%', '50%'],
+                data: [{name:'Compra Menor',value: 50978},{name:'Licitación Privada',value: 79784},{name:'Licitación Pública Nacional',value: 789556},{name:'Concurso Público Nacional',value: 75892}],
+                itemStyle: {
+                    color: function(e){
+                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                        return colores[e.dataIndex];
+                    },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    grafico.setOption(opciones, true);
+
+    
+    window.addEventListener("resize", function(){
+        grafico.resize();
+    });
+}
 /*
 ,
         series: [
@@ -674,7 +830,96 @@ function Top10Compradores(){
 }
 
 
+
 function Top10Proveedores(){
+    //app.title = '折柱混合';
+    var grafico=echarts.init(document.getElementById('top10Compradores'));
+    var opciones = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                crossStyle: {
+                    color: '#999'
+                }
+            }
+        },
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: false,title:'Vista'},
+                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                restore: {show: true,title:'Restaurar'},
+                saveAsImage: {show: true,title:'Descargar'}
+            }
+        },/*
+        legend: {
+            data:['蒸发量1','降水量','平均温度3']
+        },*/
+        xAxis: [
+            {
+                type: 'value',
+                axisLabel: {
+                    formatter: '{value} HNL'
+                }
+            }
+        ],
+        yAxis: [
+            {
+                
+                type: 'category',
+                data: ['Centro de Inmunodiagnostico Especializado, S. de R.L.','QUALITY , SISTEMAS Y REACTIVOS SOCIEDAD DE RESPONSAILIDAD LIMITADA','INFINITE TRAVEL GROUP S DE R L','Cash Business, S. de R. L.','Yip Supermercados, S. A. de C. V.','DISTRIBUIDORA CHOROTEGA','JETSTEREO S.A DE C.V.','INDUFESA','PACASA','LICONA AUTOREPUESTOS'],
+                axisPointer: {
+                    type: 'shadow'
+                }
+                
+                /*,
+                name: 'Monto',
+                min: 0,
+                max: 200000,
+                interval: 50000,
+                axisLabel: {
+                    formatter: '{value} HNL'
+                }*/
+            }/*,
+            {
+                type: 'value',
+                name: 'Cantidad de Pagos Promedio',
+                min: 0,
+                max: 25,
+                interval: 5,
+                axisLabel: {
+                    formatter: '{value} HNL'
+                }
+            }*/
+        ],
+        series: [
+            {
+                name:'Monto Pagado',
+                type:'bar',
+                data:[150000,80444,69000,72000,64248,93734,99214,92792,4351,97934],
+                itemStyle:{
+                    color: '#58C5CC'
+                },
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'insideRight'
+                    }
+                }
+            }
+        ]
+    };
+    grafico.setOption(opciones, true);
+
+    
+    window.addEventListener("resize", function(){
+        grafico.resize();
+    });
+}
+
+
+
+function Top10Proveedores2(){
     //app.title = '折柱混合';
     var grafico=echarts.init(document.getElementById('top10Proveedores'));
     var opciones ={
@@ -861,7 +1106,10 @@ $(function(){
     InicializarCantidadProcesos();
     InicializarMontoProcesos();
     
-    CantidadProcesosCategoriaCompra()
+    CantidadProcesosCategoriaCompra();
+    CantidadProcesosMetodoContratacion();
+    MontoProcesosCategoriaCompra();
+    MontoProcesosMetodoContratacion();
     TiempoPromedioEtapas();
     CantidadProcesosEtapas();
     Top10Proveedores();

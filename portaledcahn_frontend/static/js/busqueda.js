@@ -672,7 +672,7 @@ function AgregarResultadoContrato(datos){
               ):null,
               contrato.status?$('<tr>',{class:''}).append(
                 $('<td>',{class:'tituloTablaCaracteristicas',text:'Estado:',toolTexto:'contracts[n].status'}),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append($('<span>',{text: estadosContrato[contrato.status].titulo,toolTexto:estadosContrato[contrato.status].descripcion}))
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append($('<span>',{text: estadosContrato[contrato.status]?estadosContrato[contrato.status].titulo:'',toolTexto:estadosContrato[contrato.status]?estadosContrato[contrato.status].descripcion:''}))
               ):null,
               contrato.suppliers?$('<tr>',{class:''}).append(
                 $('<td>',{class:'tituloTablaCaracteristicas',text:'Proveedor:',toolTexto:'contracts[n].suppliers[n].name'}).append(),
