@@ -11,7 +11,7 @@ from elasticsearch_dsl import Search, Q
 from .serializers import *
 from .functions import *
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
-import json, copy, urllib.parse, datetime
+import json, copy, urllib.parse, datetime, operator
 import pandas as pd 
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
@@ -560,6 +560,7 @@ class Proveedores(APIView):
 		parametros["mamc"] = mamc 
 		parametros["memc"] = memc 
 		parametros["fua"] = fua 
+		parametros["cp"] = cp
 		parametros["orderBy"] = ordenarPor
 		parametros["paginarPor"] = paginarPor
 
@@ -567,6 +568,8 @@ class Proveedores(APIView):
 		#Ejemplo: /proveedores?ordenarPor=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
 		dfProveedores = pd.DataFrame(proveedores)
 		ordenar = getSortBy(ordenarPor)
+
+		dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'])
 
 		for indice, columna in enumerate(ordenar["columnas"]):
 			if not columna in dfProveedores:
@@ -576,10 +579,44 @@ class Proveedores(APIView):
 		if ordenar["columnas"]:
 			dfProveedores = dfProveedores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
 
-		# Ejemplo: fua=%3D%3D"2018-03-02T20:10:00.000Z"
+		# Ejemplo: fua==2018-03-02
 		if fua.replace(' ', ''):
-			q_fua = 'fecha_ultimo_proceso' + fua
-			dfProveedores = dfProveedores.query(q_fua)
+			if len(fua)>1:
+				if fua[0:2] in ['!=', '>=', '<=']:
+					operador = fua[0:2]
+					fecha = fua[2:len(fua)]
+				elif fua[0:1] in ['=', '>', '<']:
+					operador = fua[0:1]
+					fecha = fua[1:len(fua)]
+				else:
+					operador = ''
+					fecha = ''	
+			else:
+				operador = ''
+				fecha = ''
+
+			if operador == "=":
+				mask = (dfProveedores['fecha_ultimo_proceso'].dt.date.astype(str) == fecha) 
+			elif operador == "!=":
+				mask = (dfProveedores['fecha_ultimo_proceso'] != fecha)
+			elif operador == "<":
+				mask = (dfProveedores['fecha_ultimo_proceso'] < fecha)
+			elif operador == "<=":
+				mask = (dfProveedores['fecha_ultimo_proceso'] <= fecha)
+			elif operador == ">":
+				mask = (dfProveedores['fecha_ultimo_proceso'] > fecha)
+			elif operador == ">=":
+				mask = (dfProveedores['fecha_ultimo_proceso'] >= fecha)
+			else:
+				mask = None
+
+			if mask is not None:
+				dfProveedores = dfProveedores.loc[mask]
+
+		# Ejemplo: cp===2
+		if cp.replace(' ', ''):
+			q_cp = 'procesos' + cp
+			dfProveedores = dfProveedores.query(q_cp)
 
 		proveedores = dfProveedores.to_dict('records')
 
