@@ -219,7 +219,6 @@ class Index(APIView):
 
 		s = Search(using=cliente, index='edca')
 
-
 		s.aggs.metric(
 			'contratos', 
 			'nested', 
@@ -290,8 +289,10 @@ class Buscador(APIView):
 
 		s = Search(using=cliente, index='edca')
 
+		s.aggs.metric('contratos', 'nested', path='doc.compiledRelease.contracts')
+
 		#Filtros
-		s.aggs.metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
+		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
 
 		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
 
@@ -302,7 +303,6 @@ class Buscador(APIView):
 		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')		
 
 		#Resumen
-		s.aggs.metric('contratos', 'nested', path='doc.compiledRelease.contracts')
 
 		s.aggs["contratos"].metric('proveedores_total', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')
 
@@ -387,7 +387,7 @@ class Buscador(APIView):
 		}
 
 		filtros = {}
-		filtros["monedas"] = results.aggregations.monedas.to_dict()
+		filtros["monedas"] = results.aggregations.contratos.monedas.to_dict()
 		filtros["años"] = results.aggregations.años.to_dict()
 		filtros["categorias"] = results.aggregations.categorias.to_dict()
 		filtros["instituciones"] = results.aggregations.instituciones.to_dict()
@@ -582,10 +582,10 @@ class Proveedores(APIView):
 		# Ejemplo: fua==2018-03-02
 		if fua.replace(' ', ''):
 			if len(fua)>1:
-				if fua[0:2] in ['!=', '>=', '<=']:
+				if fua[0:2] in ['!=', '>=', '<=', '==']:
 					operador = fua[0:2]
 					fecha = fua[2:len(fua)]
-				elif fua[0:1] in ['=', '>', '<']:
+				elif fua[0:1] in ['>', '<']:
 					operador = fua[0:1]
 					fecha = fua[1:len(fua)]
 				else:
@@ -595,7 +595,7 @@ class Proveedores(APIView):
 				operador = ''
 				fecha = ''
 
-			if operador == "=":
+			if operador == "==":
 				mask = (dfProveedores['fecha_ultimo_proceso'].dt.date.astype(str) == fecha) 
 			elif operador == "!=":
 				mask = (dfProveedores['fecha_ultimo_proceso'] != fecha)
