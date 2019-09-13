@@ -259,7 +259,11 @@ $('#resultadosProveedores').html(
     $('<td>',{style:'height:300px;position:relative',colspan:'8',id:'cargando'})
   ));
 MostrarEspera('#cargando');
-$.get(api+"/proveedores",ObtenerFiltros()).done(function( datos ) {
+var parametros=ObtenerFiltros();
+if(ValidarCadena(parametros['fua'])){
+//  parametros['fua']='"'+parametros['fua']+'"';
+}
+$.get(api+"/proveedores",parametros).done(function( datos ) {
   console.dir(datos);
 
   AgregarResultados(datos,'#resultadosProveedores');
@@ -289,7 +293,7 @@ function AsignarEventosFiltro(){
       filtros=ObtenerFiltros();
       switch(elementoPadre.attr('tipo')){
         case 'fecha':
-            filtros[elementoPadre.attr('filtro')]=ValidarCadena(elemento.val())?(elemento.attr('opcion')+elemento.val()):'';
+            filtros[elementoPadre.attr('filtro')]=ValidarCadena(elemento.val())?(elemento.attr('opcion')+'"'+elemento.val()+'"'):'';
             if(!ValidarCadena(filtros[elementoPadre.attr('filtro')])){
               delete filtros[elementoPadre.attr('filtro')];
             }

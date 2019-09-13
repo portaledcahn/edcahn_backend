@@ -20,23 +20,7 @@ class DSEPaginator(Paginator):
 
 # Create your views here.
 def Inicio(request):
-    data = documents.DataDocument.search()
-
-    results = data.aggs\
-                .metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
-                .aggs\
-                .metric('distinct_buyers', 'cardinality', field='data.compiledRelease.contracts.buyer.id.keyword')\
-                .aggs\
-                .metric('distinct_contracts', 'cardinality', field='data.compiledRelease.contracts.id.keyword')\
-                .execute()
-
-    context = {
-        "distinct_contracts": results.aggregations.distinct_contracts.value,
-        "distinct_buyers": results.aggregations.distinct_buyers.value,
-        "distinct_suppliers": results.aggregations.distinct_suppliers.value
-    }
-
-    return render(request,'inicio/inicio.html', context)
+    return render(request,'inicio/inicio.html')
 
 def Proceso(request,ocid=''):
     return render(request,'proceso/proceso.html',{'ocid':ocid.replace('"','')})
@@ -48,7 +32,7 @@ def Acerca(request):
     return render(request,'acerca/acerca.html')
 
 def Busqueda(request):
-    page = int(request.GET.get('page', '1'))
+    """page = int(request.GET.get('page', '1'))
     start = (page-1) * 10
     end = start + 10
 
@@ -114,9 +98,9 @@ def Busqueda(request):
         "resumen": response.aggregations,
         "q": q,
         "posts": posts
-    }
+    }"""
 
-    return render(request,'busqueda/busqueda.html', context)
+    return render(request,'busqueda/busqueda.html')
 
 def Comprador(request,id=''):
     return render(request,'comprador/comprador.html',{'id':id})
