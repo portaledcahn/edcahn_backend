@@ -569,7 +569,7 @@ class Proveedores(APIView):
 		dfProveedores = pd.DataFrame(proveedores)
 		ordenar = getSortBy(ordenarPor)
 
-		dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'])
+		dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'], errors='coerce')
 
 		for indice, columna in enumerate(ordenar["columnas"]):
 			if not columna in dfProveedores:
