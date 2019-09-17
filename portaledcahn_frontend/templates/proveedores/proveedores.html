@@ -7,7 +7,15 @@
 {% load static %}
 
 {% block head_style %}
-<link rel="stylesheet" href="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.css' %}" >
+<!--<link rel="stylesheet" href="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.css' %}" >-->
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker.css' %}"/>
+
+  
+<!--[if lt IE 9]>
+ <link rel="stylesheet" type="text/css" href="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker-ltie9.css' %}" />
+
+<![endif]-->
+
 {% endblock %}
 
 {% block container %}
@@ -19,16 +27,16 @@
    </div>
    <div class="row mt-3 mb-3 ">
       <div class="col-lg-6">
-         <div class="campoAzulBusquedaPadre extraNormal_" style="margin-left:0" data-step="1" data-intro="Puedes búscar un proveedor, filtrando en todas las propiedades disponibles en la siguiente tabla, ingresando un texto aquí.">
+         <div class="campoAzulBusquedaPadre normal" style="margin-left:0" data-step="1" data-intro="Puedes búscar un proveedor, filtrando en todas las propiedades disponibles en la siguiente tabla, ingresando un texto aquí.">
             <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un proveedor..." value="{% if nombre %}{{nombre}}{% endif %}" filtro="nombre">
             <i class="fas fa-search cursorMano" id="buscarInformacion" toolTexto="Haz click para buscar"></i>	
          </div>
-         
+         <!--
          <div class="contenedorBotonAzulFiltroBusqueda"  style="display: none" >
                <button class="botonAzulFiltroBusqueda" title="Filtros">
                <i class="fas fa-filter"></i> 
                </button>
-            </div>
+            </div>-->
       </div>
       <div class="col-lg-6 textoAlineadoDerecha">
             <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">Mostrar&nbsp;</h5>
@@ -76,7 +84,7 @@
                            
                               <input   class="campoBlancoTextoSeleccion" placeholder="RTN" type="text" value="{% if identificacion %}{{identificacion}}{% endif %}">
                         </th>
-                     <th class="textoAlineadoCentrado campoFiltrado" filtro="procesos" tipo="texto">
+                     <th class="textoAlineadoCentrado campoFiltrado" filtro="cp" tipo="texto">
                         <table class="alineado">
                               <tr><td><span toolTexto="Conteo de ocid">Procesos</span></td><td><span class="ordenEncabezado" opcion="{{ordenprocesos}}">
                                     <div class="contenedorFlechasOrden">
@@ -287,7 +295,7 @@
                                                 <label for="filtroFechaMenor" >Mayor a &nbsp;<span>&gt;</span></label>
                                              </div>
                                              <div class="OpcionFiltroBusquedaNumerico">
-                                                <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=" {% if operadorfua == '=' %}checked{% endif %}>
+                                                <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="==" {% if operadorfua == '=' %}checked{% endif %}>
                                                 <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
                                              </div>
                                           </div>
@@ -328,6 +336,7 @@
       </div>
    </div>
 </div>
+<div id="dtBox"></div>
 <!--
 
       <table class="tablaGeneral" style="background: white">
@@ -409,8 +418,14 @@
             -->
 {% endblock %}
 
-{% block script_content %}
-<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+{% block script_content %}<!--
+<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>-->
+<!--[if lt IE 9]>
+ <script type="text/javascript" src="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker-ltie9.js' %}"></script>
+   <![endif]-->
+<script type="text/javascript" src="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker.js' %}"></script>
+<!-- For i18n Support -->
+<script type="text/javascript" src="{% static 'plugins/datetimepicker-0.1.39/i18n/DateTimePicker-i18n.js' %}"></script>
 <script src="{% static 'plugins/jquery-mask-1.14.15/jquery.mask.min.js' %}"></script>
 <script src="{% static 'js/proveedores.js' %}"></script>
 {% endblock %}

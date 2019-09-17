@@ -177,7 +177,7 @@ function OcultarEspera(selector){
 function cambiarFiltroNumerico(elemento){
 if($(elemento).is(":checked")){
     $(elemento).parent().parent().parent().parent().parent().find('.btnFiltroNumerico').html(
-        $(elemento).attr('opcion')
+        $(elemento).attr('opcion').replace('==','=')
     );
     $(elemento).parent().parent().parent().parent().parent().find('.campoBlancoTextoSeleccion').attr(
         'opcion',$(elemento).attr('opcion')

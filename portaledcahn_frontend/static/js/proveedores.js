@@ -2,7 +2,7 @@
 
   $(function(){
   
-    $.datepicker.regional['es'] = {
+   /* $.datepicker.regional['es'] = {
     closeText: 'Cerrar',
     prevText: '< Ant',
     nextText: 'Sig >',
@@ -20,9 +20,19 @@
     yearSuffix: ''
     };
     $.datepicker.setDefaults( $.datepicker.regional[ "es" ] );
+
+
     $('.fecha').datepicker({
            "dateFormat": 'yy-mm-dd'
-       });
+       });*/
+    $('.fecha').attr('data-field','date');
+
+    $('#dtBox').DateTimePicker({
+      buttonsToDisplay:	["HeaderCloseButton", "SetButton"/*, "ClearButton"*/],
+      dateFormat:'yyyy-MM-dd',
+      language:'es'
+    });
+    //
     $('.fecha').mask('0000-00-00');
   
     $('.OpcionFiltroBusquedaNumerico input').on('change',function(evento){
@@ -67,7 +77,7 @@
     mamc:'mayor_monto_contratado',
     memc:'menor_monto_contratado',
     nombre:'name',
-    procesos:'procesos',
+    cp:'procesos',
     pmc:'promedio_monto_contratado',
     tmc:'total_monto_contratado'
   };
@@ -94,8 +104,8 @@
           $('<td>',{'data-label':'Mayor Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].mayor_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
           $('<td>',{'data-label':'Menor Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].menor_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
           $('<td>',{'data-label':'Fecha de Última Adjudicación' ,class:'textoAlineadoCentrado'}).append(
-            $('<span>',{class:resultados[i].fecha_ultimo_proceso?'':'textoColorGris' }).text(
-              resultados[i].fecha_ultimo_proceso?ObtenerFecha(resultados[i].fecha_ultimo_proceso,'fecha'):'No Disponible'
+            $('<span>',{class:resultados[i].fecha_ultimo_proceso&&resultados[i].fecha_ultimo_proceso!='NaT'?'':'textoColorGris' }).text(
+              resultados[i].fecha_ultimo_proceso&&resultados[i].fecha_ultimo_proceso!='NaT'?ObtenerFecha(resultados[i].fecha_ultimo_proceso,'fecha'):'No Disponible'
             )
             
             )
@@ -137,6 +147,9 @@ function ObtenerFiltros(){
   if(Validar(ObtenerValor('memc'))){
     parametros['memc']=decodeURIComponent(ObtenerValor('memc'));
   }
+  if(Validar(ObtenerValor('cp'))){
+    parametros['cp']=decodeURIComponent(ObtenerValor('cp'));
+  }
   if(Validar(ObtenerValor('orderBy'))){
     parametros['orderBy']=decodeURIComponent(ObtenerValor('orderBy'));
   }
@@ -156,6 +169,7 @@ function AccederProveedores(opciones,desUrl){
   (ValidarCadena(opciones.mamc)? '&mamc='+encodeURIComponent(opciones.mamc): (ValidarCadena(ObtenerValor('mamc'))&&!desUrl?'&mamc='+ObtenerValor('mamc'):''))+
   (ValidarCadena(opciones.fua) ? '&fua='+encodeURIComponent(opciones.fua):(ValidarCadena(ObtenerValor('fua'))&&!desUrl?'&fua='+ObtenerValor('fua'):''))+
   (ValidarCadena(opciones.memc) ? '&memc='+encodeURIComponent(opciones.memc):(ValidarCadena(ObtenerValor('memc'))&&!desUrl?'&memc='+ObtenerValor('memc'):''))+
+  (ValidarCadena(opciones.memc) ? '&cp='+encodeURIComponent(opciones.memc):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
   (ValidarCadena(opciones.orderBy) ? '&orderBy='+encodeURIComponent(opciones.orderBy):(ValidarCadena(ObtenerValor('orderBy'))&&!desUrl?'&orderBy='+ObtenerValor('orderBy'):''))
 
   );
@@ -293,7 +307,7 @@ function AsignarEventosFiltro(){
       filtros=ObtenerFiltros();
       switch(elementoPadre.attr('tipo')){
         case 'fecha':
-            filtros[elementoPadre.attr('filtro')]=ValidarCadena(elemento.val())?(elemento.attr('opcion')+'"'+elemento.val()+'"'):'';
+            filtros[elementoPadre.attr('filtro')]=ValidarCadena(elemento.val())?(elemento.attr('opcion')+elemento.val()):'';
             if(!ValidarCadena(filtros[elementoPadre.attr('filtro')])){
               delete filtros[elementoPadre.attr('filtro')];
             }

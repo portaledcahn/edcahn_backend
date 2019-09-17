@@ -638,13 +638,15 @@ button.botonBlancoFiltroBusqueda:hover + .preContenedorFiltroBusqueda,button.bot
 	font-family: 'poppins';
     font-weight: 700;
 }
-.cajonSombreado{
+.cajonSombreado,.dtpicker-content{
 	background: white;
 	box-shadow: 0px 0px 10px 0px rgba(148, 146, 146,0.3);
 	border-radius: 10px;
 	padding: 10px;
 	box-sizing: border-box;
 }
+
+
 .sombraBasica{
 	box-shadow: 0px 0px 10px 0px rgba(148, 146, 146,0.3);
 }
@@ -2406,3 +2408,40 @@ table.alineado {
 .tablaGeneral .espera .imagen {
 	margin-top: 100px;
 }
+
+.dtpicker-value{
+	color:black!important;
+}
+.dtpicker-button{
+	background: #3B53A4!important;
+}
+.dtpicker-button.dtpicker-buttonClear{
+	background:gray!important;
+}
+.dtpicker-button{
+	color:white!important;
+	border-radius: 17.5px;
+	padding: 6px 15px!important;
+	text-transform: uppercase;
+	font-weight: 600;
+	text-decoration: none!important;
+	-webkit-transition: all .3s ease;
+	-moz-transition: all .3s ease;
+	-o-transition: all .3s ease;
+	transition: all .3s ease;
+	box-sizing: content-box;
+	font-size: 13px!important;
+	font-family: 'Poppins';
+	width: unset!important;
+	display: inline-block!important;
+	float:none!important;
+	
+}
+
+.dtpicker-buttonCont.dtpicker-twoButtons,.dtpicker-buttonCont.dtpicker-singleButton{
+	text-align: center!important;
+}
+.dtpicker-button+.dtpicker-button{
+	margin-left: 20px;
+}
+

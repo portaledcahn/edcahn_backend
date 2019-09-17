@@ -130,7 +130,7 @@ def Proveedores(request):
       "tmc" : request.GET.get('tmc','').replace(">", "").replace("<", "").replace("=", ""),
       "pmc" : request.GET.get('pmc','').replace(">", "").replace("<", "").replace("=", ""),
       "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("=", ""),
-      "fua" : request.GET.get('fua','').replace(">", "").replace("<", "").replace("=", ""),
+      "fua" : request.GET.get('fua','').replace(">", "").replace("<", "").replace("==", ""),
       "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("=", ""),
       "paginarPor" : int(request.GET.get('paginarPor','')),
       "orderBy" : request.GET.get('orderBy','')
