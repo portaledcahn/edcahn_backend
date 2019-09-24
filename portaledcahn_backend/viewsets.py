@@ -833,14 +833,13 @@ class ContratosDelProveedor(APIView):
 		parametros["fechaFirma"] = fechaInicio
 		parametros["ordenarPor"] = ordenarPor
 		parametros["pagianrPor"] = paginarPor
+		parametros["pagina"] = page
 
 		context = {
 			"paginador": pagination,
 			"parametros": parametros,
-			# "resumen": resumen,
-			# "filtros": filtros,
 			"resultados": results.hits.hits
-			# "agregados": results.aggregations.to_dict(),
 		}
 
 		return Response(context)
+
