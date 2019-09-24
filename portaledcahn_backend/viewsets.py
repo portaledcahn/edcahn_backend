@@ -20,6 +20,7 @@ from portaledcahn_backend import serializers as articles_serializers
 
 from django.utils.functional import LazyObject
 from django.conf import settings
+from collections import OrderedDict
 
 tasas_de_cambio = {
 	2000: {"HNL": 15.0143, "USD": 1},
@@ -648,4 +649,198 @@ class Proveedores(APIView):
 
 		return Response(context)
 
+class ContratosDelProveedor(APIView):
 
+	def get(self, request, partieId=None, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		comprador = request.GET.get('comprador', '')
+		titulo = request.GET.get('titulo', '')
+		descripcion = request.GET.get('descripcion', '')
+		tituloLicitacion = request.GET.get('tituloLicitacion', '')
+		categoriaCompra = request.GET.get('categoriaCompra', '')
+		estado = request.GET.get('estado', '')
+		monto = request.GET.get('monto', '')
+		fechaFirma = request.GET.get('fechaFirma', '')
+		fechaInicio = request.GET.get('fechaInicio', '')
+		ordenarPor = request.GET.get('ordenarPor', '')
+
+		start = (page-1) * paginarPor
+		end = start + paginarPor
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		s = Search(using=cliente, index='contract')
+
+		qPartieId = Q('match_phrase', suppliers__id=partieId) 
+		s = s.query('nested', path='suppliers', query=qPartieId)
+
+		# Sección de filtros
+		filtros = []
+
+		if comprador.replace(' ',''):
+			filtro = Q("match", buyer__name=comprador)
+			filtros.append(filtro)
+
+		if titulo.replace(' ',''):
+			filtro = Q("match", title=titulo)
+			filtros.append(filtro)
+
+		if descripcion.replace(' ',''):
+			filtro = Q("match", description=descripcion)
+			filtros.append(filtro)
+
+		if tituloLicitacion.replace(' ',''):
+			filtro = Q("match", extra__tenderTitle=tituloLicitacion)
+			filtros.append(filtro)
+
+		if categoriaCompra.replace(' ',''):
+			filtro = Q("match_phrase", extra__tenderMainProcurementCategory=categoriaCompra)
+			filtros.append(filtro)
+
+		if estado.replace(' ',''):
+			filtro = Q("match", status=estado)
+			filtros.append(filtro)
+
+		if fechaInicio.replace(' ',''):
+			validarFecha = getDateParam(fechaInicio)
+			
+			if validarFecha is not None:
+				operador = validarFecha["operador"]
+				valor = validarFecha["valor"]
+
+				if operador == "==":
+					filtro = Q('match', period__startDate=valor)
+				elif operador == "<":
+					filtro = Q('range', period__startDate={'lt': valor, "format": "yyyy-MM-dd"})
+				elif operador == "<=":
+					filtro = Q('range', period__startDate={'lte': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">":
+					filtro = Q('range', period__startDate={'gt': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">=":
+					filtro = Q('range', period__startDate={'gte': valor, "format": "yyyy-MM-dd"})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
+
+		if fechaFirma.replace(' ',''):
+			validarFecha = getDateParam(fechaFirma)
+			
+			if validarFecha is not None:
+				operador = validarFecha["operador"]
+				valor = validarFecha["valor"]
+
+				if operador == "==":
+					filtro = Q('match', dateSigned=valor)
+				elif operador == "<":
+					filtro = Q('range', dateSigned={'lt': valor, "format": "yyyy-MM-dd"})
+				elif operador == "<=":
+					filtro = Q('range', dateSigned={'lte': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">":
+					filtro = Q('range', dateSigned={'gt': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">=":
+					filtro = Q('range', dateSigned={'gte': valor, "format": "yyyy-MM-dd"})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
+
+		if monto.replace(' ',''):
+			validarMonto = getOperator(monto)
+			if validarMonto is not None:
+				operador = validarMonto["operador"]
+				valor = validarMonto["valor"]
+
+				print("validarMonto")
+				print(validarMonto)
+
+				if operador == "==":
+					filtro = Q('match', value__amount=valor)
+				elif operador == "<":
+					filtro = Q('range', value__amount={'lt': valor})
+				elif operador == "<=":
+					filtro = Q('range', value__amount={'lte': valor})
+				elif operador == ">":
+					filtro = Q('range', value__amount={'gt': valor})
+				elif operador == ">=":
+					filtro = Q('range', value__amount={'gte': valor})
+				else:
+					filtro = None
+
+			if filtro is not None:
+				filtros.append(filtro)
+
+		s = s.query('bool', filter=filtros)
+
+		# Ordenar resultados.
+		mappingSort = {
+			"comprador": "buyer.name.keyword",
+			"titulo": "title.keyword",
+			"tituloLicitacion": "extra.tenderTitle.keyword",
+			"categoriaCompra": "extra.tenderMainProcurementCategory.keyword",
+			"estado": "status.keyword",
+			"monto": "value.amount",
+			"fechaFirma": "period.startDate",
+			"fechaInicio": "dateSigned",
+		}
+
+		#ordenarPor = 'asc(comprador),desc(monto)
+		ordenarES = {}
+		if ordenarPor.replace(' ',''):
+			ordenar = getSortES(ordenarPor)
+
+			for parametro in ordenar:
+				columna = parametro["valor"]
+				orden = parametro["orden"]
+
+				if columna in mappingSort:
+					ordenarES[mappingSort[columna]] = {"order": orden}
+
+		s = s.sort(ordenarES)
+
+		search_results = SearchResults(s)
+		results = s[start:end].execute()
+		paginator = Paginator(search_results, settings.PAGINATE_BY)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": results.hits.total
+		}
+
+		parametros = {}
+		parametros["comprador"] = comprador
+		parametros["titulo"] = titulo
+		parametros["descripcion"] = descripcion
+		parametros["tituloLicitacion"] = tituloLicitacion
+		parametros["categoriaCompra"] = categoriaCompra
+		parametros["estado"] = estado
+		parametros["monto"] = monto
+		parametros["fechaInicio"] = fechaInicio
+		parametros["fechaFirma"] = fechaInicio
+		parametros["ordenarPor"] = ordenarPor
+		parametros["pagianrPor"] = paginarPor
+
+		context = {
+			"paginador": pagination,
+			"parametros": parametros,
+			# "resumen": resumen,
+			# "filtros": filtros,
+			"resultados": results.hits.hits
+			# "agregados": results.aggregations.to_dict(),
+		}
+
+		return Response(context)
