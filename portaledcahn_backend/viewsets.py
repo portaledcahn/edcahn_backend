@@ -20,7 +20,7 @@ from portaledcahn_backend import serializers as articles_serializers
 
 from django.utils.functional import LazyObject
 from django.conf import settings
-from collections import OrderedDict
+from django.http import Http404
 
 tasas_de_cambio = {
 	2000: {"HNL": 15.0143, "USD": 1},
@@ -843,3 +843,48 @@ class ContratosDelProveedor(APIView):
 
 		return Response(context)
 
+class Proveedor(APIView):
+
+	def get(self, request, partieId=None, format=None):
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		s = Search(using=cliente, index='edca')
+
+		qPartieId = Q('match_phrase', doc__compiledRelease__parties__id__keyword=partieId) 
+		s = s.query('nested', inner_hits={"size":1}, path='doc.compiledRelease.parties', query=qPartieId)
+		s = s.sort({"doc.compiledRelease.date": {"order":"desc"}})
+		s = s.source(False)
+
+		results = s[0:1].execute()
+
+		try:
+			partie = results["hits"]["hits"][0]["inner_hits"]["doc.compiledRelease.parties"]["hits"]["hits"][0]["_source"].to_dict()
+			
+			return Response(partie)
+
+		except Exception as e:
+			raise Http404
+
+
+# Dashboard SEFIN
+class CantidadDePagos(APIView):
+
+	def get(self, request, format=None):
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contratos')
+
+		s.aggs.metric(
+			'contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+		
+		results = s.execute()
+
+		context = {
+			"respuesta": results.aggregations
+		}
+
+		return Response(context)
