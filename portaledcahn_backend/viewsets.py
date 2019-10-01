@@ -649,6 +649,28 @@ class Proveedores(APIView):
 
 		return Response(context)
 
+class Proveedor(APIView):
+
+	def get(self, request, partieId=None, format=None):
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		s = Search(using=cliente, index='edca')
+
+		qPartieId = Q('match_phrase', doc__compiledRelease__parties__id__keyword=partieId) 
+		s = s.query('nested', inner_hits={"size":1}, path='doc.compiledRelease.parties', query=qPartieId)
+		s = s.sort({"doc.compiledRelease.date": {"order":"desc"}})
+		s = s.source(False)
+
+		results = s[0:1].execute()
+
+		try:
+			partie = results["hits"]["hits"][0]["inner_hits"]["doc.compiledRelease.parties"]["hits"]["hits"][0]["_source"].to_dict()
+			
+			return Response(partie)
+
+		except Exception as e:
+			raise Http404
+
 class ContratosDelProveedor(APIView):
 
 	def get(self, request, partieId=None, format=None):
@@ -843,27 +865,387 @@ class ContratosDelProveedor(APIView):
 
 		return Response(context)
 
-class Proveedor(APIView):
+class PagosDelProveedor(APIView):
 
 	def get(self, request, partieId=None, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		# comprador = request.GET.get('comprador', '')
+		# titulo = request.GET.get('titulo', '')
+		# descripcion = request.GET.get('descripcion', '')
+		# tituloLicitacion = request.GET.get('tituloLicitacion', '')
+		# categoriaCompra = request.GET.get('categoriaCompra', '')
+		# estado = request.GET.get('estado', '')
+		# monto = request.GET.get('monto', '')
+		# fechaFirma = request.GET.get('fechaFirma', '')
+		# fechaInicio = request.GET.get('fechaInicio', '')
+		# ordenarPor = request.GET.get('ordenarPor', '')
+
+		start = (page-1) * paginarPor
+		end = start + paginarPor
 
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
-		s = Search(using=cliente, index='edca')
+		s = Search(using=cliente, index='contract')
 
-		qPartieId = Q('match_phrase', doc__compiledRelease__parties__id__keyword=partieId) 
-		s = s.query('nested', inner_hits={"size":1}, path='doc.compiledRelease.parties', query=qPartieId)
-		s = s.sort({"doc.compiledRelease.date": {"order":"desc"}})
-		s = s.source(False)
+		qPartieId = Q('match', implementation__transactions__payee__id__keyword=partieId) 
+		s = s.query(qPartieId)
 
-		results = s[0:1].execute()
+		# Sección de filtros
+		# filtros = []
+
+		# if comprador.replace(' ',''):
+		# 	filtro = Q("match", buyer__name=comprador)
+		# 	filtros.append(filtro)
+
+		# if titulo.replace(' ',''):
+		# 	filtro = Q("match", title=titulo)
+		# 	filtros.append(filtro)
+
+		# if descripcion.replace(' ',''):
+		# 	filtro = Q("match", description=descripcion)
+		# 	filtros.append(filtro)
+
+		# if tituloLicitacion.replace(' ',''):
+		# 	filtro = Q("match", extra__tenderTitle=tituloLicitacion)
+		# 	filtros.append(filtro)
+
+		# if categoriaCompra.replace(' ',''):
+		# 	filtro = Q("match_phrase", extra__tenderMainProcurementCategory=categoriaCompra)
+		# 	filtros.append(filtro)
+
+		# if estado.replace(' ',''):
+		# 	filtro = Q("match", status=estado)
+		# 	filtros.append(filtro)
+
+		# if fechaInicio.replace(' ',''):
+		# 	validarFecha = getDateParam(fechaInicio)
+			
+		# 	if validarFecha is not None:
+		# 		operador = validarFecha["operador"]
+		# 		valor = validarFecha["valor"]
+
+		# 		if operador == "==":
+		# 			filtro = Q('match', period__startDate=valor)
+		# 		elif operador == "<":
+		# 			filtro = Q('range', period__startDate={'lt': valor, "format": "yyyy-MM-dd"})
+		# 		elif operador == "<=":
+		# 			filtro = Q('range', period__startDate={'lte': valor, "format": "yyyy-MM-dd"})
+		# 		elif operador == ">":
+		# 			filtro = Q('range', period__startDate={'gt': valor, "format": "yyyy-MM-dd"})
+		# 		elif operador == ">=":
+		# 			filtro = Q('range', period__startDate={'gte': valor, "format": "yyyy-MM-dd"})
+		# 		else:
+		# 			filtro = None
+
+		# 		if filtro is not None:
+		# 			filtros.append(filtro)
+
+		# if fechaFirma.replace(' ',''):
+		# 	validarFecha = getDateParam(fechaFirma)
+			
+		# 	if validarFecha is not None:
+		# 		operador = validarFecha["operador"]
+		# 		valor = validarFecha["valor"]
+
+		# 		if operador == "==":
+		# 			filtro = Q('match', dateSigned=valor)
+		# 		elif operador == "<":
+		# 			filtro = Q('range', dateSigned={'lt': valor, "format": "yyyy-MM-dd"})
+		# 		elif operador == "<=":
+		# 			filtro = Q('range', dateSigned={'lte': valor, "format": "yyyy-MM-dd"})
+		# 		elif operador == ">":
+		# 			filtro = Q('range', dateSigned={'gt': valor, "format": "yyyy-MM-dd"})
+		# 		elif operador == ">=":
+		# 			filtro = Q('range', dateSigned={'gte': valor, "format": "yyyy-MM-dd"})
+		# 		else:
+		# 			filtro = None
+
+		# 		if filtro is not None:
+		# 			filtros.append(filtro)
+
+		# if monto.replace(' ',''):
+		# 	validarMonto = getOperator(monto)
+		# 	if validarMonto is not None:
+		# 		operador = validarMonto["operador"]
+		# 		valor = validarMonto["valor"]
+
+		# 		print("validarMonto")
+		# 		print(validarMonto)
+
+		# 		if operador == "==":
+		# 			filtro = Q('match', value__amount=valor)
+		# 		elif operador == "<":
+		# 			filtro = Q('range', value__amount={'lt': valor})
+		# 		elif operador == "<=":
+		# 			filtro = Q('range', value__amount={'lte': valor})
+		# 		elif operador == ">":
+		# 			filtro = Q('range', value__amount={'gt': valor})
+		# 		elif operador == ">=":
+		# 			filtro = Q('range', value__amount={'gte': valor})
+		# 		else:
+		# 			filtro = None
+
+		# 	if filtro is not None:
+		# 		filtros.append(filtro)
+
+		# s = s.query('bool', filter=filtros)
+
+		# Ordenar resultados.
+		# mappingSort = {
+		# 	"comprador": "buyer.name.keyword",
+		# 	"titulo": "title.keyword",
+		# 	"tituloLicitacion": "extra.tenderTitle.keyword",
+		# 	"categoriaCompra": "extra.tenderMainProcurementCategory.keyword",
+		# 	"estado": "status.keyword",
+		# 	"monto": "value.amount",
+		# 	"fechaFirma": "period.startDate",
+		# 	"fechaInicio": "dateSigned",
+		# }
+
+		# #ordenarPor = 'asc(comprador),desc(monto)
+		# ordenarES = {}
+		# if ordenarPor.replace(' ',''):
+		# 	ordenar = getSortES(ordenarPor)
+
+		# 	for parametro in ordenar:
+		# 		columna = parametro["valor"]
+		# 		orden = parametro["orden"]
+
+		# 		if columna in mappingSort:
+		# 			ordenarES[mappingSort[columna]] = {"order": orden}
+
+		# s = s.sort(ordenarES)
+
+		search_results = SearchResults(s)
+		results = s[start:end].execute()
+		paginator = Paginator(search_results, settings.PAGINATE_BY)
 
 		try:
-			partie = results["hits"]["hits"][0]["inner_hits"]["doc.compiledRelease.parties"]["hits"]["hits"][0]["_source"].to_dict()
-			
-			return Response(partie)
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
 
-		except Exception as e:
-			raise Http404
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": results.hits.total
+		}
+
+		parametros = {}
+		# parametros["comprador"] = comprador
+		# parametros["titulo"] = titulo
+		# parametros["descripcion"] = descripcion
+		# parametros["tituloLicitacion"] = tituloLicitacion
+		# parametros["categoriaCompra"] = categoriaCompra
+		# parametros["estado"] = estado
+		# parametros["monto"] = monto
+		# parametros["fechaInicio"] = fechaInicio
+		# parametros["fechaFirma"] = fechaInicio
+		# parametros["ordenarPor"] = ordenarPor
+		# parametros["pagianrPor"] = paginarPor
+		# parametros["pagina"] = page
+
+		context = {
+			"paginador": pagination,
+			"parametros": parametros,
+			"resultados": results.hits.hits
+		}
+
+		return Response(context)
+
+class Compradores(APIView):
+
+	def get(self, request, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		nombre = request.GET.get('nombre', '') #nombre
+		identificacion = request.GET.get('identificacion', '') # identificacion
+		term = request.GET.get('term', '') 
+		tmc = request.GET.get('tmc', '') # total monto contratado
+		pmc = request.GET.get('pmc', '') # promedio monto contratado
+		mamc = request.GET.get('mamc', '') # mayor monto contratado
+		memc = request.GET.get('memc', '') # menor monto contratado
+		fup = request.GET.get('fup', '') # fecha ultimo proceso
+		cp = request.GET.get('cp', '') # cantidad de procesos
+
+		ordenarPor = request.GET.get('ordenarPor', '')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
+
+		start = (page-1) * settings.PAGINATE_BY
+		end = start + settings.PAGINATE_BY
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		
+		s = Search(using=cliente, index='edca')
+
+		filtros = []
+		if nombre.replace(' ',''):
+			filtro = Q("match", doc__compiledRelease__buyer__name=nombre)
+			filtros.append(filtro)
+
+		s = s.query('bool', filter=filtros)
+
+		s.aggs.metric('compradores', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=10000)
+		s.aggs['compradores'].metric('procesos', 'cardinality', field='doc.compiledRelease.ocid.keyword')
+		
+		s.aggs['compradores'].metric('contratos', 'nested', path='doc.compiledRelease.contracts')
+
+		s.aggs['compradores']['contratos'].metric('suma', 'sum', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['compradores']['contratos'].metric('promedio', 'avg', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['compradores']['contratos'].metric('maximo', 'max', field='doc.compiledRelease.contracts.value.amount')
+		s.aggs['compradores']['contratos'].metric('minimo', 'min', field='doc.compiledRelease.contracts.value.amount')
+
+		s.aggs['compradores'].metric('fecha_ultimo_proceso', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
+
+		# Filtros
+		if tmc.replace(' ', ''):
+			q_tmc = 'params.tmc' + tmc
+			print('q_tmc', q_tmc)
+			s.aggs['compradores']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
+
+		if pmc.replace(' ', ''):
+			q_pmc = 'params.pmc' + pmc
+			s.aggs['compradores']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
+
+		if mamc.replace(' ', ''):
+			q_mamc = 'params.mamc' + mamc
+			s.aggs['compradores']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
+
+		if memc.replace(' ', ''):
+			q_memc = 'params.memc' + memc
+			s.aggs['compradores']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
+
+		if cp.replace(' ', ''):
+			q_cp = 'params.memc' + cp
+			s.aggs['compradores']\
+			.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "procesos"}, script=q_cp)
+
+		search_results = SearchResults(s)
+
+		results = s[start:end].execute()
+
+		compradoresES = results.aggregations.compradores.to_dict()
+		compradores = []
+
+		for n in compradoresES["buckets"]:
+			comprador = {}
+			# comprador["id"] = p["key"]
+			comprador["name"] = n["key"]
+			comprador["procesos"] = n["procesos"]["value"]
+			comprador["total_monto_contratado"] = n["contratos"]["suma"]["value"]
+			comprador["promedio_monto_contratado"] = n["contratos"]["promedio"]["value"]
+			comprador["mayor_monto_contratado"] = n["contratos"]["maximo"]["value"]
+			comprador["menor_monto_contratado"] = n["contratos"]["minimo"]["value"]
+
+			if n["fecha_ultimo_proceso"]["value"] is None:
+				comprador["fecha_ultimo_proceso"] = None
+			else:
+				comprador["fecha_ultimo_proceso"] = n["fecha_ultimo_proceso"]["value_as_string"]
+
+			# proveedor["uri"] = urllib.parse.quote_plus(proveedor["id"] + '->' + proveedor["name"])
+			compradores.append(copy.deepcopy(comprador))
+
+		dfCompradores = pd.DataFrame(compradores)
+		ordenar = getSortBy(ordenarPor)
+
+		if 'fecha_ultimo_proceso' in dfCompradores:
+			dfCompradores['fecha_ultimo_proceso'] = pd.to_datetime(dfCompradores['fecha_ultimo_proceso'], errors='coerce')
+
+		# Ejemplo: fup==2018-03-02
+		if fup.replace(' ', ''):
+			if len(fup)>1:
+				if fup[0:2] in ['!=', '>=', '<=', '==']:
+					operador = fup[0:2]
+					fecha = fup[2:len(fup)]
+				elif fup[0:1] in ['>', '<']:
+					operador = fup[0:1]
+					fecha = fup[1:len(fup)]
+				else:
+					operador = ''
+					fecha = ''	
+			else:
+				operador = ''
+				fecha = ''
+
+			if operador == "==":
+				mask = (dfCompradores['fecha_ultimo_proceso'].dt.date.astype(str) == fecha) 
+			elif operador == "!=":
+				mask = (dfCompradores['fecha_ultimo_proceso'] != fecha)
+			elif operador == "<":
+				mask = (dfCompradores['fecha_ultimo_proceso'] < fecha)
+			elif operador == "<=":
+				mask = (dfCompradores['fecha_ultimo_proceso'] <= fecha)
+			elif operador == ">":
+				mask = (dfCompradores['fecha_ultimo_proceso'] > fecha)
+			elif operador == ">=":
+				mask = (dfCompradores['fecha_ultimo_proceso'] >= fecha)
+			else:
+				mask = None
+
+			if mask is not None:
+				dfCompradores = dfCompradores.loc[mask]
+
+		for indice, columna in enumerate(ordenar["columnas"]):
+			if not columna in dfCompradores:
+				ordenar["columnas"].pop(indice)
+				ordenar["ascendentes"].pop(indice)
+
+		if ordenar["columnas"]:
+			dfCompradores = dfCompradores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+
+		dfCompradores = dfCompradores.fillna('')
+
+		compradores = dfCompradores.to_dict('records')
+
+		paginator = Paginator(compradores, paginarPor)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": len(compradores)
+		}
+
+		parametros = {}
+		parametros["pagina"] = page
+		parametros["nombre"] = nombre
+		parametros["identificacion"] = identificacion
+		parametros["tmc"] = tmc 
+		parametros["pmc"] = pmc 
+		parametros["mamc"] = mamc 
+		parametros["memc"] = memc 
+		parametros["fup"] = fup 
+		parametros["cp"] = cp
+		parametros["orderBy"] = ordenarPor
+		parametros["paginarPor"] = paginarPor
+
+		context = {
+			"paginador": pagination,
+			"parametros": parametros,
+			"resultados": posts.object_list,
+			# "elastic": results.aggregations.to_dict(),
+		}
+
+		return Response(context)
 
 
 # Dashboard SEFIN
