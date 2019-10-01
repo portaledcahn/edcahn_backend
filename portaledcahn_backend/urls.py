@@ -31,6 +31,7 @@ urlpatterns = [
 	path('proveedores/<path:partieId>/', viewsets.Proveedor.as_view()),
 	
 	path('compradores/', viewsets.Compradores.as_view()),
+	path('compradores/<path:partieId>/', viewsets.Comprador.as_view()),
 
 	path('cantidaddepagos/', viewsets.CantidadDePagos.as_view()),
 ]

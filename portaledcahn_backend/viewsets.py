@@ -1260,6 +1260,60 @@ class Compradores(APIView):
 
 		return Response(context)
 
+class Comprador(APIView):
+
+	def get(self, request, partieId=None, format=None):
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		s = Search(using=cliente, index='edca')
+
+		partieId = urllib.parse.unquote_plus(partieId)
+
+		qPartieId = Q('match_phrase', doc__compiledRelease__parties__name__keyword=partieId)
+		s = s.query('nested', inner_hits={"size":1}, path='doc.compiledRelease.parties', query=qPartieId)
+		s = s.sort({"doc.compiledRelease.date": {"order":"desc"}})
+		s = s.source(False)
+
+		results = s[0:1].execute()
+
+		if len(results) == 0:
+			s = Search(using=cliente, index='edca')
+			qPartieId = Q('match_phrase', extra__buyerFullName__keyword=partieId)
+			s = s.query(qPartieId)
+			s = s.sort({"doc.compiledRelease.date": {"order":"desc"}})
+	
+			results2 = s[0:1].execute()
+
+			if len(results2) > 0:
+				buyerId = results2.hits.hits[0]["_source"]["doc"]["compiledRelease"]["buyer"]["id"]
+				
+				qPartieId = Q('match_phrase', doc__compiledRelease__parties__id__keyword=buyerId)
+				s = s.query('nested', inner_hits={"size":1}, path='doc.compiledRelease.parties', query=qPartieId)
+				s = s.sort({"doc.compiledRelease.date": {"order":"desc"}})
+				s = s.source(False)
+
+				results3 = s[0:1].execute()
+
+				dependencias = 1
+			else:
+				dependencias = 0
+		else:
+			dependencias = 0
+
+		try:
+
+			if dependencias != 1:
+				partie = results["hits"]["hits"][0]["inner_hits"]["doc.compiledRelease.parties"]["hits"]["hits"][0]["_source"].to_dict()
+			else:
+				partie = results3["hits"]["hits"][0]["inner_hits"]["doc.compiledRelease.parties"]["hits"]["hits"][0]["_source"].to_dict()
+
+			return Response(partie)
+
+		except Exception as e:
+			raise Http404
+
+		return Response(results.hits.hits[0]["_source"]["doc"]["compiledRelease"]["buyer"])
+
 
 # Dashboard SEFIN
 class CantidadDePagos(APIView):
