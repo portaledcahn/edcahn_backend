@@ -1065,6 +1065,7 @@ class Compradores(APIView):
 		page = int(request.GET.get('pagina', '1'))
 		nombre = request.GET.get('nombre', '') #nombre
 		identificacion = request.GET.get('identificacion', '') # identificacion
+		dependencias = request.GET.get('dependencias', '0')
 		term = request.GET.get('term', '') 
 		tmc = request.GET.get('tmc', '') # total monto contratado
 		pmc = request.GET.get('pmc', '') # promedio monto contratado
@@ -1085,12 +1086,23 @@ class Compradores(APIView):
 
 		filtros = []
 		if nombre.replace(' ',''):
-			filtro = Q("match", doc__compiledRelease__buyer__name=nombre)
+			if dependencias == '1':
+				# filtro = Q("match", doc__compiledRelease__buyer__name=nombre)
+				filtro = Q("match", extra__buyerFullName=nombre)
+			else:
+				filtro = Q("match", extra__parentTop__name=nombre)
+
 			filtros.append(filtro)
 
 		s = s.query('bool', filter=filtros)
 
-		s.aggs.metric('compradores', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=10000)
+		if dependencias == '1':
+			# campoParaAgrupar = 'doc.compiledRelease.buyer.name.keyword'
+			campoParaAgrupar = 'extra.buyerFullName.keyword'
+		else:
+			campoParaAgrupar = 'extra.parentTop.name.keyword'
+
+		s.aggs.metric('compradores', 'terms', field=campoParaAgrupar, size=10000)
 		s.aggs['compradores'].metric('procesos', 'cardinality', field='doc.compiledRelease.ocid.keyword')
 		
 		s.aggs['compradores'].metric('contratos', 'nested', path='doc.compiledRelease.contracts')
@@ -1151,7 +1163,7 @@ class Compradores(APIView):
 			else:
 				comprador["fecha_ultimo_proceso"] = n["fecha_ultimo_proceso"]["value_as_string"]
 
-			# proveedor["uri"] = urllib.parse.quote_plus(proveedor["id"] + '->' + proveedor["name"])
+			comprador["uri"] = urllib.parse.quote_plus(comprador["name"])
 			compradores.append(copy.deepcopy(comprador))
 
 		dfCompradores = pd.DataFrame(compradores)
@@ -1235,6 +1247,7 @@ class Compradores(APIView):
 		parametros["memc"] = memc 
 		parametros["fup"] = fup 
 		parametros["cp"] = cp
+		parametros["dependencias"] = dependencias
 		parametros["orderBy"] = ordenarPor
 		parametros["paginarPor"] = paginarPor
 
