@@ -84,18 +84,18 @@
                            
                               <input   class="campoBlancoTextoSeleccion" placeholder="RTN" type="text" value="{% if identificacion %}{{identificacion}}{% endif %}">
                         </th>
-                     <th class="textoAlineadoCentrado campoFiltrado" filtro="cp" tipo="texto">
+                     <th class="textoAlineadoCentrado campoFiltrado" filtro="cp" tipo="numero">
                         <table class="alineado">
-                              <tr><td><span toolTexto="Conteo de ocid">Procesos</span></td><td><span class="ordenEncabezado" opcion="{{ordenprocesos}}">
+                              <tr><td><span toolTexto="Conteo de ocid">Procesos</span></td><td><span class="ordenEncabezado" opcion="{{ordencp}}">
                                     <div class="contenedorFlechasOrden">
-                                          <i class="fas fa-sort-up flechaArriba" {% if ordenprocesos == 'descendente' %}style="display:none"{% endif %}></i>
-                                          <i class="fas fa-sort-down flechaAbajo" {% if ordenprocesos == 'ascendente' %}style="display:none"{% endif %}></i>
+                                          <i class="fas fa-sort-up flechaArriba" {% if ordencp == 'descendente' %}style="display:none"{% endif %}></i>
+                                          <i class="fas fa-sort-down flechaAbajo" {% if ordencp == 'ascendente' %}style="display:none"{% endif %}></i>
                                     </div>
                                  </span></td></tr>
                            </table>
                         
                         <div class="contenedorFiltroNumerico">
-                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion="<" type="text" value="{% if procesos %}{{procesos}}{% endif %}">
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion="<" type="text" value="{% if cp %}{{cp}}{% endif %}">
                               
                               
                               <button class="btnFiltroNumerico">&lt;</button>
@@ -104,15 +104,15 @@
                                        <div class="flechaArribaBlanca"></div>
                                        <div>
                                           <div class="OpcionFiltroBusquedaNumerico">
-                                             <input type="radio" id="filtroProcesosMayor" name="selectorProcesos" opcion="<" checked>
+                                             <input type="radio" id="filtroProcesosMayor" name="selectorProcesos" opcion="<" {% if operadorcp == '<' %}checked{% endif %}>
                                              <label for="filtroProcesosMayor" >Menor a &nbsp;<span>&lt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
-                                             <input type="radio" id="filtroProcesosMenor" name="selectorProcesos" opcion=">">
+                                             <input type="radio" id="filtroProcesosMenor" name="selectorProcesos" opcion=">" {% if operadorcp == '>' %}checked{% endif %}>
                                              <label for="filtroProcesosMenor" >Mayor a &nbsp;<span>&gt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
-                                             <input type="radio" id="filtroProcesosIgual" name="selectorProcesos" opcion="=">
+                                             <input type="radio" id="filtroProcesosIgual" name="selectorProcesos" opcion="=" {% if operadorcp == '=' %}checked{% endif %}>
                                              <label for="filtroProcesosIgual" >Igual a &nbsp;<span>=</span></label>
                                           </div>
                                        </div>

@@ -112,12 +112,12 @@ function AnadirDatosProveedor(){
                 )
             )
         ),
-        $('<div>',{class:'row'}).append(
+       (datosProveedor.contactPoint&&(datosProveedor.contactPoint.name||datosProveedor.contactPoint.telephone||datosProveedor.contactPoint.faxNumber||datosProveedor.contactPoint.email))? $('<div>',{class:'row'}).append(
             $('<h4>',{class:'text-primary-edcax titularCajonSombreado  col-md-12 mt-5'}).text(
                 'Datos de Contacto'
             )
-            ),
-        $('<div>',{class:'row'}).append(
+            ):null,
+            (datosProveedor.contactPoint&&(datosProveedor.contactPoint.name||datosProveedor.contactPoint.telephone||datosProveedor.contactPoint.faxNumber||datosProveedor.contactPoint.email))?$('<div>',{class:'row'}).append(
             $('<div>',{class:'col-md-12 mt-2'}).append(
                 $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos','data-step':"2",'data-intro':"Puedes visualizar los datos de contacto de un proveedor en esta sección, en caso de que este disponible."}).append(
                     $('<div>',{class:'contenedorProceso informacionProceso'}).append(
@@ -165,7 +165,7 @@ function AnadirDatosProveedor(){
                     )
                 )
             )
-        )
+        ):null
 
 
 
@@ -260,7 +260,7 @@ function ObtenerFiltrosContratos(){
                 ),
                 $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
-                (ValorMoneda(resultados[i]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.value.currency})):''
+                [ValorMoneda(resultados[i]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.value.currency})]:''
                 
                 
                 ),

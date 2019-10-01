@@ -11,86 +11,21 @@
 {% endblock %}
 
 {% block container %}
-<div class="container-fluid" style="max-width: 1600px">
-   <div class="row mt-5">
-      <div class="col-md-12">
-         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso"  tooltexto="buyer.name" >Alcaldía Municipal de Danli</h1>
+<div class="container-fluid tamanoMinimo" style="max-width: 1600px">
+   <input type="hidden" value="{{id}}" id="compradorId">
+   <div class="contenedorInformacion">
+   </div>
+   <div class="row" style="display:none" id="noEncontrado">
+      <div class="col-md-12 cajonSombreado fondoColorPrimario mt-5 fondoContrataciones" style="background-color: #3B53A4">
+      
+         <h1 class="titularColor textoColorBlanco p-5 m-5" style="font-size: 2rem">No se Econtró el Comprador.</h1>
+        
       </div>
    </div>
-   <div class="row ">
-      <div class="col-md-6">
-            <h4 class="text-primary-edcax titularCajonSombreado">
-                  Dirección del Comprador
-               </h4>
-         <div class=" cajonSombreado contenedorDetalleProcesoDatos" data-step="1" data-intro="Puedes visualizar la dirección de un comprador en esta sección, en caso de que este disponible.">
-            <div class="contenedorProceso informacionProceso">
-               <div class="contenedorTablaCaracteristicas" style="width:100%">
-                  <table>
-                     <tbody>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.region">Localidad:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              DANLI
-                           </td>
-                        </tr>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.locality">Región:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              El Paraiso
-                           </td>
-                        </tr>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.streetAddress">Dirección:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              Danli, El Paraiso
-                           </td>
-                        </tr>
-                     </tbody>
-                  </table>
-               </div>
-            </div>
-         </div>
-      </div>
-      
-      <div class="col-md-6">
-            <h4 class="text-primary-edcax titularCajonSombreado">Datos de Contacto</h4>
-            <div class=" cajonSombreado " data-step="2" data-intro="Puedes visualizar los datos de contacto de un comprador en esta sección, en caso de que este disponible.">
-               <div class="contenedorProceso informacionProceso" >
-                  <div class="contenedorTablaCaracteristicas" >
-                     <table>
-                        <tbody>
-                           <tr>
-                              <td class="tituloTablaCaracteristicas" toolTexto="parties[n].contactPoint.name">Nombre:</td>
-                              <td class="contenidoTablaCaracteristicas"> 
-                                 LUZ VICTORIA OLIVA LOVO
-                              </td>
-                           </tr>
-                           <tr>
-                              <td class="tituloTablaCaracteristicas" toolTexto="parties[n].contactPoint.telephone">Telefono:</td>
-                              <td class="contenidoTablaCaracteristicas"> 
-                                 763-2405
-                              </td>
-                           </tr>
-                           <tr>
-                              <td class="tituloTablaCaracteristicas" toolTexto="parties[n].contactPoint.email">Correo Electrónico:</td>
-                              <td class="contenidoTablaCaracteristicas"> 
-                                 mesadeayuda@honducompras.gob.hn
-                              </td>
-                           </tr>
-                        </tbody>
-                     </table>
-                  </div>
-               </div>
-            </div>
-         </div>
-   </div>
-</div>
-
-<div class="container-fluid mt-3" style="max-width: 1600px">
-      
+   <div class="contenedorTablas" style="display: none">
       <div class="row">
 
-         <div class="col-md-12">
+         <div class="col-md-12 mt-5">
             <div class=" cajonSombreado " data-step="3" data-intro="Puedes ver el historial de procesos de contratación en los que ha participado este comprador.">
 
                   <div class="row">
@@ -455,9 +390,7 @@
       </div>
          
       </div>
-   </div>
-
-   <div class="container-fluid" style="max-width: 1600px">
+   
          
          <div class="row">
             <div class="col-md-12">
@@ -717,9 +650,6 @@
          </div>
             
          </div>
-      </div>
-
-      <div class="container-fluid" style="max-width: 1600px">
          
             <div class="row">
                <div class="col-md-12">
@@ -1012,7 +942,12 @@
             </div>
                
             </div>
-         </div>
+   </div>
+</div>
+
+      
+      
+         
 {% endblock %}
 
 {% block script_content %}

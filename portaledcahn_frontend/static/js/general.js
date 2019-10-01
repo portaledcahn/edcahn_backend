@@ -329,7 +329,7 @@ function AnadirSubtabla(){
                 if(!$(e.currentTarget).hasClass('abierta')){
                     $(e.currentTarget).after($('<tr class="subTabla">').append(
                         $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
-                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Procesos de Contratación</h6></div><table class="tablaGeneral"> <thead> <tr> <th toolTexto="buyer.name">Comprador</th> <th toolTexto="contracts[n].title">Título del Contrato</th> <th toolTexto="contracts[n].value.amount">Monto del contrato</th> </tr></thead> <tbody> <tr><td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato" >1,200.00 <span class="textoColorPrimario">HNL</span></td></tr><tr> <td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td></tr></tbody> </table></div>'
+                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Contratos</h6></div><table class="tablaGeneral"> <thead> <tr> <th toolTexto="buyer.name">Comprador</th> <th toolTexto="contracts[n].title">Título del Contrato</th> <th toolTexto="contracts[n].value.amount">Monto del contrato</th> </tr></thead> <tbody> <tr><td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato" >1,200.00 <span class="textoColorPrimario">HNL</span></td></tr><tr> <td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td></tr></tbody> </table></div>'
                         )
                     ));
                     $(e.currentTarget).addClass('abierta');
@@ -415,7 +415,7 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     var elementos=[];
     for(var i=0;i<parte.length;i++){
       elementos.push(
-        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+parte[i].id})):(parte[i].roles.includes('supplier')?(
+        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(parte[i].name)})):(parte[i].roles.includes('supplier')?(
           $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
         ):(
           $('<span>',{text:parte[i].name})

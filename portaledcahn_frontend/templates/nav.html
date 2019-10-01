@@ -16,10 +16,10 @@
             <a class="nav-link transicion"  href="/visualizaciones">Visualizaciones</a>
          </li>
          <li class="nav-item {% if '/proveedores' in request.path %}active{% endif %}">
-            <a class="nav-link transicion"  href="/proveedores?pagina=1&paginarPor=5">Proveedores</a>
+            <a class="nav-link transicion"  href="/proveedores/?pagina=1&paginarPor=5">Proveedores</a>
          </li>
          <li class="nav-item {% if '/compradores' in request.path %}active{% endif %}">
-            <a class="nav-link transicion"  href="/compradores">Compradores</a>
+            <a class="nav-link transicion"  href="/compradores/?pagina=1&paginarPor=5&dependencias=0">Compradores</a>
          </li>
          <li class="nav-item {% if '/servicio' in request.path %}active{% endif %}">
             <a class="nav-link transicion"  href="/servicio">API</a>
