@@ -121,7 +121,7 @@ def Procesos_Proveedor(request):
     return render(request,'procesos_proveedor/procesos_proveedor.html')
 
 def Proveedor(request,id=''):
-    return render(request,'proveedor/proveedor.html',{'id':id})
+    return render(request,'proveedor/proveedor.html',{'id':id.replace('"','')})
 
 def Proveedores(request):
     parametros = {

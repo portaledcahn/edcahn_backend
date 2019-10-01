@@ -286,242 +286,9 @@ function MostrarListaElasticaAplicados(){
   });
 }
 
-function AgregarResultado(datos){
-  $('#listaResultadosBusqueda').append(
-    $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal'}).append(
-      $('<div>',{class:'p-1'}).append(
-        $('<div>',{class:'textoTituloResultadoBusqueda'}).append(
-          $('<div>',{class:'row'}).append(
-            $('<div>',{class:'col-12 col-sm-8 col-md-8 col-lg-9'}).append(
-              $('<a>',{class:'enlaceTablaGeneral',text:ReducirTexto(datos.title,140),href:
-              datos.type=='contrato'?('/proceso/'+datos.ocid+'?contrato='+datos.contractId):datos.type=='proceso'?('/proceso/'+datos.ocid):datos.type=='pago'?('/proceso/'+datos.ocid+'?contrato='+datos.contractId):''
-              }).append()
-            ),
-            $('<div>',{class:'col-12 col-sm-4 col-md-4 col-lg-3'}).append(
-              $('<div>',{class:'textoAlineadoDerecha'}).append(
-                $('<span>',{class:'textoColorGris textoAlineadoDerecha toolTip enLinea',toolTexto:
-                datos.type=='contrato'?('Fecha de Inicio del Contrato'):datos.type=='proceso'?('Fecha de Recepción de Ofertas'):datos.type=='pago'?('Última Fecha de Pago'):''
-                ,text:datos.date}).append(
-                )
-              )
-            )
-          )
-        )
-      ),
-      $('<div>',{class:'contenedorProceso'}).append(
-        $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-          $('<table>',{class:''}).append(
-            $('<tbody>',{class:''}).append(
-              datos.ocid?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proceso (OCID):',toolTexto:'ocid'}).append(),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                  $('<a>',{class:'enlaceTablaGeneral',text:datos.ocid,href:'/proceso/'+datos.ocid})
-                )
-              ):null,
-              datos.buyerId?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Comprador:',toolTexto:'buyer.name'}).append(),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                  $('<a>',{class:'enlaceTablaGeneral',text:datos.buyerName,href:'/comprador/'+datos.buyerId})
-                )
-              ):null,
-              datos.status?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Estado:'}),
-                $('<td>',{class:'contenidoTablaCaracteristicas',text:datos.status})
-              ):null,
-              datos.supplierId?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Proveedor:',toolTexto:'contracts[n].suppliers[n].name'}).append(),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                  $('<a>',{class:'enlaceTablaGeneral',text:datos.supplierName,href:'/proveedor/'+datos.supplierId})
-                )
-              ):null,
-              datos.dateSigned?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Firma:',toolTexto:'contracts[n].dateSigned'}),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                  $('<span>',{toolTexto:'Fecha en que fue firmado el contrato por todas las partes',text:ObtenerFecha(datos.dateSigned)})
-                )
-              ):null
-              ,
-              datos.compromiseAmount?$('<tr>',{class:''}).append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Comprometido:'}),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                  ValorMoneda(datos.compromiseAmount),
-                  '&nbsp;',
-                  $('<span>',{class:'textoColorPrimario',text:datos.compromiseCurrency})
-                )
-              ):null
-              
-            )
-          )
-        ),
-        datos.valueAmount!=undefined&&datos.valueAmount!=null?
-        $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-          $('<table>',{class:'anchoTotal'}).append(
-            $('<tbody>',{class:''}).append(
-              $('<tr>',{class:''}).append(
-                $('<td>',{class:'textoAlineadoDerecha'}).append(
-                  $('<div>',{class:'montoTotalProceso'}).append(
-                    $('<div>',{class:'contenedorMonto'}).append(
-                      $('<div>',{class:'textoColorGris',text:datos.type=='contrato'?'Monto del Contrato':datos.type=='proceso'?'Monto Estimado':datos.type=='pago'?'Monto Pagado':''}),
-                      $('<div>',{class:'valorMonto'}).append(
-                        ValorMoneda(datos.valueAmount),
-                        $('<span>',{class:'textoColorPrimario',text:datos.valueCurrency})
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-        :null
-        
-      )
-    )
-  );
-}
 
-var arregloProcesos=[
-  {
-    title:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    type:'proceso',
-    ocid:'ocdi-1949-466226-1212',
-    date:'2018-08-08',
-    status:'Adjudicado',
-    buyerId:'m3l2n43lb',
-    buyerName:'Secretaria de XYZ',
-    valueAmount:'541541',
-    valueCurrency:'HNL'
-  },
-  {
-    title:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    type:'proceso',
-    ocid:'ocdi-1949-466226-1212',
-    date:'2018-08-08',
-    status:'Adjudicado',
-    buyerId:'m3l2n43lb',
-    buyerName:'Secretaria de XYZ',
-    valueAmount:'541541',
-    valueCurrency:'HNL'
-  },
-  {
-    title:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    type:'proceso',
-    ocid:'ocdi-1949-466226-1212',
-    date:'2018-08-08',
-    status:'Adjudicado',
-    buyerId:'m3l2n43lb',
-    buyerName:'Secretaria de XYZ',
-    valueAmount:'541541',
-    valueCurrency:'HNL'
-  }
-]
-var arregloPagos=[
-  {
-    title:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    type:'pago',
-    ocid:'ocdi-1949-466226-1212',
-    date:'2018-08-08',
-    dateSigned:'2019-08-08',
-    contractId:'C-2018-963-6',
-    status:'XYZ',
-    buyerId:'m3l2n43lb',
-    buyerName:'Secretaria de XYZ',
-    supplierId:'F323jd',
-    supplierName:'Sistemas SA',
-    valueAmount:'541541',
-    valueCurrency:'HNL',
-    compromiseAmount:'61671',
-    compromiseCurrency:'HNL'
-  },
-  {
-    title:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    type:'pago',
-    ocid:'ocdi-1949-466226-1212',
-    date:'2018-08-08',
-    dateSigned:'2019-08-08',
-    contractId:'C-2018-963-6',
-    status:'XYZ',
-    buyerId:'m3l2n43lb',
-    buyerName:'Secretaria de XYZ',
-    supplierId:'F323jd',
-    supplierName:'Sistemas SA',
-    valueAmount:'541541',
-    valueCurrency:'HNL',
-    compromiseAmount:'61671',
-    compromiseCurrency:'HNL'
-  },
-  {
-    title:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    type:'pago',
-    ocid:'ocdi-1949-466226-1212',
-    date:'2018-08-08',
-    dateSigned:'2019-08-08',
-    contractId:'C-2018-963-6',
-    status:'XYZ',
-    buyerId:'m3l2n43lb',
-    buyerName:'Secretaria de XYZ',
-    supplierId:'F323jd',
-    supplierName:'Sistemas SA',
-    valueAmount:'541541',
-    valueCurrency:'HNL',
-    compromiseAmount:'61671',
-    compromiseCurrency:'HNL'
-  }
-]
 
-var arregloContratos=[
-  {
-    title:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    type:'contrato',
-    ocid:'ocdi-1949-466226-1212',
-    date:'2018-08-08',
-    dateSigned:'2019-08-08',
-    contractId:'C-2018-963-6',
-    status:'Firmado',
-    buyerId:'m3l2n43lb',
-    buyerName:'Secretaria de XYZ',
-    supplierId:'F323jd',
-    supplierName:'Sistemas SA',
-    valueAmount:'541541',
-    valueCurrency:'HNL',
-    compromiseAmount:'61671',
-    compromiseCurrency:'HNL'
-  },
-  {
-    title:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    type:'contrato',
-    ocid:'ocdi-1949-466226-1212',
-    date:'2018-08-08',
-    dateSigned:'2019-08-08',
-    contractId:'C-2018-963-6',
-    status:'Firmado',
-    buyerId:'m3l2n43lb',
-    buyerName:'Secretaria de XYZ',
-    supplierId:'F323jd',
-    supplierName:'Sistemas SA',
-    valueAmount:'541541',
-    valueCurrency:'HNL',
-    compromiseAmount:'61671',
-    compromiseCurrency:'HNL'
-  },
-  {
-    title:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    type:'contrato',
-    ocid:'ocdi-1949-466226-1212',
-    date:'2018-08-08',
-    dateSigned:'2019-08-08',
-    contractId:'C-2018-963-6',
-    status:'Firmado',
-    buyerId:'m3l2n43lb',
-    buyerName:'Secretaria de XYZ',
-    supplierId:'F323jd',
-    supplierName:'Sistemas SA',
-    valueAmount:'541541',
-    valueCurrency:'HNL',
-    compromiseAmount:'61671',
-    compromiseCurrency:'HNL'
-  }
-]
+
 
 function AgregarResultadoProceso(datos){
   $('#listaResultadosBusqueda').append(
@@ -607,7 +374,47 @@ function AgregarResultadoProceso(datos){
             )
           )
         )
-        :null
+        :datos.contracts&&datos.contracts.length&&TotalContratos(datos).length?
+        
+        $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+          $('<table>',{class:'anchoTotal'}).append(
+            $('<tbody>',{class:''}).append(
+              $('<tr>',{class:''}).append(
+                $('<td>',{class:'textoAlineadoDerecha'}).append(
+                  $('<div>',{class:'montoTotalProceso'}).append(
+                    $('<div>',{class:'contenedorMonto'}).append(
+                      $('<div>',{class:'textoColorGris',text:'Monto Estimado'}),
+                      MostrarTotalContratos(TotalContratos(datos))/*
+                      $('<div>',{class:'valorMonto'}).append(
+                        ValorMoneda(datos.tender.value.amount),
+                        $('<span>',{class:'textoColorPrimario',text:datos.tender.value.currency})
+                      )*/
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ):
+        $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+          $('<table>',{class:'anchoTotal'}).append(
+            $('<tbody>',{class:''}).append(
+              $('<tr>',{class:''}).append(
+                $('<td>',{class:'textoAlineadoDerecha'}).append(
+                  $('<div>',{class:'montoTotalProceso'}).append(
+                    $('<div>',{class:'contenedorMonto'}).append(
+                      $('<div>',{class:'textoColorGris',text:'Monto Estimado'}),
+                      $('<div>',{class:'valorMonto'}).append(
+                        $('<span>',{class:'textoColorGris',text:'No Disponible'}),
+                        $('<span>',{class:'textoColorPrimario',text:''})
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )//null
         
       )
     )
@@ -633,6 +440,7 @@ function ObtenerEstadoProceso(datos){
 
 function AgregarResultadoContrato(datos){
   var contrato=datos.contracts[0];
+  console.dir(contrato);
   $('#listaResultadosBusqueda').append(
     $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal'}).append(
       $('<div>',{class:'p-1'}).append(
@@ -719,7 +527,10 @@ function AgregarResultadoContrato(datos){
 
 
 function AgregarResultadoPago(datos){
+  console.dir('resultados de pago')
+  console.dir(TotalTransacciones(datos))
   $('#listaResultadosBusqueda').append(
+
     $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal'}).append(
       $('<div>',{class:'p-1'}).append(
         $('<div>',{class:'textoTituloResultadoBusqueda'}).append(
@@ -755,6 +566,13 @@ function AgregarResultadoPago(datos){
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
                   ObtenerElementosParte(datos.buyer.id,datos)
                 )
+              ):null,
+              TotalContratos(datos)&&TotalContratos(datos).length?$('<tr>',{class:''}).append(
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'Comprometido:',toolTexto:'buyer.name'}).append(),
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
+
+                  TotalContratos(datos)&&TotalContratos(datos).length?MostrarTotalComprometido(TotalContratos(datos)):$('<span>',{class:'textoColorGris',text:'No Disponible'})
+                )
               ):null
               /*datos.status?$('<tr>',{class:''}).append(
                 $('<td>',{class:'tituloTablaCaracteristicas',text:'Estado:'}),
@@ -778,7 +596,7 @@ function AgregarResultadoPago(datos){
             )
           )
         ),
-        (ObtenerTransacciones(datos))?
+        /*(ObtenerTransacciones(datos))*/datos.contracts&&datos.contracts.length&&TotalTransacciones(datos).length?
         $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
           $('<table>',{class:'anchoTotal'}).append(
             $('<tbody>',{class:''}).append(
@@ -787,13 +605,14 @@ function AgregarResultadoPago(datos){
                   $('<div>',{class:'montoTotalProceso'}).append(
                     $('<div>',{class:'contenedorMonto'}).append(
                       $('<div>',{class:'textoColorGris',text:'Monto Pagado'}),
-                      $('<div>',{class:'valorMonto'}).append(
+                      MostrarTotalContratos(TotalTransacciones(datos))
+                      /*$('<div>',{class:'valorMonto'}).append(
                         $('<span>').append(
                           ValorMoneda(TotalTransacciones(ObtenerTransacciones(datos)).amount)
                         )
                         ,
                         $('<span>',{class:'textoColorPrimario',text:TotalTransacciones(ObtenerTransacciones(datos)).currency})
-                      )
+                      )*/
                     )
                   )
                 )
@@ -801,7 +620,25 @@ function AgregarResultadoPago(datos){
             )
           )
         )
-        :null
+        :$('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+          $('<table>',{class:'anchoTotal'}).append(
+            $('<tbody>',{class:''}).append(
+              $('<tr>',{class:''}).append(
+                $('<td>',{class:'textoAlineadoDerecha'}).append(
+                  $('<div>',{class:'montoTotalProceso'}).append(
+                    $('<div>',{class:'contenedorMonto'}).append(
+                      $('<div>',{class:'textoColorGris',text:'Monto Pagado'}),
+                      $('<div>',{class:'valorMonto'}).append(
+                        $('<span>',{class:'textoColorGris',text:'No Disponible'}),
+                        $('<span>',{class:'textoColorPrimario',text:''})
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )//null
         
       )
     )
@@ -822,6 +659,87 @@ function ObtenerTransacciones(datos){
   });
   return transacciones;
 }
+
+function TotalContratos(datos){
+var contratos=[];
+var Montos={};
+if(datos.contracts){
+  for(var i =0; i<datos.contracts.length;i++){
+    if(datos.contracts[i].value&&Validar(datos.contracts[i].value.amount)){
+      if(!Validar(datos.contracts[i].value.currency)){
+        datos.contracts[i].value['currency']=defaultMoneda;
+      }
+      if(Validar(Montos[datos.contracts[i].value.currency])){
+        Montos[datos.contracts[i].value.currency]+=ObtenerNumero(datos.contracts[i].value.amount);
+      }else{
+        Montos[datos.contracts[i].value.currency]=ObtenerNumero(datos.contracts[i].value.amount);
+      }
+    }
+  }
+  $.each(Montos,function(moneda,valor){
+    contratos.push(
+      {currency:moneda,amount:valor}
+    );
+  });
+  }
+  return contratos;
+}
+function TotalTransacciones(datos){
+  var contratos=[];
+  var Montos={};
+  console.dir('entre a transacciones')
+  if(datos.contracts){
+    for(var i =0; i<datos.contracts.length;i++){
+      if(datos.contracts[i].implementation&&datos.contracts[i].implementation.transactions&&datos.contracts[i].implementation.transactions.length){
+        datos.contracts[i].implementation.transactions.forEach(function (transaccion) {
+          if(transaccion.value&&Validar(transaccion.value.amount)){
+            if(!Validar(datos.contracts[i].value.currency)){
+              transaccion.value['currency']=defaultMoneda;
+            }
+            if(Validar(Montos[transaccion.value.currency])){
+              Montos[transaccion.value.currency]+=ObtenerNumero(transaccion.value.amount);
+            }else{
+              Montos[transaccion.value.currency]=ObtenerNumero(transaccion.value.amount);
+            }
+          }
+          
+        });
+      }
+    }
+    $.each(Montos,function(moneda,valor){
+      contratos.push(
+        {currency:moneda,amount:valor}
+      );
+    });
+    }
+    console.dir(contratos)
+    return contratos;
+  }
+function MostrarTotalContratos(datos){
+  var elementos=[]
+  for(var i=0;i<datos.length;i++){
+    elementos.push(
+      $('<div>',{class:'valorMonto'}).append(
+        ValorMoneda(datos[i].amount),
+        $('<span>',{class:'textoColorPrimario',text:datos[i].currency})
+      )
+    );
+  }
+  return elementos;
+}
+function MostrarTotalComprometido(datos){
+  var elementos=[]
+  for(var i=0;i<datos.length;i++){
+    elementos.push(
+      $('<div>',{class:''}).append(
+        ValorMoneda(datos[i].amount),
+        $('<span>',{class:'textoColorPrimario',text:datos[i].currency})
+      )
+    );
+  }
+  return elementos;
+}
+/*
 function TotalTransacciones(transacciones){
   var value={amount:0,currency:'HNL'};
   for(var i =0; i < transacciones.length; i++){
@@ -829,7 +747,7 @@ function TotalTransacciones(transacciones){
     value.currency=transacciones[i].value&&transacciones[i].value.currency?transacciones[i].value.currency:'HNL';
   }
   return value;
-}
+}*/
 
 function MostrarListaElastica(datos,selector){
   $(selector).html('');
@@ -904,3 +822,4 @@ function AgregarPropiedadesListaElastica(valor,llave){
   });
   return elementos;
 }
+

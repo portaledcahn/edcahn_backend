@@ -81,7 +81,10 @@ function InicializarCantidadProcesos(){
                     color: '#6569CC'
                 }
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -174,7 +177,10 @@ function InicializarMontoProcesos(){
                 }
             
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -292,7 +298,10 @@ function CantidadProcesosEtapas(){
                     color: '#FECB7E'
                 }
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -367,7 +376,10 @@ function CantidadProcesosEtapas(){
                     color: '#F89A67'
                 }
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -473,7 +485,15 @@ function TiempoPromedioEtapas(){
                     color: '#DA527A'
                 }
             }
-        ]
+        ],
+        label:{
+            show:true,
+            fontFamily:'Poppins',
+            fontWeight:700,
+            fontSize:25,
+            align:'right',
+            formatter: '{c} Días'
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -524,7 +544,10 @@ function CantidadProcesosCategoriaCompra(){
                     }
                 }
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -578,7 +601,10 @@ function MontoProcesosCategoriaCompra(){
                     }
                 }
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -627,9 +653,16 @@ function CantidadProcesosMetodoContratacion(){
                         shadowOffsetX: 0,
                         shadowColor: 'rgba(0, 0, 0, 0.5)'
                     }
-                }
+                },
+                grid:{
+                    containLabel:true
+                },
+                formatter: '{c}'
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -679,9 +712,14 @@ function MontoProcesosMetodoContratacion(){
                         shadowOffsetX: 0,
                         shadowColor: 'rgba(0, 0, 0, 0.5)'
                     }
+                },grid:{
+                    containLabel:true
                 }
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -817,9 +855,21 @@ function Top10Compradores(){
                         show: true,
                         position: 'insideRight'
                     }
-                }
+                },
+                barWidth:30,
+                barCategoryGap:'20%',
+                barGap:'50%'
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        },
+        label:{
+            show:true,
+            fontFamily:'Poppins',
+            fontWeight:700,
+            fontSize:15
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -833,7 +883,7 @@ function Top10Compradores(){
 
 function Top10Proveedores(){
     //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('top10Compradores'));
+    var grafico=echarts.init(document.getElementById('top10Proveedores'));
     var opciones = {
         tooltip: {
             trigger: 'axis',
@@ -905,9 +955,39 @@ function Top10Proveedores(){
                         show: true,
                         position: 'insideRight'
                     }
+                },
+                barWidth:30,
+                barCategoryGap:'20%',
+                barGap:'50%'
+            },
+            {
+                name:'Cantidad de Procesos en Promedio',
+                type:'line',
+                //yAxisIndex: 1,
+                data:[9000,90444,59000,82000,54248,63734,79214,72792,3351,87934],
+                symbol: 'circle',
+                symbolSize: 10,
+                lineStyle: {
+                    normal: {
+                        color: '#6569CC',
+                        width: 4/*,
+                        type: 'dashed'*/
+                    }
+                },
+                itemStyle:{
+                    color: '#6569CC'
                 }
             }
-        ]
+        ],
+        grid:{
+            containLabel:true
+        },
+        label:{
+            show:true,
+            fontFamily:'Poppins',
+            fontWeight:700,
+            fontSize:15
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -1017,82 +1097,130 @@ function SegregacionMontosContratos(){
             type: 'treemap',
             data: [
             {
-                name: 'Empresa Hondureña de Telecomunicaciones',            // First tree
-                value: 40406,
-                children: [{
-                    name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                    value: 4
-                },{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
-                },{
-                    name: '26110-Pasajes Nacionales',       // Son of first tree
-                    value: 20
-                }]
+            name:'Obras',
+            value:181827,
+            children: [
+                {
+                    name: 'Empresa Hondureña de Telecomunicaciones',            // First tree
+                    value: 40406,
+                    children: [{
+                        name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
+                        value: 4
+                    },{
+                        name: 'Energía Eléctrica',       // Son of first tree
+                        value: 20,
+                    },{
+                        name: 'Pasajes Nacionales',       // Son of first tree
+                        value: 20
+                    }]
+                },
+                {
+                    name: 'Secretaría de Defensa Nacional',            // Second tree
+                    value: 60609,
+                    children: [{
+                        name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
+                        value: 4
+                    },{
+                        name: 'Energía Eléctrica',       // Son of first tree
+                        value: 20,
+                    },{
+                        name: 'Pasajes Nacionales',       // Son of first tree
+                        value: 20
+                    }]
+                }, 
+                {
+                    name: 'Secretaria de Salud Pública',            // Second tree
+                    value: 80812,
+                    children: [{
+                        name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
+                        value: 4
+                    },{
+                        name: 'Energía Eléctrica',       // Son of first tree
+                        value: 20,
+                    },{
+                        name: 'Pasajes Nacionales',       // Son of first tree
+                        value: 20
+                    }]
+                }
+            ],
+            itemStyle: {
+                color: '#FECB7E'/*function(e){
+                    var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                    return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
+                }*/
+            }
             },
             {
-                name: 'Secretaría de Defensa Nacional',            // Second tree
-                value: 60609,
-                children: [{
-                    name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                    value: 4
-                },{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
-                },{
-                    name: '26110-Pasajes Nacionales',       // Son of first tree
-                    value: 20
-                }]
-            }, 
+            name:'Bienes',
+            value:90912,
+            children:[
+                {
+                    name: 'Instituto Hondureño de Seguridad Social',            // Second tree
+                    value: 90912,
+                    children: [{
+                        name: 'Energía Eléctrica',       // Son of first tree
+                        value: 20,
+                        children: [{
+                            name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
+                            value: 4
+                        },{
+                            name: 'Energía Eléctrica',       // Son of first tree
+                            value: 20,
+                        },{
+                            name: 'Pasajes Nacionales',       // Son of first tree
+                            value: 20
+                        }]
+                    }]
+                }
+            ],
+            itemStyle: {
+                color: '#DA517A'/*function(e){
+                    var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                    return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
+                }*/
+            }
+            },
             {
-                name: 'Secretaria de Salud Pública',            // Second tree
-                value: 80812,
-                children: [{
-                    name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                    value: 4
-                },{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
-                },{
-                    name: '26110-Pasajes Nacionales',       // Son of first tree
-                    value: 20
-                }]
-            }, {
-                name: 'Instituto Hondureño de Seguridad Social',            // Second tree
-                value: 90912,
-                children: [{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
+            name:'Servicios',
+            value:181825,
+            children:[
+                {
+                    name: 'Empresa Nacional de Energía Eléctrica',            // Second tree
+                    value: 181825,
                     children: [{
-                        name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                        value: 4
-                    },{
-                        name: '21100-Energía Eléctrica',       // Son of first tree
+                        name: 'Energía Eléctrica',       // Son of first tree
                         value: 20,
-                    },{
-                        name: '26110-Pasajes Nacionales',       // Son of first tree
-                        value: 20
+                        children: [{
+                            name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
+                            value: 4
+                        },{
+                            name: 'Energía Eléctrica',       // Son of first tree
+                            value: 20,
+                        },{
+                            name: 'Pasajes Nacionales',       // Son of first tree
+                            value: 20
+                        }]
                     }]
-                }]
-            }, {
-                name: 'Empresa Nacional de Energía Eléctrica',            // Second tree
-                value: 181825,
-                children: [{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
-                    children: [{
-                        name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                        value: 4
-                    },{
-                        name: '21100-Energía Eléctrica',       // Son of first tree
-                        value: 20,
-                    },{
-                        name: '26110-Pasajes Nacionales',       // Son of first tree
-                        value: 20
-                    }]
-                }]
-            }]
-        }]
+                }
+            ],
+            itemStyle: {
+                color: '#57C5CB'}
+             
+            }
+        ]
+        }],
+        grid:{
+            containLabel:true
+        },
+        fontFamily:'Poppins',
+        fontWeight:700,
+        fontSize:15,
+        label:{
+            show:true,
+            fontFamily:'Poppins',
+            fontWeight:700,
+            fontSize:15
+        }
     };
     
     grafico.setOption(opciones, true);
@@ -1115,6 +1243,7 @@ $(function(){
     Top10Proveedores();
     Top10Compradores();
     SegregacionMontosContratos();
+    InicializarConteo()
     view = new ElasticList({
         el: $("#elastic-list"),
         data: dataElastic,
@@ -1141,3 +1270,19 @@ $(function(){
             } ]
     });
 })
+function InicializarConteo(){
+    $('.conteo.moneda').countTo({
+        formatter: function (value, options) {
+          value = value.toFixed(2/*options.decimals*/);
+          value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          return value;
+      }
+      });
+      $('.conteo').not('.moneda').countTo({
+        formatter: function (value, options) {
+            value = value.toFixed(options.decimals);
+            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return value;
+        }
+      });
+}

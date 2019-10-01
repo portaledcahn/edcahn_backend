@@ -6,6 +6,7 @@ var estadosContrato={
     'cancelled':{titulo:'Cancelado',descripcion:'Este contrato se canceló antes de ser firmado.'},
     'unsuccessful':{titulo:'Sin Éxito',descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'}
    };
+var defaultMoneda='HNL';
 function TextoURL(texto){
     return encodeURIComponent(texto);
 }
@@ -21,6 +22,7 @@ function DebugFecha(){
     let fecha=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()+':'+d.getMilliseconds();
     console.dir(fecha);
 }
+
 function VerificarIntroduccion(variable,veces){
     var introduccion=ObtenerCookie(variable);
     if(introduccion===null){
@@ -95,6 +97,10 @@ function ObtenerTexto(texto){
     }else{
         return '';
     }
+}
+
+function VerificarCadenaRTN(texto){
+    return /^HN-RTN-\d{14}$/.test(ObtenerTexto(texto));
 }
 function ReducirTexto(texto,maximo){
     texto=ObtenerTexto(texto);

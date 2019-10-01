@@ -212,7 +212,7 @@ function ObtenerTransacciones(transacciones){
             $('<tbody>').append(
               transacciones[i].date ?
               $('<tr>').append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Criterio de adjudicación',toolTexto:"contracts[n].transactions["+i+"].date"}),
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha',toolTexto:"contracts[n].transactions["+i+"].date"}),
                 $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(transacciones[i].date)})
               ) : null,
               (transacciones[i].payer&&transacciones[i].payer.name) ?

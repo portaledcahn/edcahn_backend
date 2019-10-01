@@ -29,9 +29,17 @@ function InicializarCantidadPagos(){
                 data: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
                 axisPointer: {
                     type: 'shadow'
+                },
+                axisLabel:{
+                    interval:0,
+                    rotate:45,
+                    showMinLabel:false
                 }
             }
         ],
+        grid:{
+            containLabel:true
+        },
         yAxis: [
             {
                 type: 'value',
@@ -40,7 +48,7 @@ function InicializarCantidadPagos(){
                 max: 250,
                 interval: 50,
                 axisLabel: {
-                    formatter: '{value} HNL'
+                    formatter: '{value}'
                 }
             }/*,
             {
@@ -105,6 +113,9 @@ function InicializarMontoPagos(){
                 }
             }
         },
+        grid:{
+            containLabel:true
+        },
         toolbox: {
             feature: {
                 dataView: {show: true, readOnly: false,title:'Vista'},
@@ -122,6 +133,11 @@ function InicializarMontoPagos(){
                 data: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
                 axisPointer: {
                     type: 'shadow'
+                },
+                axisLabel:{
+                    interval:0,
+                    rotate:45,
+                    showMinLabel:false
                 }
             }
         ],
@@ -134,7 +150,8 @@ function InicializarMontoPagos(){
                 interval: 50,
                 axisLabel: {
                     formatter: '{value} HNL'
-                }
+                },
+                name:'Miles de Lempiras'
             }/*,
             {
                 type: 'value',
@@ -240,9 +257,17 @@ function CantidadPagosEtapas(){
                 data: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
                 axisPointer: {
                     type: 'shadow'
+                },
+                axisLabel:{
+                    interval:0,
+                    rotate:45,
+                    showMinLabel:false
                 }
             }
         ],
+        grid:{
+            containLabel:true
+        },
         yAxis: [
             {
                 type: 'value',
@@ -357,9 +382,17 @@ function CantidadPagosEtapas(){
                 data: ['Precompromiso','Compromiso','Devengado','Transacciones'],
                 axisPointer: {
                     type: 'shadow'
+                },
+                axisLabel:{
+                    interval:0,
+                    rotate:45,
+                    showMinLabel:false
                 }
             }
         ],
+        grid:{
+            containLabel:true
+        },
         yAxis: [
             {
                 type: 'value',
@@ -414,6 +447,9 @@ function MontoPagosEtapas(){
                 }
             }
         },
+        grid: {
+            containLabel: true
+        },
         toolbox: {
             feature: {
                 dataView: {show: true, readOnly: false,title:'Vista'},
@@ -431,6 +467,11 @@ function MontoPagosEtapas(){
                 data: ['Precompromiso','Compromiso','Devengado','Transacciones'],
                 axisPointer: {
                     type: 'shadow'
+                },
+                axisLabel:{
+                    interval:0,
+                    rotate:45,
+                    showMinLabel:false
                 }
             }
         ],
@@ -571,7 +612,15 @@ function TiempoPromedioEtapas(){
                     color: '#DA527A'
                 }
             }
-        ]
+        ],
+        label:{
+            show:true,
+            fontFamily:'Poppins',
+            fontWeight:700,
+            fontSize:25,
+            align:'right',
+            formatter: '{c} Días'
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -614,6 +663,9 @@ function Top10Compradores(){
                 }
             }
         ],
+        grid:{
+            containLabel:true
+        },
         yAxis: [
             {
                 
@@ -622,6 +674,14 @@ function Top10Compradores(){
             ,'Instituto Hondureño de Seguridad Social','Consejo Nacional Supervisor de Cooperativas','Instituto Nacional de Previsión del Magisterio','Secretaría de Desarrollo Económico','Direccion de la Marina Mercante','Fondo Hondureño de Inversión Social'],
                 axisPointer: {
                     type: 'shadow'
+                },
+                align: 'right',
+                width:'50%',
+                padding:5,
+                rich: {
+                    a: {
+                        // `align` is not set, then it will be right
+                    }
                 }
                 
                 /*,
@@ -657,9 +717,18 @@ function Top10Compradores(){
                         show: true,
                         position: 'insideRight'
                     }
-                }
+                },
+                barWidth:30,
+                barCategoryGap:'20%',
+                barGap:'50%'
             }
-        ]
+        ],
+        label:{
+            show:true,
+            fontFamily:'Poppins',
+            fontWeight:700,
+            fontSize:15
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -750,7 +819,13 @@ function Top10Proveedores(){
                     color: '#FFCA7E'
                 }
             }
-        ]
+        ],
+        label:{
+            show:true,
+            fontFamily:'Poppins',
+            fontWeight:700,
+            fontSize:15
+        }
     };
     grafico.setOption(opciones, true);
 
@@ -779,7 +854,10 @@ function SegregacionMontosContratos(){
                 },{
                     name: '26110-Pasajes Nacionales',       // Son of first tree
                     value: 20
-                }]
+                }],
+                itemStyle:{
+                    color:'#6569CC'
+                }
             },
             {
                 name: 'Secretaría de Defensa Nacional',            // Second tree
@@ -793,7 +871,13 @@ function SegregacionMontosContratos(){
                 },{
                     name: '26110-Pasajes Nacionales',       // Son of first tree
                     value: 20
-                }]
+                }],
+                itemStyle: {
+                    color: '#F79A6A'/*function(e){
+                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                        return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
+                    }*/
+                }
             }, 
             {
                 name: 'Secretaria de Salud Pública',            // Second tree
@@ -807,7 +891,13 @@ function SegregacionMontosContratos(){
                 },{
                     name: '26110-Pasajes Nacionales',       // Son of first tree
                     value: 20
-                }]
+                }],
+                itemStyle: {
+                    color: '#FECB7E'/*function(e){
+                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                        return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
+                    }*/
+                }
             }, {
                 name: 'Instituto Hondureño de Seguridad Social',            // Second tree
                 value: 90912,
@@ -824,7 +914,13 @@ function SegregacionMontosContratos(){
                         name: '26110-Pasajes Nacionales',       // Son of first tree
                         value: 20
                     }]
-                }]
+                }],
+                itemStyle: {
+                    color: '#DA517A'/*function(e){
+                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                        return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
+                    }*/
+                }
             }, {
                 name: 'Empresa Nacional de Energía Eléctrica',            // Second tree
                 value: 181825,
@@ -841,9 +937,31 @@ function SegregacionMontosContratos(){
                         name: '26110-Pasajes Nacionales',       // Son of first tree
                         value: 20
                     }]
-                }]
-            }]
-        }]
+                }],
+                itemStyle: {
+                    color: '#57C5CB'/*function(e){
+                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                        return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
+                    }*/
+                }
+            }],
+            label:{
+                show:true,
+                fontFamily:'Poppins',
+                fontWeight:700,
+                fontSize:15
+            }
+            
+        }],
+        fontFamily:'Poppins',
+        fontWeight:700,
+        fontSize:15,
+        label:{
+            show:true,
+            fontFamily:'Poppins',
+            fontWeight:700,
+            fontSize:15
+        }
     };
     
     grafico.setOption(opciones, true);
@@ -854,6 +972,13 @@ function SegregacionMontosContratos(){
     });
 }
 $(function(){
+    $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
+        if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
+          $('.contenedorFiltrosBusqueda').removeClass('cerrado');
+        }else{
+          $('.contenedorFiltrosBusqueda').addClass('cerrado');
+        }
+      });
     InicializarCantidadPagos();
     InicializarMontoPagos();
     CantidadPagosEtapas()
@@ -862,6 +987,7 @@ $(function(){
     Top10Proveedores();
     Top10Compradores();
     SegregacionMontosContratos();
+    InicializarConteo();
     view = new ElasticList({
         el: $("#elastic-list"),
         data: dataElastic,
@@ -869,13 +995,13 @@ $(function(){
         onchange: function (filters) {
         },
         columns: [
-            {
+           /* {
               title: "Selección",
                 attr: "selection"
             },{
                 title: "Categoría",
                 attr: "category"
-            },
+            },*/
             {
                 title: "Institución",
                 attr: "name"
@@ -885,6 +1011,32 @@ $(function(){
             },{
               title: "Moneda",
                 attr: "coin"
-            } ]
+            },{
+                title: "Objeto de Gasto",
+                attr: "name"
+            }, {
+                title: "Fuente de Financiamiento",
+                attr: "name"
+            }, {
+                title: "Proveedor",
+                attr: "name"
+            }  ]
     });
 })
+
+function InicializarConteo(){
+    $('.conteo.moneda').countTo({
+        formatter: function (value, options) {
+          value = value.toFixed(2/*options.decimals*/);
+          value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          return value;
+      }
+      });
+      $('.conteo').not('.moneda').countTo({
+        formatter: function (value, options) {
+            value = value.toFixed(options.decimals);
+            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return value;
+        }
+      });
+}

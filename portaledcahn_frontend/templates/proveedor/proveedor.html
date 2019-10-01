@@ -10,88 +10,20 @@
 {% endblock %}
 {% block container %}
 
-<div class="container-fluid" style="max-width: 1600px">
-   <div class="row mt-5">
-      <div class="col-md-12">
-         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso"  tooltexto="parties[n].name" >Proveedor "CAMIONES Y MOTORES S.A. (CAMOSA)"</h1>
+<div class="container-fluid tamanoMinimo" style="max-width: 1600px">
+   <input type="hidden" value="{{id}}" id="proveedorId">
+   <div class="contenedorInformacion">
+   </div>
+   <div class="row" style="display:none" id="noEncontrado">
+      <div class="col-md-12 cajonSombreado fondoColorPrimario mt-5 fondoContrataciones" style="background-color: #3B53A4">
+      
+         <h1 class="titularColor textoColorBlanco p-5 m-5" style="font-size: 2rem">No se Econtró el Proveedor.</h1>
+        
       </div>
    </div>
-   <div class="row mt-5">
-      <h4 class="text-primary-edcax titularCajonSombreado col-md-6" >
-         Dirección del Proveedor
-      </h4>
-      <!--
-         <div class="col-md-6 textoAlineadoDerecha"><h4 ><span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano"><i class="fas fa-file-download"></i>&nbsp;.CSV</span></h4> </div>
-         -->
-   </div>
-   <div class="row ">
-      <div class="col-md-12">
-         <div class=" cajonSombreado contenedorDetalleProcesoDatos " data-step="1" data-intro="Puedes visualizar la dirección de un proveedor en esta sección, en caso de que este disponible.">
-            <div class="contenedorProceso informacionProceso">
-               <div class="contenedorTablaCaracteristicas" style="width:100%">
-                  <table>
-                     <tbody>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].id">Identificación:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              <span class="botonGeneral fondoColorPrimario">HN-RTN</span> <span>08019998389463</span>
-                           </td>
-                        </tr>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].address.streetAddress">Dirección:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              BOULEVARD COMUNIDAD ECONOMICA EUROPEA, DESVIO A LA COLONIA SAN JOSE DEL PEDREGAL 
-                              Distrito Central , Francisco Morazan , Honduras
-                              Tel: 2246-7875 , Fax: -  2246-7875 
-                           </td>
-                        </tr>
-                     </tbody>
-                  </table>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
-   <div class="row">
-      <div class="col-md-12 mt-2">
-         <h4 class="text-primary-edcax titularCajonSombreado">Datos de Contacto</h4>
-         <div class=" cajonSombreado mb-5" data-step="2" data-intro="Puedes visualizar los datos de contacto de un proveedor en esta sección, en caso de que este disponible.">
-            <div class="contenedorProceso informacionProceso">
-               <div class="contenedorTablaCaracteristicas">
-                  <table>
-                     <tbody>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas" toolTexto="parties[n].name">Nombre:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              JOSE EDUARDO ATALA ZABLAH 
-                           </td>
-                        </tr>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas" tooltexto="parties[n].contactPoint.telephone">Telefono:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              9999-9999
-                           </td>
-                        </tr>
-                        <tr>
-                           <td class="tituloTablaCaracteristicas"  tooltexto="parties[n].contactPoint.email" >Correo Electrónico:</td>
-                           <td class="contenidoTablaCaracteristicas"> 
-                              esteban146161@gmail.com
-                           </td>
-                        </tr>
-                     </tbody>
-                  </table>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
-   
-</div>
-
-<div class="container-fluid" style="max-width: 1600px">
-         
+   <div class="contenedorTablas" style="display: none">
       <div class="row">
-         <div class="col-md-12">
+         <div class="col-md-12 mt-5">
             <div class=" cajonSombreado  " data-step="3" data-intro="Puedes visualizar el historial de items que ha vendido al estado.">
                   <div class="row">
                         <div class="col-md-12 mt-1">
@@ -281,9 +213,7 @@
       </div>
          
       </div>
-   </div>
 
-   <div class="container-fluid" style="max-width: 1600px">
          
          <div class="row">
             <div class="col-md-12">
@@ -512,6 +442,7 @@
                            
                         </tr>
                      </thead>
+                     <!--
                      <tbody>
                         <tr>
                               <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
@@ -526,24 +457,20 @@
                            <td data-label="Fecha de Inicio del Contrato">2018-02-19 10:02:54</td>
                            <td data-label="Estado">Firmado</td>
                         </tr>
+                     </tbody>-->
+                     <tbody id="resultadosContratosProveedor">
+
                      </tbody>
                   </table>
                   <div class="row">
-                        <div class="col-md-6">
-                              <h5 class="tituloTablaGeneral textoColorPrimario mt-3 mb-0" >Mostrando 0 a 4 de 4 Contratos</h5>
+                           <div class="col-md-6">
+                              <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0" >Mostrando <span id="inicioResultadoContratosProveedor">0</span> a <span id="finResultadoContratosProveedor">0</span> de <span id="totalResultadoContratosProveedor">0</span> Contratos</h5>
                            </div>
       
                            <div class="col-md-6 textoAlineadoCentrado">
-                                 <nav class="navegacionTablaGeneral">
-                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
-                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
-                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
-                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>10</span></a>
-                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>11</span></a>
-                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>12</span></a>
-                                    <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>13</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
-                                 </nav>
-                              </div>
+                              <nav class="navegacionTablaGeneral ContratosProveedor" data-step="3" data-intro="Puedes navegar entre los diversos resultados aquí.">
+                                </nav>
+                           </div>
                   </div>
                </div>
             </div>
@@ -565,10 +492,6 @@
          </div>
             
          </div>
-      </div>
-
-      
-      <div class="container-fluid" style="max-width: 1600px">
          
             <div class="row">
                <div class="col-md-12">
@@ -822,6 +745,13 @@
             </div>
                
             </div>
+   </div>
+   
+
+   
+
+         
+      
          </div>
 {% endblock %}
 {% block script_content %}
