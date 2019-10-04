@@ -1,7 +1,7 @@
 var filtrosAplicables={
   categorias:{titulo:'Categoría',parametro:'categoria'},
   monedas: {titulo:'Moneda',parametro:'moneda'},
-  instituciones: {titulo:'Institución',parametro:'institucion'},
+  instituciones: {titulo:'Institución Compradora',parametro:'institucion'},
   metodos_de_seleccion: {titulo:'Método de Selección',parametro:'metodo_seleccion'},
   años: {titulo:'Año',parametro:'year'},
   proveedor: {titulo:'Proveedor',parametro:'proveedor'}
@@ -10,7 +10,30 @@ $('#textoTotalBusqueda').html(
   $('#textoTotalBusqueda').html()+
   ((ObtenerValor('metodo')==='proceso')?'Procesos de Contratación:':(ObtenerValor('metodo')==='contrato')?'Contratos:':(ObtenerValor('metodo')==='pago')?'Procesos de Pagos:':'Procesos de Contratación:')
   )
+function ObtenerMetodo(){
+  return ['proceso','contrato','pago'].includes(ObtenerValor('metodo'))?ObtenerValor('metodo'):'proceso'
+}
+function EliminarFiltrosMetodo(datos){
+  if(!(datos&&datos.filtros)){
+    return datos;
+  }
+  switch(ObtenerMetodo()){
+    case 'pago':
+    
+    if(datos.filtros.metodos_de_seleccion){
+      delete datos.filtros.metodos_de_seleccion
+    }
+    if(datos.filtros.categorias){
+      delete datos.filtros.categorias
+    }
+    break;
+    case 'contrato':
+    break;
+    default://case proceso
 
+    break;
+  }
+}
 var traducciones={
   'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
   'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
@@ -48,7 +71,7 @@ $('.opcionFiltroBusquedaPagina').on('click',function(e){
   $('.metodoBusquedaContenedor a[name="metodoBusqueda"]').on('click',function(e){
     console.dir('click')
       //location.href='/busqueda?term='+$('#campoBusquedaProceso').val()+'&metodo='+$(e.currentTarget).attr('metodo');
-      location.href=AccederBusqueda({metodo:$(e.currentTarget).attr('metodo')});
+      location.href=AccederBusqueda({metodo:$(e.currentTarget).attr('metodo')},true);
   });
 
 $('#botonBusquedaProceso').on('click',function(e){
@@ -89,7 +112,7 @@ function CargarElementosBusqueda(cargaFiltro){
   $.get(api+"/buscador",parametros).done(function( datos ) {
     console.dir(datos);
 
-    
+    EliminarFiltrosMetodo(datos);
     MostrarResumen(datos)
     MostrarResultados(datos)
     MostrarPaginacion(datos);
@@ -308,6 +331,8 @@ function AgregarResultadoProceso(datos){
             $('<div>',{class:'col-12 col-sm-8 col-md-8 col-lg-9'}).append(
               $('<a>',{class:'enlaceTablaGeneral',text:ReducirTexto(datos.tender&&datos.tender.description?datos.tender.description:datos.tender&&datos.tender.title?datos.tender.title:'',140),href:
               ('/proceso/'+datos.ocid)
+              ,toolTexto:datos.tender&&datos.tender.description?datos.tender.description:datos.tender&&datos.tender.title?datos.tender.title:'',
+              toolPosicion:'bottom'
               }).append()
             ),
             $('<div>',{class:'col-12 col-sm-4 col-md-4 col-lg-3'}).append(
@@ -457,7 +482,9 @@ function AgregarResultadoContrato(datos){
           $('<div>',{class:'row'}).append(
             $('<div>',{class:'col-12 col-sm-8 col-md-8 col-lg-9'}).append(
               $('<a>',{class:'enlaceTablaGeneral',text: contrato.description?ReducirTexto(contrato.description,140):ReducirTexto(contrato.title,140),href:
-                '/proceso/'+datos.ocid+'?contrato='+contrato.id
+                '/proceso/'+datos.ocid+'?contrato='+contrato.id,
+                toolTexto:contrato.description?contrato.description:contrato.title?contrato.title:'',
+                toolPosicion:'bottom'
               }).append()
             ),
             $('<div>',{class:'col-12 col-sm-4 col-md-4 col-lg-3'}).append(
@@ -547,6 +574,8 @@ function AgregarResultadoPago(datos){
             $('<div>',{class:'col-12 col-sm-8 col-md-8 col-lg-9'}).append(
               $('<a>',{class:'enlaceTablaGeneral',text:datos.planning&&datos.planning.rationale? ReducirTexto(datos.planning.rationale,140):'',href:
               '/proceso/'+datos.ocid
+              ,toolTexto:datos.planning&&datos.planning.rationale? datos.planning.rationale:'',
+              toolPosicion:'bottom'
               })
             ),
             $('<div>',{class:'col-12 col-sm-4 col-md-4 col-lg-3'}).append(

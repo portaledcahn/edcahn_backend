@@ -157,7 +157,7 @@
       
                        
                         <div class="contenedorFiltroNumerico">
-                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion="{{operadorpmc}}" type="text" value="{% if pmc %}{{pmc}}{% endif %}">
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion="{{operadorpmc}}" type="text" value="{% if pmc %}{{pmc}}{% endif %}" autocomplete="off">
                               <button class="btnFiltroNumerico">{% if operadorpmc == '<' %}&lt;{% endif %}{% if operadorpmc == '>' %}&gt;{% endif %}{% if operadorpmc == '=' %}={% endif %}</button>
                               <div class="preContenedorFiltroBusqueda animated fadeIn">
                                     <div class=" contenedorFiltroBusqueda" >
