@@ -6,8 +6,17 @@ var filtrosAplicables={
   años: {titulo:'Año',parametro:'year'},
   proveedor: {titulo:'Proveedor',parametro:'proveedor'}
 };
+$('#textoTotalBusqueda').html(
+  $('#textoTotalBusqueda').html()+
+  ((ObtenerValor('metodo')==='proceso')?'Procesos de Contratación:':(ObtenerValor('metodo')==='contrato')?'Contratos:':(ObtenerValor('metodo')==='pago')?'Procesos de Pagos:':'Procesos de Contratación:')
+  )
 
-
+var traducciones={
+  'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
+  'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
+  'services':{titulo:'Servicios',descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
+  'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'}
+}
 var listaElastica={};
 var resultadosElastic=[];
 
@@ -334,6 +343,26 @@ function AgregarResultadoProceso(datos){
             )
           )
         ),
+        datos.tender&&datos.tender.value&&datos.tender.value.amount?
+        $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+          $('<table>',{class:'anchoTotal'}).append(
+            $('<tbody>',{class:''}).append(
+              $('<tr>',{class:''}).append(
+                $('<td>',{class:'textoAlineadoDerecha'}).append(
+                  $('<div>',{class:'montoTotalProceso'}).append(
+                    $('<div>',{class:'contenedorMonto'}).append(
+                      $('<div>',{class:'textoColorGris',text:'Monto Licitado'}),
+                      $('<div>',{class:'valorMonto'}).append(
+                        ValorMoneda(datos.tender.value.amount),
+                        $('<span>',{class:'textoColorPrimario',text:' '+datos.tender.value.currency})
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ):
         datos.planning&&datos.planning.budget&&datos.planning.budget.amount?
         $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
           $('<table>',{class:'anchoTotal'}).append(
@@ -342,30 +371,10 @@ function AgregarResultadoProceso(datos){
                 $('<td>',{class:'textoAlineadoDerecha'}).append(
                   $('<div>',{class:'montoTotalProceso'}).append(
                     $('<div>',{class:'contenedorMonto'}).append(
-                      $('<div>',{class:'textoColorGris',text:'Monto Estimado'}),
+                      $('<div>',{class:'textoColorGris',text:'Monto Presupuestado'}),
                       $('<div>',{class:'valorMonto'}).append(
                         ValorMoneda(datos.planning.budget.amount.amount),
                         $('<span>',{class:'textoColorPrimario',text:datos.planning.budget.amount.currency})
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-        :datos.tender&&datos.tender.value&&datos.tender.value.amount?
-        $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
-          $('<table>',{class:'anchoTotal'}).append(
-            $('<tbody>',{class:''}).append(
-              $('<tr>',{class:''}).append(
-                $('<td>',{class:'textoAlineadoDerecha'}).append(
-                  $('<div>',{class:'montoTotalProceso'}).append(
-                    $('<div>',{class:'contenedorMonto'}).append(
-                      $('<div>',{class:'textoColorGris',text:'Monto Estimado'}),
-                      $('<div>',{class:'valorMonto'}).append(
-                        ValorMoneda(datos.tender.value.amount),
-                        $('<span>',{class:'textoColorPrimario',text:datos.tender.value.currency})
                       )
                     )
                   )
@@ -383,7 +392,7 @@ function AgregarResultadoProceso(datos){
                 $('<td>',{class:'textoAlineadoDerecha'}).append(
                   $('<div>',{class:'montoTotalProceso'}).append(
                     $('<div>',{class:'contenedorMonto'}).append(
-                      $('<div>',{class:'textoColorGris',text:'Monto Estimado'}),
+                      $('<div>',{class:'textoColorGris',text:'Monto Contratado'}),
                       MostrarTotalContratos(TotalContratos(datos))/*
                       $('<div>',{class:'valorMonto'}).append(
                         ValorMoneda(datos.tender.value.amount),
@@ -509,7 +518,7 @@ function AgregarResultadoContrato(datos){
                       $('<div>',{class:'textoColorGris',text:'Monto del Contrato'}),
                       $('<div>',{class:'valorMonto'}).append(
                         ValorMoneda(contrato.value.amount),
-                        $('<span>',{class:'textoColorPrimario',text:contrato.value.currency})
+                        $('<span>',{class:'textoColorPrimario',text:' '+contrato.value.currency})
                       )
                     )
                   )
@@ -721,7 +730,7 @@ function MostrarTotalContratos(datos){
     elementos.push(
       $('<div>',{class:'valorMonto'}).append(
         ValorMoneda(datos[i].amount),
-        $('<span>',{class:'textoColorPrimario',text:datos[i].currency})
+        $('<span>',{class:'textoColorPrimario',text:' '+datos[i].currency})
       )
     );
   }
@@ -733,7 +742,7 @@ function MostrarTotalComprometido(datos){
     elementos.push(
       $('<div>',{class:''}).append(
         ValorMoneda(datos[i].amount),
-        $('<span>',{class:'textoColorPrimario',text:datos[i].currency})
+        $('<span>',{class:'textoColorPrimario',text:' '+datos[i].currency})
       )
     );
   }
@@ -796,7 +805,12 @@ function AgregarPropiedadesListaElastica(valor,llave){
   $.each(valor.buckets,function(i,propiedades){
     //resultadosElastic=AsignarValor(resultadosElastic,llave,,propiedades.doc_count);
     elementos.push(
-      $('<li >',{class:'list-group-item',valor:propiedades.key_as_string?propiedades.key_as_string:propiedades.key, formato: (propiedades.key_as_string?propiedades.key_as_string:propiedades.key).toString().toLowerCase(),'llave':llave,on:{
+      $('<li >',{
+      class:'list-group-item',
+      valor:propiedades.key_as_string?propiedades.key_as_string:propiedades.key, 
+      formato: (propiedades.key_as_string?propiedades.key_as_string:propiedades.key).toString().toLowerCase(),'llave':llave,
+      toolTexto:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key),
+      on:{
         click:function(e){
           var filtro=$(e.currentTarget);
           if(filtro.hasClass('active')){
@@ -816,7 +830,10 @@ function AgregarPropiedadesListaElastica(valor,llave){
         }
       }}).append(
         $('<div class="badge">').text(propiedades.doc_count),
-        $('<div class="elastic-data">').text(propiedades.key_as_string?propiedades.key_as_string:propiedades.key)
+        $('<div >',{
+        class:'elastic-data',
+        
+        text:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)})
       )
     )
   });

@@ -179,23 +179,23 @@
     function OrdenFiltro(filtro,orden){
       switch(orden){
         case 'ascendente':
-            PushDireccion(AccederCompradores({pagina:1,orderBy:'asc('+filtrosAPropiedades[filtro]+')'}));
+            PushDireccion(AccederCompradores({pagina:1,ordenarPor:'asc('+filtrosAPropiedades[filtro]+')'}));
           break;
         case 'descendente':
-            PushDireccion(AccederCompradores({pagina:1,orderBy:'desc('+filtrosAPropiedades[filtro]+')'}));
+            PushDireccion(AccederCompradores({pagina:1,ordenarPor:'desc('+filtrosAPropiedades[filtro]+')'}));
           break;
         case 'neutro':
             var filtros=ObtenerFiltros();
-            if(filtros['orderBy']){
-              delete filtros['orderBy'];
+            if(filtros['ordenarPor']){
+              delete filtros['ordenarPor'];
             }
             filtros['pagina']=1;
             PushDireccion(AccederCompradores(filtros,true));
           break;
         default:
             var filtros=ObtenerFiltros();
-            if(filtros['orderBy']){
-              delete filtros['orderBy'];
+            if(filtros['ordenarPor']){
+              delete filtros['ordenarPor'];
             }
             filtros['pagina']=1;
             PushDireccion(AccederCompradores(filtros,true));
@@ -218,9 +218,9 @@
       (ValidarCadena(opciones.mamc)? '&mamc='+encodeURIComponent(opciones.mamc): (ValidarCadena(ObtenerValor('mamc'))&&!desUrl?'&mamc='+ObtenerValor('mamc'):''))+
       (ValidarCadena(opciones.fup) ? '&fup='+encodeURIComponent(opciones.fup):(ValidarCadena(ObtenerValor('fup'))&&!desUrl?'&fup='+ObtenerValor('fup'):''))+
       (ValidarCadena(opciones.memc) ? '&memc='+encodeURIComponent(opciones.memc):(ValidarCadena(ObtenerValor('memc'))&&!desUrl?'&memc='+ObtenerValor('memc'):''))+
-      (ValidarCadena(opciones.memc) ? '&cp='+encodeURIComponent(opciones.memc):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
+      (ValidarCadena(opciones.cp) ? '&cp='+encodeURIComponent(opciones.cp):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
       //(ValidarCadena(opciones.dependencias) ? '&cp='+encodeURIComponent(opciones.dependencias):(ValidarCadena(ObtenerValor('dependencias'))&&!desUrl?'&dependencias='+ObtenerValor('dependencias'):''))+
-      (ValidarCadena(opciones.orderBy) ? '&orderBy='+encodeURIComponent(opciones.orderBy):(ValidarCadena(ObtenerValor('orderBy'))&&!desUrl?'&orderBy='+ObtenerValor('orderBy'):''))
+      (ValidarCadena(opciones.ordenarPor) ? '&ordenarPor='+encodeURIComponent(opciones.ordenarPor):(ValidarCadena(ObtenerValor('ordenarPor'))&&!desUrl?'&ordenarPor='+ObtenerValor('ordenarPor'):''))
     
       );
     
@@ -361,8 +361,8 @@
     if(Validar(ObtenerValor('cp'))){
       parametros['cp']=decodeURIComponent(ObtenerValor('cp'));
     }
-    if(Validar(ObtenerValor('orderBy'))){
-      parametros['orderBy']=decodeURIComponent(ObtenerValor('orderBy'));
+    if(Validar(ObtenerValor('ordenarPor'))){
+      parametros['ordenarPor']=decodeURIComponent(ObtenerValor('ordenarPor'));
     }
     
     return parametros;

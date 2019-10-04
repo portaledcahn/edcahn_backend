@@ -150,8 +150,8 @@ function ObtenerFiltros(){
   if(Validar(ObtenerValor('cp'))){
     parametros['cp']=decodeURIComponent(ObtenerValor('cp'));
   }
-  if(Validar(ObtenerValor('orderBy'))){
-    parametros['orderBy']=decodeURIComponent(ObtenerValor('orderBy'));
+  if(Validar(ObtenerValor('ordenarPor'))){
+    parametros['ordenarPor']=decodeURIComponent(ObtenerValor('ordenarPor'));
   }
   return parametros;
 }
@@ -169,8 +169,8 @@ function AccederProveedores(opciones,desUrl){
   (ValidarCadena(opciones.mamc)? '&mamc='+encodeURIComponent(opciones.mamc): (ValidarCadena(ObtenerValor('mamc'))&&!desUrl?'&mamc='+ObtenerValor('mamc'):''))+
   (ValidarCadena(opciones.fua) ? '&fua='+encodeURIComponent(opciones.fua):(ValidarCadena(ObtenerValor('fua'))&&!desUrl?'&fua='+ObtenerValor('fua'):''))+
   (ValidarCadena(opciones.memc) ? '&memc='+encodeURIComponent(opciones.memc):(ValidarCadena(ObtenerValor('memc'))&&!desUrl?'&memc='+ObtenerValor('memc'):''))+
-  (ValidarCadena(opciones.memc) ? '&cp='+encodeURIComponent(opciones.memc):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
-  (ValidarCadena(opciones.orderBy) ? '&orderBy='+encodeURIComponent(opciones.orderBy):(ValidarCadena(ObtenerValor('orderBy'))&&!desUrl?'&orderBy='+ObtenerValor('orderBy'):''))
+  (ValidarCadena(opciones.cp) ? '&cp='+encodeURIComponent(opciones.cp):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
+  (ValidarCadena(opciones.ordenarPor) ? '&ordenarPor='+encodeURIComponent(opciones.ordenarPor):(ValidarCadena(ObtenerValor('ordenarPor'))&&!desUrl?'&ordenarPor='+ObtenerValor('ordenarPor'):''))
 
   );
 
@@ -243,23 +243,23 @@ function InputFiltro(filtros,desUrl){
 function OrdenFiltro(filtro,orden){
   switch(orden){
     case 'ascendente':
-        PushDireccion(AccederProveedores({pagina:1,orderBy:'asc('+filtrosAPropiedades[filtro]+')'}));
+        PushDireccion(AccederProveedores({pagina:1,ordenarPor:'asc('+filtrosAPropiedades[filtro]+')'}));
       break;
     case 'descendente':
-        PushDireccion(AccederProveedores({pagina:1,orderBy:'desc('+filtrosAPropiedades[filtro]+')'}));
+        PushDireccion(AccederProveedores({pagina:1,ordenarPor:'desc('+filtrosAPropiedades[filtro]+')'}));
       break;
     case 'neutro':
         var filtros=ObtenerFiltros();
-        if(filtros['orderBy']){
-          delete filtros['orderBy'];
+        if(filtros['ordenarPor']){
+          delete filtros['ordenarPor'];
         }
         filtros['pagina']=1;
         PushDireccion(AccederProveedores(filtros,true));
       break;
     default:
         var filtros=ObtenerFiltros();
-        if(filtros['orderBy']){
-          delete filtros['orderBy'];
+        if(filtros['ordenarPor']){
+          delete filtros['ordenarPor'];
         }
         filtros['pagina']=1;
         PushDireccion(AccederProveedores(filtros,true));

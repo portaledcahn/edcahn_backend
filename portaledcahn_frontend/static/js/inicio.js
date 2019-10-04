@@ -33,6 +33,7 @@ function CargarEstadisticas(){
         }
         $('.contenedorEstadisticaInicial').show();
         EfectoEstadisticas();
+        AgregarToolTips();
     }).fail(function() {
         /*Error de Conexion al servidor */
         $('.contenedorEstadisticaInicial').show();

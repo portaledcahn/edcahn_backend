@@ -99,8 +99,9 @@ def Busqueda(request):
         "q": q,
         "posts": posts
     }"""
-
-    return render(request,'busqueda/busqueda.html')
+    parametros = {}
+    parametros['metodo'] = request.GET.get('metodo','proceso')
+    return render(request,'busqueda/busqueda.html',parametros)
 
 def Comprador(request,id=''):
     return render(request,'comprador/comprador.html',{'id':id.replace('"','')})
@@ -109,15 +110,15 @@ def Compradores(request):
     parametros = {
       "nombre" : request.GET.get('nombre',''),
       "identificacion" : request.GET.get('identificacion',''),
-      "tmc" : request.GET.get('tmc','').replace(">", "").replace("<", "").replace("=", ""),
-      "pmc" : request.GET.get('pmc','').replace(">", "").replace("<", "").replace("=", ""),
-      "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("=", ""),
+      "tmc" : request.GET.get('tmc','').replace(">", "").replace("<", "").replace("==", ""),
+      "pmc" : request.GET.get('pmc','').replace(">", "").replace("<", "").replace("==", ""),
+      "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("==", ""),
       "fup" : request.GET.get('fup','').replace(">", "").replace("<", "").replace("==", ""),
       "cp" : request.GET.get('cp','').replace(">", "").replace("<", "").replace("==", ""),
       "dependencias" : request.GET.get('dependencias','0'),
-      "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("=", ""),
+      "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("==", ""),
       "paginarPor" : int(request.GET.get('paginarPor','5')),
-      "orderBy" : request.GET.get('orderBy','')
+      "ordenarPor" : request.GET.get('ordenarPor','')
     }
     parametros['operadortmc'] = verificarOperador(request.GET.get('tmc',''))
     parametros['operadorpmc'] = verificarOperador(request.GET.get('pmc',''))
@@ -126,14 +127,14 @@ def Compradores(request):
     parametros['operadorfup'] = verificarOperador(request.GET.get('fup',''))
     parametros['operadorcp'] = verificarOperador(request.GET.get('cp',''))
 
-    parametros['ordennombre'] = verificarOrden(request.GET.get('orderBy',''),'nombre')
-    parametros['ordenidentificacion'] = verificarOrden(request.GET.get('orderBy',''),'identificacion')
-    parametros['ordentmc'] = verificarOrden(request.GET.get('orderBy',''),'tmc')
-    parametros['ordenpmc'] = verificarOrden(request.GET.get('orderBy',''),'pmc')
-    parametros['ordenmamc'] = verificarOrden(request.GET.get('orderBy',''),'mamc')
-    parametros['ordenfup'] = verificarOrden(request.GET.get('orderBy',''),'fup')
-    parametros['ordencp'] = verificarOrden(request.GET.get('orderBy',''),'cp')
-    parametros['ordenmemc'] = verificarOrden(request.GET.get('orderBy',''),'memc')
+    parametros['ordennombre'] = verificarOrden(request.GET.get('ordenarPor',''),'nombre')
+    parametros['ordenidentificacion'] = verificarOrden(request.GET.get('ordenarPor',''),'identificacion')
+    parametros['ordentmc'] = verificarOrden(request.GET.get('ordenarPor',''),'tmc')
+    parametros['ordenpmc'] = verificarOrden(request.GET.get('ordenarPor',''),'pmc')
+    parametros['ordenmamc'] = verificarOrden(request.GET.get('ordenarPor',''),'mamc')
+    parametros['ordenfup'] = verificarOrden(request.GET.get('ordenarPor',''),'fup')
+    parametros['ordencp'] = verificarOrden(request.GET.get('ordenarPor',''),'cp')
+    parametros['ordenmemc'] = verificarOrden(request.GET.get('ordenarPor',''),'memc')
     return render(request,'compradores/compradores.html',parametros)
 
 def Descargas(request):
@@ -155,14 +156,14 @@ def Proveedores(request):
     parametros = {
       "nombre" : request.GET.get('nombre',''),
       "identificacion" : request.GET.get('identificacion',''),
-      "tmc" : request.GET.get('tmc','').replace(">", "").replace("<", "").replace("=", ""),
+      "tmc" : request.GET.get('tmc','').replace(">", "").replace("<", "").replace("==", ""),
       "cp" : request.GET.get('cp','').replace(">", "").replace("<", "").replace("==", ""),
-      "pmc" : request.GET.get('pmc','').replace(">", "").replace("<", "").replace("=", ""),
-      "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("=", ""),
+      "pmc" : request.GET.get('pmc','').replace(">", "").replace("<", "").replace("==", ""),
+      "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("==", ""),
       "fua" : request.GET.get('fua','').replace(">", "").replace("<", "").replace("==", ""),
-      "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("=", ""),
+      "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("==", ""),
       "paginarPor" : int(request.GET.get('paginarPor','5')),
-      "orderBy" : request.GET.get('orderBy','')
+      "ordenarPor" : request.GET.get('ordenarPor','')
     }
     parametros['operadortmc'] = verificarOperador(request.GET.get('tmc',''))
     parametros['operadorpmc'] = verificarOperador(request.GET.get('pmc',''))
@@ -171,14 +172,14 @@ def Proveedores(request):
     parametros['operadorfua'] = verificarOperador(request.GET.get('fua',''))
     parametros['operadorcp'] = verificarOperador(request.GET.get('cp',''))
 
-    parametros['ordennombre'] = verificarOrden(request.GET.get('orderBy',''),'nombre')
-    parametros['ordenidentificacion'] = verificarOrden(request.GET.get('orderBy',''),'identificacion')
-    parametros['ordentmc'] = verificarOrden(request.GET.get('orderBy',''),'tmc')
-    parametros['ordenpmc'] = verificarOrden(request.GET.get('orderBy',''),'pmc')
-    parametros['ordenmamc'] = verificarOrden(request.GET.get('orderBy',''),'mamc')
-    parametros['ordencp'] = verificarOrden(request.GET.get('orderBy',''),'cp')
-    parametros['ordenfua'] = verificarOrden(request.GET.get('orderBy',''),'fua')
-    parametros['ordenmemc'] = verificarOrden(request.GET.get('orderBy',''),'memc')
+    parametros['ordennombre'] = verificarOrden(request.GET.get('ordenarPor',''),'nombre')
+    parametros['ordenidentificacion'] = verificarOrden(request.GET.get('ordenarPor',''),'identificacion')
+    parametros['ordentmc'] = verificarOrden(request.GET.get('ordenarPor',''),'tmc')
+    parametros['ordenpmc'] = verificarOrden(request.GET.get('ordenarPor',''),'pmc')
+    parametros['ordenmamc'] = verificarOrden(request.GET.get('ordenarPor',''),'mamc')
+    parametros['ordencp'] = verificarOrden(request.GET.get('ordenarPor',''),'cp')
+    parametros['ordenfua'] = verificarOrden(request.GET.get('ordenarPor',''),'fua')
+    parametros['ordenmemc'] = verificarOrden(request.GET.get('ordenarPor',''),'memc')
     
     return render(request,'proveedores/proveedores.html',parametros)
     
