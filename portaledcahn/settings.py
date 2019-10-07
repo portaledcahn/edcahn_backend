@@ -83,10 +83,14 @@ WSGI_APPLICATION = 'portaledcahn.wsgi.application'
 DATABASES = {
     'bdkingfisher': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ocdskingfisher',
-        'USER': 'ocdskingfisher',
-        'PASSWORD': 'ocdskingfisher',
-        'HOST': '34.74.53.102',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '192.168.1.7',
+        # 'NAME': 'ocdskingfisher',
+        # 'USER': 'ocdskingfisher',
+        # 'PASSWORD': 'ocdskingfisher',        
+        # 'HOST': '34.74.53.102',
         'PORT': '5432',
     },
     'default': {
@@ -145,9 +149,9 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-# ELASTICSEARCH_DSL_HOST = '192.168.1.129:9200/'
+ELASTICSEARCH_DSL_HOST = '192.168.1.7:9200/'
 # ELASTICSEARCH_DSL_HOST = '192.168.43.173:9200/'
-ELASTICSEARCH_DSL_HOST = 'http://34.74.53.102:9200/'
+# ELASTICSEARCH_DSL_HOST = 'http://34.74.53.102:9200/'
 
 ELASTICSEARCH_DSL = {
     'default': {
