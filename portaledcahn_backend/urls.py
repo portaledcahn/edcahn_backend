@@ -35,4 +35,8 @@ urlpatterns = [
 
 	path('dashboardsefin/filtros/', viewsets.FiltrosDashboardSEFIN.as_view()),
 	path('dashboardsefin/cantidaddepagos/', viewsets.GraficarCantidadDePagosMes.as_view()),
+	path('dashboardsefin/montosdepagos/', viewsets.GraficarMontosDePagosMes.as_view()),
+	path('dashboardsefin/estadisticamontosdepagos/', viewsets.EstadisticaMontoDePagos.as_view()),
+	path('dashboardsefin/topcompradores/', viewsets.TopCompradoresPorMontoPagado.as_view()),
+	path('dashboardsefin/topproveedores/', viewsets.TopProveedoresPorMontoPagado.as_view()),
 ]
