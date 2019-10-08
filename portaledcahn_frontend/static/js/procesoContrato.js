@@ -95,9 +95,16 @@ function DefinirElementosContrato(){
                     $('<table>').append(
                       $('<tbody>').append(
                             contratos[i].title?$('<tr>').append(
-                            $('<td>',{class:'tituloTablaCaracteristicas',text:contratos[i].title,style:'color:#333',toolTexto:"contracts["+i+"].title"})):null,
+                            $('<td>',{class:'tituloTablaCaracteristicas',style:'color:#333',toolTexto:"contracts["+i+"].title"}).append(
+                              $('<b>',{text:'Título'}),
+                              contratos[i].title
+                            )):null,
                             contratos[i].description?$('<tr>').append(
-                                $('<td>',{class:'',text:contratos[i].description,style:'color:#333',toolTexto:"contracts["+i+"].description"})):null
+                                $('<td>',{class:'',style:'color:#333',toolTexto:"contracts["+i+"].description"}).append(
+                                  $('<b>',{text:'Descripción'}),
+                                  contratos[i].description
+                                )
+                                ):null
                       ))):null),
             $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
               $('<table>').append(

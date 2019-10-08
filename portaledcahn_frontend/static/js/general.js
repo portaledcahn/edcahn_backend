@@ -98,6 +98,13 @@ function ObtenerTexto(texto){
         return '';
     }
 }
+function reemplazarValor(texto,nombre,reemplazo){
+    let regular=new RegExp(nombre, "g");;
+    while(regular.test(texto)){
+      texto=texto.replace(nombre,reemplazo);
+    }
+    return texto;
+  }
 
 function VerificarCadenaRTN(texto){
     return /^HN-RTN-\d{14}$/.test(ObtenerTexto(texto));
@@ -284,8 +291,8 @@ function AsignarOrdenTabla(){
         }
     )
 }
-function AsignarOrdenTablaFiltros(funcion){
-    $('.ordenEncabezado').each(function(llave,elemento){
+function AsignarOrdenTablaFiltros(funcion,selector){
+    $(selector?selector:'.ordenEncabezado').each(function(llave,elemento){
             $(elemento).on('click',
             function(evento){
                 cambiarOrdenFiltro(evento,funcion);

@@ -85,7 +85,7 @@
                         
                         
                         <div class="contenedorFiltroNumerico">
-                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion="<" type="text" value="{% if cp %}{{cp}}{% endif %}">
+                              <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion="<" type="text" value="{% if cp %}{{cp}}{% endif %}">
                               <button class="btnFiltroNumerico">{% if operadorcp == '<' %}&lt;{% endif %}{% if operadorcp == '>' %}&gt;{% endif %}{% if operadorcp == '=' %}={% endif %}</button>
                               <div class="preContenedorFiltroBusqueda animated fadeIn">
                                     <div class=" contenedorFiltroBusqueda" >
@@ -121,7 +121,7 @@
       
                          
                         <div class="contenedorFiltroNumerico">
-                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion="{{operadortmc}}" value="{% if tmc %}{{tmc}}{% endif %}">
+                              <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion="{{operadortmc}}" value="{% if tmc %}{{tmc}}{% endif %}">
                               <button class="btnFiltroNumerico">{% if operadortmc == '<' %}&lt;{% endif %}{% if operadortmc == '>' %}&gt;{% endif %}{% if operadortmc == '=' %}={% endif %}</button>
                               <div class="preContenedorFiltroBusqueda animated fadeIn">
                                     <div class=" contenedorFiltroBusqueda" >
@@ -157,7 +157,7 @@
       
                        
                         <div class="contenedorFiltroNumerico">
-                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion="{{operadorpmc}}" type="text" value="{% if pmc %}{{pmc}}{% endif %}" autocomplete="off">
+                              <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion="{{operadorpmc}}" type="text" value="{% if pmc %}{{pmc}}{% endif %}" autocomplete="off">
                               <button class="btnFiltroNumerico">{% if operadorpmc == '<' %}&lt;{% endif %}{% if operadorpmc == '>' %}&gt;{% endif %}{% if operadorpmc == '=' %}={% endif %}</button>
                               <div class="preContenedorFiltroBusqueda animated fadeIn">
                                     <div class=" contenedorFiltroBusqueda" >
@@ -193,7 +193,7 @@
       
                         
                         <div class="contenedorFiltroNumerico">
-                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion="{{operadormamc}}" type="text" value="{% if mamc %}{{mamc}}{% endif %}">
+                              <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion="{{operadormamc}}" type="text" value="{% if mamc %}{{mamc}}{% endif %}">
                               <button class="btnFiltroNumerico">{% if operadormamc == '<' %}&lt;{% endif %}{% if operadormamc == '>' %}&gt;{% endif %}{% if operadormamc == '=' %}={% endif %}</button>
                               <div class="preContenedorFiltroBusqueda animated fadeIn">
                                     <div class=" contenedorFiltroBusqueda" >
@@ -229,7 +229,7 @@
       
                         
                         <div class="contenedorFiltroNumerico">
-                              <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion="{{operadormemc}}" type="text" value="{% if memc %}{{memc}}{% endif %}">
+                              <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion="{{operadormemc}}" type="text" value="{% if memc %}{{memc}}{% endif %}">
                               <button class="btnFiltroNumerico">{% if operadormemc == '<' %}&lt;{% endif %}{% if operadormemc == '>' %}&gt;{% endif %}{% if operadormemc == '=' %}={% endif %}</button>
                               <div class="preContenedorFiltroBusqueda animated fadeIn">
                                     <div class=" contenedorFiltroBusqueda" >
@@ -333,5 +333,6 @@
 <!-- For i18n Support -->
 <script type="text/javascript" src="{% static 'plugins/datetimepicker-0.1.39/i18n/DateTimePicker-i18n.js' %}"></script>
 <script src="{% static 'plugins/jquery-mask-1.14.15/jquery.mask.min.js' %}"></script>
+<script src="{% static 'plugins/autoNumeric-4.1.0/autoNumeric.min.js' %}"></script>
 <script src="{% static 'js/compradores.js' %}"></script>
 {% endblock %}

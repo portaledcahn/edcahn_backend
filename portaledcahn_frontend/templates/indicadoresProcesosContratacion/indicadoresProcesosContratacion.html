@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block head_content %}
+<title>Portal de Contrataciones Abiertas de Honduras - Indicadores Procesos de Contratación</title>
+{% endblock %}
+
+{% load static %}
+{% block head_style %}
+<link rel="stylesheet" href="{% static 'plugins/elastic-list/style.css' %}" >
+{% endblock %}
+{% block container %}
+<div class="container-fluid  busquedaEspaciadoHorizontal" >
+      <div class="contenedorFiltrosBusqueda animated" style="display: none">
+         <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
+            Filtros 
+            <div class="cursorMano cerrarContenedorFiltrosBusqueda" style="display:none"><i class="fas fa-times textoColorGris"></i></div>
+         </h4>
+         <div class="filtrosContenedoFiltrosBusqueda">
+           
+            <div id="elastic-list">
+            </div>
+         </div>
+      </div>
+      <div class="contenedorResultadosBusqueda" style="width: 100%">
+   
+       
+         <div class="container-fluid contenedorBusqueda mb-5" >
+            <div class="row">
+               <div class="col-6 col-sm-6 col-md-6">
+                  <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
+                     Indicadores
+                  </h4>
+               </div>
+   
+            </div>
+            <div class="row">
+            <div class="col-md-6">
+                        <div class="cajonSombreado">
+                              <div class="tituloGrafico">
+                              <h4 class="titularCajonSombreado textoAlineadoCentrado">Cantidad de Contratos por Categoría de Compra</h4>
+                              </div>
+                              <div class="contenedorGrafico">
+                              <div class="grafico" id="CantidadContratosCategoriaCompra"  style="height: 300px"></div>
+                              </div>
+                        </div>
+                        </div>
+                                    <div class="col-md-6">
+                                                <div class="cajonSombreado">
+                                                      <div class="tituloGrafico">
+                                                      <h4 class="titularCajonSombreado textoAlineadoCentrado">Monto Contratado por Categoría de Compra</h4>
+                                                      </div>
+                                                      <div class="contenedorGrafico">
+                                                      <div class="grafico" id="MontoContratosCategoriaCompra"  style="height: 300px"></div>
+                                                      </div>
+                                                </div>
+                                                </div>
+
+                                                <div class="col-md-12 mt-4">
+                                                   <div class="cajonSombreado">
+                                                      <div class="tituloGrafico">
+                                                         <h4 class="titularCajonSombreado textoAlineadoCentrado">Top 10 Instituciones con mayor Monto de Contratos de Categoría</h4>
+                                                         <b>Bienes y Servicios, Obras, Consultorias, todas</b>
+                                                      </div>
+                                                      <div class="contenedorGrafico">
+                                                         <div class="grafico" id="top10InstitucionesMontos"  style="height: 500px"></div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <div class="col-md-12 mt-4">
+                                                   <div class="cajonSombreado">
+                                                      <div class="tituloGrafico">
+                                                         <h4 class="titularCajonSombreado textoAlineadoCentrado">Montos de Contrato a través de Catálogo Electrónico por nombre</h4>
+                                                      </div>
+                                                      <div class="contenedorGrafico">
+                                                         <div class="grafico" id="montoCatalogoElectronico"  style="height: 500px"></div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+
+
+
+               <div class="col-md-12 mt-4">
+                  <div class="cajonSombreado">
+                     <div class="tituloGrafico">
+                        <h4 class="titularCajonSombreado textoAlineadoCentrado">Modalidad de Contratación por Monto y Cantidad de contratos</h4>
+                     </div>
+                     <div class="contenedorGrafico">
+                        <div class="grafico" id="cantidadProcesos"  style="height: 600px"></div>
+                     </div>
+                  </div>
+               </div>
+        
+            
+              
+            
+            </div>
+         </div>
+      </div>
+   </div>
+<div class="container" style="display: none">
+      <img src="{% static 'img/oncae.jpg' %}" style="width:100%"  alt="">
+</div>
+{% endblock %}
+{% block script_content %}
+<script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
+<script src="{% static 'plugins/elastic-list/data.js' %}"></script>
+<script src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>
+<script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
+<script src="{% static 'js/indicadoresProcesosContratacion.js' %}"></script>
+{% endblock %}

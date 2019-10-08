@@ -25,6 +25,16 @@
     $('.fecha').datepicker({
            "dateFormat": 'yy-mm-dd'
        });*/
+    var configuracionNumerica={ 
+      decimalCharacter:'.',
+      decimalPlaces:0,
+      digitalGroupSpacing:3,
+      digitGroupSeparator:','
+      }
+     var elementosNumericos=[];
+     for(let i=0;i<5;i++){
+      elementosNumericos[i]= new AutoNumeric($('.elementoNumerico')[i], configuracionNumerica );
+     }
     $('.fecha').attr('data-field','date');
 
     $('#dtBox').DateTimePicker({
@@ -64,6 +74,8 @@
     AsignarEventosFiltro();
     AsignarOrdenTablaFiltros(OrdenFiltro);
     NumeroResultados();
+
+
   });
   function NumeroResultados(){
     $('#paginacionBusqueda').on('change',function(e){
@@ -164,12 +176,12 @@ function AccederProveedores(opciones,desUrl){
 
   (ValidarCadena(opciones.nombre)? '&nombre='+encodeURIComponent(opciones.nombre): (ValidarCadena(ObtenerValor('nombre'))&&!desUrl?'&nombre='+ObtenerValor('nombre'):''))+
   (ValidarCadena(opciones.identificacion)? '&identificacion='+encodeURIComponent(opciones.identificacion): (ValidarCadena(ObtenerValor('identificacion'))&&!desUrl?'&identificacion='+ObtenerValor('identificacion'):''))+
-  (ValidarCadena(opciones.tmc)? '&tmc='+encodeURIComponent(opciones.tmc): (ValidarCadena(ObtenerValor('tmc'))&&!desUrl?'&tmc='+ObtenerValor('tmc'):''))+
-  (ValidarCadena(opciones.pmc)? '&pmc='+encodeURIComponent(opciones.pmc): (ValidarCadena(ObtenerValor('pmc'))&&!desUrl?'&pmc='+ObtenerValor('pmc'):''))+
-  (ValidarCadena(opciones.mamc)? '&mamc='+encodeURIComponent(opciones.mamc): (ValidarCadena(ObtenerValor('mamc'))&&!desUrl?'&mamc='+ObtenerValor('mamc'):''))+
-  (ValidarCadena(opciones.fua) ? '&fua='+encodeURIComponent(opciones.fua):(ValidarCadena(ObtenerValor('fua'))&&!desUrl?'&fua='+ObtenerValor('fua'):''))+
-  (ValidarCadena(opciones.memc) ? '&memc='+encodeURIComponent(opciones.memc):(ValidarCadena(ObtenerValor('memc'))&&!desUrl?'&memc='+ObtenerValor('memc'):''))+
-  (ValidarCadena(opciones.cp) ? '&cp='+encodeURIComponent(opciones.cp):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
+  (ValidarCadena(opciones.tmc)? '&tmc='+encodeURIComponent(reemplazarValor(opciones.tmc,',','')): (ValidarCadena(ObtenerValor('tmc'))&&!desUrl?'&tmc='+ObtenerValor('tmc'):''))+
+  (ValidarCadena(opciones.pmc)? '&pmc='+encodeURIComponent(reemplazarValor(opciones.pmc,',','')): (ValidarCadena(ObtenerValor('pmc'))&&!desUrl?'&pmc='+ObtenerValor('pmc'):''))+
+  (ValidarCadena(opciones.mamc)? '&mamc='+encodeURIComponent(reemplazarValor(opciones.mamc,',','')): (ValidarCadena(ObtenerValor('mamc'))&&!desUrl?'&mamc='+ObtenerValor('mamc'):''))+
+  (ValidarCadena(opciones.fua) ? '&fua='+encodeURIComponent(reemplazarValor(opciones.fua,',','')):(ValidarCadena(ObtenerValor('fua'))&&!desUrl?'&fua='+ObtenerValor('fua'):''))+
+  (ValidarCadena(opciones.memc) ? '&memc='+encodeURIComponent(reemplazarValor(opciones.memc,',','')):(ValidarCadena(ObtenerValor('memc'))&&!desUrl?'&memc='+ObtenerValor('memc'):''))+
+  (ValidarCadena(opciones.cp) ? '&cp='+encodeURIComponent(reemplazarValor(opciones.cp,',','')):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
   (ValidarCadena(opciones.ordenarPor) ? '&ordenarPor='+encodeURIComponent(opciones.ordenarPor):(ValidarCadena(ObtenerValor('ordenarPor'))&&!desUrl?'&ordenarPor='+ObtenerValor('ordenarPor'):''))
 
   );

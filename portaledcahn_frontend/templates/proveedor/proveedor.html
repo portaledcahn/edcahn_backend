@@ -80,7 +80,7 @@
                                     
                                     
                                     <div class="contenedorFiltroNumerico">
-                                          <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                          <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion=">">
                                           <button class="btnFiltroNumerico">&lt;</button>
                                           <div class="preContenedorFiltroBusqueda animated fadeIn">
                                                 <div class=" contenedorFiltroBusqueda" >
@@ -116,7 +116,7 @@
                            
                            
                            <div class="contenedorFiltroNumerico">
-                                 <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                 <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion=">">
                                  <button class="btnFiltroNumerico">&lt;</button>
                                  <div class="preContenedorFiltroBusqueda animated fadeIn">
                                        <div class=" contenedorFiltroBusqueda" >
@@ -217,7 +217,7 @@
          
          <div class="row">
             <div class="col-md-12">
-               <div class=" cajonSombreado " data-step="4" data-intro="Puedes visualizar todos los contratos en los que ha sido parte este proveedor">
+               <div class=" cajonSombreado "  id="cajonContratos" data-step="4" data-intro="Puedes visualizar todos los contratos en los que ha sido parte este proveedor">
                      <div class="row">
                            <div class="col-md-12 mt-2">
                               <h4 class="text-primary-edcax titularCajonSombreado">Contratos del Proveedor</h4>
@@ -226,16 +226,18 @@
                         <div class="row mt-1 mb-3 ">
                            <div class="col-lg-6">
                               <div class="campoAzulBusquedaPadre normal" style="margin-left:0">
-                                 <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un contrato...">
-                                 <i class="fas fa-search cursorMano" id="buscarInformacion"></i>	
+                                 <input class="form-control form-control-lg campoAzulBusqueda" type="text" placeholder="Busca un contrato..." filtro="tituloCon">
+                                 <i class="fas fa-search cursorMano" id="buscarInformacionContratos"></i>	
                               </div>
                            </div>
                            <div class="col-lg-6 textoAlineadoDerecha">
                               <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">Mostrar&nbsp;</h5>
-                              <select name="" id="" class="campoSeleccion ancho70 mt-3 enLinea">
-                                 <option value="5">5</option>
-                                 <option value="10">10</option>
-                                 <option value="20">20</option>
+                              <select name="" id="paginacionBusquedaContrato" class="campoSeleccion ancho70 mt-3 enLinea">
+                                 <option value="5" {% if paginarPorCon == 5 %}selected{% endif %}>5</option>
+                                 <option value="10" {% if paginarPorCon == 10 %}selected{% endif %}>10</option>
+                                 <option value="20" {% if paginarPorCon == 20 %}selected{% endif %}>20</option>
+                                 <option value="50" {% if paginarPorCon == 50 %}selected{% endif %}>50</option>
+                                 <option value="100" {% if paginarPorCon == 100 %}selected{% endif %}>100</option>
                               </select>
                               <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0 enLinea">&nbsp;Resultados</h5>
                         </div>
@@ -244,55 +246,55 @@
                      <thead>
                         <tr> 
                        
-                                 <th class="textoAlineadoCentrado">
+                                 <th class="textoAlineadoCentrado campoFiltrado" filtro="compradorCon" tipo="texto">
                                        <table class="alineado">
-                                             <tr><td><span toolTexto="buyer.name">Comprador</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <tr><td><span toolTexto="buyer.name">Comprador</span></td><td><span class="ordenEncabezado" opcion="{{ordencompradorCon}}">
                                                    <div class="contenedorFlechasOrden">
-                                                         <i class="fas fa-sort-up flechaArriba"></i>
-                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                         <i class="fas fa-sort-up flechaArriba" {% if ordencompradorCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                         <i class="fas fa-sort-down flechaAbajo" {% if ordencompradorCon == 'ascendente' %}style="display:none"{% endif %}></i>
                                                    </div>
                                                 </span></td></tr>
                                           </table>
                   
                                        
                                        
-                                       <input class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       <input class="campoBlancoTextoSeleccion" placeholder="Nombre" type="text" value="{% if compradorCon %}{{compradorCon}}{% endif %}">
                                        </th>
-                           <th class="textoAlineadoCentrado">
+                           <th class="textoAlineadoCentrado campoFiltrado" filtro="tituloCon" tipo="texto">
                                  <table class="alineado">
-                                       <tr><td><span toolTexto="contracts[n].title">Título del contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                       <tr><td><span toolTexto="contracts[n].title">Título del contrato</span></td><td><span class="ordenEncabezado" opcion="{{ordentituloCon}}">
                                              <div class="contenedorFlechasOrden">
-                                                   <i class="fas fa-sort-up flechaArriba"></i>
-                                                   <i class="fas fa-sort-down flechaAbajo"></i>
+                                                   <i class="fas fa-sort-up flechaArriba" {% if ordentituloCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                   <i class="fas fa-sort-down flechaAbajo" {% if ordentituloCon == 'ascendente' %}style="display:none"{% endif %}></i>
                                              </div>
                                           </span></td></tr>
                                     </table>
             
                               
                               
-                              <input  class="campoBlancoTextoSeleccion" placeholder="Buscar">
+                              <input  class="campoBlancoTextoSeleccion" placeholder="Buscar" type="text" value="{% if tituloCon %}{{tituloCon}}{% endif %}">
                            </th>
    
-                              <th class="textoAlineadoCentrado">
+                              <th class="textoAlineadoCentrado campoFiltrado" filtro="descripcionCon" tipo="texto">
                                     <table class="alineado">
-                                          <tr><td><span toolTexto="contracts[n].description">Descripción</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                          <tr><td><span toolTexto="contracts[n].description">Descripción</span></td><td><span class="ordenEncabezado" opcion="{{ordendescripcionCon}}">
                                                 <div class="contenedorFlechasOrden">
-                                                      <i class="fas fa-sort-up flechaArriba"></i>
-                                                      <i class="fas fa-sort-down flechaAbajo"></i>
+                                                      <i class="fas fa-sort-up flechaArriba" {% if ordendescripcionCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                      <i class="fas fa-sort-down flechaAbajo" {% if ordendescripcionCon == 'ascendente' %}style="display:none"{% endif %}></i>
                                                 </div>
                                              </span></td></tr>
                                        </table>
                
                                     
                                     
-                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                    <input  class="campoBlancoTextoSeleccion" placeholder="Nombre" type="text" value="{% if descripcionCon %}{{descripcionCon}}{% endif %}">
                                  </th>
-                                 <th class="textoAlineadoCentrado">
+                                 <th class="textoAlineadoCentrado campoFiltrado" filtro="nombreprocesoCon" tipo="texto">
                                        <table class="alineado">
-                                             <tr><td><span toolTexto="contracts[n].procurementMethodDetails">Nombre del Proceso</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <tr><td><span toolTexto="contracts[n].procurementMethodDetails">Nombre del Proceso</span></td><td><span class="ordenEncabezado" opcion="{{ordennombreprocesoCon}}">
                                                    <div class="contenedorFlechasOrden">
-                                                         <i class="fas fa-sort-up flechaArriba"></i>
-                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                         <i class="fas fa-sort-up flechaArriba" {% if ordennombreprocesoCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                         <i class="fas fa-sort-down flechaAbajo" {% if ordennombreprocesoCon == 'ascendente' %}style="display:none"{% endif %}></i>
                                                    </div>
                                                 </span></td></tr>
                                           </table>
@@ -302,26 +304,26 @@
                                        <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
                                     </th>
    
-                                 <th class="textoAlineadoCentrado">
+                                 <th class="textoAlineadoCentrado campoFiltrado" filtro="categoriaCompraCon" tipo="texto">
                                        <table class="alineado">
-                                             <tr><td><span toolTexto="tender.additionalProcurementCategories">Categoría de Compra</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <tr><td><span toolTexto="tender.additionalProcurementCategories">Categoría de Compra</span></td><td><span class="ordenEncabezado" opcion="{{ordencategoriaCompraCon}}">
                                                    <div class="contenedorFlechasOrden">
-                                                         <i class="fas fa-sort-up flechaArriba"></i>
-                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                         <i class="fas fa-sort-up flechaArriba" {% if ordencategoriaCompraCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                         <i class="fas fa-sort-down flechaAbajo" {% if ordencategoriaCompraCon == 'ascendente' %}style="display:none"{% endif %}></i>
                                                    </div>
                                                 </span></td></tr>
                                           </table>
                   
                                        
                                        
-                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre"  type="text" value="{% if categoriaCompraCon %}{{categoriaCompraCon}}{% endif %}">
                                     </th>
-                                 <th class="textoAlineadoCentrado">
+                                 <th class="textoAlineadoCentrado campoFiltrado" filtro="montoCon" tipo="numero">
                                        <table class="alineado">
-                                             <tr><td><span toolTexto="contracts[n].value.amount">Monto del Contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <tr><td><span toolTexto="contracts[n].value.amount">Monto del Contrato</span></td><td><span class="ordenEncabezado" opcion="{{ordenmontoCon}}">
                                                    <div class="contenedorFlechasOrden">
-                                                         <i class="fas fa-sort-up flechaArriba"></i>
-                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                         <i class="fas fa-sort-up flechaArriba" {% if ordenmontoCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                         <i class="fas fa-sort-down flechaAbajo" {% if ordenmontoCon == 'ascendente' %}style="display:none"{% endif %}></i>
                                                    </div>
                                                 </span></td></tr>
                                           </table>
@@ -329,22 +331,22 @@
                                        
                                        
                                        <div class="contenedorFiltroNumerico">
-                                             <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
-                                             <button class="btnFiltroNumerico">&lt;</button>
+                                             <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion=">"  type="text" value="{% if montoCon %}{{montoCon}}{% endif %}">
+                                             <button class="btnFiltroNumerico">{% if operadormontoCon == '<' %}&lt;{% endif %}{% if operadormontoCon == '>' %}&gt;{% endif %}{% if operadormontoCon == '=' %}={% endif %}</button>
                                              <div class="preContenedorFiltroBusqueda animated fadeIn">
                                                    <div class=" contenedorFiltroBusqueda" >
                                                       <div class="flechaArribaBlanca"></div>
                                                       <div>
                                                          <div class="OpcionFiltroBusquedaNumerico">
-                                                            <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" checked>
+                                                            <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" {% if operadormontoCon == '<' %}checked{% endif %}>
                                                             <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
                                                          </div>
                                                          <div class="OpcionFiltroBusquedaNumerico">
-                                                            <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">">
+                                                            <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">" {% if operadormontoCon == '>' %}checked{% endif %}>
                                                             <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
                                                          </div>
                                                          <div class="OpcionFiltroBusquedaNumerico">
-                                                            <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="=">
+                                                            <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="==" {% if operadormontoCon == '=' %}checked{% endif %}>
                                                             <label for="filtroMenorIgual" >Igual a &nbsp;<span>=</span></label>
                                                          </div>
                                                       </div>
@@ -352,12 +354,12 @@
                                                 </div>
                                        </div>
                                     </th>
-                                    <th class="textoAlineadoCentrado">
+                                    <th class="textoAlineadoCentrado campoFiltrado" filtro="fechaFirmaCon" tipo="fecha">
                                           <table class="alineado">
-                                                <tr><td><span toolTexto="contracts[n].dateSigned">Fecha de Firma del Contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                                <tr><td><span toolTexto="contracts[n].dateSigned">Fecha de Firma del Contrato</span></td><td><span class="ordenEncabezado" opcion="{{ordenfechaFirmaCon}}">
                                                       <div class="contenedorFlechasOrden">
-                                                            <i class="fas fa-sort-up flechaArriba"></i>
-                                                            <i class="fas fa-sort-down flechaAbajo"></i>
+                                                            <i class="fas fa-sort-up flechaArriba" {% if ordenfechaFirmaCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                            <i class="fas fa-sort-down flechaAbajo" {% if ordenfechaFirmaCon == 'ascendente' %}style="display:none"{% endif %}></i>
                                                       </div>
                                                    </span></td></tr>
                                              </table>
@@ -365,22 +367,22 @@
                                           
                                           
                                           <div class="contenedorFiltroNumerico">
-                                                <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
-                                                <button class="btnFiltroNumerico">&lt;</button>
+                                                <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  type="text" value="{% if fechaFirmaCon %}{{fechaFirmaCon}}{% endif %}" >
+                                                <button class="btnFiltroNumerico">{% if operadorfechaFirmaCon == '<' %}&lt;{% endif %}{% if operadorfechaFirmaCon == '>' %}&gt;{% endif %}{% if operadorfechaFirmaCon == '=' %}={% endif %}</button>
                                                 <div class="preContenedorFiltroBusqueda animated fadeIn">
                                                       <div class=" contenedorFiltroBusqueda" >
                                                          <div class="flechaArribaBlanca"></div>
                                                          <div>
                                                             <div class="OpcionFiltroBusquedaNumerico">
-                                                               <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                               <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" {% if operadorfechaFirmaCon == '<' %}checked{% endif %}>
                                                                <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
                                                             </div>
                                                             <div class="OpcionFiltroBusquedaNumerico">
-                                                               <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                               <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">" {% if operadorfechaFirmaCon == '>' %}checked{% endif %}>
                                                                <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
                                                             </div>
                                                             <div class="OpcionFiltroBusquedaNumerico">
-                                                               <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                               <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="==" {% if operadorfechaFirmaCon == '=' %}checked{% endif %}>
                                                                <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
                                                             </div>
                                                          </div>
@@ -388,12 +390,12 @@
                                                    </div>
                                           </div>
                                        </th>
-                                 <th class="textoAlineadoCentrado">
+                                 <th class="textoAlineadoCentrado  campoFiltrado" filtro="fechaInicioCon" tipo="fecha">
                                        <table class="alineado">
-                                             <tr><td><span toolTexto='contracts[n].period.startDate'>Fecha del Inicio Contrato</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <tr><td><span toolTexto='contracts[n].period.startDate'>Fecha del Inicio Contrato</span></td><td><span class="ordenEncabezado" opcion="{{ordenfechaInicioCon}}">
                                                    <div class="contenedorFlechasOrden">
-                                                         <i class="fas fa-sort-up flechaArriba"></i>
-                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                         <i class="fas fa-sort-up flechaArriba" {% if ordenfechaInicioCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                         <i class="fas fa-sort-down flechaAbajo" {% if ordenfechaInicioCon == 'ascendente' %}style="display:none"{% endif %}></i>
                                                    </div>
                                                 </span></td></tr>
                                           </table>
@@ -401,22 +403,22 @@
                                        
                                        
                                        <div class="contenedorFiltroNumerico">
-                                             <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"  >
-                                             <button class="btnFiltroNumerico">&lt;</button>
+                                             <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion=">"   type="text" value="{% if fechaInicioCon %}{{fechaInicioCon}}{% endif %}" >
+                                             <button class="btnFiltroNumerico">{% if operadorfechaInicioCon == '<' %}&lt;{% endif %}{% if operadorfechaInicioCon == '>' %}&gt;{% endif %}{% if operadorfechaInicioCon == '=' %}={% endif %}</button>
                                              <div class="preContenedorFiltroBusqueda animated fadeIn">
                                                    <div class=" contenedorFiltroBusqueda" >
                                                       <div class="flechaArribaBlanca"></div>
                                                       <div>
                                                          <div class="OpcionFiltroBusquedaNumerico">
-                                                            <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" checked>
+                                                            <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" {% if operadorfechaInicioCon == '<' %}checked{% endif %}>
                                                             <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
                                                          </div>
                                                          <div class="OpcionFiltroBusquedaNumerico">
-                                                            <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">">
+                                                            <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">" {% if operadorfechaInicioCon == '>' %}checked{% endif %}>
                                                             <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
                                                          </div>
                                                          <div class="OpcionFiltroBusquedaNumerico">
-                                                            <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="=">
+                                                            <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="==" {% if operadorfechaInicioCon == '=' %}checked{% endif %}>
                                                             <label for="filtroFechaIgual" >Igual a &nbsp;<span>=</span></label>
                                                          </div>
                                                       </div>
@@ -424,18 +426,18 @@
                                                 </div>
                                        </div>
                                     </th>
-                                 <th class="textoAlineadoCentrado">
+                                 <th class="textoAlineadoCentrado  campoFiltrado" filtro="fechaestadoCon" tipo="fecha">
                                        <table class="alineado">
-                                             <tr><td> <span toolTexto="contracts[n].status">Estado</span></td><td><span class="ordenEncabezado" opcion="neutro">
+                                             <tr><td> <span toolTexto="contracts[n].status">Estado</span></td><td><span class="ordenEncabezado" opcion="{{ordenestadoCon}}">
                                                    <div class="contenedorFlechasOrden">
-                                                         <i class="fas fa-sort-up flechaArriba"></i>
-                                                         <i class="fas fa-sort-down flechaAbajo"></i>
+                                                         <i class="fas fa-sort-up flechaArriba" {% if ordenestadoCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                         <i class="fas fa-sort-down flechaAbajo" {% if ordenestadoCon == 'ascendente' %}style="display:none"{% endif %}></i>
                                                    </div>
                                                 </span></td></tr>
                                           </table>
                   
                                        
-                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       <input  class="campoBlancoTextoSeleccion" placeholder="Nombre"  type="text" value="{% if estadoCon %}{{estadoCon}}{% endif %}">
                                       
                                           
                                     </th>
@@ -564,7 +566,7 @@
                                        
                                        
                                        <div class="contenedorFiltroNumerico">
-                                             <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                             <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion=">">
                                              <button class="btnFiltroNumerico">&lt;</button>
                                              <div class="preContenedorFiltroBusqueda animated fadeIn">
                                                    <div class=" contenedorFiltroBusqueda" >
@@ -600,7 +602,7 @@
                                           
                                           
                                           <div class="contenedorFiltroNumerico">
-                                                <input  class="campoBlancoTextoSeleccion" placeholder="Número" opcion=">">
+                                                <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion=">">
                                                 <button class="btnFiltroNumerico">&lt;</button>
                                                 <div class="preContenedorFiltroBusqueda animated fadeIn">
                                                       <div class=" contenedorFiltroBusqueda" >
@@ -757,5 +759,6 @@
 {% block script_content %}
 <script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
 <script src="{% static 'plugins/jquery-mask-1.14.15/jquery.mask.min.js' %}"></script>
+<script src="{% static 'plugins/autoNumeric-4.1.0/autoNumeric.min.js' %}"></script>
 <script src="{% static 'js/proveedor.js' %}"></script>
 {% endblock %}

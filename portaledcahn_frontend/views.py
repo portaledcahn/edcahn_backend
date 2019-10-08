@@ -150,7 +150,42 @@ def Procesos_Proveedor(request):
     return render(request,'procesos_proveedor/procesos_proveedor.html')
 
 def Proveedor(request,id=''):
-    return render(request,'proveedor/proveedor.html',{'id':id.replace('"','')})
+    parametros = {
+      "compradorCon" : request.GET.get('compradorCon',''),
+      "tituloCon" : request.GET.get('tituloCon',''),
+      "descripcionCon" : request.GET.get('descripcionCon',''),
+      "categoriaCompraCon" : request.GET.get('categoriaCompraCon',''),
+      "estadoCon" : request.GET.get('estadoCon',''),
+      "fechaFirmaCon" : request.GET.get('fechaFirmaCon','').replace(">", "").replace("<", "").replace("==", ""),
+      "fechaInicioCon" : request.GET.get('fechaInicioCon','').replace(">", "").replace("<", "").replace("==", ""),
+      "montoCon" : request.GET.get('montoCon','').replace(">", "").replace("<", "").replace("==", ""),
+      "paginarPorCon" : int(request.GET.get('paginarPorCon','5')),
+      "ordenarPorCon" : request.GET.get('ordenarPorCon',''),
+      "id":id.replace('"','')
+    }
+    parametros['operadorfechaFirmaCon'] = verificarOperador(request.GET.get('fechaFirmaCon',''))
+    parametros['operadorfechaInicioCon'] = verificarOperador(request.GET.get('fechaInicioCon',''))
+    parametros['operadormontoCon'] = verificarOperador(request.GET.get('montoCon',''))
+
+    parametros['ordencompradorCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'compradorCon')
+    parametros['ordentituloCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'tituloCon')
+    parametros['ordendescripcionCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'descripcionCon')
+    parametros['ordencategoriaCompraCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'categoriaCompraCon')
+
+    
+    parametros['ordencompradorCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'compradorCon')
+    parametros['ordentituloCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'tituloCon')
+    parametros['ordendescripcionCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'descripcionCon')
+    parametros['ordencategoriaCompraCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'categoriaCompraCon')
+    parametros['ordenestadoCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'estadoCon')
+    parametros['ordenfechaFirmaCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'fechaFirmaCon')
+    parametros['ordenfechaInicioCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'fechaInicioCon')
+    parametros['ordenmontoCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'montoCon')
+
+
+
+
+    return render(request,'proveedor/proveedor.html',parametros)
 
 def Proveedores(request):
     parametros = {
@@ -186,11 +221,17 @@ def Proveedores(request):
 def Visualizaciones(request):
     return render(request,'visualizaciones/visualizaciones.html')
 
-def Dashboard_Oncae(request):
-    return render(request,'dashboard_oncae/dashboard_oncae.html')
+def DashboardProcesosContratacion(request):
+    return render(request,'dashboardProcesosContratacion/dashboardProcesosContratacion.html')
 
-def Dashboard_Sefin(request):
-    return render(request,'dashboard_sefin/dashboard_sefin.html')
+def DashboardProcesosPago(request):
+    return render(request,'dashboardProcesosPago/dashboardProcesosPago.html')
+
+def IndicadoresProcesosContratacion(request):
+    return render(request,'indicadoresProcesosContratacion/indicadoresProcesosContratacion.html')
+
+def IndicadoresProcesosPago(request):
+    return render(request,'indicadoresProcesosPago/indicadoresProcesosPago.html')
 
 
 def verificarOperador(filtro):
