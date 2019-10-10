@@ -235,7 +235,7 @@ class Index(APIView):
 		s.aggs["contratos"].metric(
 			'distinct_buyers', 
 			'cardinality', 
-			field='doc.compiledRelease.contracts.buyer.id.keyword'
+			field='doc.compiledRelease.contracts.buyer.id.keyword' #CompileRelease.BuyerId
 		)
 		
 		s.aggs["contratos"].metric(
@@ -247,13 +247,13 @@ class Index(APIView):
 		s.aggs["contratos"].metric(
 			'distinct_transactions', 
 			'cardinality', 
-			field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
+			field='doc.compiledRelease.contracts.implementation.transactions.id.keyword' #Con un query comprobar si sale diferente validando que el source sea de SEFIN.
 		)
 
 		s.aggs.metric(
 			'distinct_tenders', 
 			'cardinality', 
-			field='doc.compiledRelease.tender.id.keyword'
+			field='doc.compiledRelease.tender.id.keyword' #los OCID con sources de ONCAE de los records. 
 		)
 		
 		results = s.execute()
@@ -297,11 +297,11 @@ class Buscador(APIView):
 
 		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
 
-		s.aggs.metric('instituciones', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=100)		
+		s.aggs.metric('instituciones', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=100)
 
 		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')		
 
-		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')		
+		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')	# fecha de contratos o dependiendo lo que se este mostrando.
 
 		#Resumen
 
@@ -1248,7 +1248,7 @@ class Compradores(APIView):
 		parametros["fup"] = fup 
 		parametros["cp"] = cp
 		parametros["dependencias"] = dependencias
-		parametros["orderBy"] = ordenarPor
+		parametros["ordenarPor"] = ordenarPor
 		parametros["paginarPor"] = paginarPor
 
 		context = {
@@ -1314,26 +1314,586 @@ class Comprador(APIView):
 
 		return Response(results.hits.hits[0]["_source"]["doc"]["compiledRelease"]["buyer"])
 
-
 # Dashboard SEFIN
-class CantidadDePagos(APIView):
+
+class FiltrosDashboardSEFIN(APIView):
 
 	def get(self, request, format=None):
 
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		objetogasto = request.GET.get('objetogasto', '')
+		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
+		proveedor = request.GET.get('proveedor', '')
+
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
-		s = Search(using=cliente, index='contratos')
+		s = Search(using=cliente, index='contract')
+
+		# Filtros
+
+		s = s.filter('exists', field='implementation')
+
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__buyerFullName=institucion)
+
+		if proveedor.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+
+		if objetogasto.replace(' ', ''):
+			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			# planning.budget.budgetBreakdown.n.classifications.objeto
+
+		if fuentefinanciamiento.replace(' ', ''):
+			s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+			# planning.budget.budgetBreakdown.n.classifications.fuente
+
+		# Resumen
+		s.aggs.metric(
+			'instituciones', 
+			'terms', 
+			field='extra.buyerFullName.keyword', 
+			size=10000
+		)
 
 		s.aggs.metric(
-			'contratos', 
-			'nested', 
-			path='doc.compiledRelease.contracts'
+			'proveedores', 
+			'terms', 
+			field='implementation.transactions.payee.name.keyword', 
+			size=10000
+		)
+
+		s.aggs.metric(
+			'años', 
+			'date_histogram', 
+			field='implementation.transactions.date', 
+			interval='year', 
+			format='yyyy'
+		)
+
+		s.aggs.metric(
+			'monedas', 
+			'terms', 
+			field='implementation.transactions.value.currency.keyword', 
+			size=10000
+		)
+
+		s.aggs.metric(
+			'fuentes', 
+			'terms', 
+			field='extra.fuentes.keyword', 
+			size=10000
+		)
+
+		s.aggs.metric(
+			'objetosGasto', 
+			'terms',
+			field='extra.objetosGasto.keyword', 
+			size=10000
+		)
+
+		results = s.execute()
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["objetogasto"] = objetogasto
+		parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		parametros["proveedor"] = proveedor
+
+		resultados = results.aggregations.to_dict()
+
+		context = {
+			"parametros": parametros,
+			"respuesta": resultados
+		}
+
+		return Response(context)
+
+class GraficarCantidadDePagosMes(APIView):
+
+	def get(self, request, format=None):
+		pagos_mes = []
+		promedios_mes = []
+		lista_meses = []
+		meses = {}
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		objetogasto = request.GET.get('objetogasto', '')
+		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
+		proveedor = request.GET.get('proveedor', '')
+
+		for x in range(1, 12+1):
+			meses[str(x)] = {
+				"cantidad_pagos": 0,
+				"promedio_pagos": 0
+			}
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+
+		# Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__buyerFullName=institucion)
+
+		if proveedor.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+
+		if objetogasto.replace(' ', ''):
+			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			# planning.budget.budgetBreakdown.n.classifications.objeto
+
+		if fuentefinanciamiento.replace(' ', ''):
+			s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+			# planning.budget.budgetBreakdown.n.classifications.fuente
+			
+		# Agregados
+		s.aggs.metric(
+			'total_pagos',
+			'cardinality',
+			field='implementation.transactions.id.keyword'
+		)
+
+		s.aggs.metric(
+			'pagos_por_mes', 
+			'date_histogram', 
+			field='implementation.transactions.date',
+			interval= "month",
+			format= "MM"
+		)
+
+		s.aggs["pagos_por_mes"].metric(
+			'suma_montos',
+			'sum',
+			field = 'implementation.transactions.value.amount'
 		)
 		
 		results = s.execute()
 
+		aggs = results.aggregations.pagos_por_mes.to_dict()
+
+		for bucket in aggs["buckets"]:
+			if bucket["key_as_string"] in meses:
+
+				total = results.aggregations.total_pagos["value"]
+				count = bucket["doc_count"]
+				if total != 0:
+					promedio = count / total
+				else:
+					promedio = 0
+
+				meses[bucket["key_as_string"]] = {
+					"cantidad_pagos": count,
+					"promedio_pagos": promedio
+				}
+
+		for mes in meses:
+			pagos_mes.append(meses[mes]["cantidad_pagos"])
+			promedios_mes.append(meses[mes]["promedio_pagos"])
+			lista_meses.append(NombreDelMes(mes))
+
+		resultados = {
+			"cantidadpagos": pagos_mes,
+			"promediopagos": promedios_mes,
+			"meses": lista_meses,
+			"totalpagos": results.aggregations.total_pagos["value"],
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["objetogasto"] = objetogasto
+		parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		parametros["proveedor"] = proveedor
+
 		context = {
-			"respuesta": results.aggregations
+			"resultados": resultados,
+			"parametros": parametros
 		}
 
 		return Response(context)
+
+class GraficarMontosDePagosMes(APIView):
+
+	def get(self, request, format=None):
+		pagos_mes = []
+		promedios_mes = []
+		lista_meses = []
+		meses = {}
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		objetogasto = request.GET.get('objetogasto', '')
+		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
+		proveedor = request.GET.get('proveedor', '')
+
+		for x in range(1, 12+1):
+			meses[str(x)] = {
+				"montos_pagos": 0,
+				"promedio_pagos": 0
+			}
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+
+		# Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__buyerFullName=institucion)
+
+		if proveedor.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+
+		if objetogasto.replace(' ', ''):
+			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			# planning.budget.budgetBreakdown.n.classifications.objeto
+
+		if fuentefinanciamiento.replace(' ', ''):
+			s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+			# planning.budget.budgetBreakdown.n.classifications.fuente
+			
+		# Agregados
+		s.aggs.metric(
+			'montos_pagos',
+			'sum',
+			field='implementation.transactions.value.amount'
+		)
+
+		s.aggs.metric(
+			'pagos_por_mes', 
+			'date_histogram', 
+			field='implementation.transactions.date',
+			interval= "month",
+			format= "MM"
+		)
+
+		s.aggs["pagos_por_mes"].metric(
+			'suma_montos',
+			'sum',
+			field = 'implementation.transactions.value.amount'
+		)
+		
+		results = s.execute()
+
+		aggs = results.aggregations.pagos_por_mes.to_dict()
+
+		for bucket in aggs["buckets"]:
+			if bucket["key_as_string"] in meses:
+
+				total = results.aggregations.montos_pagos["value"]
+				count = bucket["suma_montos"]["value"]
+				if total != 0:
+					promedio = count / total
+				else:
+					promedio = 0
+
+				meses[bucket["key_as_string"]] = {
+					"montos_pagos": count,
+					"promedio_pagos": promedio
+				}
+
+		for mes in meses:
+			pagos_mes.append(meses[mes]["montos_pagos"])
+			promedios_mes.append(meses[mes]["promedio_pagos"])
+			lista_meses.append(NombreDelMes(mes))
+
+		resultados = {
+			"montopagos": pagos_mes,
+			"promediopagos": promedios_mes,
+			"meses": lista_meses,
+			"totalpagos": results.aggregations.montos_pagos["value"],
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["objetogasto"] = objetogasto
+		parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		parametros["proveedor"] = proveedor
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class EstadisticaMontoDePagos(APIView):
+
+	def get(self, request, format=None):
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		objetogasto = request.GET.get('objetogasto', '')
+		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
+		proveedor = request.GET.get('proveedor', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+
+		# Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__buyerFullName=institucion)
+
+		if proveedor.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+
+		if objetogasto.replace(' ', ''):
+			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			# planning.budget.budgetBreakdown.n.classifications.objeto
+
+		if fuentefinanciamiento.replace(' ', ''):
+			s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+			# planning.budget.budgetBreakdown.n.classifications.fuente
+			
+		# Agregados
+		s.aggs.metric(
+			'total_pagado',
+			'sum',
+			field='implementation.transactions.value.amount'
+		)
+
+		s.aggs.metric(
+			'promedio_pagado',
+			'avg',
+			field='implementation.transactions.value.amount'
+		)
+
+		s.aggs.metric(
+			'maximo_pagado',
+			'max',
+			field='implementation.transactions.value.amount'
+		)
+
+		s.aggs.metric(
+			'minimo_pagado',
+			'min',
+			field='implementation.transactions.value.amount'
+		)
+
+		results = s.execute()
+
+		resultados = {
+			"promedio": results.aggregations.promedio_pagado["value"],
+			"mayor": results.aggregations.maximo_pagado["value"],
+			"menor": results.aggregations.minimo_pagado["value"],
+			"total": results.aggregations.total_pagado["value"],
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["objetogasto"] = objetogasto
+		parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		parametros["proveedor"] = proveedor
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class TopCompradoresPorMontoPagado(APIView):
+
+	def get(self, request, format=None):
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		objetogasto = request.GET.get('objetogasto', '')
+		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
+		proveedor = request.GET.get('proveedor', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+
+		# Filtros
+		s = s.filter('exists', field='implementation')
+
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__buyerFullName=institucion)
+
+		if proveedor.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+
+		if objetogasto.replace(' ', ''):
+			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			# planning.budget.budgetBreakdown.n.classifications.objeto
+
+		if fuentefinanciamiento.replace(' ', ''):
+			s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+			# planning.budget.budgetBreakdown.n.classifications.fuente
+			
+		# Agregados
+		s.aggs.metric(
+			'compradores',
+			'terms',
+			field='extra.buyerFullName.keyword',
+			size=10
+		)
+
+		s.aggs["compradores"].metric(
+			'total_pagado',
+			'sum',
+			field='implementation.transactions.value.amount'
+		)
+
+		results = s.execute()
+
+		buckets = results.aggregations.compradores.to_dict()
+
+		compradores = []
+		montos = []
+
+		for bucket in buckets["buckets"]:
+			print(bucket)
+
+			compradores.append(bucket["key"])
+			montos.append(bucket["total_pagado"]["value"])
+
+		resultados = {
+			"compradores": compradores,
+			"montos": montos
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["objetogasto"] = objetogasto
+		parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		parametros["proveedor"] = proveedor
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class TopProveedoresPorMontoPagado(APIView):
+
+	def get(self, request, format=None):
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		objetogasto = request.GET.get('objetogasto', '')
+		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
+		proveedor = request.GET.get('proveedor', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+
+		# Filtros
+		s = s.filter('exists', field='implementation')
+
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__buyerFullName=institucion)
+
+		if proveedor.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+
+		if objetogasto.replace(' ', ''):
+			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			# planning.budget.budgetBreakdown.n.classifications.objeto
+
+		if fuentefinanciamiento.replace(' ', ''):
+			s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+			# planning.budget.budgetBreakdown.n.classifications.fuente
+			
+		# Agregados
+		s.aggs.metric(
+			'proveedores',
+			'terms',
+			field='implementation.transactions.payee.name.keyword',
+			size=10
+		)
+
+		s.aggs["proveedores"].metric(
+			'total_pagado',
+			'sum',
+			field='implementation.transactions.value.amount'
+		)
+
+		results = s.execute()
+
+		buckets = results.aggregations.proveedores.to_dict()
+
+		proveedores = []
+		montos = []
+
+		for bucket in buckets["buckets"]:
+			proveedores.append(bucket["key"])
+			montos.append(bucket["total_pagado"]["value"])
+
+		resultados = {
+			"proveedores": proveedores,
+			"montos": montos
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["objetogasto"] = objetogasto
+		parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		parametros["proveedor"] = proveedor
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+

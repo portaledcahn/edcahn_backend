@@ -24,67 +24,7 @@
    </div>
    <div class="contenedorResultadosBusqueda">
 
-      <div class="container-fluid" style="display: none">
-         <div class="row">
-            <div class="contenedorFiltros">
-               <div class="row">
-                  <div class="col-6 col-sm-7 col-md-6">
-                     <div class="tituloFiltrosAplicados">Filtros Aplicados:</div>
-                  </div>
-                  <div class="col-6 col-sm-5 col-md-6 textoAlineadoDerecha">
-                     <a href="/busqueda/" class="botonGeneral fondoColorSecundario">Quitar Todos</a>
-                  </div>
-               </div>
-               <div class="row">
-                  <div class="grupoEtiquetaFiltro col-md-12 mb-1">
-                     <div class="grupoEtiquetaTitulo">
-                        Moneda:
-                     </div>
-                     <div class="filtrosAplicados">
-                        <div class="etiquetaFiltro">
-                           USD
-                           <i class="fas fa-times"></i>
-                        </div>
-                        <div class="etiquetaFiltro">
-                           HNL
-                           <i class="fas fa-times"></i>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="grupoEtiquetaFiltro col-md-12 mb-1">
-                     <div class="grupoEtiquetaTitulo">
-                        Seleccion:
-                     </div>
-                     <div class="filtrosAplicados">
-                        <div class="etiquetaFiltro">
-                           Concurso Público Nacional
-                           <i class="fas fa-times"></i>
-                        </div>
-                        <div class="etiquetaFiltro">
-                           Compras Menores
-                           <i class="fas fa-times"></i>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="grupoEtiquetaFiltro col-md-12 mb-1">
-                     <div class="grupoEtiquetaTitulo">
-                        Categoria:
-                     </div>
-                     <div class="filtrosAplicados">
-                        <div class="etiquetaFiltro">
-                           Obras
-                           <i class="fas fa-times"></i>
-                        </div>
-                        <div class="etiquetaFiltro">
-                           Bienes
-                           <i class="fas fa-times"></i>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
+  
       <div class="container-fluid contenedorBusqueda mb-5" >
          <div class="row">
             <div class="col-6 col-sm-6 col-md-6">
@@ -157,7 +97,7 @@
             <div class="col-md-12 mt-4">
                <div class="cajonSombreado">
                   <div class="tituloGrafico">
-                     <h4 class="titularCajonSombreado textoAlineadoCentrado">Montos de Contratos</h4>
+                     <h4 class="titularCajonSombreado textoAlineadoCentrado">Resumen Montos de Pagos</h4>
                   </div>
                   
                   <div class="contenedorGrafico">
@@ -165,25 +105,25 @@
                      <div class="row">
                            <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                               <div class="pt-2 pb-2">
-                              <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="65784" class="conteo moneda">0</span> <span class="textoColorPrimario">HNL</span></div>
+                              <div class="titularColor textoAlineadoDerecha textoColorGris"  style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="0" class="conteo moneda" id="MontoPagosPromedio">0</span> <span class="textoColorPrimario">HNL</span></div>
                               <div class="titularColor textoAlineadoDerecha textoColorGris" >Promedio</div>
                               </div>
                            </div>
                            <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                  <div class="pt-2 pb-2">
-                                 <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="9765784" class="conteo moneda">0</span> <span class="textoColorPrimario">HNL</span></div>
+                                 <div class="titularColor textoAlineadoDerecha textoColorGris"  style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="0" class="conteo moneda" id="MontoPagosMayor">0</span> <span class="textoColorPrimario">HNL</span></div>
                                  <div class="titularColor textoAlineadoDerecha textoColorGris" >Mayor</div>
                                  </div>
                               </div>
                               <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                     <div class="pt-2 pb-2">
-                                    <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="250" class="conteo moneda">0</span> <span class="textoColorPrimario">HNL</span></div>
+                                    <div class="titularColor textoAlineadoDerecha textoColorGris"  style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="0" class="conteo moneda" id="MontoPagosMenor">0</span> <span class="textoColorPrimario">HNL</span></div>
                                     <div class="titularColor textoAlineadoDerecha textoColorGris" >Menor</div>
                                     </div>
                                  </div>
                                  <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                        <div class="pt-2 pb-2">
-                                       <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="250164554" class="conteo moneda">0</span> <span class="textoColorPrimario">HNL</span></div>
+                                       <div class="titularColor textoAlineadoDerecha textoColorGris"  style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="0" class="conteo moneda" id="MontoPagosTotal">0</span> <span class="textoColorPrimario">HNL</span></div>
                                        <div class="titularColor textoAlineadoDerecha textoColorGris" >Total</div>
                                        </div>
                                     </div>
