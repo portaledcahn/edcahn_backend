@@ -11,7 +11,7 @@ from elasticsearch_dsl import Search, Q
 from .serializers import *
 from .functions import *
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
-import json, copy, urllib.parse, datetime, operator
+import json, copy, urllib.parse, datetime, operator, statistics
 import pandas as pd 
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
@@ -1779,6 +1779,100 @@ class EstadisticaMontoDePagos(APIView):
 			"mayor": results.aggregations.pagos.maximo_pagado["value"],
 			"menor": results.aggregations.pagos.minimo_pagado["value"],
 			"total": results.aggregations.pagos.total_pagado["value"],
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["objetogasto"] = objetogasto
+		parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		parametros["proveedor"] = proveedor
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class EstadisticaCantidadDePagos(APIView):
+
+	def get(self, request, format=None):
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		objetogasto = request.GET.get('objetogasto', '')
+		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
+		proveedor = request.GET.get('proveedor', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+
+		# Filtros
+		s = s.filter('exists', field='implementation')
+
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__buyerFullName=institucion)
+
+		if proveedor.replace(' ', ''):
+			qProveedor = Q('match_phrase', implementation__transactions__payee__name__keyword=proveedor)
+			s = s.query('nested', path='implementation.transactions', query=qProveedor)
+
+		if anio.replace(' ', ''):
+			qAnio = Q('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.query('nested', path='implementation.transactions', query=qAnio)
+
+		if moneda.replace(' ', ''):
+			qMoneda = Q('match_phrase', implementation__transactions__value__currency=moneda)
+			s = s.query('nested', path='implementation.transactions', query=qMoneda)
+
+		if objetogasto.replace(' ', ''):
+			s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
+			# planning.budget.budgetBreakdown.n.classifications.objeto
+
+		if fuentefinanciamiento.replace(' ', ''):
+			s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+			# planning.budget.budgetBreakdown.n.classifications.fuente
+			
+		# Agregados
+
+		s.aggs.metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
+		)
+
+		s.aggs["pagos"].metric(
+			'total_pagos',
+			'cardinality',
+			field='implementation.transactions.id.keyword'
+		)
+
+		s.aggs["pagos"].metric(
+			'pagos_por_mes', 
+			'date_histogram', 
+			field='implementation.transactions.date',
+			interval= "month",
+			format= "MM"
+		)
+
+		results = s.execute()
+
+		aggs = results.aggregations.pagos.pagos_por_mes.to_dict()
+
+		cantidad_por_meses = []
+
+		for bucket in aggs["buckets"]:
+			cantidad_por_meses.append(bucket["doc_count"])
+
+		resultados = {
+			"promedio": statistics.mean(cantidad_por_meses),
+			"mayor": max(cantidad_por_meses),
+			"menor": min(cantidad_por_meses),
+			"total": results.aggregations.pagos.total_pagos.value,
 		}
 
 		parametros = {}
