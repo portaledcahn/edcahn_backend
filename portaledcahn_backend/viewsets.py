@@ -1339,16 +1339,19 @@ class FiltrosDashboardSEFIN(APIView):
 			s = s.filter('match_phrase', extra__buyerFullName=institucion)
 
 		if proveedor.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+			qProveedor = Q('match_phrase', implementation__transactions__payee__name__keyword=proveedor)
+			s = s.query('nested', path='implementation.transactions', query=qProveedor)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			qAnio = Q('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.query('nested', path='implementation.transactions', query=qAnio)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+			qMoneda = Q('match_phrase', implementation__transactions__value__currency=moneda)
+			s = s.query('nested', path='implementation.transactions', query=qMoneda)
 
 		if objetogasto.replace(' ', ''):
-			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
 			# planning.budget.budgetBreakdown.n.classifications.objeto
 
 		if fuentefinanciamiento.replace(' ', ''):
@@ -1357,20 +1360,32 @@ class FiltrosDashboardSEFIN(APIView):
 
 		# Resumen
 		s.aggs.metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
+		)
+
+		s.aggs.metric(
 			'instituciones', 
 			'terms', 
 			field='extra.buyerFullName.keyword', 
 			size=10000
 		)
 
-		s.aggs.metric(
+		s.aggs["instituciones"].metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
+		)
+
+		s.aggs["pagos"].metric(
 			'proveedores', 
 			'terms', 
 			field='implementation.transactions.payee.name.keyword', 
 			size=10000
 		)
 
-		s.aggs.metric(
+		s.aggs["pagos"].metric(
 			'años', 
 			'date_histogram', 
 			field='implementation.transactions.date', 
@@ -1378,7 +1393,7 @@ class FiltrosDashboardSEFIN(APIView):
 			format='yyyy'
 		)
 
-		s.aggs.metric(
+		s.aggs["pagos"].metric(
 			'monedas', 
 			'terms', 
 			field='implementation.transactions.value.currency.keyword', 
@@ -1392,11 +1407,23 @@ class FiltrosDashboardSEFIN(APIView):
 			size=10000
 		)
 
+		s.aggs["fuentes"].metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
+		)
+
 		s.aggs.metric(
 			'objetosGasto', 
 			'terms',
 			field='extra.objetosGasto.keyword', 
 			size=10000
+		)
+
+		s.aggs["objetosGasto"].metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
 		)
 
 		results = s.execute()
@@ -1433,7 +1460,9 @@ class GraficarCantidadDePagosMes(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		for x in range(1, 12+1):
+		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
+
+		for x in mm:
 			meses[str(x)] = {
 				"cantidad_pagos": 0,
 				"promedio_pagos": 0
@@ -1444,20 +1473,25 @@ class GraficarCantidadDePagosMes(APIView):
 		s = Search(using=cliente, index='contract')
 
 		# Filtros
+		s = s.filter('exists', field='implementation')
+
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__buyerFullName=institucion)
 
 		if proveedor.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+			qProveedor = Q('match_phrase', implementation__transactions__payee__name__keyword=proveedor)
+			s = s.query('nested', path='implementation.transactions', query=qProveedor)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			qAnio = Q('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.query('nested', path='implementation.transactions', query=qAnio)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+			qMoneda = Q('match_phrase', implementation__transactions__value__currency=moneda)
+			s = s.query('nested', path='implementation.transactions', query=qMoneda)
 
 		if objetogasto.replace(' ', ''):
-			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
 			# planning.budget.budgetBreakdown.n.classifications.objeto
 
 		if fuentefinanciamiento.replace(' ', ''):
@@ -1465,13 +1499,20 @@ class GraficarCantidadDePagosMes(APIView):
 			# planning.budget.budgetBreakdown.n.classifications.fuente
 			
 		# Agregados
+
 		s.aggs.metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
+		)
+
+		s.aggs["pagos"].metric(
 			'total_pagos',
 			'cardinality',
 			field='implementation.transactions.id.keyword'
 		)
 
-		s.aggs.metric(
+		s.aggs["pagos"].metric(
 			'pagos_por_mes', 
 			'date_histogram', 
 			field='implementation.transactions.date',
@@ -1479,7 +1520,7 @@ class GraficarCantidadDePagosMes(APIView):
 			format= "MM"
 		)
 
-		s.aggs["pagos_por_mes"].metric(
+		s.aggs["pagos"]["pagos_por_mes"].metric(
 			'suma_montos',
 			'sum',
 			field = 'implementation.transactions.value.amount'
@@ -1487,12 +1528,12 @@ class GraficarCantidadDePagosMes(APIView):
 		
 		results = s.execute()
 
-		aggs = results.aggregations.pagos_por_mes.to_dict()
+		aggs = results.aggregations.pagos.pagos_por_mes.to_dict()
 
 		for bucket in aggs["buckets"]:
 			if bucket["key_as_string"] in meses:
 
-				total = results.aggregations.total_pagos["value"]
+				total = results.aggregations.pagos.total_pagos["value"]
 				count = bucket["doc_count"]
 				if total != 0:
 					promedio = count / total
@@ -1513,7 +1554,7 @@ class GraficarCantidadDePagosMes(APIView):
 			"cantidadpagos": pagos_mes,
 			"promediopagos": promedios_mes,
 			"meses": lista_meses,
-			"totalpagos": results.aggregations.total_pagos["value"],
+			"totalpagos": results.aggregations.pagos.total_pagos["value"],
 		}
 
 		parametros = {}
@@ -1546,7 +1587,9 @@ class GraficarMontosDePagosMes(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		for x in range(1, 12+1):
+		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
+
+		for x in mm:
 			meses[str(x)] = {
 				"montos_pagos": 0,
 				"promedio_pagos": 0
@@ -1557,20 +1600,25 @@ class GraficarMontosDePagosMes(APIView):
 		s = Search(using=cliente, index='contract')
 
 		# Filtros
+		s = s.filter('exists', field='implementation')
+
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__buyerFullName=institucion)
 
 		if proveedor.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+			qProveedor = Q('match_phrase', implementation__transactions__payee__name__keyword=proveedor)
+			s = s.query('nested', path='implementation.transactions', query=qProveedor)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			qAnio = Q('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.query('nested', path='implementation.transactions', query=qAnio)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+			qMoneda = Q('match_phrase', implementation__transactions__value__currency=moneda)
+			s = s.query('nested', path='implementation.transactions', query=qMoneda)
 
 		if objetogasto.replace(' ', ''):
-			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
 			# planning.budget.budgetBreakdown.n.classifications.objeto
 
 		if fuentefinanciamiento.replace(' ', ''):
@@ -1578,13 +1626,20 @@ class GraficarMontosDePagosMes(APIView):
 			# planning.budget.budgetBreakdown.n.classifications.fuente
 			
 		# Agregados
+
 		s.aggs.metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
+		)
+
+		s.aggs["pagos"].metric(
 			'montos_pagos',
 			'sum',
 			field='implementation.transactions.value.amount'
 		)
 
-		s.aggs.metric(
+		s.aggs["pagos"].metric(
 			'pagos_por_mes', 
 			'date_histogram', 
 			field='implementation.transactions.date',
@@ -1592,7 +1647,7 @@ class GraficarMontosDePagosMes(APIView):
 			format= "MM"
 		)
 
-		s.aggs["pagos_por_mes"].metric(
+		s.aggs["pagos"]["pagos_por_mes"].metric(
 			'suma_montos',
 			'sum',
 			field = 'implementation.transactions.value.amount'
@@ -1600,12 +1655,12 @@ class GraficarMontosDePagosMes(APIView):
 		
 		results = s.execute()
 
-		aggs = results.aggregations.pagos_por_mes.to_dict()
+		aggs = results.aggregations.pagos.pagos_por_mes.to_dict()
 
 		for bucket in aggs["buckets"]:
 			if bucket["key_as_string"] in meses:
 
-				total = results.aggregations.montos_pagos["value"]
+				total = results.aggregations.pagos.montos_pagos["value"]
 				count = bucket["suma_montos"]["value"]
 				if total != 0:
 					promedio = count / total
@@ -1626,7 +1681,7 @@ class GraficarMontosDePagosMes(APIView):
 			"montopagos": pagos_mes,
 			"promediopagos": promedios_mes,
 			"meses": lista_meses,
-			"totalpagos": results.aggregations.montos_pagos["value"],
+			"totalpagos": results.aggregations.pagos.montos_pagos["value"],
 		}
 
 		parametros = {}
@@ -1660,20 +1715,25 @@ class EstadisticaMontoDePagos(APIView):
 		s = Search(using=cliente, index='contract')
 
 		# Filtros
+		s = s.filter('exists', field='implementation')
+
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__buyerFullName=institucion)
 
 		if proveedor.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+			qProveedor = Q('match_phrase', implementation__transactions__payee__name__keyword=proveedor)
+			s = s.query('nested', path='implementation.transactions', query=qProveedor)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			qAnio = Q('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.query('nested', path='implementation.transactions', query=qAnio)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+			qMoneda = Q('match_phrase', implementation__transactions__value__currency=moneda)
+			s = s.query('nested', path='implementation.transactions', query=qMoneda)
 
 		if objetogasto.replace(' ', ''):
-			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
 			# planning.budget.budgetBreakdown.n.classifications.objeto
 
 		if fuentefinanciamiento.replace(' ', ''):
@@ -1681,25 +1741,32 @@ class EstadisticaMontoDePagos(APIView):
 			# planning.budget.budgetBreakdown.n.classifications.fuente
 			
 		# Agregados
+
 		s.aggs.metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
+		)
+
+		s.aggs["pagos"].metric(
 			'total_pagado',
 			'sum',
 			field='implementation.transactions.value.amount'
 		)
 
-		s.aggs.metric(
+		s.aggs["pagos"].metric(
 			'promedio_pagado',
 			'avg',
 			field='implementation.transactions.value.amount'
 		)
 
-		s.aggs.metric(
+		s.aggs["pagos"].metric(
 			'maximo_pagado',
 			'max',
 			field='implementation.transactions.value.amount'
 		)
 
-		s.aggs.metric(
+		s.aggs["pagos"].metric(
 			'minimo_pagado',
 			'min',
 			field='implementation.transactions.value.amount'
@@ -1708,10 +1775,10 @@ class EstadisticaMontoDePagos(APIView):
 		results = s.execute()
 
 		resultados = {
-			"promedio": results.aggregations.promedio_pagado["value"],
-			"mayor": results.aggregations.maximo_pagado["value"],
-			"menor": results.aggregations.minimo_pagado["value"],
-			"total": results.aggregations.total_pagado["value"],
+			"promedio": results.aggregations.pagos.promedio_pagado["value"],
+			"mayor": results.aggregations.pagos.maximo_pagado["value"],
+			"menor": results.aggregations.pagos.minimo_pagado["value"],
+			"total": results.aggregations.pagos.total_pagado["value"],
 		}
 
 		parametros = {}
@@ -1751,16 +1818,19 @@ class TopCompradoresPorMontoPagado(APIView):
 			s = s.filter('match_phrase', extra__buyerFullName=institucion)
 
 		if proveedor.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+			qProveedor = Q('match_phrase', implementation__transactions__payee__name__keyword=proveedor)
+			s = s.query('nested', path='implementation.transactions', query=qProveedor)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			qAnio = Q('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.query('nested', path='implementation.transactions', query=qAnio)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+			qMoneda = Q('match_phrase', implementation__transactions__value__currency=moneda)
+			s = s.query('nested', path='implementation.transactions', query=qMoneda)
 
 		if objetogasto.replace(' ', ''):
-			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
 			# planning.budget.budgetBreakdown.n.classifications.objeto
 
 		if fuentefinanciamiento.replace(' ', ''):
@@ -1768,6 +1838,7 @@ class TopCompradoresPorMontoPagado(APIView):
 			# planning.budget.budgetBreakdown.n.classifications.fuente
 			
 		# Agregados
+
 		s.aggs.metric(
 			'compradores',
 			'terms',
@@ -1776,6 +1847,12 @@ class TopCompradoresPorMontoPagado(APIView):
 		)
 
 		s.aggs["compradores"].metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
+		)
+
+		s.aggs["compradores"]["pagos"].metric(
 			'total_pagado',
 			'sum',
 			field='implementation.transactions.value.amount'
@@ -1789,10 +1866,8 @@ class TopCompradoresPorMontoPagado(APIView):
 		montos = []
 
 		for bucket in buckets["buckets"]:
-			print(bucket)
-
 			compradores.append(bucket["key"])
-			montos.append(bucket["total_pagado"]["value"])
+			montos.append(bucket["pagos"]["total_pagado"]["value"])
 
 		resultados = {
 			"compradores": compradores,
@@ -1836,16 +1911,19 @@ class TopProveedoresPorMontoPagado(APIView):
 			s = s.filter('match_phrase', extra__buyerFullName=institucion)
 
 		if proveedor.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__payee__name=proveedor)
+			qProveedor = Q('match_phrase', implementation__transactions__payee__name__keyword=proveedor)
+			s = s.query('nested', path='implementation.transactions', query=qProveedor)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			qAnio = Q('range', implementation__transactions__date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.query('nested', path='implementation.transactions', query=qAnio)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', implementation__transactions__value__currency=moneda)
+			qMoneda = Q('match_phrase', implementation__transactions__value__currency=moneda)
+			s = s.query('nested', path='implementation.transactions', query=qMoneda)
 
 		if objetogasto.replace(' ', ''):
-			s = s.filter('match_phrase', extra__objetosGasto=objetogasto)
+			s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
 			# planning.budget.budgetBreakdown.n.classifications.objeto
 
 		if fuentefinanciamiento.replace(' ', ''):
@@ -1853,14 +1931,21 @@ class TopProveedoresPorMontoPagado(APIView):
 			# planning.budget.budgetBreakdown.n.classifications.fuente
 			
 		# Agregados
+
 		s.aggs.metric(
+			'pagos', 
+			'nested', 
+			path='implementation.transactions'
+		)
+
+		s.aggs["pagos"].metric(
 			'proveedores',
 			'terms',
 			field='implementation.transactions.payee.name.keyword',
 			size=10
 		)
 
-		s.aggs["proveedores"].metric(
+		s.aggs["pagos"]["proveedores"].metric(
 			'total_pagado',
 			'sum',
 			field='implementation.transactions.value.amount'
@@ -1868,7 +1953,7 @@ class TopProveedoresPorMontoPagado(APIView):
 
 		results = s.execute()
 
-		buckets = results.aggregations.proveedores.to_dict()
+		buckets = results.aggregations.pagos.proveedores.to_dict()
 
 		proveedores = []
 		montos = []
