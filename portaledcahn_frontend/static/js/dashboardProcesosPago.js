@@ -1239,12 +1239,12 @@ function ObtenerJsonFiltrosAplicados(parametros){
               filtro,
               '&nbsp;',
               $('<i>',{class:'fas fa-times'}).on('click',function(e){
-                var filtros={
-                };
-                $('li.list-group-item.active').each(function(cla,val){
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                //$('li.list-group-item.active')
+                /*$.each(filtros,function(cla,val){
                   filtros[filtrosAplicablesR[$(val).attr('llave')]?filtrosAplicablesR[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-                });
-                delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')].parametro:''];
+                });*/
+                delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
 
                 PushDireccionGraficos(AccederUrlPagina(filtros,true));
               })
