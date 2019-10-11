@@ -29,7 +29,7 @@ function InicializarCantidadPagos(){
     //app.title = '折柱混合';
 
     var parametros={}
-    ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
     $.get(api+"/dashboardsefin/cantidaddepagos/",parametros).done(function( datos ) {
         console.dir('Cantidad de Pagos')
         console.dir(datos);
@@ -141,7 +141,7 @@ function InicializarMontoPagos(){
     //app.title = '折柱混合';
 
     var parametros={}
-    ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
     $.get(api+"/dashboardsefin/montosdepagos/",parametros).done(function( datos ) {
         console.dir('Monto Pagos')
         console.dir(datos);
@@ -682,7 +682,7 @@ function TiempoPromedioEtapas(){
 function Top10Compradores(){
     //app.title = '折柱混合';
     var parametros={}
-        ObtenerJsonFiltrosAplicados(parametros)
+        parametros=ObtenerJsonFiltrosAplicados(parametros)
         $.get(api+"/dashboardsefin/topcompradores/",parametros).done(function( datos ) {
             console.dir(datos);
             var grafico=echarts.init(document.getElementById('top10Compradores'));
@@ -801,7 +801,7 @@ function Top10Compradores(){
 function Top10Proveedores(){
     //app.title = '折柱混合';
     var parametros={}
-ObtenerJsonFiltrosAplicados(parametros)
+parametros=ObtenerJsonFiltrosAplicados(parametros)
                 $.get(api+"/dashboardsefin/topproveedores/",parametros).done(function( datos ) {
                     console.dir(datos);
                     var grafico=echarts.init(document.getElementById('top10Proveedores'));
@@ -1100,20 +1100,31 @@ function CargarGraficos(){
 
 function CargarCajonesMontos(){
     var parametros={}
-    ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
 $.get(api+"/dashboardsefin/estadisticamontosdepagos/",parametros).done(function( datos ) {
 console.dir(datos);
     $('#MontoPagosPromedio').attr('data-to',datos.resultados.promedio);
     $('#MontoPagosMenor').attr('data-to',datos.resultados.menor);
     $('#MontoPagosMayor').attr('data-to',datos.resultados.mayor);
     $('#MontoPagosTotal').attr('data-to',datos.resultados.total);
-
+/*
 $('.conteo.moneda').countTo({
     formatter: function (value, options) {
-      value = value.toFixed(2/*options.decimals*/);
+      value = value.toFixed(2);
       value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
       return value;
   }
+  });*/
+
+  $('.conteo.moneda').each(function(index,elemento){
+    $(elemento).countTo({
+        formatter: function (value, options) {
+            value = value.toFixed(2/*options.decimals*/);
+            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return value;
+        },
+        from: 0, to: $(elemento).attr('data-to')
+      });
   });
   }).fail(function() {
       
@@ -1123,20 +1134,32 @@ $('.conteo.moneda').countTo({
 
 function CargarCajonesCantidad(){
     var parametros={}
-    ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
 $.get(api+"/dashboardsefin/estadisticacantidaddepagos/",parametros).done(function( datos ) {
+    console.dir('cantidad***')
 console.dir(datos);
     $('#CantidadPagosPromedio').attr('data-to',datos.resultados.promedio);
     $('#CantidadPagosMenor').attr('data-to',datos.resultados.menor);
     $('#CantidadPagosMayor').attr('data-to',datos.resultados.mayor);
     $('#CantidadPagosTotal').attr('data-to',datos.resultados.total);
-
+/*
     $('.conteo').not('.moneda').countTo({
         formatter: function (value, options) {
             value = value.toFixed(options.decimals);
             value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             return value;
-        }
+        },
+        from: 0, to: 500
+      });*/
+      $('.conteo').not('.moneda').each(function(index,elemento){
+        $(elemento).countTo({
+            formatter: function (value, options) {
+                value = value.toFixed(options.decimals);
+                value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return value;
+            },
+            from: 0, to: $(elemento).attr('data-to')
+          });
       });
   }).fail(function() {
       
@@ -1353,7 +1376,7 @@ function AgregarPropiedadesListaElastica(valor,llave){
             PushDireccionGraficos(AccederUrlPagina(filtros,true));
           }
         }}).append(
-          $('<div class="badge">').text(propiedades.doc_count),
+          $('<div class="badge">').text((Validar(propiedades.pagos)&&Validar(propiedades.pagos.doc_count))?propiedades.pagos&&propiedades.pagos.doc_count:propiedades.doc_count),
           $('<div >',{
           class:'elastic-data',
           
