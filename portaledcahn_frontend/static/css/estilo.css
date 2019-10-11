@@ -2445,3 +2445,13 @@ table.alineado {
 	margin-left: 20px;
 }
 
+.cajonFiltrosAplicadosDashboard .titularColor,.cajonFiltrosAplicadosDashboard .tituloFiltrosAplicados{
+	font-size: 15px;
+}
+.cajonFiltrosAplicadosDashboard .grupoEtiquetaFiltro{
+	font-size: 12px;
+}
+.cajonFiltrosAplicadosDashboard .etiquetaFiltro{
+	font-size: 12px;
+	height: 24px;
+}

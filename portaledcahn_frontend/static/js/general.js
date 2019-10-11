@@ -321,6 +321,7 @@ function AgregarToolTips(){
 
 function ObtenerValor( nombre, url ) {
     if (!url) {url = location.href};
+    nombre=encodeURIComponent(nombre);
     nombre = nombre.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
     var regexS = "[\\?&]"+nombre+"=([^&#]*)";
     var regex = new RegExp( regexS );

@@ -8,12 +8,12 @@ var filtrosAplicables={
     
   };
   var filtrosAplicablesR={
-    moneda: {titulo:'Moneda',parametro:'moneda'},
-    institucion: {titulo:'Institución Compradora',parametro:'institucion'},
-    año: {titulo:'Año',parametro:'año'},
-    proveedor: {titulo:'Proveedor',parametro:'proveedor'},
-    fuentefinanciamiento: {titulo:'Fuente de Finaciamineto',parametro:'fuentefinanciamiento'},
-    objetosgasto : {titulo:'Objeto de Gasto',parametro:'objetosgasto'}
+    moneda: {titulo:'Moneda',parametro:'monedas'},
+    institucion: {titulo:'Institución Compradora',parametro:'instituciones'},
+    año: {titulo:'Año',parametro:'años'},
+    proveedor: {titulo:'Proveedor',parametro:'proveedores'},
+    fuentefinanciamiento: {titulo:'Fuente de Finaciamineto',parametro:'fuentes'},
+    objetosgasto : {titulo:'Objeto de Gasto',parametro:'objetosGasto'}
     
   };
   var traducciones={
@@ -21,6 +21,9 @@ var filtrosAplicables={
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
     'services':{titulo:'Servicios',descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
     'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'}
+  }
+  window.onpopstate = function(e){
+    location.reload();
   }
 function InicializarCantidadPagos(){
     //app.title = '折柱混合';
@@ -75,18 +78,20 @@ function InicializarCantidadPagos(){
                   //  interval: 50,
                     axisLabel: {
                         formatter: '{value}'
-                    }
-                }/*,
+                    },
+                    position:'left'
+                },
                 {
                     type: 'value',
-                    name: 'Cantidad de Pagos Promedio',
+                    name: 'Cantidad de Pagos en Porcentaje',
                     min: 0,
-                    max: 25,
-                    interval: 5,
+                    max: 100,/*
+                    interval: 5,*/
                     axisLabel: {
-                        formatter: '{value}'
-                    }
-                }*/
+                        formatter: '{value} %'
+                    },
+                    position:'right'
+                }
             ],
             series: [
                 {
@@ -98,10 +103,10 @@ function InicializarCantidadPagos(){
                     }
                 },
                 {
-                    name:'Cantidad de Pagos Promedio',
+                    name:'Cantidad de Pagos en Porcentaje',
                     type:'line',
                     //yAxisIndex: 1,
-                    data:datos.resultados.promediopagos/*.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))})*/,
+                    data:datos.resultados.promediopagos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
                     symbol: 'circle',
                     symbolSize: 10,
                     lineStyle: {
@@ -113,7 +118,8 @@ function InicializarCantidadPagos(){
                     },
                     itemStyle:{
                         color: '#6569CC'
-                    }
+                    },
+                    yAxisIndex:1
                 }
             ]
         };
@@ -189,17 +195,17 @@ function InicializarMontoPagos(){
                         formatter: '{value} HNL'
                     },
                     name:'Lempiras'
-                }/*,
+                },
                 {
                     type: 'value',
-                    name: 'Cantidad de Pagos Promedio',
+                    name: 'Monto de Pagos en Porcentaje',
                     min: 0,
-                    max: 25,
-                    interval: 5,
+                    max: 100,/*
+                    interval: 5,*/
                     axisLabel: {
-                        formatter: '{value} HNL'
+                        formatter: '{value} %'
                     }
-                }*/
+                }
             ],
             series: [
                 {
@@ -209,7 +215,7 @@ function InicializarMontoPagos(){
                     itemStyle:{
                         color: '#D9527B'
                     }
-                },
+                },/*
                 {
                     name:'Monto Devengado',
                     type:'bar',
@@ -217,11 +223,11 @@ function InicializarMontoPagos(){
                     itemStyle:{
                         color: '#F69A6B'
                     }
-                },
+                },*/
                 {
-                    name:'Promedio Pagado',
+                    name:'Monto Pagado en Porcentaje',
                     type:'line',
-                    data:datos.resultados.promediopagos,
+                    data:datos.resultados.promediopagos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
                     symbol: 'circle',
                     symbolSize: 10,
                     lineStyle: {
@@ -233,8 +239,9 @@ function InicializarMontoPagos(){
                     },
                     itemStyle:{
                         color: '#6569CC'
-                    }
-                },
+                    },
+                    yAxisIndex:1
+                }/*,
                 {
                     name:'Promedio Devengado',
                     type:'line',
@@ -244,14 +251,13 @@ function InicializarMontoPagos(){
                     lineStyle: {
                         normal: {
                             color: '#FECB7E',
-                            width: 4/*,
-                            type: 'dashed'*/
+                            width: 4
                         }
                     },
                     itemStyle:{
                         color: '#FECB7E'
                     }
-                }
+                }*/
             ]
         };
         grafico.setOption(opciones, true);
@@ -1037,7 +1043,7 @@ function SegregacionMontosContratos(){
     });
 }
 $(function(){
-    ObtenerFIltros();
+    ObtenerFiltros();
     $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
         if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
           $('.contenedorFiltrosBusqueda').removeClass('cerrado');
@@ -1051,7 +1057,6 @@ $(function(){
     TiempoPromedioEtapas();
  
     SegregacionMontosContratos();
-    InicializarConteo();
     
     
     /*view = new ElasticList({
@@ -1081,6 +1086,7 @@ $(function(){
                 attr: "name"
             }  ]
     });*/
+    VerificarIntroduccion('INTROJS_BUSQUEDA',1);
 })
 function CargarGraficos(){
     InicializarCantidadPagos();
@@ -1088,16 +1094,7 @@ function CargarGraficos(){
     Top10Proveedores();
     Top10Compradores();
     CargarCajonesMontos();
-}
-function InicializarConteo(){
-    
-      $('.conteo').not('.moneda').countTo({
-        formatter: function (value, options) {
-            value = value.toFixed(options.decimals);
-            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            return value;
-        }
-      });
+    CargarCajonesCantidad();
 }
 
 
@@ -1124,10 +1121,40 @@ $('.conteo.moneda').countTo({
     });
 }
 
-
-function ObtenerFIltros(){
+function CargarCajonesCantidad(){
     var parametros={}
+    ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/dashboardsefin/estadisticacantidaddepagos/",parametros).done(function( datos ) {
+console.dir(datos);
+    $('#CantidadPagosPromedio').attr('data-to',datos.resultados.promedio);
+    $('#CantidadPagosMenor').attr('data-to',datos.resultados.menor);
+    $('#CantidadPagosMayor').attr('data-to',datos.resultados.mayor);
+    $('#CantidadPagosTotal').attr('data-to',datos.resultados.total);
+
+    $('.conteo').not('.moneda').countTo({
+        formatter: function (value, options) {
+            value = value.toFixed(options.decimals);
+            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return value;
+        }
+      });
+  }).fail(function() {
+      
+      
+    });
+}
+
+
+function ObtenerFiltros(){
+    var parametros=ObtenerJsonFiltrosAplicados({});
     $.get(api+"/dashboardsefin/filtros/",parametros).done(function( datos ) {
+
+        if(datos.respuesta.pagos){
+            datos.respuesta['años']=datos.respuesta.pagos['años'];
+            datos.respuesta['monedas']=datos.respuesta.pagos['monedas'];
+            datos.respuesta['proveedores']=datos.respuesta.pagos['proveedores'];
+            delete datos.respuesta.pagos;
+        }
         console.dir('filtros')
     console.dir(datos);
       
@@ -1138,7 +1165,7 @@ function ObtenerFIltros(){
     MostrarListaElasticaAplicados();
  // }
   
-  VerificarIntroduccion('INTROJS_BUSQUEDA',1);
+  
       
         
       }).fail(function() {
@@ -1190,6 +1217,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
   }
   function PushDireccionGraficos(direccion){
     window.history.pushState({}, document.title,direccion);
+    ObtenerFiltros();
     CargarGraficos();
   }
   
@@ -1212,12 +1240,11 @@ function ObtenerJsonFiltrosAplicados(parametros){
               '&nbsp;',
               $('<i>',{class:'fas fa-times'}).on('click',function(e){
                 var filtros={
-                  pagina:1
                 };
                 $('li.list-group-item.active').each(function(cla,val){
-                  filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+                  filtros[filtrosAplicablesR[$(val).attr('llave')]?filtrosAplicablesR[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
                 });
-                delete filtros[filtrosAplicables[$(e.currentTarget).parent().attr('llave')]?filtrosAplicables[$(e.currentTarget).parent().attr('llave')].parametro:''];
+                delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')].parametro:''];
 
                 PushDireccionGraficos(AccederUrlPagina(filtros,true));
               })
@@ -1241,7 +1268,11 @@ function ObtenerJsonFiltrosAplicados(parametros){
     };
     filtros=ObtenerJsonFiltrosAplicados(filtros);
     $.each(filtros,function(llave,valor){
-      $('ul#ul'+llave).find(
+        console.dir(llave)
+        console.dir(valor)
+        console.dir('ul#ul'+ filtrosAplicablesR[llave].parametro)
+        console.dir( 'li[formato="'+(valor).toString().toLowerCase()+'"]')
+      $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
         'li[formato="'+(valor).toString().toLowerCase()+'"]'
       ).addClass('active');
     });
@@ -1249,6 +1280,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
 
   function MostrarListaElastica(datos,selector){
     $(selector).html('');
+    console.dir('vaciando***')
     $.each(datos.respuesta,function(llave,valor){
       $(selector).append(
         $('<div class="list-container col-md-12 2">').append(

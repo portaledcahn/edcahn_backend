@@ -11,6 +11,23 @@
 {% block container %}
 
 <div class="container-fluid  busquedaEspaciadoHorizontal">
+   <div class="cajonFiltrosAplicadosDashboard  cajonSombreado mt-4" id="filtrosAplicadosItems" style="position: fixed;right: 28px;z-index: 2; min-width: 280px">
+
+      <div class="row">
+                        <div class="col-6 col-sm-7 col-md-6">
+                           <div class="tituloFiltrosAplicados textoAlineadoIzquierda">Filtros Aplicados:</div>
+                        </div>
+                        <div class="col-6 col-sm-5 col-md-6 textoAlineadoIzquierda" id="contenedorSinFiltros">
+                           
+                             <h4 class="textoColorPrimario titularColor" style="margin-top:3px">Ninguno</h4>
+                           </div>
+                        <div class="col-6 col-sm-5 col-md-6 textoAlineadoDerecha" id="contenedorFiltros" style="display: none">
+
+                           <a href="javascript:void(0)" class="botonGeneral fondoColorSecundario" id="quitarFiltros" style="font-size: 10px"> Quitar Todos</a>
+                        </div>
+                     </div>
+      <div class="row textoAlineadoDerecha pt-2" id="listaFiltrosAplicados"></div>
+   </div>
    <div class="contenedorFiltrosBusqueda animated">
       <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
          Filtros 
@@ -41,7 +58,7 @@
                      <h4 class="titularCajonSombreado textoAlineadoCentrado">Cantidad de Pagos</h4>
                   </div>
                   <div class="contenedorGrafico">
-                     <div class="grafico" id="cantidadPagos"  style="height: 300px"></div>
+                     <div class="grafico" id="cantidadPagos"  style="height: 400px"></div>
                   </div>
                </div>
             </div>
@@ -52,7 +69,7 @@
                      <h4 class="titularCajonSombreado textoAlineadoCentrado">Monto de Pagos</h4>
                   </div>
                   <div class="contenedorGrafico">
-                     <div class="grafico" id="montoPagos"  style="height: 300px"></div>
+                     <div class="grafico" id="montoPagos"  style="height: 400px"></div>
                   </div>
                </div>
             </div>
@@ -66,25 +83,25 @@
                         <div class="row">
                               <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                  <div class="p-2">
-                                 <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="302" class="conteo">0</span></div>
+                                 <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosPromedio">0</span></div>
                                  <div class="titularColor textoAlineadoDerecha textoColorGris" >Promedio</div>
                                  </div>
                               </div>
                               <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                     <div class="p-2">
-                                    <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="356" class="conteo">0</span></div>
+                                    <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosMayor">0</span></div>
                                     <div class="titularColor textoAlineadoDerecha textoColorGris" >Mayor</div>
                                     </div>
                                  </div>
                                  <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                        <div class="p-2">
-                                       <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="9" class="conteo">0</span></div>
+                                       <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosMenor">0</span></div>
                                        <div class="titularColor textoAlineadoDerecha textoColorGris" >Menor</div>
                                        </div>
                                     </div>
                                     <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                           <div class="p-2">
-                                          <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="1200" class="conteo">0</span></div>
+                                          <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosTotal">0</span></div>
                                           <div class="titularColor textoAlineadoDerecha textoColorGris" >Total</div>
                                           </div>
                                        </div>
