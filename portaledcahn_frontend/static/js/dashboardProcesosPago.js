@@ -1155,8 +1155,8 @@ function ObtenerFiltros(){
             datos.respuesta['proveedores']=datos.respuesta.pagos['proveedores'];
             delete datos.respuesta.pagos;
             delete datos.respuesta.objetosGasto;
-            delete datos.respuesta.instituciones;
-            delete datos.respuesta.fuentes;
+            //delete datos.respuesta.instituciones;
+            //delete datos.respuesta.fuentes;
 
         }
         console.dir('filtros')
