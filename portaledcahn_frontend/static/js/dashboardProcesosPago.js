@@ -3,7 +3,7 @@ var filtrosAplicables={
     instituciones: {titulo:'Institución Compradora',parametro:'institucion'},
     años: {titulo:'Año',parametro:'año'},
     proveedores: {titulo:'Proveedor',parametro:'proveedor'},
-    fuentes: {titulo:'Fuente de Finaciamineto',parametro:'fuentefinanciamiento'},
+    fuentes: {titulo:'Fuente de Financiamineto',parametro:'fuentefinanciamiento'},
     objetosGasto : {titulo:'Objeto de Gasto',parametro:'objetosgasto'}
     
   };
@@ -12,7 +12,7 @@ var filtrosAplicables={
     institucion: {titulo:'Institución Compradora',parametro:'instituciones'},
     año: {titulo:'Año',parametro:'años'},
     proveedor: {titulo:'Proveedor',parametro:'proveedores'},
-    fuentefinanciamiento: {titulo:'Fuente de Finaciamineto',parametro:'fuentes'},
+    fuentefinanciamiento: {titulo:'Fuente de Financiamineto',parametro:'fuentes'},
     objetosgasto : {titulo:'Objeto de Gasto',parametro:'objetosGasto'}
     
   };
@@ -1057,6 +1057,9 @@ $(function(){
     TiempoPromedioEtapas();
  
     SegregacionMontosContratos();
+    $('#quitarFiltros').on('click',function(e){
+        PushDireccionGraficos(AccederUrlPagina({},true));
+      });
     
     
     /*view = new ElasticList({
@@ -1123,7 +1126,7 @@ $('.conteo.moneda').countTo({
             value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             return value;
         },
-        from: 0, to: $(elemento).attr('data-to')
+        from: 0, to: $(elemento).attr('data-to'),'data-speed':$(elemento).attr('data-speed')
       });
   });
   }).fail(function() {
@@ -1158,7 +1161,7 @@ console.dir(datos);
                 value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                 return value;
             },
-            from: 0, to: $(elemento).attr('data-to')
+            from: 0, to: $(elemento).attr('data-to'),'data-speed':$(elemento).attr('data-speed')
           });
       });
   }).fail(function() {
@@ -1341,9 +1344,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
       
     });
     AgregarToolTips();
-    $('#quitarFiltros').on('click',function(e){
-      PushDireccionGraficos(AccederUrlPagina({},true));
-    });
+    
     
   }
 

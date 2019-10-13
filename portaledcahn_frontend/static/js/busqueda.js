@@ -240,7 +240,10 @@ CargarElementosBusqueda()
           MostrarResultados(arregloProcesos)
       break;
     }*/
-
+    $('#quitarFiltros').on('click',function(e){
+      window.history.pushState({}, document.title,AccederBusqueda({pagina:1},true) );
+      CargarElementosBusqueda(true);
+    });
     
   });
 
@@ -822,10 +825,7 @@ function MostrarListaElastica(datos,selector){
     
   });
   AgregarToolTips();
-  $('#quitarFiltros').on('click',function(e){
-    window.history.pushState({}, document.title,AccederBusqueda({pagina:1},true) );
-    CargarElementosBusqueda(true);
-  });
+  
   
 }
 
