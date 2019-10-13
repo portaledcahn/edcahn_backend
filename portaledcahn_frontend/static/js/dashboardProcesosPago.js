@@ -3,7 +3,7 @@ var filtrosAplicables={
     instituciones: {titulo:'Institución Compradora',parametro:'institucion'},
     años: {titulo:'Año',parametro:'año'},
     proveedores: {titulo:'Proveedor',parametro:'proveedor'},
-    fuentes: {titulo:'Fuente de Financiamineto',parametro:'fuentefinanciamiento'},
+    fuentes: {titulo:'Fuente de Financiamiento',parametro:'fuentefinanciamiento'},
     objetosGasto : {titulo:'Objeto de Gasto',parametro:'objetosgasto'}
     
   };
@@ -12,7 +12,7 @@ var filtrosAplicables={
     institucion: {titulo:'Institución Compradora',parametro:'instituciones'},
     año: {titulo:'Año',parametro:'años'},
     proveedor: {titulo:'Proveedor',parametro:'proveedores'},
-    fuentefinanciamiento: {titulo:'Fuente de Financiamineto',parametro:'fuentes'},
+    fuentefinanciamiento: {titulo:'Fuente de Financiamiento',parametro:'fuentes'},
     objetosgasto : {titulo:'Objeto de Gasto',parametro:'objetosGasto'}
     
   };
