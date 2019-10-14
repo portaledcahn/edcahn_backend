@@ -44,6 +44,17 @@ function InicializarCantidadPagos(){
                     }
                 }
             },
+        legend: {
+            plain: 'scroll',
+            orient: 'horizontal',
+            position:'bottom'
+            /*right: 10,
+            top: 20,
+            bottom: 20*//*,
+            data: ['lengend data 1','lengend data 2','lengend data 3'],
+    
+            selected: [false,false,true]*/
+        },
             toolbox: {
                 feature: {
                     dataView: {show: true, readOnly: false,title:'Vista'},
@@ -155,6 +166,17 @@ function InicializarMontoPagos(){
                         color: '#999'
                     }
                 }
+            },
+            legend: {
+                plain: 'scroll',
+                orient: 'horizontal',
+                position:'bottom'
+                /*right: 10,
+                top: 20,
+                bottom: 20*//*,
+                data: ['lengend data 1','lengend data 2','lengend data 3'],
+        
+                selected: [false,false,true]*/
             },
             grid:{
                 containLabel:true
@@ -722,7 +744,7 @@ function Top10Compradores(){
                     {
                         
                         type: 'category',
-                        data: datos.resultados.compradores,
+                        data: datos.resultados.compradores.reverse(),
                         axisPointer: {
                             type: 'shadow'
                         },
@@ -759,7 +781,7 @@ function Top10Compradores(){
                     {
                         name:'Monto Pagado',
                         type:'bar',
-                        data:datos.resultados.montos,
+                        data:datos.resultados.montos.reverse(),
                         itemStyle:{
                             color: '#6569CC'
                         },
@@ -832,7 +854,7 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                         },
                         yAxis: {
                             type: 'category',
-                            data: datos.resultados.proveedores
+                            data: datos.resultados.proveedores.reverse()
                         },
                         series: [
                             {
@@ -848,7 +870,7 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                         }
                                     }
                                 },
-                                data: datos.resultados.montos,
+                                data: datos.resultados.montos.reverse(),
                                 itemStyle:{
                                     color: '#27AEB4'
                                 }
