@@ -1174,7 +1174,7 @@ console.dir(datos);
 function ObtenerFiltros(){
     var parametros=ObtenerJsonFiltrosAplicados({});
     $.get(api+"/dashboardsefin/filtros/",parametros).done(function( datos ) {
-
+/*
         if(datos.respuesta.pagos){
             datos.respuesta['años']=datos.respuesta.pagos['años'];
             datos.respuesta['monedas']=datos.respuesta.pagos['monedas'];
@@ -1184,9 +1184,13 @@ function ObtenerFiltros(){
             //delete datos.respuesta.instituciones;
             //delete datos.respuesta.fuentes;
 
+        }*/
+        if(datos.respuesta.objetosGasto){
+            delete datos.respuesta.objetosGasto;
         }
         console.dir('filtros')
     console.dir(datos);
+    console.dir('hola')
       
        
   
@@ -1377,7 +1381,7 @@ function AgregarPropiedadesListaElastica(valor,llave){
             PushDireccionGraficos(AccederUrlPagina(filtros,true));
           }
         }}).append(
-          $('<div class="badge">').text((Validar(propiedades.pagos)&&Validar(propiedades.pagos.doc_count))?propiedades.pagos&&propiedades.pagos.doc_count:propiedades.doc_count),
+          $('<div class="badge">').text(/*(Validar(propiedades.pagos)&&Validar(propiedades.pagos.doc_count))?propiedades.pagos&&propiedades.pagos.doc_count:*/propiedades.doc_count),
           $('<div >',{
           class:'elastic-data',
           
