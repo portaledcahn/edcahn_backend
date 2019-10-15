@@ -35,13 +35,13 @@
      for(let i=0;i<5;i++){
       elementosNumericos[i]= new AutoNumeric($('.elementoNumerico')[i], configuracionNumerica );
      }
-    $('.fecha').attr('data-field','date');
+    /*$('.fecha').attr('data-field','date');
 
     $('#dtBox').DateTimePicker({
-      buttonsToDisplay:	["HeaderCloseButton", "SetButton"/*, "ClearButton"*/],
+      buttonsToDisplay:	["HeaderCloseButton", "SetButton"],
       dateFormat:'yyyy-MM-dd',
       language:'es'
-    });
+    });*/
     //
     $('.fecha').mask('0000-00-00');
   

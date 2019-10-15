@@ -98,9 +98,12 @@ function ObtenerTexto(texto){
         return '';
     }
 }
-function reemplazarValor(texto,nombre,reemplazo){
+function reemplazarValor(texto,nombre,reemplazo)
+{   console.dir(nombre)
     let regular=new RegExp(nombre, "g");;
     while(regular.test(texto)){
+        console.dir(texto)
+        console.dir(reemplazo)
       texto=texto.replace(nombre,reemplazo);
     }
     return texto;

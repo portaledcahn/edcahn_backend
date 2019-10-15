@@ -7,9 +7,9 @@
 {% load static %}
 
 {% block head_style %}
-<!--<link rel="stylesheet" href="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.css' %}" >-->
-<link rel="stylesheet" type="text/css" href="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker.css' %}"/>
+<!--<link rel="stylesheet" href="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.css' %}" > <link rel="stylesheet" type="text/css" href="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker.css' %}"/>-->
 
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}"/>
   
 <!--[if lt IE 9]>
  <link rel="stylesheet" type="text/css" href="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker-ltie9.css' %}" />
@@ -93,11 +93,11 @@
                                        <div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroProcesosMayor" name="selectorProcesos" opcion="<" {% if operadorcp == '<' %}checked{% endif %}>
-                                             <label for="filtroProcesosMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                             <label for="filtroProcesosMayor" >Menor a &nbsp;<span>&lt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroProcesosMenor" name="selectorProcesos" opcion=">" {% if operadorcp == '>' %}checked{% endif %}>
-                                             <label for="filtroProcesosMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                             <label for="filtroProcesosMenor" >Mayor a &nbsp;<span>&gt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroProcesosIgual" name="selectorProcesos" opcion="==" {% if operadorcp == '=' %}checked{% endif %}>
@@ -121,7 +121,7 @@
       
                          
                         <div class="contenedorFiltroNumerico">
-                              <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion="{{operadortmc}}" value="{% if tmc %}{{tmc}}{% endif %}">
+                              <input  class="campoBlancoTextoSeleccion elementoNumerico" placeholder="Número" opcion="{{operadortmc}}" type="text" value="{% if tmc %}{{tmc}}{% endif %}">
                               <button class="btnFiltroNumerico">{% if operadortmc == '<' %}&lt;{% endif %}{% if operadortmc == '>' %}&gt;{% endif %}{% if operadortmc == '=' %}={% endif %}</button>
                               <div class="preContenedorFiltroBusqueda animated fadeIn">
                                     <div class=" contenedorFiltroBusqueda" >
@@ -129,11 +129,11 @@
                                        <div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroTotalMayor" name="selectorTotal" opcion="<" {% if operadortmc == '<' %}checked{% endif %}>
-                                             <label for="filtroTotalMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                             <label for="filtroTotalMayor" >Menor a &nbsp;<span>&lt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroTotalMenor" name="selectorTotal" opcion=">" {% if operadortmc == '>' %}checked{% endif %}>
-                                             <label for="filtroTotalMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                             <label for="filtroTotalMenor" >Mayor a &nbsp;<span>&gt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroTotalIgual" name="selectorTotal" opcion="==" {% if operadortmc == '=' %}checked{% endif %}>
@@ -165,11 +165,11 @@
                                        <div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroPromedioMayor" name="selectorPromedio" opcion="<" {% if operadorpmc == '<' %}checked{% endif %}>
-                                             <label for="filtroPromedioMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                             <label for="filtroPromedioMayor" >Menor a &nbsp;<span>&lt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroPromedioMenor" name="selectorPromedio" opcion=">" {% if operadorpmc == '>' %}checked{% endif %}>
-                                             <label for="filtroPromedioMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                             <label for="filtroPromedioMenor" >Mayor a &nbsp;<span>&gt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroPromedioIgual" name="selectorPromedio" opcion="==" {% if operadorpmc == '>' %}checked{% endif %}>
@@ -201,11 +201,11 @@
                                        <div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroMayorMayor" name="selectorMayor" opcion="<" {% if operadormamc == '<' %}checked{% endif %}>
-                                             <label for="filtroMayorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                             <label for="filtroMayorMayor" >Menor a &nbsp;<span>&lt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroMayorMenor" name="selectorMayor" opcion=">" {% if operadormamc == '>' %}checked{% endif %}>
-                                             <label for="filtroMayorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                             <label for="filtroMayorMenor" >Mayor a &nbsp;<span>&gt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroMayorIgual" name="selectorMayor" opcion="==" {% if operadormamc == '>' %}checked{% endif %}>
@@ -237,11 +237,11 @@
                                        <div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroMenorMayor" name="selectorMenor" opcion="<" {% if operadormemc == '<' %}checked{% endif %}>
-                                             <label for="filtroMenorMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                             <label for="filtroMenorMayor" >Menor a &nbsp;<span>&lt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroMenorMenor" name="selectorMenor" opcion=">" {% if operadormemc == '>' %}checked{% endif %}>
-                                             <label for="filtroMenorMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                             <label for="filtroMenorMenor" >Mayor a &nbsp;<span>&gt;</span></label>
                                           </div>
                                           <div class="OpcionFiltroBusquedaNumerico">
                                              <input type="radio" id="filtroMenorIgual" name="selectorMenor" opcion="==" {% if operadormemc == '=' %}checked{% endif %}>
@@ -267,7 +267,7 @@
       
                            
                            <div class="contenedorFiltroNumerico">
-                                 <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha" autocomplete="off" opcion="{{operadorfup}}" type="text" value="{% if fup %}{{fup}}{% endif %}"  >
+                                 <input  id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="YYYY-MM-DD" autocomplete="off" opcion="{{operadorfup}}" type="text" value="{% if fup %}{{fup}}{% endif %}" >
                                  <button class="btnFiltroNumerico">{% if operadorfup == '<' %}&lt;{% endif %}{% if operadorfup == '>' %}&gt;{% endif %}{% if operadorfup == '=' %}={% endif %}</button>
                                  <div class="preContenedorFiltroBusqueda animated fadeIn">
                                        <div class=" contenedorFiltroBusqueda" >
@@ -275,11 +275,11 @@
                                           <div>
                                              <div class="OpcionFiltroBusquedaNumerico">
                                                 <input type="radio" id="filtroFechaMayor" name="selectorFecha" opcion="<" {% if operadorfup == '<' %}checked{% endif %}>
-                                                <label for="filtroFechaMayor" >Mayor a &nbsp;<span>&lt;</span></label>
+                                                <label for="filtroFechaMayor" >Menor a &nbsp;<span>&lt;</span></label>
                                              </div>
                                              <div class="OpcionFiltroBusquedaNumerico">
                                                 <input type="radio" id="filtroFechaMenor" name="selectorFecha" opcion=">" {% if operadorfup == '>' %}checked{% endif %}>
-                                                <label for="filtroFechaMenor" >Menor a &nbsp;<span>&gt;</span></label>
+                                                <label for="filtroFechaMenor" >Mayor a &nbsp;<span>&gt;</span></label>
                                              </div>
                                              <div class="OpcionFiltroBusquedaNumerico">
                                                 <input type="radio" id="filtroFechaIgual" name="selectorFecha" opcion="==" {% if operadorfup == '=' %}checked{% endif %}>
@@ -329,10 +329,15 @@
 <!--[if lt IE 9]>
  <script type="text/javascript" src="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker-ltie9.js' %}"></script>
    <![endif]-->
-<script type="text/javascript" src="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker.js' %}"></script>
-<!-- For i18n Support -->
-<script type="text/javascript" src="{% static 'plugins/datetimepicker-0.1.39/i18n/DateTimePicker-i18n.js' %}"></script>
+
+<!-- For i18n Support <script type="text/javascript" src="{% static 'plugins/datetimepicker-0.1.39/DateTimePicker.js' %}"></script> <script type="text/javascript" src="{% static 'plugins/datetimepicker-0.1.39/i18n/DateTimePicker-i18n.js' %}">-->
+
 <script src="{% static 'plugins/jquery-mask-1.14.15/jquery.mask.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-datetimepicker/moment-with-locales.js' %}"></script>
+
+<script src="{% static 'plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'plugins/autoNumeric-4.1.0/autoNumeric.min.js' %}"></script>
+
+
 <script src="{% static 'js/compradores.js' %}"></script>
 {% endblock %}

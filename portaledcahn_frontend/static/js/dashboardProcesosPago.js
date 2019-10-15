@@ -42,6 +42,9 @@ function InicializarCantidadPagos(){
                     crossStyle: {
                         color: '#999'
                     }
+                },
+                formatter:  function (e){
+                    return "{b0}<br>{a0} {s0} {c0} Pagos <br>{a1} {s1} {c1} %".replace('{c0}',e[0].value).replace('{c1}',e[1].value).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);;
                 }
             },
         legend: {
@@ -55,14 +58,14 @@ function InicializarCantidadPagos(){
     
             selected: [false,false,true]*/
         },
-            toolbox: {
-                feature: {
-                    dataView: {show: true, readOnly: false,title:'Vista'},
-                    magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
-                    restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
-                }
-            },
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                restore: {show: true,title:'Restaurar'},
+                saveAsImage: {show: true,title:'Descargar'}
+            }
+        },
             xAxis: [
                 {
                     type: 'category',
@@ -165,6 +168,10 @@ function InicializarMontoPagos(){
                     crossStyle: {
                         color: '#999'
                     }
+                },
+                formatter:  function (e){
+                    console.dir(e)
+                    return "{b0}<br>{a0} {s0} {c0} HNL <br>{a1} {s1} {c1} %".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);
                 }
             },
             legend: {
@@ -183,7 +190,7 @@ function InicializarMontoPagos(){
             },
             toolbox: {
                 feature: {
-                    dataView: {show: true, readOnly: false,title:'Vista'},
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                     magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
                     restore: {show: true,title:'Restaurar'},
                     saveAsImage: {show: true,title:'Descargar'}
@@ -311,13 +318,13 @@ function CantidadPagosEtapas(){
             }
         },
         toolbox: {
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            }
-        },/*
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                }
+            },/*
         legend: {
             data:['蒸发量1','降水量','平均温度3']
         },*/
@@ -437,7 +444,7 @@ function CantidadPagosEtapas(){
         },
         toolbox: {
             feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                 magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
@@ -522,7 +529,7 @@ function MontoPagosEtapas(){
         },
         toolbox: {
             feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                 magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
@@ -606,6 +613,20 @@ function TiempoPromedioEtapas(){
             bottom: '3%',
             containLabel: true
         },
+        legend: {
+            plain: 'scroll',
+            orient: 'horizontal',
+            position:'bottom'
+            /*right: 10,
+            top: 20,
+            bottom: 20*//*,
+            data: ['lengend data 1','lengend data 2','lengend data 3'],
+    
+            selected: [false,false,true]*/
+        },
+        grid:{
+            containLabel:true
+        },
         xAxis:  {
             type: 'value',
             min: 0,
@@ -623,7 +644,7 @@ function TiempoPromedioEtapas(){
             {
                 name: 'Precompromiso',
                 type: 'bar',
-                stack: '总量',
+                stack: 'Etapa',
                 label: {
                     normal: {
                         show: true,
@@ -638,7 +659,7 @@ function TiempoPromedioEtapas(){
             {
                 name: 'Compromiso',
                 type: 'bar',
-                stack: '总量',
+                stack: 'Etapa',
                 label: {
                     normal: {
                         show: true,
@@ -655,7 +676,7 @@ function TiempoPromedioEtapas(){
             {
                 name: 'Devengado',
                 type: 'bar',
-                stack: '总量',
+                stack: 'Etapa',
                 label: {
                     normal: {
                         show: true,
@@ -670,7 +691,7 @@ function TiempoPromedioEtapas(){
             {
                 name: 'Transacciones',
                 type: 'bar',
-                stack: '总量',
+                stack: 'Etapa',
                 label: {
                     normal: {
                         show: true,
@@ -689,7 +710,11 @@ function TiempoPromedioEtapas(){
             fontWeight:700,
             fontSize:25,
             align:'right',
-            formatter: '{c} Días'
+            formatter:  function (e){
+                console.dir(e)
+                return "{c} Días".replace('{c}',e.value);
+            }
+            //formatter: '{c} Días'
         }
     };
     grafico.setOption(opciones, true);
@@ -718,14 +743,15 @@ function Top10Compradores(){
                         }
                     }
                 },
-                toolbox: {
-                    feature: {
-                        dataView: {show: true, readOnly: false,title:'Vista'},
-                        magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
-                        restore: {show: true,title:'Restaurar'},
-                        saveAsImage: {show: true,title:'Descargar'}
-                    }
-                },/*
+                
+            toolbox: {
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                }
+            },/*
                 legend: {
                     data:['蒸发量1','降水量','平均温度3']
                 },*/
@@ -860,7 +886,7 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                             {
                                 name: 'Monto de Contrato, Pagados en HNL',
                                 type: 'bar',
-                                stack: '总量',
+                                stack: 'Monto de Contrato',
                                 label: {
                                     normal: {
                                         show: true,

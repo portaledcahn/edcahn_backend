@@ -638,7 +638,7 @@ button.botonBlancoFiltroBusqueda:hover + .preContenedorFiltroBusqueda,button.bot
 	font-family: 'poppins';
     font-weight: 700;
 }
-.cajonSombreado,.dtpicker-content{
+.cajonSombreado/*,.dtpicker-content*/{
 	background: white;
 	box-shadow: 0px 0px 10px 0px rgba(148, 146, 146,0.3);
 	border-radius: 10px;
@@ -2408,7 +2408,10 @@ table.alineado {
 .tablaGeneral .espera .imagen {
 	margin-top: 100px;
 }
-
+table.tablaGeneral{
+	overflow: visible;
+}
+/*s
 .dtpicker-value{
 	color:black!important;
 }
@@ -2444,7 +2447,7 @@ table.alineado {
 .dtpicker-button+.dtpicker-button{
 	margin-left: 20px;
 }
-
+*/
 .cajonFiltrosAplicadosDashboard .titularColor,.cajonFiltrosAplicadosDashboard .tituloFiltrosAplicados{
 	font-size: 15px;
 }

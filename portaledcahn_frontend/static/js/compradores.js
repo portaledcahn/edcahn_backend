@@ -54,17 +54,27 @@
      var elementosNumericos=[];
      for(let i=0;i<5;i++){
       elementosNumericos[i]= new AutoNumeric($('.elementoNumerico')[i], configuracionNumerica );
-     }
+     }/*
     $('.fecha').attr('data-field','date');
 
     $('#dtBox').DateTimePicker({
-      buttonsToDisplay:	["HeaderCloseButton", "SetButton"/*, "ClearButton"*/],
+      buttonsToDisplay:	["HeaderCloseButton", "SetButton"],
       dateFormat:'yyyy-MM-dd',
       language:'es'
-    });
+    });*/
     //
-    $('.fecha').mask('0000-00-00');
-    
+    /*
+    $('.fecha').datetimepicker({
+      locale: 'es',
+      format: 'YYYY-MM-DD'
+  });
+  */
+/*
+ $('.fecha').datetimepicker({
+  locale: 'es',
+  format: 'YYYY-MM-DD'
+});*/
+ $('.fecha').mask('0000-00-00');
   
     $('.OpcionFiltroBusquedaNumerico input').on('change',function(evento){
       cambiarFiltroNumerico(evento.currentTarget);
@@ -149,6 +159,7 @@
                 if(!ValidarCadena(filtros[elementoPadre.attr('filtro')])){
                   delete filtros[elementoPadre.attr('filtro')];
                 }
+                
                 filtros['pagina']=1;
                 InputFiltro(filtros,true);
             break;
@@ -224,12 +235,12 @@
     
       (ValidarCadena(opciones.nombre)? '&nombre='+encodeURIComponent(opciones.nombre): (ValidarCadena(ObtenerValor('nombre'))&&!desUrl?'&nombre='+ObtenerValor('nombre'):''))+
       (ValidarCadena(opciones.identificacion)? '&identificacion='+encodeURIComponent(opciones.identificacion): (ValidarCadena(ObtenerValor('identificacion'))&&!desUrl?'&identificacion='+ObtenerValor('identificacion'):''))+
-      (ValidarCadena(opciones.tmc)? '&tmc='+encodeURIComponent(reemplazarValor(opciones.tmc),',',''): (ValidarCadena(ObtenerValor('tmc'))&&!desUrl?'&tmc='+ObtenerValor('tmc'):''))+
-      (ValidarCadena(opciones.pmc)? '&pmc='+encodeURIComponent(reemplazarValor(opciones.pmc),',',''): (ValidarCadena(ObtenerValor('pmc'))&&!desUrl?'&pmc='+ObtenerValor('pmc'):''))+
-      (ValidarCadena(opciones.mamc)? '&mamc='+encodeURIComponent(reemplazarValor(opciones.mamc),',',''): (ValidarCadena(ObtenerValor('mamc'))&&!desUrl?'&mamc='+ObtenerValor('mamc'):''))+
-      (ValidarCadena(opciones.fup) ? '&fup='+encodeURIComponent(reemplazarValor(opciones.fup),',',''):(ValidarCadena(ObtenerValor('fup'))&&!desUrl?'&fup='+ObtenerValor('fup'):''))+
-      (ValidarCadena(opciones.memc) ? '&memc='+encodeURIComponent(reemplazarValor(opciones.memc),',',''):(ValidarCadena(ObtenerValor('memc'))&&!desUrl?'&memc='+ObtenerValor('memc'):''))+
-      (ValidarCadena(opciones.cp) ? '&cp='+encodeURIComponent(reemplazarValor(opciones.cp),',',''):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
+      (ValidarCadena(opciones.tmc)? '&tmc='+encodeURIComponent(reemplazarValor(opciones.tmc,',','')): (ValidarCadena(ObtenerValor('tmc'))&&!desUrl?'&tmc='+ObtenerValor('tmc'):''))+
+      (ValidarCadena(opciones.pmc)? '&pmc='+encodeURIComponent(reemplazarValor(opciones.pmc,',','')): (ValidarCadena(ObtenerValor('pmc'))&&!desUrl?'&pmc='+ObtenerValor('pmc'):''))+
+      (ValidarCadena(opciones.mamc)? '&mamc='+encodeURIComponent(reemplazarValor(opciones.mamc,',','')): (ValidarCadena(ObtenerValor('mamc'))&&!desUrl?'&mamc='+ObtenerValor('mamc'):''))+
+      (ValidarCadena(opciones.fup) ? '&fup='+encodeURIComponent(reemplazarValor(opciones.fup,',','')):(ValidarCadena(ObtenerValor('fup'))&&!desUrl?'&fup='+ObtenerValor('fup'):''))+
+      (ValidarCadena(opciones.memc) ? '&memc='+encodeURIComponent(reemplazarValor(opciones.memc,',','')):(ValidarCadena(ObtenerValor('memc'))&&!desUrl?'&memc='+ObtenerValor('memc'):''))+
+      (ValidarCadena(opciones.cp) ? '&cp='+encodeURIComponent(reemplazarValor(opciones.cp,',','')):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
       //(ValidarCadena(opciones.dependencias) ? '&cp='+encodeURIComponent(opciones.dependencias):(ValidarCadena(ObtenerValor('dependencias'))&&!desUrl?'&dependencias='+ObtenerValor('dependencias'):''))+
       (ValidarCadena(opciones.ordenarPor) ? '&ordenarPor='+encodeURIComponent(opciones.ordenarPor):(ValidarCadena(ObtenerValor('ordenarPor'))&&!desUrl?'&ordenarPor='+ObtenerValor('ordenarPor'):''))
     
