@@ -1318,7 +1318,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
           $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
           $('<div>',{class:'filtrosAplicados'}).append(
             $('<div>',{class:'etiquetaFiltro','llave':llave,'valor':filtro}).append(
-              filtro,
+                (traducciones[filtro]?traducciones[filtro].titulo:filtro),
               '&nbsp;',
               $('<i>',{class:'fas fa-times'}).on('click',function(e){
                 var filtros=ObtenerJsonFiltrosAplicados({});
@@ -1355,7 +1355,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
         console.dir('ul#ul'+ filtrosAplicablesR[llave].parametro)
         console.dir( 'li[formato="'+(valor).toString().toLowerCase()+'"]')
       $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
-        'li[formato="'+(valor).toString().toLowerCase()+'"]'
+        'li[formato="'+((traducciones[valor]?traducciones[valor].titulo:valor)).toString().toLowerCase()+'"]'
       ).addClass('active');
     });
   }
@@ -1409,7 +1409,9 @@ function AgregarPropiedadesListaElastica(valor,llave){
         $('<li >',{
         class:'list-group-item',
         valor:propiedades.key_as_string?propiedades.key_as_string:propiedades.key, 
-        formato: (propiedades.key_as_string?propiedades.key_as_string:propiedades.key).toString().toLowerCase(),'llave':llave,
+        formato: (propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)).toString().toLowerCase(),'llave':llave,
+        toolTexto:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key),
+        toolCursor:'true',
         on:{
           click:function(e){
             var filtro=$(e.currentTarget);
@@ -1433,9 +1435,7 @@ function AgregarPropiedadesListaElastica(valor,llave){
           $('<div >',{
           class:'elastic-data',
           
-          text:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key),
-          toolTexto:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key),
-          toolPosicion:'right-end'}
+          text:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)}
           )
         )
       )

@@ -72,7 +72,7 @@
                      </th>
                      <th class="textoAlineadoCentrado campoFiltrado" filtro="identificacion" tipo="texto">
                            <table class="alineado">
-                                 <tr><td><span toolTexto="contracts[n].suppliers[n].id">RTN</span></td><td><span class="ordenEncabezado" opcion="{{ordenidentificacion}}">
+                                 <tr><td><span toolTexto="contracts[n].suppliers[n].id">Identificador</span></td><td><span class="ordenEncabezado" opcion="{{ordenidentificacion}}">
                                        <div class="contenedorFlechasOrden">
                                              <i class="fas fa-sort-up flechaArriba" {% if ordenidentificacion == 'descendente' %}style="display:none"{% endif %}></i>
                                              <i class="fas fa-sort-down flechaAbajo" {% if ordenidentificacion == 'ascendente' %}style="display:none"{% endif %}></i>
@@ -82,7 +82,7 @@
       
                            
                            
-                              <input   class="campoBlancoTextoSeleccion" placeholder="RTN" type="text" value="{% if identificacion %}{{identificacion}}{% endif %}">
+                              <input   class="campoBlancoTextoSeleccion" placeholder="Identificador" type="text" value="{% if identificacion %}{{identificacion}}{% endif %}">
                         </th>
                      <th class="textoAlineadoCentrado campoFiltrado" filtro="cp" tipo="numero">
                         <table class="alineado">

@@ -99,7 +99,7 @@ function ObtenerTexto(texto){
     }
 }
 function reemplazarValor(texto,nombre,reemplazo)
-{   console.dir(nombre)
+{   
     let regular=new RegExp(nombre, "g");;
     while(regular.test(texto)){
         console.dir(texto)
@@ -316,6 +316,14 @@ function AgregarToolTips(){
               };
             if($(elemento).attr('toolPosicion')){
                 parametros['placement']=$(elemento).attr('toolPosicion');
+            }
+            if($(elemento).attr('toolFlecha')&&$(elemento).attr('toolFlecha')=="false"){
+                parametros['arrow']=false;
+            }
+            if($(elemento).attr('toolCursor')&&$(elemento).attr('toolCursor')=="true"){
+                parametros['followCursor']=true;
+            }else if ($(elemento).attr('toolCursor')){
+                parametros['followCursor']=$(elemento).attr('followCursor');
             }
             tippy($(elemento).get(),parametros);
         }
