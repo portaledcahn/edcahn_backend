@@ -212,6 +212,34 @@ class DataRecordViewSet(DocumentViewSet):
     document = articles_documents.RecordDocument
     serializer_class = articles_serializers.RecordDocumentSerializer
 
+class Record(APIView):
+
+	def get(self, request, format=None):
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		s = Search(using=cliente, index='edca')
+		results = s[0:10].execute()
+
+		context = results.hits.hits
+
+		return Response(context)
+
+class RecordDetail(APIView):
+
+	def get(self, request, pk=None, format=None):
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		s = Search(using=cliente, index='edca')
+		s = s.filter('match_phrase', doc__ocid__keyword=pk)
+
+		results = s[0:1].execute()
+
+		context = results.hits.hits
+
+		if context:
+			response = context[0]["_source"]["doc"]
+			return Response(response)
+		else:
+			raise Http404
+
 class Index(APIView):
 
 	def get(self, request, format=None):
