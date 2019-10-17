@@ -240,6 +240,8 @@ class RecordDetail(APIView):
 		else:
 			raise Http404
 
+# Endpoints para el buscador. 
+
 class Index(APIView):
 
 	def get(self, request, format=None):
@@ -327,6 +329,9 @@ class Index(APIView):
 class Buscador(APIView):
 
 	def get(self, request, format=None):
+		precision = 40000
+		sourceSEFIN = 'HN.SIAFI2'
+
 		page = int(request.GET.get('pagina', '1'))
 		metodo = request.GET.get('metodo', 'proceso')
 		moneda = request.GET.get('moneda', None)
@@ -355,43 +360,76 @@ class Buscador(APIView):
 
 		s.aggs.metric('instituciones', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=100)
 
-		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')		
+		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
 
 		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')	# fecha de contratos o dependiendo lo que se este mostrando.
+	
+		#resumen
+		s.aggs["contratos"].metric(
+			'promedio_montos_contrato', 
+			'avg', 
+			field='doc.compiledRelease.contracts.value.amount'
+		)
 
-		#Resumen
+		s.aggs["contratos"].metric(
+			'promedio_montos_pago', 
+			'avg', 
+			field='doc.compiledRelease.contracts.implementation.transactions.value.amount'
+		)
 
-		s.aggs["contratos"].metric('proveedores_total', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')
+		s.aggs["contratos"].metric(
+			'distinct_proveedores_contratos', 
+			'cardinality', 
+			precision_threshold=precision, 
+			field='doc.compiledRelease.contracts.suppliers.id.keyword'
+		)
 
-		s.aggs["contratos"].metric('compradores_total', 'cardinality', field='doc.compiledRelease.contracts.buyer.id.keyword')
+		s.aggs["contratos"].metric(
+			'distinct_proveedores_pagos', 
+			'cardinality', 
+			precision_threshold=precision, 
+			field='doc.compiledRelease.contracts.implementation.transactions.payee.id.keyword'
+		)
 
-		if metodo == 'proceso':
-			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.tender.id.keyword')
-
-		if metodo == 'contrato':
-			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.contracts.id.keyword')
-
-		if metodo == 'pago':
-			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.contracts.implementation.transactions.id.keyword')
-
-		if metodo in ['contrato', 'pago']:
-			s.aggs.metric('monto_promedio', 'avg', field='doc.compiledRelease.contracts.value.amount')
-
-		#Aplicando filtros
-
-		#filtro por sistema de donde provienen los datos 
-		# s = s.filter('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s.aggs.metric(
+			'compradores_total', 
+			'cardinality', 
+			precision_threshold=precision, 
+			field='doc.compiledRelease.buyer.id.keyword'
+		)
 
 		if metodo == 'proceso':
 			s = s.filter('exists', field='doc.compiledRelease.tender.id')
 
+			s.aggs.metric(
+				'procesos_total', 
+				'cardinality', 
+				precision_threshold=precision, 
+				field='doc.compiledRelease.tender.id.keyword'
+			)
+
 		if metodo == 'contrato':
-			filtro_contrato = Q('exists', field='doc.compiledRelease.contracts.id') 
+			filtro_contrato = Q('exists', field='doc.compiledRelease.contracts.id')
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
 			s = s.query('nested', path='doc.compiledRelease.contracts', query=filtro_contrato)
-			
+
+			s.aggs["contratos"].metric(
+				'procesos_total', 
+				'cardinality', 
+				precision_threshold=precision, 
+				field='doc.compiledRelease.contracts.id.keyword'
+			)
+
 		if metodo == 'pago':
-			qContrato = Q('exists', field='doc.compiledRelease.contracts.implementation.transactions.id') 
-			s = s.query('nested', path='doc.compiledRelease.contracts', query=qContrato)
+			qPago = Q('exists', field='doc.compiledRelease.contracts.implementation.transactions.id') 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=qPago)
+			
+			s.aggs["contratos"].metric(
+				'procesos_total', 
+				'cardinality', 
+				precision_threshold=precision, 
+				field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
+			)
 
 		if moneda is not None: 
 			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
@@ -416,7 +454,6 @@ class Buscador(APIView):
 				s = s.filter('match', doc__compiledRelease__tender__description=term)
 
 			if metodo in  ['contrato', 'pago']:
-				# qDescripcion = Q('match', doc__compiledRelease__contracts__description=term)
 				qDescripcion = Q("wildcard", doc__compiledRelease__contracts__description='*'+term+'*')
 				s = s.query('nested', path='doc.compiledRelease.contracts', query=qDescripcion)
 
@@ -450,15 +487,30 @@ class Buscador(APIView):
 		filtros["instituciones"] = results.aggregations.instituciones.to_dict()
 		filtros["metodos_de_seleccion"] = results.aggregations.metodos_de_seleccion.to_dict()
 
-		resumen = {}
-		resumen["proveedores_total"] = results.aggregations.contratos.proveedores_total.value
-		resumen["compradores_total"] = results.aggregations.contratos.compradores_total.value
-		resumen["procesos_total"] = results.aggregations.procesos_total.value
+		total_compradores = results.aggregations.compradores_total.value
 
-		if metodo in ['contrato', 'pago']:
-			resumen["monto_promedio"] = results.aggregations.monto_promedio.value
+		if metodo == 'pago':
+			monto_promedio = results.aggregations.contratos.promedio_montos_pago.value
+			total_procesos = results.aggregations.contratos.procesos_total.value
+			total_proveedores = results.aggregations.contratos.distinct_proveedores_pagos.value
+		elif metodo == 'contrato':
+			monto_promedio = results.aggregations.contratos.promedio_montos_contrato.value
+			total_procesos = results.aggregations.contratos.procesos_total.value
+			total_proveedores = results.aggregations.contratos.distinct_proveedores_contratos.value
+		elif metodo == 'proceso':
+			monto_promedio = 0
+			total_procesos = results.aggregations.procesos_total.value
+			total_proveedores = results.aggregations.contratos.distinct_proveedores_contratos.value
 		else:
-			resumen["monto_promedio"] = None
+			monto_promedio = 0
+			total_procesos = 0
+			total_proveedores = 0 
+
+		resumen = {}
+		resumen["proveedores_total"] = total_proveedores
+		resumen["compradores_total"] = total_compradores
+		resumen["procesos_total"] = total_procesos
+		resumen["monto_promedio"] = monto_promedio
 
 		parametros = {}
 		parametros["term"] = term
