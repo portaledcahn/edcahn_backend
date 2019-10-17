@@ -244,54 +244,82 @@ class Index(APIView):
 
 	def get(self, request, format=None):
 
+		precision = 40000
+		sourceSEFIN = 'HN.SIAFI2'
+
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
-		s = Search(using=cliente, index='edca')
+		oncae = Search(using=cliente, index='edca')
+		sefin = Search(using=cliente, index='edca')
+		todos = Search(using=cliente, index='edca')
 
-		s.aggs.metric(
+		oncae = oncae.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+
+		sefin = sefin.filter('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+
+		oncae.aggs.metric(
 			'contratos', 
 			'nested', 
 			path='doc.compiledRelease.contracts'
 		)
 
-		s.aggs["contratos"].metric(
+		sefin.aggs.metric(
+			'contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+
+		todos.aggs.metric(
+			'contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+
+		todos.aggs["contratos"].metric(
 			'distinct_suppliers', 
 			'cardinality', 
+			precision_threshold=precision, 
 			field='doc.compiledRelease.contracts.suppliers.id.keyword'
 		)
 		
-		s.aggs["contratos"].metric(
+		todos.aggs.metric(
 			'distinct_buyers', 
 			'cardinality', 
-			field='doc.compiledRelease.contracts.buyer.id.keyword' #CompileRelease.BuyerId
+			precision_threshold=precision, 
+			field='doc.compiledRelease.buyer.id.keyword' 
 		)
 		
-		s.aggs["contratos"].metric(
+		oncae.aggs["contratos"].metric(
 			'distinct_contracts', 
-			'cardinality', 
+			'cardinality',
+			precision_threshold=precision, 
 			field='doc.compiledRelease.contracts.id.keyword'
 		)
 		
-		s.aggs["contratos"].metric(
+		sefin.aggs["contratos"].metric(
 			'distinct_transactions', 
-			'cardinality', 
-			field='doc.compiledRelease.contracts.implementation.transactions.id.keyword' #Con un query comprobar si sale diferente validando que el source sea de SEFIN.
+			'cardinality',
+			precision_threshold=precision, 
+			field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
 		)
 
-		s.aggs.metric(
-			'distinct_tenders', 
+		oncae.aggs.metric(
+			'distinct_procesos', 
 			'cardinality', 
-			field='doc.compiledRelease.tender.id.keyword' #los OCID con sources de ONCAE de los records. 
+			precision_threshold=precision, 
+			field='doc.compiledRelease.ocid.keyword'
 		)
-		
-		results = s.execute()
+
+		resultsONCAE = oncae.execute()
+		resultsSEFIN = sefin.execute()
+		resultsTODOS = todos.execute()
 
 		context = {
-			"contratos": results.aggregations.contratos.distinct_contracts.value,
-			"procesos": results.aggregations.distinct_tenders.value,
-			"pagos": results.aggregations.contratos.distinct_transactions.value,			
-			"compradores": results.aggregations.contratos.distinct_buyers.value,
-			"proveedores": results.aggregations.contratos.distinct_suppliers.value
+			"contratos": resultsONCAE.aggregations.contratos.distinct_contracts.value,
+			"procesos": resultsONCAE.aggregations.distinct_procesos.value,
+			"pagos": resultsSEFIN.aggregations.contratos.distinct_transactions.value,
+			"compradores": resultsTODOS.aggregations.distinct_buyers.value,
+			"proveedores": resultsTODOS.aggregations.contratos.distinct_suppliers.value
 		}
 
 		return Response(context)
