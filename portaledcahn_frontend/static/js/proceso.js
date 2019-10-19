@@ -241,7 +241,7 @@ function ObtenerDatosContacto(partes,tipo,nombres){
                     : null,
                     partes[i].address&&partes[i].address.streetAddress ? 
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Direccción:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Dirección:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.streetAddress})
                     )
                     : null,
@@ -253,13 +253,13 @@ function ObtenerDatosContacto(partes,tipo,nombres){
                     : null,
                     partes[i].contactPoint&&partes[i].contactPoint.email ? 
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electronico:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electrónico:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.email})
                     )
                     : null,
                     partes[i].contactPoint&&partes[i].contactPoint.telephone ? 
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Telefono:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Teléfono:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.telephone})
                     )
                     : null,
@@ -435,7 +435,7 @@ function ObtenerDocumentos(documentos){
       $('<tr>').append(
         $('<td>',{'data-label':'Nombre',text:documentos[i].title}),
         $('<td>',{'data-label':'Descripción',text:documentos[i].description}),
-        $('<td>',{'data-label':'Tipo',text:TraduceTexto(documentos[i].documentType)}),
+        //$('<td>',{'data-label':'Tipo',text:TraduceTexto(documentos[i].documentType)}),
         $('<td>',{'data-label':'Fecha',text:((documentos[i].datePublished)?ObtenerFecha(documentos[i].datePublished):null)}),
         $('<td>',{class:'textoAlineadoDerecha','data-label':''}).append(
           $('<h4>',{class:'descargaIconos'}).append(

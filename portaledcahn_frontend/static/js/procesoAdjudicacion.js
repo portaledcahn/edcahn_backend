@@ -51,9 +51,9 @@ function DefinirElementosAdjudicacion(){
             $('<div>',{class:'nav nav-tabs',role:'tablist'}).append(
 
 
-            $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabAdjudicacion',href:'#informacionTabAdjudicacion','aria-selected':'true'}).append($('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Informacion'})),
+            $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabAdjudicacion',href:'#informacionTabAdjudicacion','aria-selected':'true'}).append($('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Información'})),
 
-            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'itemsTabAdjudicacion',href:'#itemsTabAdjudicacion','aria-selected':'true'}).append($('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Items Solicitados'}))
+            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'itemsTabAdjudicacion',href:'#itemsTabAdjudicacion','aria-selected':'true'}).append($('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Artículos Solicitados'}))
             ,
             $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'documentosTabAdjudicacion',href:'#documentosTabAdjudicacion','aria-selected':'true'}).append($('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Documentos'}))
             )
@@ -125,7 +125,7 @@ function DefinirElementosAdjudicacion(){
                 $('<th>',{text:'Id Adjudicación'}),
                 $('<th>',{text:'Nombre', toolTexto:'awards[n].documents[n].title'}),
                 $('<th>',{text:'Descripción', toolTexto:'awards[n].documents[n].description'}),
-                $('<th>',{text:'Tipo', toolTexto:'awards[n].documents[n].documentType'}),
+                //$('<th>',{text:'Tipo', toolTexto:'awards[n].documents[n].documentType'}),
                 $('<th>',{text:'Fecha', toolTexto:'awards[n].documents[n].datePublished'}),
                 $('<th>',{text:''})
               )
@@ -477,7 +477,7 @@ function ObtenerDocumentosAdjudicaciones(documentos,id){
           $('<td>',{'data-label':'Id Adjudicación',text:id}),
           $('<td>',{'data-label':'Nombre',text:documentos[i].title}),
           $('<td>',{'data-label':'Descripción',text:documentos[i].description}),
-          $('<td>',{'data-label':'Tipo',text:TraduceTexto(documentos[i].documentType)}),
+          //$('<td>',{'data-label':'Tipo',text:TraduceTexto(documentos[i].documentType)}),
           $('<td>',{'data-label':'Fecha',text:((documentos[i].datePublished)?ObtenerFecha(documentos[i].datePublished):null)}),
           $('<td>',{class:'textoAlineadoDerecha','data-label':''}).append(
             $('<h4>',{class:'descargaIconos'}).append(

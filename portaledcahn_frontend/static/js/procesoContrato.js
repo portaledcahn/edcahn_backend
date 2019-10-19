@@ -73,10 +73,10 @@ function DefinirElementosContrato(){
           $('<nav>').append(
             $('<div>',{class:'nav nav-tabs',role:'tablist'}).append(
             $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabContrato'+contratos[i].id,href:'#informacionTabContrato'+contratos[i].id,'aria-selected':'true'}).append(
-              $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Informacion'})
+              $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Información'})
             ),
             $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'itemsTabContrato'+contratos[i].id,href:'#itemsTabContrato'+contratos[i].id,'aria-selected':'true'}).append(
-              $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Items Solicitados'})
+              $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Artículos Solicitados'})
             )
             ,
             $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'documentosTabContrato'+contratos[i].id,href:'#documentosTabContrato'+contratos[i].id,'aria-selected':'true'}).append(
@@ -183,7 +183,7 @@ function DefinirElementosContrato(){
                     $('<tr>').append(
                       $('<th>',{text:'Nombre', toolTexto:'contracts['+i+'].documents[n].title'}),
                       $('<th>',{text:'Descripción',toolTexto:'contracts['+i+'].documents[n].description'}),
-                      $('<th>',{text:'Tipo',toolTexto:'contracts['+i+'].documents[n].documentType'}),
+                      //$('<th>',{text:'Tipo',toolTexto:'contracts['+i+'].documents[n].documentType'}),
                       $('<th>',{text:'Fecha',toolTexto:'contracts['+i+'].documents[n].datePublished'}),
                       $('<th>',{text:''})
                     )

@@ -36,7 +36,7 @@ function DefinirElementosPlaneacion(){
             $('<nav>').append(
               $('<div>',{class:'nav nav-tabs',role:'tablist'}).append(
               $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabPlaneacion',href:'#informacionTabPlaneacion','aria-selected':'true'}).append(
-                $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Informacion'})
+                $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Información'})
               ),
               $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'documentosTabPlaneacion',href:'#documentosTabPlaneacion','aria-selected':'true'}).append(
                 $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Documentos'})
@@ -175,7 +175,7 @@ function DefinirElementosPlaneacion(){
                   $('<tr>').append(
                     $('<th>',{text:'Nombre', toolTexto:'planning.documents[n].title'}),
                     $('<th>',{text:'Descripción', toolTexto:'planning.documents[n].description'}),
-                    $('<th>',{text:'Tipo', toolTexto:'planning.documents[n].documentType'}),
+                    //$('<th>',{text:'Tipo', toolTexto:'planning.documents[n].documentType'}),
                     $('<th>',{text:'Fecha', toolTexto:'planning.documents[n].datePublished'}),
                     $('<th>',{text:''})
                   )

@@ -303,7 +303,7 @@ function InicializarMontoPagos(){
 }
 
 
-
+/*
 function CantidadPagosEtapas(){
     //app.title = '折柱混合';
     var grafico=echarts.init(document.getElementById('montoPagos'));
@@ -324,10 +324,7 @@ function CantidadPagosEtapas(){
                     restore: {show: true,title:'Restaurar'},
                     saveAsImage: {show: true,title:'Descargar'}
                 }
-            },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
+            }
         xAxis: [
             {
                 type: 'category',
@@ -355,17 +352,7 @@ function CantidadPagosEtapas(){
                 axisLabel: {
                     formatter: '{value} HNL'
                 }
-            }/*,
-            {
-                type: 'value',
-                name: 'Cantidad de Pagos Promedio',
-                min: 0,
-                max: 25,
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }*/
+            }
         ],
         series: [
             {
@@ -393,8 +380,7 @@ function CantidadPagosEtapas(){
                 lineStyle: {
                     normal: {
                         color: '#6569CC',
-                        width: 4/*,
-                        type: 'dashed'*/
+                        width: 4/
                     }
                 },
                 itemStyle:{
@@ -410,8 +396,7 @@ function CantidadPagosEtapas(){
                 lineStyle: {
                     normal: {
                         color: '#FECB7E',
-                        width: 4/*,
-                        type: 'dashed'*/
+                        width: 4
                     }
                 },
                 itemStyle:{
@@ -426,7 +411,7 @@ function CantidadPagosEtapas(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
-}
+}*/
 
 
 function CantidadPagosEtapas(){
@@ -522,10 +507,16 @@ function MontoPagosEtapas(){
                 crossStyle: {
                     color: '#999'
                 }
+            },
+            formatter:  function (e){
+                return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(e[0].value) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',((ObtenerNumero( e[0].value)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
             }
         },
         grid: {
-            containLabel: true
+            containLabel: true,
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
         },
         toolbox: {
             feature: {
@@ -534,53 +525,49 @@ function MontoPagosEtapas(){
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
             }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
+        },
         xAxis: [
             {
-                type: 'category',
-                data: ['Precompromiso','Compromiso','Devengado','Transacciones'],
-                axisPointer: {
-                    type: 'shadow'
-                },
-                axisLabel:{
-                    interval:0,
-                    rotate:45,
-                    showMinLabel:false
-                }
+                
+                    type : 'value',
+                    splitLine:{show:false},
+                    axisLabel: {
+                            formatter: function (e){
+                                console.dir(e)
+                                return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
+                            }
+                        }
             }
         ],
         yAxis: [
+            
+            
             {
-                type: 'value',
-                name: 'Monto',
-                min: 0,
-                max: 200000,
-                interval: 50000,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }/*,
-            {
-                type: 'value',
-                name: 'Cantidad de Pagos Promedio',
-                min: 0,
-                max: 25,
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }*/
+                type : 'category',
+                axisTick : {show: false},
+                axisLine:{show:false},
+                data : ['Precomprometido','Comprometido','Devengado','Pagado']
+            }
         ],
         series: [
             {
-                name:'Monto Pagado',
+               // name:'Etapa',
                 type:'bar',
                 data:[150000,80444,69000,72000],
                 itemStyle:{
-                    color: '#D9527B'
+                    color: '#F79A6A'
+                },
+                seriesLayoutBy: 'row',
+                label:{
+                    show:true,
+                    fontFamily:'Poppins',
+                    fontWeight:700,
+                    fontSize:20,
+                    align:'right',
+                    formatter:  function (e){
+                        return "{c} HNL".replace('{c}',ValorMoneda( e.value));
+                    }
+                    //formatter: '{c} Días'
                 }
             }
         ]
@@ -953,6 +940,113 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                         });
     
 }
+function Top10MontosProcesos(){
+    /*
+    var parametros={}
+parametros=ObtenerJsonFiltrosAplicados(parametros)
+                $.get(api+"/dashboardsefin/topproveedores/",parametros).done(function( datos ) {
+                    console.dir(datos);*/
+                    var grafico=echarts.init(document.getElementById('top10MontosProcesos'));
+                    var opciones ={
+                        tooltip : {
+                            trigger: 'axis',
+                            axisPointer : {           
+                                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                            }
+                        },/*
+                        legend: {
+                            data: ['Precompromiso','Compromiso','Devengado','Transacciones']
+                        },*/
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis:  {
+                            type: 'value',
+                            /*min: 0,
+                            max: 810,*/
+                            //interval: 100000,
+                            axisLabel: {
+                                formatter: '{value}'
+                            }
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: ['23200-Mantenimiento y Reparación de Equipos y Medios de Transporte','21100-Energía Eléctrica','26110-Pasajes Nacionales'].reverse()
+                        },
+                        series: [
+                            {
+                                name: 'Montos, Pagados en HNL',
+                                type: 'bar',
+                                stack: 'Monto de Contrato',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'right',
+                                        formatter: function (e){
+                                            return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                                        }
+                                    }
+                                },
+                                data: [150000,80444,69000/*,72000,64248,93734,99214,92792,48351,97934*/].reverse(),
+                                itemStyle:{
+                                    color: '#FECB7E'
+                                }
+                            }/*,
+                            {
+                                name: 'Monto de Contrato, Pagados en USD',
+                                type: 'bar',
+                                stack: '总量',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'insideRight'
+                                    }
+                                },
+                                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
+                                itemStyle:{
+                                    color: '#F69A69'
+                                }
+                
+                                
+                            },
+                            {
+                                name: 'Monto de Contrato, Pagados en EUR',
+                                type: 'bar',
+                                stack: '总量',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'insideRight'
+                                    }
+                                },
+                                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
+                                itemStyle:{
+                                    color: '#FFCA7E'
+                                }
+                            }*/
+                        ],
+                        label:{
+                            show:true,
+                            fontFamily:'Poppins',
+                            fontWeight:700,
+                            fontSize:15
+                        }
+                    };
+                    grafico.setOption(opciones, true);
+                
+                    
+                    window.addEventListener("resize", function(){
+                        grafico.resize();
+                    });
+                    /*
+                      }).fail(function() {
+                          
+                          
+                        });*/
+}
 
 function SegregacionMontosContratos(){
     //app.title = '折柱混合';
@@ -1100,11 +1194,13 @@ $(function(){
         }
       });
     CargarGraficos();
-    CantidadPagosEtapas()
+    //CantidadPagosEtapas()
     MontoPagosEtapas();
     TiempoPromedioEtapas();
+
+    Top10MontosProcesos();
  
-    SegregacionMontosContratos();
+    //SegregacionMontosContratos();
     $('#quitarFiltros').on('click',function(e){
         PushDireccionGraficos(AccederUrlPagina({},true));
       });

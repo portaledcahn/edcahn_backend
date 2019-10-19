@@ -69,10 +69,10 @@ function DefinirElementosConvocatoria(){
             $('<nav>').append(
               $('<div>',{class:'nav nav-tabs',role:'tablist'}).append(
               $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabConvocatoria',href:'#informacionTabConvocatoria','aria-selected':'true'}).append(
-                $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Informacion'})
+                $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Información'})
               ),
               $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'itemsTabConvocatoria',href:'#itemsTabConvocatoria','aria-selected':'true'}).append(
-                $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Items Solicitados'})
+                $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Artículos Solicitados'})
               )
               ,
               $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'documentosTabConvocatoria',href:'#documentosTabConvocatoria','aria-selected':'true'}).append(
@@ -437,7 +437,7 @@ function DefinirElementosConvocatoria(){
                   $('<tr>').append(
                     $('<th>',{text:'Nombre', toolTexto:'tender.documents[n].title'}),
                     $('<th>',{text:'Descripción',toolTexto:'tender.documents[n].description'}),
-                    $('<th>',{text:'Tipo',toolTexto:'tender.documents[n].documentType'}),
+                    //$('<th>',{text:'Tipo',toolTexto:'tender.documents[n].documentType'}),
                     $('<th>',{text:'Fecha',toolTexto:'tender.documents[n].datePublished'}),
                     $('<th>',{text:''})
                   )

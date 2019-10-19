@@ -240,58 +240,88 @@ class RecordDetail(APIView):
 		else:
 			raise Http404
 
+# Endpoints para el buscador. 
+
 class Index(APIView):
 
 	def get(self, request, format=None):
 
+		precision = 40000
+		sourceSEFIN = 'HN.SIAFI2'
+
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
-		s = Search(using=cliente, index='edca')
+		oncae = Search(using=cliente, index='edca')
+		sefin = Search(using=cliente, index='edca')
+		todos = Search(using=cliente, index='edca')
 
-		s.aggs.metric(
+		oncae = oncae.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+
+		sefin = sefin.filter('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+
+		oncae.aggs.metric(
 			'contratos', 
 			'nested', 
 			path='doc.compiledRelease.contracts'
 		)
 
-		s.aggs["contratos"].metric(
+		sefin.aggs.metric(
+			'contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+
+		todos.aggs.metric(
+			'contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+
+		todos.aggs["contratos"].metric(
 			'distinct_suppliers', 
 			'cardinality', 
+			precision_threshold=precision, 
 			field='doc.compiledRelease.contracts.suppliers.id.keyword'
 		)
 		
-		s.aggs["contratos"].metric(
+		todos.aggs.metric(
 			'distinct_buyers', 
 			'cardinality', 
-			field='doc.compiledRelease.contracts.buyer.id.keyword' #CompileRelease.BuyerId
+			precision_threshold=precision, 
+			field='doc.compiledRelease.buyer.id.keyword' 
 		)
 		
-		s.aggs["contratos"].metric(
+		oncae.aggs["contratos"].metric(
 			'distinct_contracts', 
-			'cardinality', 
+			'cardinality',
+			precision_threshold=precision, 
 			field='doc.compiledRelease.contracts.id.keyword'
 		)
 		
-		s.aggs["contratos"].metric(
+		sefin.aggs["contratos"].metric(
 			'distinct_transactions', 
-			'cardinality', 
-			field='doc.compiledRelease.contracts.implementation.transactions.id.keyword' #Con un query comprobar si sale diferente validando que el source sea de SEFIN.
+			'cardinality',
+			precision_threshold=precision, 
+			field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
 		)
 
-		s.aggs.metric(
-			'distinct_tenders', 
+		oncae.aggs.metric(
+			'distinct_procesos', 
 			'cardinality', 
-			field='doc.compiledRelease.tender.id.keyword' #los OCID con sources de ONCAE de los records. 
+			precision_threshold=precision, 
+			field='doc.compiledRelease.ocid.keyword'
 		)
-		
-		results = s.execute()
+
+		resultsONCAE = oncae.execute()
+		resultsSEFIN = sefin.execute()
+		resultsTODOS = todos.execute()
 
 		context = {
-			"contratos": results.aggregations.contratos.distinct_contracts.value,
-			"procesos": results.aggregations.distinct_tenders.value,
-			"pagos": results.aggregations.contratos.distinct_transactions.value,			
-			"compradores": results.aggregations.contratos.distinct_buyers.value,
-			"proveedores": results.aggregations.contratos.distinct_suppliers.value
+			"contratos": resultsONCAE.aggregations.contratos.distinct_contracts.value,
+			"procesos": resultsONCAE.aggregations.distinct_procesos.value,
+			"pagos": resultsSEFIN.aggregations.contratos.distinct_transactions.value,
+			"compradores": resultsTODOS.aggregations.distinct_buyers.value,
+			"proveedores": resultsTODOS.aggregations.contratos.distinct_suppliers.value
 		}
 
 		return Response(context)
@@ -299,6 +329,9 @@ class Index(APIView):
 class Buscador(APIView):
 
 	def get(self, request, format=None):
+		precision = 40000
+		sourceSEFIN = 'HN.SIAFI2'
+
 		page = int(request.GET.get('pagina', '1'))
 		metodo = request.GET.get('metodo', 'proceso')
 		moneda = request.GET.get('moneda', None)
@@ -327,43 +360,76 @@ class Buscador(APIView):
 
 		s.aggs.metric('instituciones', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=100)
 
-		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')		
+		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
 
 		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')	# fecha de contratos o dependiendo lo que se este mostrando.
+	
+		#resumen
+		s.aggs["contratos"].metric(
+			'promedio_montos_contrato', 
+			'avg', 
+			field='doc.compiledRelease.contracts.value.amount'
+		)
 
-		#Resumen
+		s.aggs["contratos"].metric(
+			'promedio_montos_pago', 
+			'avg', 
+			field='doc.compiledRelease.contracts.implementation.transactions.value.amount'
+		)
 
-		s.aggs["contratos"].metric('proveedores_total', 'cardinality', field='doc.compiledRelease.contracts.suppliers.id.keyword')
+		s.aggs["contratos"].metric(
+			'distinct_proveedores_contratos', 
+			'cardinality', 
+			precision_threshold=precision, 
+			field='doc.compiledRelease.contracts.suppliers.id.keyword'
+		)
 
-		s.aggs["contratos"].metric('compradores_total', 'cardinality', field='doc.compiledRelease.contracts.buyer.id.keyword')
+		s.aggs["contratos"].metric(
+			'distinct_proveedores_pagos', 
+			'cardinality', 
+			precision_threshold=precision, 
+			field='doc.compiledRelease.contracts.implementation.transactions.payee.id.keyword'
+		)
 
-		if metodo == 'proceso':
-			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.tender.id.keyword')
-
-		if metodo == 'contrato':
-			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.contracts.id.keyword')
-
-		if metodo == 'pago':
-			s.aggs.metric('procesos_total', 'cardinality', field='doc.compiledRelease.contracts.implementation.transactions.id.keyword')
-
-		if metodo in ['contrato', 'pago']:
-			s.aggs.metric('monto_promedio', 'avg', field='doc.compiledRelease.contracts.value.amount')
-
-		#Aplicando filtros
-
-		#filtro por sistema de donde provienen los datos 
-		# s = s.filter('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s.aggs.metric(
+			'compradores_total', 
+			'cardinality', 
+			precision_threshold=precision, 
+			field='doc.compiledRelease.buyer.id.keyword'
+		)
 
 		if metodo == 'proceso':
 			s = s.filter('exists', field='doc.compiledRelease.tender.id')
 
+			s.aggs.metric(
+				'procesos_total', 
+				'cardinality', 
+				precision_threshold=precision, 
+				field='doc.compiledRelease.tender.id.keyword'
+			)
+
 		if metodo == 'contrato':
-			filtro_contrato = Q('exists', field='doc.compiledRelease.contracts.id') 
+			filtro_contrato = Q('exists', field='doc.compiledRelease.contracts.id')
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
 			s = s.query('nested', path='doc.compiledRelease.contracts', query=filtro_contrato)
-			
+
+			s.aggs["contratos"].metric(
+				'procesos_total', 
+				'cardinality', 
+				precision_threshold=precision, 
+				field='doc.compiledRelease.contracts.id.keyword'
+			)
+
 		if metodo == 'pago':
-			qContrato = Q('exists', field='doc.compiledRelease.contracts.implementation.transactions.id') 
-			s = s.query('nested', path='doc.compiledRelease.contracts', query=qContrato)
+			qPago = Q('exists', field='doc.compiledRelease.contracts.implementation.transactions.id') 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=qPago)
+			
+			s.aggs["contratos"].metric(
+				'procesos_total', 
+				'cardinality', 
+				precision_threshold=precision, 
+				field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
+			)
 
 		if moneda is not None: 
 			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
@@ -388,7 +454,6 @@ class Buscador(APIView):
 				s = s.filter('match', doc__compiledRelease__tender__description=term)
 
 			if metodo in  ['contrato', 'pago']:
-				# qDescripcion = Q('match', doc__compiledRelease__contracts__description=term)
 				qDescripcion = Q("wildcard", doc__compiledRelease__contracts__description='*'+term+'*')
 				s = s.query('nested', path='doc.compiledRelease.contracts', query=qDescripcion)
 
@@ -422,15 +487,30 @@ class Buscador(APIView):
 		filtros["instituciones"] = results.aggregations.instituciones.to_dict()
 		filtros["metodos_de_seleccion"] = results.aggregations.metodos_de_seleccion.to_dict()
 
-		resumen = {}
-		resumen["proveedores_total"] = results.aggregations.contratos.proveedores_total.value
-		resumen["compradores_total"] = results.aggregations.contratos.compradores_total.value
-		resumen["procesos_total"] = results.aggregations.procesos_total.value
+		total_compradores = results.aggregations.compradores_total.value
 
-		if metodo in ['contrato', 'pago']:
-			resumen["monto_promedio"] = results.aggregations.monto_promedio.value
+		if metodo == 'pago':
+			monto_promedio = results.aggregations.contratos.promedio_montos_pago.value
+			total_procesos = results.aggregations.contratos.procesos_total.value
+			total_proveedores = results.aggregations.contratos.distinct_proveedores_pagos.value
+		elif metodo == 'contrato':
+			monto_promedio = results.aggregations.contratos.promedio_montos_contrato.value
+			total_procesos = results.aggregations.contratos.procesos_total.value
+			total_proveedores = results.aggregations.contratos.distinct_proveedores_contratos.value
+		elif metodo == 'proceso':
+			monto_promedio = 0
+			total_procesos = results.aggregations.procesos_total.value
+			total_proveedores = results.aggregations.contratos.distinct_proveedores_contratos.value
 		else:
-			resumen["monto_promedio"] = None
+			monto_promedio = 0
+			total_procesos = 0
+			total_proveedores = 0 
+
+		resumen = {}
+		resumen["proveedores_total"] = total_proveedores
+		resumen["compradores_total"] = total_compradores
+		resumen["procesos_total"] = total_procesos
+		resumen["monto_promedio"] = monto_promedio
 
 		parametros = {}
 		parametros["term"] = term
@@ -1341,6 +1421,206 @@ class Comprador(APIView):
 			raise Http404
 
 		return Response(results.hits.hits[0]["_source"]["doc"]["compiledRelease"]["buyer"])
+
+class ContratosDelComprador(APIView):
+
+	def get(self, request, partieId=None, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		proveedor = request.GET.get('proveedor', '')
+		titulo = request.GET.get('titulo', '')
+		descripcion = request.GET.get('descripcion', '')
+		tituloLicitacion = request.GET.get('tituloLicitacion', '')
+		categoriaCompra = request.GET.get('categoriaCompra', '')
+		estado = request.GET.get('estado', '')
+		monto = request.GET.get('monto', '')
+		fechaFirma = request.GET.get('fechaFirma', '')
+		fechaInicio = request.GET.get('fechaInicio', '')
+		ordenarPor = request.GET.get('ordenarPor', '')
+		dependencias = request.GET.get('dependencias', '0')
+
+		start = (page-1) * paginarPor
+		end = start + paginarPor
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		s = Search(using=cliente, index='contract')
+
+		# Filtrando por nombre del comprador
+		partieId = urllib.parse.unquote_plus(partieId)
+
+		if dependencias == '1':
+			s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
+		else:
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=partieId)
+
+		# Sección de filtros
+		filtros = []
+
+		if proveedor.replace(' ',''):
+			filtro = Q("match", supplier__name=proveedor)
+			filtros.append(filtro)
+
+		if titulo.replace(' ',''):
+			filtro = Q("match", title=titulo)
+			filtros.append(filtro)
+
+		if descripcion.replace(' ',''):
+			filtro = Q("match", description=descripcion)
+			filtros.append(filtro)
+
+		if tituloLicitacion.replace(' ',''):
+			filtro = Q("match", extra__tenderTitle=tituloLicitacion)
+			filtros.append(filtro)
+
+		if categoriaCompra.replace(' ',''):
+			filtro = Q("match_phrase", extra__tenderMainProcurementCategory=categoriaCompra)
+			filtros.append(filtro)
+
+		if estado.replace(' ',''):
+			filtro = Q("match", status=estado)
+			filtros.append(filtro)
+
+		if fechaInicio.replace(' ',''):
+			validarFecha = getDateParam(fechaInicio)
+			
+			if validarFecha is not None:
+				operador = validarFecha["operador"]
+				valor = validarFecha["valor"]
+
+				if operador == "==":
+					filtro = Q('match', period__startDate=valor)
+				elif operador == "<":
+					filtro = Q('range', period__startDate={'lt': valor, "format": "yyyy-MM-dd"})
+				elif operador == "<=":
+					filtro = Q('range', period__startDate={'lte': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">":
+					filtro = Q('range', period__startDate={'gt': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">=":
+					filtro = Q('range', period__startDate={'gte': valor, "format": "yyyy-MM-dd"})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
+
+		if fechaFirma.replace(' ',''):
+			validarFecha = getDateParam(fechaFirma)
+			
+			if validarFecha is not None:
+				operador = validarFecha["operador"]
+				valor = validarFecha["valor"]
+
+				if operador == "==":
+					filtro = Q('match', dateSigned=valor)
+				elif operador == "<":
+					filtro = Q('range', dateSigned={'lt': valor, "format": "yyyy-MM-dd"})
+				elif operador == "<=":
+					filtro = Q('range', dateSigned={'lte': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">":
+					filtro = Q('range', dateSigned={'gt': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">=":
+					filtro = Q('range', dateSigned={'gte': valor, "format": "yyyy-MM-dd"})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
+
+		if monto.replace(' ',''):
+			validarMonto = getOperator(monto)
+			filtro = None
+			if validarMonto is not None:
+				operador = validarMonto["operador"]
+				valor = validarMonto["valor"]
+
+				if operador == "==":
+					filtro = Q('match', value__amount=valor)
+				elif operador == "<":
+					filtro = Q('range', value__amount={'lt': valor})
+				elif operador == "<=":
+					filtro = Q('range', value__amount={'lte': valor})
+				elif operador == ">":
+					filtro = Q('range', value__amount={'gt': valor})
+				elif operador == ">=":
+					filtro = Q('range', value__amount={'gte': valor})
+				else:
+					filtro = None
+
+			if filtro is not None:
+				filtros.append(filtro)
+
+		s = s.query('bool', filter=filtros)
+
+		# Ordenar resultados.
+		mappingSort = {
+			"comprador": "buyer.name.keyword",
+			"titulo": "title.keyword",
+			"tituloLicitacion": "extra.tenderTitle.keyword",
+			"categoriaCompra": "extra.tenderMainProcurementCategory.keyword",
+			"estado": "status.keyword",
+			"monto": "value.amount",
+			"fechaFirma": "period.startDate",
+			"fechaInicio": "dateSigned",
+		}
+
+		#ordenarPor = 'asc(comprador),desc(monto)
+		ordenarES = {}
+		if ordenarPor.replace(' ',''):
+			ordenar = getSortES(ordenarPor)
+
+			if ordenar is not None:
+				for parametro in ordenar:
+					columna = parametro["valor"]
+					orden = parametro["orden"]
+
+					if columna in mappingSort:
+						ordenarES[mappingSort[columna]] = {"order": orden}
+
+		s = s.sort(ordenarES)
+
+		search_results = SearchResults(s)
+		results = s[start:end].execute()
+		paginator = Paginator(search_results, paginarPor)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": results.hits.total
+		}
+
+		parametros = {}
+		parametros["proveedor"] = proveedor
+		parametros["titulo"] = titulo
+		parametros["descripcion"] = descripcion
+		parametros["tituloLicitacion"] = tituloLicitacion
+		parametros["categoriaCompra"] = categoriaCompra
+		parametros["estado"] = estado
+		parametros["monto"] = monto
+		parametros["fechaInicio"] = fechaInicio
+		parametros["fechaFirma"] = fechaInicio
+		parametros["dependencias"] = dependencias
+		parametros["ordenarPor"] = ordenarPor
+		parametros["pagianrPor"] = paginarPor
+		parametros["pagina"] = page
+
+		context = {
+			"paginador": pagination,
+			"parametros": parametros,
+			"resultados": results.hits.hits
+		}
+
+		return Response(context)
 
 # Dashboard SEFIN
 
