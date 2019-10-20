@@ -45,21 +45,6 @@ tasas_de_cambio = {
 	2019: {"HNL": 24.5777, "USD": 1},
 }
 
-# class DSEPaginator(Paginator):
-#     """
-#     Override Django's built-in Paginator class to take in a count/total number of items;
-#     Elasticsearch provides the total as a part of the query results, so we can minimize hits.
-#     """
-#     def __init__(self, *args, **kwargs):
-#         super(DSEPaginator, self).__init__(*args, **kwargs)
-#         self._count = self.object_list.hits.total
-
-#     def page(self, number):
-#         # this is overridden to prevent any slicing of the object_list - Elasticsearch has
-#         # returned the sliced data already.
-#         number = self.validate_number(number)
-#         return Page(self.object_list, number, self)
-
 class SearchResults(LazyObject):
     def __init__(self, search_object):
         self._wrapped = search_object
@@ -2287,6 +2272,186 @@ class TopProveedoresPorMontoPagado(APIView):
 		parametros["proveedor"] = proveedor
 
 		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class TopObjetosDeGastoPorMontoPagado(APIView):
+
+	def get(self, request, format=None):
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		objetogasto = request.GET.get('objetogasto', '')
+		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
+		proveedor = request.GET.get('proveedor', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='transaction')
+
+		# Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__buyerFullName=institucion)
+			# compiledRelease.buyer.name
+
+		if proveedor.replace(' ', ''):
+			s = s.filter('match_phrase', payee__name__keyword=proveedor)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', value__currency__keyword=moneda)
+
+		if objetogasto.replace(' ', ''):
+			s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
+			# planning.budget.budgetBreakdown.n.classifications.objeto
+
+		if fuentefinanciamiento.replace(' ', ''):
+			s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+			# planning.budget.budgetBreakdown.n.classifications.fuente
+			
+		# Agregados
+		s.aggs.metric(
+			'objetos',
+			'terms',
+			field='extra.objetosGasto.keyword',
+			order={'total_pagado': 'desc'},
+			size=10
+		)
+
+		s.aggs["objetos"].metric(
+			'total_pagado',
+			'sum',
+			field='value.amount'
+		)
+
+		results = s.execute()
+
+		buckets = results.aggregations.objetos.to_dict()
+
+		objetos = []
+		montos = []
+
+		for bucket in buckets["buckets"]:
+			objetos.append(bucket["key"])
+			montos.append(bucket["total_pagado"]["value"])
+
+		resultados = {
+			"objetosGasto": objetos,
+			"montos": montos
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["objetogasto"] = objetogasto
+		parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		parametros["proveedor"] = proveedor
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class EtapasPagoProcesoDeCompra(APIView):
+
+	def get(self, request, format=None):
+		sourceSEFIN = 'HN.SIAFI2'
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		# moneda = request.GET.get('moneda', '')
+		# objetogasto = request.GET.get('objetogasto', '')
+		# fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
+		# proveedor = request.GET.get('proveedor', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		# Filtros
+		s = s.filter('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__buyer__name=institucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__classifications__gestion=anio)
+			
+		# Agregados
+		s.aggs.metric(
+			'nested_contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+
+		s.aggs["nested_contratos"].metric(
+			'monto_transacciones',
+			'sum',
+			field='doc.compiledRelease.contracts.implementation.transactions.value.amount'
+		)
+
+		s.aggs.metric(
+			'monto_precomprometido',
+			'sum',
+			field='doc.compiledRelease.planning.budget.budgetBreakdown.measures.precomprometido'
+		)
+
+		s.aggs.metric(
+			'monto_comprometido',
+			'sum',
+			field='doc.compiledRelease.planning.budget.budgetBreakdown.measures.comprometido'
+		)
+
+		s.aggs.metric(
+			'monto_adjudicado',
+			'sum',
+			field='doc.compiledRelease.awards.value.amount'
+		)
+
+		results = s.execute()
+
+		buckets = results.aggregations.to_dict()
+
+		precomprometido = buckets["monto_precomprometido"]["value"] 
+		comprometido = buckets["monto_comprometido"]["value"]
+		adjudicado = buckets["monto_adjudicado"]["value"]
+		transacciones = buckets["nested_contratos"]["monto_transacciones"]["value"]
+
+		if precomprometido != 0:
+			porcentaje_precomprometido = (precomprometido / precomprometido) * 100
+			porcentaje_comprometido = (comprometido / precomprometido) * 100
+			porcentaje_adjudicado = (adjudicado / precomprometido) * 100
+			porcentaje_transacciones = (transacciones / precomprometido) * 100
+		else:
+			porcentaje_precomprometido = 0
+			porcentaje_comprometido = 0
+			porcentaje_adjudicado = 0
+			porcentaje_transacciones = 0
+
+		series = ['Precomprometido', 'Comprometido', 'Devengado', 'Pagado']
+		montos = [precomprometido, comprometido, adjudicado, transacciones]
+		porcentajes = [porcentaje_precomprometido, porcentaje_comprometido, porcentaje_adjudicado, porcentaje_transacciones]
+
+		resultados = {
+			"series": series,
+			"montos": montos,
+			"porcentajes": porcentajes
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+
+		context = {
+			# "elastic": buckets
 			"resultados": resultados,
 			"parametros": parametros
 		}
