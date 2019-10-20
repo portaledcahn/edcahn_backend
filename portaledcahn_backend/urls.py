@@ -19,6 +19,7 @@ urlpatterns = [
 	path('proveedores/<path:partieId>/', viewsets.Proveedor.as_view()),
 	
 	path('compradores/', viewsets.Compradores.as_view()),
+	path('compradores/<path:partieId>/procesos/', viewsets.ProcesosDelComprador.as_view()),
 	path('compradores/<path:partieId>/contratos/', viewsets.ContratosDelComprador.as_view()),
 	path('compradores/<path:partieId>/pagos/', viewsets.PagosDelComprador.as_view()),
 	path('compradores/<path:partieId>/', viewsets.Comprador.as_view()),

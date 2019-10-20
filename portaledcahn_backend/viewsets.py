@@ -1376,6 +1376,243 @@ class Comprador(APIView):
 
 		return Response(results.hits.hits[0]["_source"]["doc"]["compiledRelease"]["buyer"])
 
+class ProcesosDelComprador(APIView):
+
+	def get(self, request, partieId=None, format=None):
+		sourceSEFIN = 'HN.SIAFI2'
+		page = int(request.GET.get('pagina', '1'))
+		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		
+		comprador = request.GET.get('comprador', '')
+		ocid = request.GET.get('ocid', '')
+		titulo = request.GET.get('titulo', '')
+		categoriaCompra = request.GET.get('categoriaCompra', '')
+		fechaPublicacion = request.GET.get('fechaPublicacion', '')
+		fechaInicio = request.GET.get('fechaInicio', '')
+		fechaRecepcion = request.GET.get('fechaRecepcion', '')
+		montoContratado = request.GET.get('montoContratado', '')
+		estado = request.GET.get('estado', '')
+
+		ordenarPor = request.GET.get('ordenarPor', '')
+		dependencias = request.GET.get('dependencias', '0')
+
+		start = (page-1) * paginarPor
+		end = start + paginarPor
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		s = Search(using=cliente, index='edca')
+
+		#Mostrando 
+		campos = [
+			'doc.ocid', 
+			'doc.compiledRelease.date',
+			'doc.compiledRelease.tender',
+			'doc.compiledRelease.contracts', 
+			'extra'
+		]
+
+		s = s.source(campos)
+
+		# Filtrando por nombre del comprador
+		partieId = urllib.parse.unquote_plus(partieId)
+
+		if dependencias == '1':
+			s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
+		else:
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=partieId)
+
+		# Sección de filtros
+		filtros = []
+
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+		s = s.filter('exists', field='doc.compiledRelease.tender')
+
+		if comprador.replace(' ',''):
+			filtro = Q("match", extra__buyerFullName=comprador)
+			filtros.append(filtro)
+
+		if ocid.replace(' ',''):
+			filtro = Q("match", doc__ocid=ocid)
+			filtros.append(filtro)
+
+		if titulo.replace(' ',''):
+			filtro = Q("match", doc__compiledRelease__tender__title=titulo)
+			filtros.append(filtro)
+
+		if categoriaCompra.replace(' ',''):
+			filtro = Q("match", extra__compiledRelease__tender__procurementMethodDetails=categoriaCompra)
+			filtros.append(filtro)
+
+		if estado.replace(' ',''):
+			filtro = Q("match", extra__lastSection=estado)
+			filtros.append(filtro)
+
+		if montoContratado.replace(' ',''):
+			validarMonto = getOperator(montoContratado)
+			filtro = None
+			if validarMonto is not None:
+				operador = validarMonto["operador"]
+				valor = validarMonto["valor"]
+
+				if operador == "==":
+					filtro = Q('match', doc__compiledRelease__tender__extra__sumContracts=valor)
+				elif operador == "<":
+					filtro = Q('range', doc__compiledRelease__tender__extra__sumContracts={'lt': valor})
+				elif operador == "<=":
+					filtro = Q('range', doc__compiledRelease__tender__extra__sumContracts={'lte': valor})
+				elif operador == ">":
+					filtro = Q('range', doc__compiledRelease__tender__extra__sumContracts={'gt': valor})
+				elif operador == ">=":
+					filtro = Q('range', doc__compiledRelease__tender__extra__sumContracts={'gte': valor})
+				else:
+					filtro = None
+
+			if filtro is not None:
+				filtros.append(filtro)
+
+		if fechaInicio.replace(' ',''):
+			validarFecha = getDateParam(fechaInicio)
+			
+			if validarFecha is not None:
+				operador = validarFecha["operador"]
+				valor = validarFecha["valor"]
+
+				if operador == "==":
+					filtro = Q('match', doc__compiledRelease__tender__period__startDate=valor)
+				elif operador == "<":
+					filtro = Q('range', doc__compiledRelease__tender__period__startDate={'lt': valor, "format": "yyyy-MM-dd"})
+				elif operador == "<=":
+					filtro = Q('range', doc__compiledRelease__tender__period__startDate={'lte': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">":
+					filtro = Q('range', doc__compiledRelease__tender__period__startDate={'gt': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">=":
+					filtro = Q('range', doc__compiledRelease__tender__period__startDate={'gte': valor, "format": "yyyy-MM-dd"})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
+
+		if fechaRecepcion.replace(' ',''):
+			validarFecha = getDateParam(fechaRecepcion)
+			
+			if validarFecha is not None:
+				operador = validarFecha["operador"]
+				valor = validarFecha["valor"]
+
+				if operador == "==":
+					filtro = Q('match', doc__compiledRelease__tender__period__endDate=valor)
+				elif operador == "<":
+					filtro = Q('range', doc__compiledRelease__tender__period__endDate={'lt': valor, "format": "yyyy-MM-dd"})
+				elif operador == "<=":
+					filtro = Q('range', doc__compiledRelease__tender__period__endDate={'lte': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">":
+					filtro = Q('range', doc__compiledRelease__tender__period__endDate={'gt': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">=":
+					filtro = Q('range', doc__compiledRelease__tender__period__endDate={'gte': valor, "format": "yyyy-MM-dd"})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
+
+		if fechaPublicacion.replace(' ',''):
+			validarFecha = getDateParam(fechaPublicacion)
+			
+			if validarFecha is not None:
+				operador = validarFecha["operador"]
+				valor = validarFecha["valor"]
+
+				if operador == "==":
+					filtro = Q('match', doc__compiledRelease__date=valor)
+				elif operador == "<":
+					filtro = Q('range', doc__compiledRelease__date={'lt': valor, "format": "yyyy-MM-dd"})
+				elif operador == "<=":
+					filtro = Q('range', doc__compiledRelease__date={'lte': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">":
+					filtro = Q('range', doc__compiledRelease__date={'gt': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">=":
+					filtro = Q('range', doc__compiledRelease__date={'gte': valor, "format": "yyyy-MM-dd"})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
+
+		s = s.query('bool', filter=filtros)
+
+		# Ordenar resultados.
+		mappingSort = {
+			"comprador": "extra.buyerFullName",
+			"ocid": "doc.ocid",
+			"titulo": "doc.compiledRelease.tender.title",
+			"categoriaCompra": "extra.compiledRelease.tender.procurementMethodDetails",
+			"estado": "extra.lastSection",
+			"montoContratado": "doc.compiledRelease.tender.extra.sumContracts",
+			"fechaInicio": "doc.compiledRelease.tender.period.startDate",
+			"fechaRecepcion": "doc.compiledRelease.tender.period.endDate",
+			"fechaPublicacion": "doc.compiledRelease.date",
+		}
+
+		# ordenarPor = 'asc(comprador),desc(monto)
+		ordenarES = {}
+		if ordenarPor.replace(' ',''):
+			ordenar = getSortES(ordenarPor)
+
+			if ordenar is not None:
+				for parametro in ordenar:
+					columna = parametro["valor"]
+					orden = parametro["orden"]
+
+					if columna in mappingSort:
+						ordenarES[mappingSort[columna]] = {"order": orden}
+
+		s = s.sort(ordenarES)
+
+		search_results = SearchResults(s)
+		results = s[start:end].execute()
+		paginator = Paginator(search_results, paginarPor)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": results.hits.total
+		}
+
+		parametros = {}
+		parametros["comprador"] = comprador
+		parametros["ocid"] = ocid
+		parametros["titulo"] = titulo
+		parametros["categoriaCompra"] = categoriaCompra
+		parametros["estado"] = estado
+		parametros["montoContratado"] = montoContratado
+		parametros["fechaInicio"] = fechaInicio
+		parametros["fechaRecepcion"] = fechaRecepcion
+		parametros["fechaPublicacion"] = fechaPublicacion
+		parametros["dependencias"] = dependencias
+		parametros["ordenarPor"] = ordenarPor
+		parametros["pagianrPor"] = paginarPor
+		parametros["pagina"] = page
+
+		context = {
+			"paginador": pagination,
+			"parametros": parametros,
+			"resultados": results.hits.hits
+		}
+
+		return Response(context)
+
 class ContratosDelComprador(APIView):
 
 	def get(self, request, partieId=None, format=None):
