@@ -19,7 +19,9 @@ urlpatterns = [
 	path('proveedores/<path:partieId>/', viewsets.Proveedor.as_view()),
 	
 	path('compradores/', viewsets.Compradores.as_view()),
+	path('compradores/<path:partieId>/procesos/', viewsets.ProcesosDelComprador.as_view()),
 	path('compradores/<path:partieId>/contratos/', viewsets.ContratosDelComprador.as_view()),
+	path('compradores/<path:partieId>/pagos/', viewsets.PagosDelComprador.as_view()),
 	path('compradores/<path:partieId>/', viewsets.Comprador.as_view()),
 
 	path('dashboardsefin/filtros/', viewsets.FiltrosDashboardSEFIN.as_view()),
@@ -29,4 +31,6 @@ urlpatterns = [
 	path('dashboardsefin/estadisticacantidaddepagos/', viewsets.EstadisticaCantidadDePagos.as_view()),
 	path('dashboardsefin/topcompradores/', viewsets.TopCompradoresPorMontoPagado.as_view()),
 	path('dashboardsefin/topproveedores/', viewsets.TopProveedoresPorMontoPagado.as_view()),
+	path('dashboardsefin/topobjetosgasto/', viewsets.TopObjetosDeGastoPorMontoPagado.as_view()),
+	path('dashboardsefin/etapaspago/', viewsets.EtapasPagoProcesoDeCompra.as_view()),
 ]

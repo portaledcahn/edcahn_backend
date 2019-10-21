@@ -134,6 +134,7 @@ function ObtenerProveedor(){
             AnadirDatosProveedor();
             $('.contenedorTablas').show()
             CargarContratosProveedor();
+            CargarPagosProveedor();
             VerificarIntroduccion('INTROJS_PROVEEDOR',1);
         }else{
             $('#noEncontrado').show();
@@ -268,7 +269,10 @@ function CargarContratosProveedor(){
       console.dir(datos);
     
       AgregarResultadosContratosProveedor(datos,'#resultadosContratosProveedor');
-      MostrarPaginacionContratosProveedor(datos);
+      MostrarPaginacion(datos,'.ContratosProveedor',
+        function(e){
+          PaginaContratosProveedor($(e.currentTarget).attr('pagina'))
+        });
       
       
         AgregarToolTips();
@@ -285,6 +289,34 @@ function CargarContratosProveedor(){
         
       });
     }
+    function CargarPagosProveedor(){
+      $('#resultadosContratosProveedor').html(
+        $('<tr>').append(
+          $('<td>',{style:'height:300px;position:relative',colspan:'8',id:'cargandoPagos'})
+        ));
+      MostrarEspera('#cargandoPagos');
+      var parametros=ObtenerFiltrosPagos();
+      $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/pagos',parametros).done(function( datos ) {
+        console.dir(datos);
+      
+       // AgregarResultadosPagosProveedor(datos,'#resultadosPagosProveedor');
+        //MostrarPaginacionPagosProveedor(datos);
+        
+        
+          AgregarToolTips();
+  
+          
+      
+        
+      }).fail(function() {
+          /*Error de Conexion al servidor */
+          console.dir('error de api');
+         // AgregarResultadosPagosProveedor({resultados:[]},'#resultadosContratosProveedor');
+          AgregarToolTips();
+          //VerificarIntroduccion('INTROJS_PROVEEDOR',1);
+          
+        });
+      }
 /*
 
 $('<div>',{class:''})
@@ -303,7 +335,7 @@ $('<div>',{class:''})
           $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoCentrado'}).append(
             resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.buyer.name)+'/?contrato='+resultados[i]._source.id}).text(resultados[i]._source.title):''
           ),
-          $('<td>',{'data-label':'Descripción' ,class:'textoAlineadoJustificado'}).text(
+          $('<td>',{'data-label':'Descripción' ,class:'textoAlineadoIzquierda'}).text(
             resultados[i]&&resultados[i]._source&&resultados[i]._source.description?resultados[i]._source.description:''
           ),
         $('<td>',{'data-label':'Nombre del Proceso' ,class:'textoAlineadoCentrado'}).text(''),
@@ -343,52 +375,91 @@ $('<div>',{class:''})
     }
   }
 
+  function AgregarResultadosPagosProveedor(datos,selector){
+    var resultados=datos.resultados;
+    $(selector).html('');
+    for(var i=0;i<resultados.length;i++){
+      $(selector).append(
+        $('<tr>').append(
+          $('<td>',{'data-label':'Comprador'}).append(
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyerFullName)}).text(resultados[i]._source.extra.buyerFullName):''
+          ),
+          $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoCentrado'}).append(
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.buyer.name)+'/?contrato='+resultados[i]._source.id}).text(resultados[i]._source.title):''
+          ),
+                $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
+                resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
+                [ValorMoneda(resultados[i]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.value.currency})]:''
+                
+                
+                ),
+                $('<td>',{'data-label':'Suma de Todos los Pagos' ,class:'textoAlineadoDerecha'}).append(
+                  resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&Validar(resultados[i]._source.extra.sumTransactions)?
+                  [ValorMoneda(resultados[i]._source.extra.sumTransactions),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.extra.sumTransactions})]:''
+                  
+                  
+                  ),
+                  $('<td>',{'data-label':'Estado' ,class:'textoAlineadoCentrado'}).append(
+                    resultados[i]&&resultados[i]._source&&resultados[i]._source.status?resultados[i]._source.status:''
+                    ),
+          
+          $('<td>',{'data-label':'Fecha de Último Pago' ,class:'textoAlineadoCentrado'}).append(
+            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?'':'textoColorGris' }).text(
+                resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?ObtenerFecha(resultados[i]._source.extra.transactionLastDate,'fecha'):'No Disponible'
+            )
+            
+            )
+            
+        )
+      )
+    }
+    if(!resultados.length){
+      $(selector).append(
+        $('<tr>',{style:''}).append(
+          $('<td>',{'data-label':'','colspan':8}).append(
+            $('<h4>',{class:'titularColor textoColorPrimario mt-3 mb-3'}).text('No se Encontraron Contratos')
+          )))
+    }
+  }
 
-  function MostrarPaginacionContratosProveedor(datos){
-  
+
+  function MostrarPaginacion(datos,selector,funcion){
     var paginacion=ObtenerPaginacion(datos.paginador.page, datos.paginador.num_pages)
-    $('.navegacionTablaGeneral.ContratosProveedor').html('');
+    $('.navegacionTablaGeneral'+selector).html('');
     if(datos.paginador.has_previous){
       $('.navegacionTablaGeneral.ContratosProveedor').append(
         $('<a href="javascript:void(0)"  pagina="'+datos.paginador.previous_page_number+'"  class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>').on({
-          click:function(e){
-            PaginaContratosProveedor($(e.currentTarget).attr('pagina'))
-          }
-          
+          click:funcion
         })
       );
     }
     
     for(var i=0; i<paginacion.length;i++){
       if(paginacion[i]=='...'){
-        $('.navegacionTablaGeneral.ContratosProveedor').append(
+        $('.navegacionTablaGeneral'+selector).append(
           $('<a href="javascript:void(0)" class="numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral">').append($('<span>').text(paginacion[i]))
         );
       }else{
-        $('.navegacionTablaGeneral.ContratosProveedor').append(
+        $('.navegacionTablaGeneral'+selector).append(
           $('<a href="javascript:void(0)" pagina="'+paginacion[i]+'"  class="numerosNavegacionTablaGeneral '+((paginacion[i]==datos.paginador.page)?'current':'')+'">').on({
-            click:function(e){
-                PaginaContratosProveedor($(e.currentTarget).attr('pagina'))
-            }
+            click:funcion
             
           }).append($('<span>').text(paginacion[i]))
         );
       }
     }
     if(datos.paginador.has_next){
-      $('.navegacionTablaGeneral.ContratosProveedor').append(
+      $('.navegacionTablaGeneral'+selector).append(
         $('<a href="javascript:void(0)" pagina="'+datos.paginador.next_page_number+'" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>').on({
-          click:function(e){
-            PaginaContratosProveedor($(e.currentTarget).attr('pagina'))
-          }
+          click:funcion
           
         })
       );
     }
   
-    $('#totalResultadoContratosProveedor').html(datos.paginador['total.items']);
-    $('#inicioResultadoContratosProveedor').html((ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina)))-ObtenerNumero(datos.parametros.paginarPor));
-    $('#finResultadoContratosProveedor').html(((ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina))>ObtenerNumero(datos.paginador['total.items'])) ? ObtenerNumero(datos.paginador['total.items']): (ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina))) ));
+    $('.totalResultado'+selector).html(datos.paginador['total.items']);
+    $('.inicioResultado'+selector).html((ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina)))-ObtenerNumero(datos.parametros.paginarPor));
+    $('.finResultado'+selector).html(((ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina))>ObtenerNumero(datos.paginador['total.items'])) ? ObtenerNumero(datos.paginador['total.items']): (ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina))) ));
     
     
   }
@@ -418,8 +489,15 @@ $('<div>',{class:''})
     (ValidarCadena(opciones.fechaInicioCon) ? '&fechaInicioCon='+encodeURIComponent(opciones.fechaInicioCon):(ValidarCadena(ObtenerValor('fechaInicioCon'))&&!desUrl?'&fechaInicioCon='+ObtenerValor('fechaInicioCon'):''))+
     (ValidarCadena(opciones.montoCon) ? '&montoCon='+encodeURIComponent(reemplazarValor(opciones.montoCon,',','')):(ValidarCadena(ObtenerValor('montoCon'))&&!desUrl?'&montoCon='+ObtenerValor('montoCon'):''))+
     (ValidarCadena(opciones.estadoCon) ? '&estadoCon='+encodeURIComponent(opciones.estadoCon):(ValidarCadena(ObtenerValor('estadoCon'))&&!desUrl?'&estadoCon='+ObtenerValor('estadoCon'):''))+
-    (ValidarCadena(opciones.ordenarPorCon) ? '&ordenarPorCon='+encodeURIComponent(opciones.ordenarPorCon):(ValidarCadena(ObtenerValor('ordenarPorCon'))&&!desUrl?'&ordenarPorCon='+ObtenerValor('ordenarPorCon'):''))
-  
+    (ValidarCadena(opciones.ordenarPorCon) ? '&ordenarPorCon='+encodeURIComponent(opciones.ordenarPorCon):(ValidarCadena(ObtenerValor('ordenarPorCon'))&&!desUrl?'&ordenarPorCon='+ObtenerValor('ordenarPorCon'):''))+
+    '&paginaPag='+(opciones.paginaPag?opciones.paginaPag:(ObtenerNumero(ObtenerValor('paginaPag')) ? ObtenerNumero(ObtenerValor('paginaPag')) : 1))+
+    '&paginarPorPag='+(opciones.paginarPorPag?opciones.paginarPorPag:(ObtenerNumero(ObtenerValor('paginarPorPag')) ? ObtenerNumero(ObtenerValor('paginarPorPag')) : 5))+
+    (ValidarCadena(opciones.ordenarPorPag) ? '&ordenarPorPag='+encodeURIComponent(opciones.ordenarPorPag):(ValidarCadena(ObtenerValor('ordenarPorPag'))&&!desUrl?'&ordenarPorPag='+ObtenerValor('ordenarPorPag'):''))+
+    (ValidarCadena(opciones.compradorPag)? '&compradorPag='+encodeURIComponent(opciones.compradorPag): (ValidarCadena(ObtenerValor('compradorPag'))&&!desUrl?'&compradorPag='+ObtenerValor('compradorPag'):''))+
+    (ValidarCadena(opciones.tituloPag)? '&tituloPag='+encodeURIComponent(opciones.tituloPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
+    (ValidarCadena(opciones.montoPag) ? '&montoPag='+encodeURIComponent(reemplazarValor(opciones.montoPag,',','')):(ValidarCadena(ObtenerValor('montoPag'))&&!desUrl?'&montoPag='+ObtenerValor('montoPag'):''))+
+    (ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(opciones.pagosPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
+    (ValidarCadena(opciones.fechaPag) ? '&fechaPag='+encodeURIComponent(reemplazarValor(opciones.fechaPag,',','')):(ValidarCadena(ObtenerValor('montoPag'))&&!desUrl?'&montoPag='+ObtenerValor('montoPag'):''))
     );
   
   
@@ -456,6 +534,30 @@ $('<div>',{class:''})
     }
     if(Validar(ObtenerValor('ordenarPorCon'))){
       parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=decodeURIComponent(ObtenerValor('ordenarPorCon'));
+    }
+    return parametros;
+  }
+  function ObtenerFiltrosPagos(sufijo){
+    var parametros={}
+    parametros[sufijo?'pagina'+sufijo:'pagina']= ObtenerNumero(ObtenerValor('paginaPag')) ? ObtenerNumero(ObtenerValor('paginaPag')) : 1;
+    parametros[sufijo?'paginarPor'+sufijo:'paginarPor']= ObtenerNumero(ObtenerValor('paginarPorPag')) ? ObtenerNumero(ObtenerValor('paginarPorPag')) : 5;
+    if(Validar(ObtenerValor('compradorPag'))){
+      parametros[sufijo?'comprador'+sufijo:'comprador']=decodeURIComponent(ObtenerValor('compradorPag'));
+    }
+    if(Validar(ObtenerValor('tituloPag'))){
+      parametros[sufijo?'titulo'+sufijo:'titulo']= decodeURIComponent(ObtenerValor('tituloPag'));
+    }
+    if(Validar(ObtenerValor('montoPag'))){
+      parametros[sufijo?'monto'+sufijo:'monto']=decodeURIComponent(ObtenerValor('montoPag'));
+    }
+    if(Validar(ObtenerValor('pagosPag'))){
+      parametros[sufijo?'pagos'+sufijo:'pagos']=decodeURIComponent(ObtenerValor('pagosPag'));
+    }
+    if(Validar(ObtenerValor('fechaPag'))){
+      parametros[sufijo?'fecha'+sufijo:'fecha']=decodeURIComponent(ObtenerValor('fechaPag'));
+    }
+    if(Validar(ObtenerValor('ordenarPorPag'))){
+      parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=decodeURIComponent(ObtenerValor('ordenarPorPag'));
     }
     return parametros;
   }

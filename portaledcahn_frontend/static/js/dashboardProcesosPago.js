@@ -413,7 +413,7 @@ function CantidadPagosEtapas(){
     });
 }*/
 
-
+/*
 function CantidadPagosEtapas(){
     //app.title = '折柱混合';
     var grafico=echarts.init(document.getElementById('cantidadPagosEtapas'));
@@ -434,10 +434,7 @@ function CantidadPagosEtapas(){
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
             }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
+        },
         xAxis: [
             {
                 type: 'category',
@@ -465,17 +462,7 @@ function CantidadPagosEtapas(){
                 axisLabel: {
                     formatter: '{value}'
                 }
-            }/*,
-            {
-                type: 'value',
-                name: 'Cantidad de Pagos Promedio',
-                min: 0,
-                max: 25,
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }*/
+            }
         ],
         series: [
             {
@@ -494,10 +481,14 @@ function CantidadPagosEtapas(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
-}
+}*/
 
 function MontoPagosEtapas(){
     //app.title = '折柱混合';
+    var parametros={}
+        parametros=ObtenerJsonFiltrosAplicados(parametros)
+        $.get(api+"/dashboardsefin/etapaspago/",parametros).done(function( datos ) {
+            console.dir(datos);
     var grafico=echarts.init(document.getElementById('montoPagosEtapas'));
     var opciones = {
         tooltip: {
@@ -509,7 +500,9 @@ function MontoPagosEtapas(){
                 }
             },
             formatter:  function (e){
-                return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(e[0].value) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',((ObtenerNumero( e[0].value)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
+                console.dir(e)
+                return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(datos.resultados.montos[e[0].dataIndex] ) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',ObtenerNumero( e[0].value).toFixed(2));
+                //return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(e[0].value) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',((ObtenerNumero( e[0].value)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
             }
         },
         grid: {
@@ -533,10 +526,12 @@ function MontoPagosEtapas(){
                     splitLine:{show:false},
                     axisLabel: {
                             formatter: function (e){
-                                console.dir(e)
-                                return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
+                                
+                                return "{c} %".replace('{c}',(ObtenerNumero( e) ).toFixed(2));
+                                //return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, datos.resultados.montos)) *100)).toFixed(2));
                             }
-                        }
+                        },
+                        max:100
             }
         ],
         yAxis: [
@@ -546,14 +541,14 @@ function MontoPagosEtapas(){
                 type : 'category',
                 axisTick : {show: false},
                 axisLine:{show:false},
-                data : ['Precomprometido','Comprometido','Devengado','Pagado']
+                data : datos.resultados.series
             }
         ],
         series: [
             {
                // name:'Etapa',
                 type:'bar',
-                data:[150000,80444,69000,72000],
+                data:datos.resultados.porcentajes,
                 itemStyle:{
                     color: '#F79A6A'
                 },
@@ -565,7 +560,7 @@ function MontoPagosEtapas(){
                     fontSize:20,
                     align:'right',
                     formatter:  function (e){
-                        return "{c} HNL".replace('{c}',ValorMoneda( e.value));
+                        return "{c} %".replace('{c}',ValorMoneda( e.value));
                     }
                     //formatter: '{c} Días'
                 }
@@ -578,6 +573,7 @@ function MontoPagosEtapas(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+});
 }
 
 
@@ -746,7 +742,9 @@ function Top10Compradores(){
                     {
                         type: 'value',
                         axisLabel: {
-                            formatter: '{value} HNL'
+                            formatter: '{value} HNL',
+                            rotate:45,
+                        showMinLabel:false
                         }
                     }
                 ],
@@ -862,7 +860,9 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                             max: 810,*/
                             //interval: 100000,
                             axisLabel: {
-                                formatter: '{value}'
+                                formatter: '{value} HNL',
+                                rotate:45,
+                        showMinLabel:false
                             }
                         },
                         yAxis: {
@@ -941,11 +941,11 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
     
 }
 function Top10MontosProcesos(){
-    /*
+    
     var parametros={}
 parametros=ObtenerJsonFiltrosAplicados(parametros)
-                $.get(api+"/dashboardsefin/topproveedores/",parametros).done(function( datos ) {
-                    console.dir(datos);*/
+                $.get(api+"/dashboardsefin/topobjetosgasto/",parametros).done(function( datos ) {
+                    console.dir(datos);
                     var grafico=echarts.init(document.getElementById('top10MontosProcesos'));
                     var opciones ={
                         tooltip : {
@@ -969,12 +969,14 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                             max: 810,*/
                             //interval: 100000,
                             axisLabel: {
-                                formatter: '{value}'
+                                formatter: '{value} HNL',
+                                rotate:45,
+                        showMinLabel:false
                             }
                         },
                         yAxis: {
                             type: 'category',
-                            data: ['23200-Mantenimiento y Reparación de Equipos y Medios de Transporte','21100-Energía Eléctrica','26110-Pasajes Nacionales'].reverse()
+                            data: datos.resultados.objetosGasto.reverse()
                         },
                         series: [
                             {
@@ -990,7 +992,7 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                         }
                                     }
                                 },
-                                data: [150000,80444,69000/*,72000,64248,93734,99214,92792,48351,97934*/].reverse(),
+                                data: datos.resultados.montos.reverse(),
                                 itemStyle:{
                                     color: '#FECB7E'
                                 }
@@ -1041,11 +1043,11 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                     window.addEventListener("resize", function(){
                         grafico.resize();
                     });
-                    /*
+                
                       }).fail(function() {
                           
                           
-                        });*/
+                        });
 }
 
 function SegregacionMontosContratos(){
@@ -1195,10 +1197,11 @@ $(function(){
       });
     CargarGraficos();
     //CantidadPagosEtapas()
-    MontoPagosEtapas();
+    
     TiempoPromedioEtapas();
 
-    Top10MontosProcesos();
+    
+    
  
     //SegregacionMontosContratos();
     $('#quitarFiltros').on('click',function(e){
@@ -1242,6 +1245,8 @@ function CargarGraficos(){
     Top10Compradores();
     CargarCajonesMontos();
     CargarCajonesCantidad();
+    MontoPagosEtapas();
+    Top10MontosProcesos();
 }
 
 
