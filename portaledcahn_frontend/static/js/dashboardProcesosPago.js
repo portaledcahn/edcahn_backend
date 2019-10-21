@@ -93,18 +93,32 @@ function InicializarCantidadPagos(){
                     axisLabel: {
                         formatter: '{value}'
                     },
-                    position:'left'
+                    position:'left',
+                    axisPointer: {
+                        label: {
+                            formatter: '{value} Pagos'
+                        }
+                    }
                 },
                 {
                     type: 'value',
-                    name: 'Cantidad de Pagos en Porcentaje',
+                    //name: 'Cantidad de Pagos en Porcentaje',
                     min: 0,
                     max: 100,/*
                     interval: 5,*/
                     axisLabel: {
-                        formatter: '{value} %'
+                        //formatter: '{value} %'
+                        show:false
                     },
-                    position:'right'
+                    position:'right',
+                    axisTick : {show: false},
+                    axisLine:{show:false},
+                    splitLine:{show:false},
+                    axisPointer: {
+                        label: {
+                            formatter: '{value} %'
+                        }
+                    }
                 }
             ],
             series: [
@@ -117,7 +131,7 @@ function InicializarCantidadPagos(){
                     }
                 },
                 {
-                    name:'Cantidad de Pagos en Porcentaje',
+                    name:'Porcentaje en Relación al Año',
                     type:'line',
                     //yAxisIndex: 1,
                     data:datos.resultados.promediopagos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
@@ -223,16 +237,31 @@ function InicializarMontoPagos(){
                     axisLabel: {
                         formatter: '{value} HNL'
                     },
-                    name:'Lempiras'
+                    name:'Lempiras',
+                    axisPointer: {
+                        label: {
+                            formatter: '{value} HNL'
+                        }
+                    }
                 },
                 {
                     type: 'value',
-                    name: 'Monto de Pagos en Porcentaje',
+                    //name: '',
                     min: 0,
                     max: 100,/*
                     interval: 5,*/
                     axisLabel: {
-                        formatter: '{value} %'
+                        //formatter: '{value} %'
+                        show:false
+                    },
+                    position:'right',
+                    axisTick : {show: false},
+                    axisLine:{show:false},
+                    splitLine:{show:false},
+                    axisPointer: {
+                        label: {
+                            formatter: '{value} %'
+                        }
                     }
                 }
             ],
@@ -254,7 +283,7 @@ function InicializarMontoPagos(){
                     }
                 },*/
                 {
-                    name:'Monto Pagado en Porcentaje',
+                    name:'Porcentaje en Relación al Año',
                     type:'line',
                     data:datos.resultados.promediopagos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
                     symbol: 'circle',
@@ -531,7 +560,13 @@ function MontoPagosEtapas(){
                                 //return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, datos.resultados.montos)) *100)).toFixed(2));
                             }
                         },
-                        max:100
+                        max:100,
+                        
+                    axisPointer: {
+                        label: {
+                            formatter: '{value} %'
+                        }
+                    }
             }
         ],
         yAxis: [
@@ -745,6 +780,11 @@ function Top10Compradores(){
                             formatter: '{value} HNL',
                             rotate:45,
                         showMinLabel:false
+                        },
+                        axisPointer: {
+                            label: {
+                                formatter: '{value} HNL'
+                            }
                         }
                     }
                 ],
@@ -798,7 +838,10 @@ function Top10Compradores(){
                         },
                         label: {
                             normal: {
-                                show: true,
+                                show:true,
+                                    fontFamily:'Poppins',
+                                    fontWeight:700,
+                                    fontSize:15,
                                 position: 'right',
                                 formatter: function (e){
                                     return "{c} HNL".replace('{c}',ValorMoneda(e.value));
@@ -809,13 +852,7 @@ function Top10Compradores(){
                         barCategoryGap:'20%',
                         barGap:'50%'
                     }
-                ],
-                label:{
-                    show:true,
-                    fontFamily:'Poppins',
-                    fontWeight:700,
-                    fontSize:15
-                }
+                ]
             };
             grafico.setOption(opciones, true);
         
@@ -842,7 +879,10 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                         tooltip : {
                             trigger: 'axis',
                             axisPointer : {           
-                                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                                type : 'cross',
+                                crossStyle: {
+                                    color: '#999'
+                                }
                             }
                         },/*
                         legend: {
@@ -863,6 +903,11 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                 formatter: '{value} HNL',
                                 rotate:45,
                         showMinLabel:false
+                            },
+                            axisPointer: {
+                                label: {
+                                    formatter: '{value} HNL'
+                                }
                             }
                         },
                         yAxis: {
@@ -876,7 +921,10 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                 stack: 'Monto de Contrato',
                                 label: {
                                     normal: {
-                                        show: true,
+                                        show:true,
+                                        fontFamily:'Poppins',
+                                        fontWeight:700,
+                                        fontSize:15,
                                         position: 'right',
                                         formatter: function (e){
                                             return "{c} HNL".replace('{c}',ValorMoneda(e.value));
@@ -920,13 +968,7 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                     color: '#FFCA7E'
                                 }
                             }*/
-                        ],
-                        label:{
-                            show:true,
-                            fontFamily:'Poppins',
-                            fontWeight:700,
-                            fontSize:15
-                        }
+                        ]
                     };
                     grafico.setOption(opciones, true);
                 
@@ -951,7 +993,10 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                         tooltip : {
                             trigger: 'axis',
                             axisPointer : {           
-                                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                                type : 'cross',
+                                crossStyle: {
+                                    color: '#999'
+                                }
                             }
                         },/*
                         legend: {
@@ -972,6 +1017,11 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                 formatter: '{value} HNL',
                                 rotate:45,
                         showMinLabel:false
+                            },
+                            axisPointer: {
+                                label: {
+                                    formatter: '{value} HNL'
+                                }
                             }
                         },
                         yAxis: {
@@ -985,7 +1035,10 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                 stack: 'Monto de Contrato',
                                 label: {
                                     normal: {
-                                        show: true,
+                                        show:true,
+                                    fontFamily:'Poppins',
+                                    fontWeight:700,
+                                    fontSize:15,
                                         position: 'right',
                                         formatter: function (e){
                                             return "{c} HNL".replace('{c}',ValorMoneda(e.value));
@@ -1029,13 +1082,7 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                     color: '#FFCA7E'
                                 }
                             }*/
-                        ],
-                        label:{
-                            show:true,
-                            fontFamily:'Poppins',
-                            fontWeight:700,
-                            fontSize:15
-                        }
+                        ]
                     };
                     grafico.setOption(opciones, true);
                 
