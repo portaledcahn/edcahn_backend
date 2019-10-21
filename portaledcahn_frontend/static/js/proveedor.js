@@ -290,7 +290,7 @@ function CargarContratosProveedor(){
       });
     }
     function CargarPagosProveedor(){
-      $('#resultadosContratosProveedor').html(
+      $('#resultadosPagosProveedor').html(
         $('<tr>').append(
           $('<td>',{style:'height:300px;position:relative',colspan:'8',id:'cargandoPagos'})
         ));
@@ -300,7 +300,11 @@ function CargarContratosProveedor(){
         console.dir(datos);
       
        // AgregarResultadosPagosProveedor(datos,'#resultadosPagosProveedor');
-        //MostrarPaginacionPagosProveedor(datos);
+       AgregarResultadosPagosProveedor(datos,'#resultadosPagosProveedor')
+        MostrarPaginacion(datos,'.PagosProveedor',
+        function(e){
+          PaginaPagosProveedor($(e.currentTarget).attr('pagina'))
+        });
         
         
           AgregarToolTips();
@@ -311,7 +315,7 @@ function CargarContratosProveedor(){
       }).fail(function() {
           /*Error de Conexion al servidor */
           console.dir('error de api');
-         // AgregarResultadosPagosProveedor({resultados:[]},'#resultadosContratosProveedor');
+          AgregarResultadosPagosProveedor(datos,'#resultadosPagosProveedor')
           AgregarToolTips();
           //VerificarIntroduccion('INTROJS_PROVEEDOR',1);
           
@@ -385,7 +389,7 @@ $('<div>',{class:''})
             resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyerFullName)}).text(resultados[i]._source.extra.buyerFullName):''
           ),
           $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoCentrado'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.buyer.name)+'/?contrato='+resultados[i]._source.id}).text(resultados[i]._source.title):''
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id}).text(resultados[i]._source.title):''
           ),
                 $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
@@ -395,13 +399,13 @@ $('<div>',{class:''})
                 ),
                 $('<td>',{'data-label':'Suma de Todos los Pagos' ,class:'textoAlineadoDerecha'}).append(
                   resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&Validar(resultados[i]._source.extra.sumTransactions)?
-                  [ValorMoneda(resultados[i]._source.extra.sumTransactions),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.extra.sumTransactions})]:''
+                  [ValorMoneda(resultados[i]._source.extra.sumTransactions),$('<span>',{class:'textoColorPrimario',text:' HNL'})]:''
                   
                   
                   ),
-                  $('<td>',{'data-label':'Estado' ,class:'textoAlineadoCentrado'}).append(
+                /*  $('<td>',{'data-label':'Estado' ,class:'textoAlineadoCentrado'}).append(
                     resultados[i]&&resultados[i]._source&&resultados[i]._source.status?resultados[i]._source.status:''
-                    ),
+                    ),*/
           
           $('<td>',{'data-label':'Fecha de Último Pago' ,class:'textoAlineadoCentrado'}).append(
             $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?'':'textoColorGris' }).text(
@@ -424,10 +428,10 @@ $('<div>',{class:''})
 
 
   function MostrarPaginacion(datos,selector,funcion){
-    var paginacion=ObtenerPaginacion(datos.paginador.page, datos.paginador.num_pages)
+    var paginacion=ObtenerPaginacion(datos.paginador.page, Math.ceil(ObtenerNumero(datos.paginador['total.items'])/ObtenerNumero(datos.parametros.pagianrPor))/* datos.paginador.num_pages*/)
     $('.navegacionTablaGeneral'+selector).html('');
     if(datos.paginador.has_previous){
-      $('.navegacionTablaGeneral.ContratosProveedor').append(
+      $('.navegacionTablaGeneral'+selector).append(
         $('<a href="javascript:void(0)"  pagina="'+datos.paginador.previous_page_number+'"  class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>').on({
           click:funcion
         })
@@ -458,18 +462,25 @@ $('<div>',{class:''})
     }
   
     $('.totalResultado'+selector).html(datos.paginador['total.items']);
-    $('.inicioResultado'+selector).html((ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina)))-ObtenerNumero(datos.parametros.paginarPor));
-    $('.finResultado'+selector).html(((ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina))>ObtenerNumero(datos.paginador['total.items'])) ? ObtenerNumero(datos.paginador['total.items']): (ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina))) ));
+    $('.inicioResultado'+selector).html((ObtenerNumero(datos.parametros.pagianrPor)*(ObtenerNumero(datos.parametros.pagina)))-ObtenerNumero(datos.parametros.pagianrPor));
+    $('.finResultado'+selector).html(((ObtenerNumero(datos.parametros.pagianrPor)*(ObtenerNumero(datos.parametros.pagina))>ObtenerNumero(datos.paginador['total.items'])) ? ObtenerNumero(datos.paginador['total.items']): (ObtenerNumero(datos.parametros.pagianrPor)*(ObtenerNumero(datos.parametros.pagina))) ));
     
     
   }
   function PaginaContratosProveedor(numero){
     PushDireccionContratos(AccederUrlPagina({paginaCon:numero}));
   }
+  function PaginaPagosProveedor(numero){
+    PushDireccionPagos(AccederUrlPagina({paginaPag:numero}));
+  }
 
   function PushDireccionContratos(direccion){
     window.history.pushState({}, document.title,direccion);
     CargarContratosProveedor();
+  }
+  function PushDireccionPagos(direccion){
+    window.history.pushState({}, document.title,direccion);
+    CargarPagosProveedor();
   }
   function InputFiltroContratos(filtros,desUrl){
     PushDireccionContratos(AccederUrlPagina(filtros,desUrl));

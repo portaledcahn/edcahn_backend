@@ -1245,7 +1245,7 @@ $(function(){
     CargarGraficos();
     //CantidadPagosEtapas()
     
-    TiempoPromedioEtapas();
+    //TiempoPromedioEtapas();
 
     
     

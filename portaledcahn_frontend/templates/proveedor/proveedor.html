@@ -625,7 +625,7 @@
                                                    </div>
                                           </div>
                                        </th>
-      
+      <!--
                                     <th class="textoAlineadoCentrado">
                                           <table class="alineado">
                                                 <tr><td> <span toolTexto="contracts[n].status">Estado</span></td><td><span class="ordenEncabezado" opcion="neutro">
@@ -639,6 +639,21 @@
                                          
                                           
                                           <input  class="campoBlancoTextoSeleccion" placeholder="Nombre">
+                                       </th>-->
+                                       <th class="textoAlineadoCentrado  campoFiltrado" filtro="fechaestadoPag" tipo="fecha" style="display: none;">
+                                          <table class="alineado">
+                                                <tr><td> <span toolTexto="contracts[n].status">Estado</span></td><td><span class="ordenEncabezado" opcion="{{ordenestadoCon}}">
+                                                      <div class="contenedorFlechasOrden">
+                                                            <i class="fas fa-sort-up flechaArriba" {% if ordenestadoCon == 'descendente' %}style="display:none"{% endif %}></i>
+                                                            <i class="fas fa-sort-down flechaAbajo" {% if ordenestadoCon == 'ascendente' %}style="display:none"{% endif %}></i>
+                                                      </div>
+                                                   </span></td></tr>
+                                             </table>
+                     
+                                          
+                                          <input  class="campoBlancoTextoSeleccion" placeholder="Nombre"  type="text" value="{% if estadoCon %}{{estadoCon}}{% endif %}">
+                                         
+                                             
                                        </th>
                                     <th class="textoAlineadoCentrado">
                                           <table class="alineado">
@@ -679,7 +694,8 @@
                               
                            </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="resultadosPagosProveedor">
+                           <!--
                            <tr class="filaSubTabla transicion pagos" toolTexto="Puedes ver una subtabla de pagos haciendo CLICK">
                                  <td data-label="Comprador"><a href="/comprador" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a> </td>
                               <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum dolor sit amet consect</a></td>
@@ -706,24 +722,18 @@
                               <td data-label="Estado">Compromiso</td>
                               <td data-label="Fecha del Último pago">2018-02-19 10:02:54</td>
                      
-                           </tr>
+                           </tr>-->
                         </tbody>
                      </table>
 
                      <div class="row">
                            <div class="col-md-6">
-                                 <h5 class="tituloTablaGeneral textoColorPrimario mt-3 mb-0" >Mostrando 0 a 4 de 4 Procesos de Pago</h5>
+                                 <h5 class="tituloTablaGeneral textoColorTitulo mt-3 mb-0" >Mostrando <span class="inicioResultado PagosProveedor">0</span> a <span class="finResultado PagosProveedor">0</span> de <span class="totalResultado PagosProveedor">0</span> Pagos</h5>
+                           
                               </div>
                               <div class="col-md-6 textoAlineadoCentrado">
-                                    <nav class="navegacionTablaGeneral">
-                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-left"></i></span></a>
-                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>1</span></a>
-                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral  numeroNormalNavegacionTablaGeneral"><span>...</span></a>
-                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>10</span></a>
-                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>11</span></a>
-                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral current"><span>12</span></a>
-                                       <a href="javascript:void(0);" class="numerosNavegacionTablaGeneral "><span>13</span></a><a href="javascript:void(0);" class="numerosNavegacionTablaGeneral"><span><i class="fa fa-angle-right"></i></span></a>
-                                    </nav>
+                                    <nav class="navegacionTablaGeneral PagosProveedor">
+                                      </nav>
                                  </div>
                      </div>
 

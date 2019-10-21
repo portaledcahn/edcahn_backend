@@ -161,7 +161,18 @@ def Proveedor(request,id=''):
       "montoCon" : request.GET.get('montoCon','').replace(">", "").replace("<", "").replace("==", ""),
       "paginarPorCon" : int(request.GET.get('paginarPorCon','5')),
       "ordenarPorCon" : request.GET.get('ordenarPorCon',''),
-      "id":id.replace('"','')
+      "id":id.replace('"',''),
+      "compradorPag" : request.GET.get('compradorPag',''),
+      "tituloPag" : request.GET.get('tituloPag',''),
+      "descripcionCon" : request.GET.get('descripcionCon',''),
+      "categoriaCompraCon" : request.GET.get('categoriaCompraCon',''),
+      "estadoPag" : request.GET.get('estadoPag',''),
+      "fechaPag" : request.GET.get('fechaFirmaCon','').replace(">", "").replace("<", "").replace("==", ""),
+      "fechaInicioCon" : request.GET.get('fechaInicioCon','').replace(">", "").replace("<", "").replace("==", ""),
+      "montoPag" : request.GET.get('montoPag','').replace(">", "").replace("<", "").replace("==", ""),
+      "pagosPag" : request.GET.get('pagosPag','').replace(">", "").replace("<", "").replace("==", ""),
+      "paginarPorPag" : int(request.GET.get('paginarPorPag','5')),
+      "ordenarPorPag" : request.GET.get('ordenarPorPag',''),
     }
     parametros['operadorfechaFirmaCon'] = verificarOperador(request.GET.get('fechaFirmaCon',''))
     parametros['operadorfechaInicioCon'] = verificarOperador(request.GET.get('fechaInicioCon',''))
@@ -181,6 +192,18 @@ def Proveedor(request,id=''):
     parametros['ordenfechaFirmaCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'fechaFirmaCon')
     parametros['ordenfechaInicioCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'fechaInicioCon')
     parametros['ordenmontoCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'montoCon')
+
+
+    parametros['operadormontoPag'] = verificarOperador(request.GET.get('montoPag',''))
+    parametros['operadorfechaPag'] = verificarOperador(request.GET.get('fechaPag',''))
+    parametros['operadorpagosPag'] = verificarOperador(request.GET.get('pagosPag',''))
+
+    parametros['ordencompradorPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'compradorPag')
+    parametros['ordentituloPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'tituloPag')
+    parametros['ordenfechaPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'fechaPag')
+    parametros['ordenmontoPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'montoPag')
+    parametros['ordenpagosPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'pagosPag')
+    parametros['ordenestadoPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'estadoPag')
 
 
 
