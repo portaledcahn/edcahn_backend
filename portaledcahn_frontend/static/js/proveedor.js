@@ -1,7 +1,39 @@
 var proveedorId='';
 var datosProveedor={};
+var filtrosAPropiedades={
+  "proveedorCon" : 'proveedor',
+  "tituloCon" :"titulo" ,
+  "tituloLicitacionCon" : "tituloLicitacion",
+  "descripcionCon" : "descripcion",
+  "categoriaCompraCon" : "categoriaCompra" ,
+  "estadoCon" :"estado",
+  "fechaFirmaCon" : "fechaFirma" ,
+  "fechaInicioCon" :"fechaInicio",
+  "montoCon" :"monto" ,
+  "dependencias" :"dependencias",
+  
+  "compradorPag" : "comprador" ,
+  "proveedorPag" :"proveedor" ,
+  "tituloPag" : "titulo",
+  "estadoPag" : "estado",
+  "fechaPag" : "fecha",
+  "montoPag" :  "monto",
+  "pagosPag" : "pagos",
+
+  "compradorPro" : "comprador",
+  "ocidPro" : "ocid",
+  "tituloPro" :"titulo",
+  "categoriaCompraPro" : "categoriaCompra",
+  "estadoPro" : "estado",
+  "montoPro":"monto",
+  "cantidadContratosPro":"cantidadContratos",
+  "montoContratadoPro" : "montoContratado",
+  "fechaInicioPro" : "fechaInicio",
+  "fechaRecepcionPro" : "fechaRecepcion",
+  "fechaPublicacionPro" : "fechaPublicacion"
+};
 $(function(){
-    proveedorId=$('#proveedorId').val();
+    proveedorId= decodeURIComponent($('#proveedorId').val());
     $.datepicker.regional['es'] = {
         closeText: 'Cerrar',
         prevText: '< Ant',
@@ -31,17 +63,18 @@ $(function(){
 
 
     AsignarOrdenTabla();
-    AnadirSubtabla();
+   // AnadirSubtabla();
     AgregarToolTips();
     ObtenerProveedor();
-    var configuracionNumerica={ 
-      decimalCharacter:'.',
-      decimalPlaces:0,
-      digitalGroupSpacing:3,
-      digitGroupSeparator:','
-      }
+    
      var elementosNumericos=[];
      for(let i=0;i<$('.elementoNumerico').length;i++){
+      var configuracionNumerica={ 
+        decimalCharacter:'.',
+        decimalPlaces:$($('.elementoNumerico')[i]).attr('decimal')=="true"?2:0,
+        digitalGroupSpacing:3,
+        digitGroupSeparator:','
+        }
       elementosNumericos[i]= new AutoNumeric($('.elementoNumerico')[i], configuracionNumerica );
      }
 /*
@@ -60,6 +93,28 @@ $(function(){
       filtros['paginaCon']=1;
       InputFiltroContratos(filtros,true);
     });
+    $('#cajonPagos input.campoAzulBusqueda').on('change',function(evento){
+      var elemento=$('#cajonPagos input.campoAzulBusqueda');
+      var filtros={};
+      filtros=ObtenerFiltrosPagos();
+      filtros[elemento.attr('filtro')]=(elemento.val());
+      if(!ValidarCadena(filtros[elemento.attr('filtro')])){
+        delete filtros[elemento.attr('filtro')];
+      }
+      filtros['paginaPag']=1;
+      InputFiltroPagos(filtros,true);
+    });
+    $('#cajonProductos input.campoAzulBusqueda').on('change',function(evento){
+      var elemento=$('#cajonProductos input.campoAzulBusqueda');
+      var filtros={};
+      filtros=ObtenerFiltrosProductos();
+      filtros[elemento.attr('filtro')]=(elemento.val());
+      if(!ValidarCadena(filtros[elemento.attr('filtro')])){
+        delete filtros[elemento.attr('filtro')];
+      }
+      filtros['paginaPro']=1;
+      InputFiltroProductos(filtros,true);
+    });
     $('#buscarInformacionContratos').on('click',function(evento){
       var elemento=$('#cajonContratos input.campoAzulBusqueda');
       var filtros={};
@@ -71,50 +126,86 @@ $(function(){
       filtros['paginaCon']=1;
       InputFiltroContratos(filtros,true);
     });
-    AsignarEventosFiltroContratos();
+    $('#buscarInformacionPagos').on('click',function(evento){
+      var elemento=$('#cajonPagos input.campoAzulBusqueda');
+      var filtros={};
+      filtros=ObtenerFiltrosPagos();
+      filtros[elemento.attr('filtro')]=(elemento.val());
+      if(!ValidarCadena(filtros[elemento.attr('filtro')])){
+        delete filtros[elemento.attr('filtro')];
+      }
+      filtros['paginaPag']=1;
+      InputFiltroPagos(filtros,true);
+    });
+    $('#buscarInformacionProductos').on('click',function(evento){
+      var elemento=$('#cajonProductos input.campoAzulBusqueda');
+      var filtros={};
+      filtros=ObtenerFiltrosProductos();
+      filtros[elemento.attr('filtro')]=(elemento.val());
+      if(!ValidarCadena(filtros[elemento.attr('filtro')])){
+        delete filtros[elemento.attr('filtro')];
+      }
+      filtros['paginaPro']=1;
+      InputFiltroProductos(filtros,true);
+    });
+    AsignarEventosFiltro('#cajonContratos','Con',ObtenerFiltrosContratos,InputFiltroContratos);
+    AsignarEventosFiltro('#cajonPagos','Pag',ObtenerFiltrosPagos,InputFiltroPagos);
+    AsignarEventosFiltro('#cajonProductos','Pro',ObtenerFiltrosProductos,InputFiltroProductos);
     AsignarOrdenTablaFiltros(OrdenFiltroContratos,'#cajonContratos .ordenEncabezado');
-    NumeroResultadosContrato();
+    AsignarOrdenTablaFiltros(OrdenFiltroPagos,'#cajonPagos .ordenEncabezado');
+    AsignarOrdenTablaFiltros(OrdenFiltroProductos,'#cajonProductos .ordenEncabezado');
+    $('#paginacionBusquedaContrato').on('change',function(e){
+      CantidadResultadosContrato($('#paginacionBusquedaContrato').val()?$('#paginacionBusquedaContrato').val():5);
+    });
+    $('#paginacionBusquedaPago').on('change',function(e){
+      CantidadResultadosPago($('#paginacionBusquedaPago').val()?$('#paginacionBusquedaPago').val():5);
+    });
+    $('#paginacionBusquedaProducto').on('change',function(e){
+      CantidadResultadosProducto($('#paginacionBusquedaProducto').val()?$('#paginacionBusquedaProducto').val():5);
+    });
     //paginacionBusquedaContrato
 });
-function NumeroResultadosContrato(){
-  $('#paginacionBusquedaContrato').on('change',function(e){
-    CantidadResultadosContrato($('#paginacionBusquedaContrato').val()?$('#paginacionBusquedaContrato').val():5);
-  });
-}
+
 function CantidadResultadosContrato(numero){
   PushDireccionContratos(AccederUrlPagina({paginaCon:1,paginarPorCon:numero}));
 }
-function AsignarEventosFiltroContratos(){
-  $('#cajonContratos .campoFiltrado input[type="text"]').on(
+function CantidadResultadosPago(numero){
+  PushDireccionPagos(AccederUrlPagina({paginaPag:1,paginarPorPag:numero}));
+}
+function CantidadResultadosProducto(numero){
+  PushDireccionProductos(AccederUrlPagina({paginaPro:1,paginarPorPro:numero}));
+}
+function AsignarEventosFiltro(selector,sufijo,funcionFiltros,funcionInput){
+  $(selector+' .campoFiltrado input[type="text"]').on(
     {'change': function(e){
       var elemento=$(e.currentTarget);
       var elementoPadre=elemento.closest('.campoFiltrado');
       var filtros={};
-      filtros=ObtenerFiltrosContratos();
+      filtros=funcionFiltros();
       switch(elementoPadre.attr('tipo')){
         case 'fecha':
             filtros[elementoPadre.attr('filtro')]=ValidarCadena(elemento.val())?(elemento.attr('opcion')+elemento.val()):'';
             if(!ValidarCadena(filtros[elementoPadre.attr('filtro')])){
               delete filtros[elementoPadre.attr('filtro')];
             }
-            filtros['paginaCon']=1;
-            InputFiltroContratos(filtros,true);
+            filtros['pagina'+sufijo]=1;
+            funcionInput(filtros,true);
         break;
         case 'numero':
             filtros[elementoPadre.attr('filtro')]=ValidarCadena(elemento.val())?(elemento.attr('opcion')+elemento.val()):'';
             if(!ValidarCadena(filtros[elementoPadre.attr('filtro')])){
               delete filtros[elementoPadre.attr('filtro')];
             }
-            filtros['paginaCon']=1;
-            InputFiltroContratos(filtros,true);
+            filtros['pagina'+sufijo]=1;
+            funcionInput(filtros,true);
         break;
         default:
             filtros[elementoPadre.attr('filtro')]=(elemento.val());
             if(!ValidarCadena(filtros[elementoPadre.attr('filtro')])){
               delete filtros[elementoPadre.attr('filtro')];
             }
-            filtros['paginaCon']=1;
-            InputFiltroContratos(filtros,true);
+            filtros['pagina'+sufijo]=1;
+            funcionInput(filtros,true);
         break;
       }
 
@@ -135,6 +226,7 @@ function ObtenerProveedor(){
             $('.contenedorTablas').show()
             CargarContratosProveedor();
             CargarPagosProveedor();
+            CargarProductosProveedor();
             VerificarIntroduccion('INTROJS_PROVEEDOR',1);
         }else{
             $('#noEncontrado').show();
@@ -161,13 +253,13 @@ function AnadirDatosProveedor(){
             )
         ),
         $('<div>',{class:'row'}).append(
-            $('<h4>',{class:'text-primary-edcax titularCajonSombreado  col-md-12'}).text(
+
+
+            $('<div>',{class:'col-md-6'}).append(
+              $('<h4>',{class:'text-primary-edcax titularCajonSombreado '}).text(
                 'Información del Proveedor'
-            )
             ),
-        $('<div>',{class:'row'}).append(
-            $('<div>',{class:'col-md-12'}).append(
-                $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos','data-step':"1",'data-intro':"Puedes visualizar la dirección de un proveedor en esta sección, en caso de que este disponible."}).append(
+                $('<div>',{class:'cajonSombreadox contenedorDetalleProcesoDatos','data-step':"1",'data-intro':"Puedes visualizar la dirección de un proveedor en esta sección, en caso de que este disponible."}).append(
                     $('<div>',{class:'contenedorProceso informacionProceso'}).append(
 
                         (datosProveedor.id?
@@ -175,7 +267,7 @@ function AnadirDatosProveedor(){
                                 $('<table>').append(
                                   $('<tbody>').append(
                                     $('<tr>').append(
-                                        $('<td>',{class:'tituloTablaCaracteristicas',toolTexto:"parties[n].id"}).text('Identificación:'),
+                                        $('<td>',{class:'tituloTablaCaracteristicas',toolTexto:"parties[n].id"}).text('Identificador:'),
                                         $('<td>',{class:'contenidoTablaCaracteristicas'})).append(
                                             VerificarCadenaRTN(datosProveedor.id)? 
                                             $('<span>',{class:'botonGeneral fondoColorPrimario'}).text('RTN'):$('<span>').text(datosProveedor.id),
@@ -196,16 +288,13 @@ function AnadirDatosProveedor(){
                                 ))):null)
                     )
                 )
-            )
-        ),
-       (datosProveedor.contactPoint&&(datosProveedor.contactPoint.name||datosProveedor.contactPoint.telephone||datosProveedor.contactPoint.faxNumber||datosProveedor.contactPoint.email))? $('<div>',{class:'row'}).append(
-            $('<h4>',{class:'text-primary-edcax titularCajonSombreado  col-md-12 mt-5'}).text(
+            ),(datosProveedor.contactPoint&&(datosProveedor.contactPoint.name||datosProveedor.contactPoint.telephone||datosProveedor.contactPoint.faxNumber||datosProveedor.contactPoint.email))?$('<div>',{class:'col-md-6'}).append(
+              
+              $('<h4>',{class:'text-primary-edcax titularCajonSombreado '}).text(
                 'Datos de Contacto'
             )
-            ):null,
-            (datosProveedor.contactPoint&&(datosProveedor.contactPoint.name||datosProveedor.contactPoint.telephone||datosProveedor.contactPoint.faxNumber||datosProveedor.contactPoint.email))?$('<div>',{class:'row'}).append(
-            $('<div>',{class:'col-md-12 mt-2'}).append(
-                $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos','data-step':"2",'data-intro':"Puedes visualizar los datos de contacto de un proveedor en esta sección, en caso de que este disponible."}).append(
+            ,
+                $('<div>',{class:'cajonSombreadox contenedorDetalleProcesoDatos','data-step':"2",'data-intro':"Puedes visualizar los datos de contacto de un proveedor en esta sección, en caso de que este disponible."}).append(
                     $('<div>',{class:'contenedorProceso informacionProceso'}).append(
 
                         (datosProveedor.contactPoint&&datosProveedor.contactPoint.name?
@@ -250,8 +339,12 @@ function AnadirDatosProveedor(){
                                 ))):null)
                     )
                 )
-            )
+            
         ):null
+        )
+      
+            
+            
 
 
 
@@ -266,6 +359,7 @@ function CargarContratosProveedor(){
     MostrarEspera('#cargando');
     var parametros=ObtenerFiltrosContratos();
     $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/contratos',parametros).done(function( datos ) {
+      console.dir('Contratos')
       console.dir(datos);
     
       AgregarResultadosContratosProveedor(datos,'#resultadosContratosProveedor');
@@ -292,11 +386,12 @@ function CargarContratosProveedor(){
     function CargarPagosProveedor(){
       $('#resultadosPagosProveedor').html(
         $('<tr>').append(
-          $('<td>',{style:'height:300px;position:relative',colspan:'8',id:'cargandoPagos'})
+          $('<td>',{style:'height:300px;position:relative',colspan:'5',id:'cargandoPagos'})
         ));
       MostrarEspera('#cargandoPagos');
       var parametros=ObtenerFiltrosPagos();
       $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/pagos',parametros).done(function( datos ) {
+        console.dir('Pagos')
         console.dir(datos);
       
        // AgregarResultadosPagosProveedor(datos,'#resultadosPagosProveedor');
@@ -321,6 +416,38 @@ function CargarContratosProveedor(){
           
         });
       }
+      function CargarProductosProveedor(){
+        $('#resultadosProductosProveedor').html(
+          $('<tr>').append(
+            $('<td>',{style:'height:300px;position:relative',colspan:'3',id:'cargandoProductos'})
+          ));
+        MostrarEspera('#cargandoProductos');
+        var parametros=ObtenerFiltrosProductos();
+        $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/productos',parametros).done(function( datos ) {
+          console.dir('Productos')
+          console.dir(datos);
+        
+         AgregarResultadosProductosProveedor(datos,'#resultadosProductosProveedor')
+          MostrarPaginacion(datos,'.ProductosProveedor',
+          function(e){
+            PaginaProductosProveedor($(e.currentTarget).attr('pagina'))
+          });
+          
+          
+            AgregarToolTips();
+    
+            
+        
+          
+        }).fail(function() {
+            /*Error de Conexion al servidor */
+            console.dir('error de api');
+            AgregarResultadosProductosProveedor(datos,'#resultadosProductosProveedor')
+            AgregarToolTips();
+            //VerificarIntroduccion('INTROJS_PROVEEDOR',1);
+            
+          });
+        }
 /*
 
 $('<div>',{class:''})
@@ -334,13 +461,14 @@ $('<div>',{class:''})
       $(selector).append(
         $('<tr>').append(
           $('<td>',{'data-label':'Comprador'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.buyer&&resultados[i]._source.buyer.name?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.buyer.id)}).text(resultados[i]._source.buyer.name):''
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyerFullName)}).text(resultados[i]._source.extra.buyerFullName):''
           ),
-          $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoCentrado'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.buyer.name)+'/?contrato='+resultados[i]._source.id}).text(resultados[i]._source.title):''
+          $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoIzquierda'}).append(
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id, toolTexto:resultados[i]._source.title}).text( ReducirTexto(resultados[i]._source.title,80)) :''
           ),
-          $('<td>',{'data-label':'Descripción' ,class:'textoAlineadoIzquierda'}).text(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.description?resultados[i]._source.description:''
+          $('<td>',{'data-label':'Descripción' ,class:'textoAlineadoIzquierda'}).append(
+            $('<span>',{text: ReducirTexto(resultados[i]&&resultados[i]._source&&resultados[i]._source.description?resultados[i]._source.description:'',80) , toolTexto:resultados[i]&&resultados[i]._source&&resultados[i]._source.description?resultados[i]._source.description:''})
+            
           ),
         $('<td>',{'data-label':'Nombre del Proceso' ,class:'textoAlineadoCentrado'}).text(''),
         $('<td>',{'data-label':'Categoría de Compras' ,class:'textoAlineadoCentrado'}).text(''
@@ -388,8 +516,8 @@ $('<div>',{class:''})
           $('<td>',{'data-label':'Comprador'}).append(
             resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyerFullName)}).text(resultados[i]._source.extra.buyerFullName):''
           ),
-          $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoCentrado'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id}).text(resultados[i]._source.title):''
+          $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoIzquierda'}).append(
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id, toolTexto:resultados[i]._source.title}).text( ReducirTexto(resultados[i]._source.title,80)) :''
           ),
                 $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
@@ -403,9 +531,6 @@ $('<div>',{class:''})
                   
                   
                   ),
-                /*  $('<td>',{'data-label':'Estado' ,class:'textoAlineadoCentrado'}).append(
-                    resultados[i]&&resultados[i]._source&&resultados[i]._source.status?resultados[i]._source.status:''
-                    ),*/
           
           $('<td>',{'data-label':'Fecha de Último Pago' ,class:'textoAlineadoCentrado'}).append(
             $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?'':'textoColorGris' }).text(
@@ -420,15 +545,48 @@ $('<div>',{class:''})
     if(!resultados.length){
       $(selector).append(
         $('<tr>',{style:''}).append(
-          $('<td>',{'data-label':'','colspan':8}).append(
-            $('<h4>',{class:'titularColor textoColorPrimario mt-3 mb-3'}).text('No se Encontraron Contratos')
+          $('<td>',{'data-label':'','colspan':5}).append(
+            $('<h4>',{class:'titularColor textoColorPrimario mt-3 mb-3'}).text('No se Encontraron Pagos')
+          )))
+    }
+  }
+
+  function AgregarResultadosProductosProveedor(datos,selector){
+    var resultados=datos.resultados;
+    $(selector).html('');
+    for(var i=0;i<resultados.length;i++){
+      $(selector).append(
+        $('<tr>').append(
+          $('<td>',{'data-label':'Clasificación'}).append(
+            resultados[i]&&resultados[i].clasificacion?$('<a>').text(resultados[i].clasificacion):''
+          ),
+          $('<td>',{'data-label':'Cantidad de Contratos',class:'textoAlineadoCentrado'}).append(
+            resultados[i]&&Validar(resultados[i].cantidadContratos)?ValorNumerico(resultados[i].cantidadContratos) :''
+          ),
+                $('<td>',{'data-label':'Monto de Productos Adjudicados' ,class:'textoAlineadoDerecha'}).append(
+                resultados[i]&&Validar(resultados[i].monto)?
+                [ValorMoneda(resultados[i].monto),$('<span>',{class:'textoColorPrimario',text:' HNL'})]:''
+                
+                
+                )
+            
+        )
+      )
+    }
+    if(!resultados.length){
+      $(selector).append(
+        $('<tr>',{style:''}).append(
+          $('<td>',{'data-label':'','colspan':3}).append(
+            $('<h4>',{class:'titularColor textoColorPrimario mt-3 mb-3'}).text('No se Encontraron Productos')
           )))
     }
   }
 
 
   function MostrarPaginacion(datos,selector,funcion){
-    var paginacion=ObtenerPaginacion(datos.paginador.page, Math.ceil(ObtenerNumero(datos.paginador['total.items'])/ObtenerNumero(datos.parametros.pagianrPor))/* datos.paginador.num_pages*/)
+    var paginarPor=datos.parametros.paginarPor?datos.parametros.paginarPor:datos.parametros.pagianrPor?datos.parametros.pagianrPor:5;
+    var pagina=datos.parametros.pagina?datos.parametros.pagina:1
+    var paginacion=ObtenerPaginacion(datos.paginador.page, Math.ceil(ObtenerNumero(datos.paginador['total.items'])/ObtenerNumero(paginarPor))/* datos.paginador.num_pages*/)
     $('.navegacionTablaGeneral'+selector).html('');
     if(datos.paginador.has_previous){
       $('.navegacionTablaGeneral'+selector).append(
@@ -462,8 +620,8 @@ $('<div>',{class:''})
     }
   
     $('.totalResultado'+selector).html(datos.paginador['total.items']);
-    $('.inicioResultado'+selector).html((ObtenerNumero(datos.parametros.pagianrPor)*(ObtenerNumero(datos.parametros.pagina)))-ObtenerNumero(datos.parametros.pagianrPor));
-    $('.finResultado'+selector).html(((ObtenerNumero(datos.parametros.pagianrPor)*(ObtenerNumero(datos.parametros.pagina))>ObtenerNumero(datos.paginador['total.items'])) ? ObtenerNumero(datos.paginador['total.items']): (ObtenerNumero(datos.parametros.pagianrPor)*(ObtenerNumero(datos.parametros.pagina))) ));
+    $('.inicioResultado'+selector).html((ObtenerNumero(paginarPor)*(ObtenerNumero(pagina)))-ObtenerNumero(paginarPor));
+    $('.finResultado'+selector).html(((ObtenerNumero(paginarPor)*(ObtenerNumero(pagina))>ObtenerNumero(datos.paginador['total.items'])) ? ObtenerNumero(datos.paginador['total.items']): (ObtenerNumero(paginarPor)*(ObtenerNumero(pagina))) ));
     
     
   }
@@ -472,6 +630,9 @@ $('<div>',{class:''})
   }
   function PaginaPagosProveedor(numero){
     PushDireccionPagos(AccederUrlPagina({paginaPag:numero}));
+  }
+  function PaginaProductosProveedor(numero){
+    PushDireccionProductos(AccederUrlPagina({paginaPro:numero}));
   }
 
   function PushDireccionContratos(direccion){
@@ -482,8 +643,18 @@ $('<div>',{class:''})
     window.history.pushState({}, document.title,direccion);
     CargarPagosProveedor();
   }
+  function PushDireccionProductos(direccion){
+    window.history.pushState({}, document.title,direccion);
+    CargarProductosProveedor();
+  }
   function InputFiltroContratos(filtros,desUrl){
     PushDireccionContratos(AccederUrlPagina(filtros,desUrl));
+  }
+  function InputFiltroPagos(filtros,desUrl){
+    PushDireccionPagos(AccederUrlPagina(filtros,desUrl));
+  }
+  function InputFiltroProductos(filtros,desUrl){
+    PushDireccionProductos(AccederUrlPagina(filtros,desUrl));
   }
 
   function AccederUrlPagina(opciones,desUrl){
@@ -493,14 +664,15 @@ $('<div>',{class:''})
     '&paginarPorCon='+(opciones.paginarPorCon?opciones.paginarPorCon:(ObtenerNumero(ObtenerValor('paginarPorCon')) ? ObtenerNumero(ObtenerValor('paginarPorCon')) : 5))+
     (ValidarCadena(opciones.compradorCon)? '&compradorCon='+encodeURIComponent(opciones.compradorCon): (ValidarCadena(ObtenerValor('compradorCon'))&&!desUrl?'&compradorCon='+ObtenerValor('compradorCon'):''))+
     (ValidarCadena(opciones.tituloCon)? '&tituloCon='+encodeURIComponent(opciones.tituloCon): (ValidarCadena(ObtenerValor('tituloCon'))&&!desUrl?'&tituloCon='+ObtenerValor('tituloCon'):''))+
-   
-    (ValidarCadena(opciones.descripcionCon)? '&descripcionCon='+encodeURIComponent(opciones.tmc): (ValidarCadena(ObtenerValor('descripcionCon'))&&!desUrl?'&descripcionCon='+ObtenerValor('descripcionCon'):''))+
+    (ValidarCadena(opciones.descripcionCon)? '&descripcionCon='+encodeURIComponent(opciones.descripcionCon): (ValidarCadena(ObtenerValor('descripcionCon'))&&!desUrl?'&descripcionCon='+ObtenerValor('descripcionCon'):''))+
     (ValidarCadena(opciones.categoriaCompraCon)? '&categoriaCompraCon='+encodeURIComponent(opciones.categoriaCompraCon): (ValidarCadena(ObtenerValor('categoriaCompraCon'))&&!desUrl?'&categoriaCompraCon='+ObtenerValor('categoriaCompraCon'):''))+
     (ValidarCadena(opciones.fechaFirmaCon)? '&fechaFirmaCon='+encodeURIComponent(opciones.fechaFirmaCon): (ValidarCadena(ObtenerValor('fechaFirmaCon'))&&!desUrl?'&fechaFirmaCon='+ObtenerValor('fechaFirmaCon'):''))+
     (ValidarCadena(opciones.fechaInicioCon) ? '&fechaInicioCon='+encodeURIComponent(opciones.fechaInicioCon):(ValidarCadena(ObtenerValor('fechaInicioCon'))&&!desUrl?'&fechaInicioCon='+ObtenerValor('fechaInicioCon'):''))+
     (ValidarCadena(opciones.montoCon) ? '&montoCon='+encodeURIComponent(reemplazarValor(opciones.montoCon,',','')):(ValidarCadena(ObtenerValor('montoCon'))&&!desUrl?'&montoCon='+ObtenerValor('montoCon'):''))+
     (ValidarCadena(opciones.estadoCon) ? '&estadoCon='+encodeURIComponent(opciones.estadoCon):(ValidarCadena(ObtenerValor('estadoCon'))&&!desUrl?'&estadoCon='+ObtenerValor('estadoCon'):''))+
     (ValidarCadena(opciones.ordenarPorCon) ? '&ordenarPorCon='+encodeURIComponent(opciones.ordenarPorCon):(ValidarCadena(ObtenerValor('ordenarPorCon'))&&!desUrl?'&ordenarPorCon='+ObtenerValor('ordenarPorCon'):''))+
+    
+    
     '&paginaPag='+(opciones.paginaPag?opciones.paginaPag:(ObtenerNumero(ObtenerValor('paginaPag')) ? ObtenerNumero(ObtenerValor('paginaPag')) : 1))+
     '&paginarPorPag='+(opciones.paginarPorPag?opciones.paginarPorPag:(ObtenerNumero(ObtenerValor('paginarPorPag')) ? ObtenerNumero(ObtenerValor('paginarPorPag')) : 5))+
     (ValidarCadena(opciones.ordenarPorPag) ? '&ordenarPorPag='+encodeURIComponent(opciones.ordenarPorPag):(ValidarCadena(ObtenerValor('ordenarPorPag'))&&!desUrl?'&ordenarPorPag='+ObtenerValor('ordenarPorPag'):''))+
@@ -508,12 +680,31 @@ $('<div>',{class:''})
     (ValidarCadena(opciones.tituloPag)? '&tituloPag='+encodeURIComponent(opciones.tituloPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
     (ValidarCadena(opciones.montoPag) ? '&montoPag='+encodeURIComponent(reemplazarValor(opciones.montoPag,',','')):(ValidarCadena(ObtenerValor('montoPag'))&&!desUrl?'&montoPag='+ObtenerValor('montoPag'):''))+
     (ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(opciones.pagosPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
-    (ValidarCadena(opciones.fechaPag) ? '&fechaPag='+encodeURIComponent(reemplazarValor(opciones.fechaPag,',','')):(ValidarCadena(ObtenerValor('montoPag'))&&!desUrl?'&montoPag='+ObtenerValor('montoPag'):''))
+    (ValidarCadena(opciones.fechaPag) ? '&fechaPag='+encodeURIComponent(reemplazarValor(opciones.fechaPag,',','')):(ValidarCadena(ObtenerValor('fechaPag'))&&!desUrl?'&fechaPag='+ObtenerValor('fechaPag'):''))+
+
+    '&paginaPro='+(opciones.paginaPro?opciones.paginaPro:(ObtenerNumero(ObtenerValor('paginaPro')) ? ObtenerNumero(ObtenerValor('paginaPro')) : 1))+
+    '&paginarPorPro='+(opciones.paginarPorPro?opciones.paginarPorPro:(ObtenerNumero(ObtenerValor('paginarPorPro')) ? ObtenerNumero(ObtenerValor('paginarPorPro')) : 5))+
+    (ValidarCadena(opciones.clasificacionPro)? '&clasificacionPro='+encodeURIComponent(opciones.clasificacionPro): (ValidarCadena(ObtenerValor('clasificacionPro'))&&!desUrl?'&clasificacionPro='+ObtenerValor('clasificacionPro'):''))+
+    (ValidarCadena(opciones.cantidadContratosPro) ? '&cantidadContratosPro='+encodeURIComponent(reemplazarValor(opciones.cantidadContratosPro,',','')):(ValidarCadena(ObtenerValor('cantidadContratosPro'))&&!desUrl?'&cantidadContratosPro='+ObtenerValor('cantidadContratosPro'):''))+
+    (ValidarCadena(opciones.montoPro) ? '&montoPro='+encodeURIComponent(reemplazarValor(opciones.montoPro,',','')):(ValidarCadena(ObtenerValor('montoPro'))&&!desUrl?'&montoPro='+ObtenerValor('montoPro'):''))
+
     );
   
   
     
     return direccion;
+  }
+
+  function ObtenerOrdenConversion(texto){
+    texto=ObtenerTexto(texto);
+    if(/desc\(/.test(texto)){
+      texto=texto.replace('desc(','').replace(')','')
+      return 'desc('+filtrosAPropiedades[texto]+')'
+    }else if(/asc\(/.test(texto)){
+      texto=texto.replace('asc(','').replace(')','')
+      return 'asc('+filtrosAPropiedades[texto]+')'
+    }
+    return texto
   }
   function ObtenerFiltrosContratos(sufijo){
     var parametros={}
@@ -544,8 +735,10 @@ $('<div>',{class:''})
       parametros[sufijo?'estado'+sufijo:'estado']=decodeURIComponent(ObtenerValor('estadoCon'));
     }
     if(Validar(ObtenerValor('ordenarPorCon'))){
-      parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=decodeURIComponent(ObtenerValor('ordenarPorCon'));
+      parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=sufijo?decodeURIComponent(ObtenerValor('ordenarPorCon')):ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorCon')));
     }
+
+    
     return parametros;
   }
   function ObtenerFiltrosPagos(sufijo){
@@ -568,7 +761,26 @@ $('<div>',{class:''})
       parametros[sufijo?'fecha'+sufijo:'fecha']=decodeURIComponent(ObtenerValor('fechaPag'));
     }
     if(Validar(ObtenerValor('ordenarPorPag'))){
-      parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=decodeURIComponent(ObtenerValor('ordenarPorPag'));
+      parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=sufijo?decodeURIComponent(ObtenerValor('ordenarPorPag')):ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPag')));
+    }
+    return parametros;
+  }
+
+  function ObtenerFiltrosProductos(sufijo){
+    var parametros={}
+    parametros[sufijo?'pagina'+sufijo:'pagina']= ObtenerNumero(ObtenerValor('paginaPro')) ? ObtenerNumero(ObtenerValor('paginaPro')) : 1;
+    parametros[sufijo?'paginarPor'+sufijo:'paginarPor']= ObtenerNumero(ObtenerValor('paginarPorPro')) ? ObtenerNumero(ObtenerValor('paginarPorPro')) : 5;
+    if(Validar(ObtenerValor('clasificacionPro'))){
+      parametros[sufijo?'clasificacion'+sufijo:'clasificacion']=decodeURIComponent(ObtenerValor('clasificacionPro'));
+    }
+    if(Validar(ObtenerValor('montoPro'))){
+      parametros[sufijo?'monto'+sufijo:'monto']=decodeURIComponent(ObtenerValor('montoPro'));
+    }
+    if(Validar(ObtenerValor('cantidadContratosPro'))){
+      parametros[sufijo?'cantidadContratos'+sufijo:'cantidadContratos']=decodeURIComponent(ObtenerValor('cantidadContratosPro'));
+    }
+    if(Validar(ObtenerValor('ordenarPorPro'))){
+      parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=sufijo?decodeURIComponent(ObtenerValor('ordenarPorPro')):ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPro')));
     }
     return parametros;
   }
@@ -577,26 +789,81 @@ $('<div>',{class:''})
   function OrdenFiltroContratos(filtro,orden){
     switch(orden){
       case 'ascendente':
-          PushDireccion(AccederUrlPagina({pagina:1,ordenarPor:'asc('+filtrosAPropiedades[filtro]+')'}));
+          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'asc('+filtrosAPropiedades[filtro]+')'}));
         break;
       case 'descendente':
-          PushDireccion(AccederUrlPagina({pagina:1,ordenarPor:'desc('+filtrosAPropiedades[filtro]+')'}));
+          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'desc('+filtrosAPropiedades[filtro]+')'}));
         break;
       case 'neutro':
           var filtros=ObtenerFiltrosContratos('Con');
-          if(filtros['ordenarPor']){
-            delete filtros['ordenarPor'];
+          if(filtros['ordenarPorCon']){
+            delete filtros['ordenarPorCon'];
           }
-          filtros['pagina']=1;
-          PushDireccion(AccederUrlPaginas(filtros,true));
+          filtros['paginaCon']=1;
+          PushDireccionContratos(AccederUrlPaginas(filtros,true));
         break;
       default:
           var filtros=ObtenerFiltrosContratos('Con');
-          if(filtros['ordenarPor']){
-            delete filtros['ordenarPor'];
+          if(filtros['ordenarPorCon']){
+            delete filtros['ordenarPorCon'];
           }
-          filtros['pagina']=1;
-          PushDireccion(AccederUrlPagina(filtros,true));
+          filtros['paginaCon']=1;
+          PushDireccionContratos(AccederUrlPagina(filtros,true));
+        break;
+  
+    }
+  }
+  function OrdenFiltroPagos(filtro,orden){
+    switch(orden){
+      case 'ascendente':
+          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'asc('+filtrosAPropiedades[filtro]+')'}));
+        break;
+      case 'descendente':
+          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'desc('+filtrosAPropiedades[filtro]+')'}));
+        break;
+      case 'neutro':
+          var filtros=ObtenerFiltrosPagos('Pag');
+          if(filtros['ordenarPorPag']){
+            delete filtros['ordenarPorPag'];
+          }
+          filtros['paginaPag']=1;
+          PushDireccionPagos(AccederUrlPaginas(filtros,true));
+        break;
+      default:
+          var filtros=ObtenerFiltrosPagos('Pag');
+          if(filtros['ordenarPorPag']){
+            delete filtros['ordenarPorPag'];
+          }
+          filtros['paginaPag']=1;
+          PushDireccionPagos(AccederUrlPagina(filtros,true));
+        break;
+  
+    }
+  }
+
+  function OrdenFiltroProductos(filtro,orden){
+    switch(orden){
+      case 'ascendente':
+          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'asc('+filtrosAPropiedades[filtro]+')'}));
+        break;
+      case 'descendente':
+          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'desc('+filtrosAPropiedades[filtro]+')'}));
+        break;
+      case 'neutro':
+          var filtros=ObtenerFiltrosProductos('Pro');
+          if(filtros['ordenarPorPro']){
+            delete filtros['ordenarPorPro'];
+          }
+          filtros['paginaPro']=1;
+          PushDireccionProductos(AccederUrlPaginas(filtros,true));
+        break;
+      default:
+          var filtros=ObtenerFiltrosProductos('Pro');
+          if(filtros['ordenarPorPro']){
+            delete filtros['ordenarPorPro'];
+          }
+          filtros['paginaPro']=1;
+          PushDireccionProductos(AccederUrlPagina(filtros,true));
         break;
   
     }

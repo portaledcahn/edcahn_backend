@@ -1121,6 +1121,145 @@ class PagosDelProveedor(APIView):
 
 		return Response(context)
 
+class ProductosDelProveedor(APIView):
+
+	def get(self, request, partieId=None, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+
+		clasificacion = request.GET.get('clasificacion', '')
+		monto = request.GET.get('monto', '')
+		cantidadContratos = request.GET.get('cantidadContratos', '')
+		proceso = request.GET.get('proceso', 'contrato')
+
+		ordenarPor = request.GET.get('ordenarPor', '')
+
+		start = (page-1) * paginarPor
+		end = start + paginarPor
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		s = Search(using=cliente, index='contract')
+
+		s.aggs.metric(
+			'productos',
+			'terms',
+			field='items.classification.description.keyword',
+			size= 10000
+		)
+
+		s.aggs["productos"].metric(
+			'monto_contratado',
+			'sum',
+			field='items.unit.value.amount'
+		)
+
+		#Filtros
+		filtros = []
+		qPartieId = Q('match_phrase', suppliers__id=partieId) 
+		s = s.query('nested', path='suppliers', query=qPartieId)
+
+		if cantidadContratos.replace(' ', ''):
+			q_cc = 'params.cc' + cantidadContratos
+			s.aggs["productos"].metric(
+				'filtro_cantidad', 
+				'bucket_selector', 
+				buckets_path={"cc": "_count"}, 
+				script=q_cc
+			)
+
+		if monto.replace(' ', ''):
+			q_m = 'params.m' + monto
+			s.aggs["productos"].metric(
+				'filtro_monto', 
+				'bucket_selector', 
+				buckets_path={"m": "monto_contratado"}, 
+				script=q_m
+			)
+
+		s = s.query('bool', filter=filtros)
+
+		search_results = SearchResults(s)
+		results = s[0:0].execute()
+		paginator = Paginator(search_results, paginarPor)
+
+		productosES = results.aggregations.productos.to_dict()
+		productos = []
+
+		for n in productosES["buckets"]:
+			producto = {}
+			producto["clasificacion"] = n["key"]
+			producto["cantidadContratos"] = n["doc_count"]
+			producto["monto"] = n["monto_contratado"]["value"]
+			
+			productos.append(copy.deepcopy(producto))
+
+		dfProductos = pd.DataFrame(productos)
+		ordenar = getSortBy(ordenarPor)
+
+		for indice, columna in enumerate(ordenar["columnas"]):
+			if not columna in dfProductos:
+				ordenar["columnas"].pop(indice)
+				ordenar["ascendentes"].pop(indice)
+
+		if ordenar["columnas"]:
+			dfProductos = dfProductos.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+
+		dfProductos = dfProductos.fillna('')
+
+		if clasificacion.replace(' ', ''):
+			dfProductos = dfProductos[dfProductos['clasificacion'].str.contains(clasificacion, case=False)]
+
+		# dfProductos["contratos"] = None
+
+		productos = dfProductos.to_dict('records')
+
+		# campos = [
+		# 	'extra.buyerFullName', 
+		# 	'extra.ocid',
+		# 	'value',
+		# 	'title'
+		# ]
+
+		# for p in productos:
+		# 	ss = Search(using=cliente, index='contract')
+		# 	ss = ss.filter('match_phrase', items__classification__description__keyword=producto["clasificacion"])
+		# 	ss = ss.source(campos)
+		# 	results = ss[0:100].execute()
+		# 	p["contratos"] = copy.deepcopy(results.hits.hits)
+		# 	print(len(results.hits.hits))
+
+		paginator = Paginator(productos, paginarPor)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": len(productos)
+		}
+
+		parametros = {}
+		parametros["clasificacion"] = clasificacion
+		parametros["cantidadContratos"] = cantidadContratos
+		parametros["monto"] = monto
+
+		context = {
+			"parametros": parametros,
+			"paginador": pagination,
+			"resultados": posts.object_list,
+		}
+
+		return Response(context)
+
 class Compradores(APIView):
 
 	def get(self, request, format=None):
@@ -1179,7 +1318,6 @@ class Compradores(APIView):
 		# Filtros
 		if tmc.replace(' ', ''):
 			q_tmc = 'params.tmc' + tmc
-			print('q_tmc', q_tmc)
 			s.aggs['compradores']\
 			.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
 

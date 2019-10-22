@@ -440,7 +440,7 @@ function ObtenerDocumentos(documentos){
         $('<td>',{class:'textoAlineadoDerecha','data-label':''}).append(
           $('<h4>',{class:'descargaIconos'}).append(
             $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-              $('<a>',{href:documentos[i].url,download:'a',class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
+              $('<a>',{href:documentos[i].url,download:'a',class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',target:'_blank'}).append(
                 $('<i>',{class:'fas fa-file-download'}),
               '&nbsp;'+ObtenerExtension(documentos[i].url)
               )

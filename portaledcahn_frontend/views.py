@@ -104,7 +104,87 @@ def Busqueda(request):
     return render(request,'busqueda/busqueda.html',parametros)
 
 def Comprador(request,id=''):
-    return render(request,'comprador/comprador.html',{'id':id.replace('"','')})
+    parametros = {
+        "proveedorCon" : request.GET.get('proveedorCon',''),
+        "tituloCon" : request.GET.get('tituloCon',''),
+        "tituloLicitacionCon" : request.GET.get('tituloLicitacionCon',''),
+        "descripcionCon" : request.GET.get('descripcionCon',''),
+        "categoriaCompraCon" : request.GET.get('categoriaCompraCon',''),
+        "estadoCon" : request.GET.get('estadoCon',''),
+        "fechaFirmaCon" : request.GET.get('fechaFirmaCon','').replace(">", "").replace("<", "").replace("==", ""),
+        "fechaInicioCon" : request.GET.get('fechaInicioCon','').replace(">", "").replace("<", "").replace("==", ""),
+        "montoCon" : request.GET.get('montoCon','').replace(">", "").replace("<", "").replace("==", ""),
+        "dependencias" : int(request.GET.get('dependencias','0')),
+        "paginarPorCon" : int(request.GET.get('paginarPorCon','5')),
+        "ordenarPorCon" : request.GET.get('ordenarPorCon',''),
+        "id":id.replace('"',''),
+        "compradorPag" : request.GET.get('compradorPag',''),
+        "proveedorPag" : request.GET.get('proveedorPag',''),
+        "tituloPag" : request.GET.get('tituloPag',''),
+        "estadoPag" : request.GET.get('estadoPag',''),
+        "fechaPag" : request.GET.get('fechaPag','').replace(">", "").replace("<", "").replace("==", ""),
+        "montoPag" : request.GET.get('montoPag','').replace(">", "").replace("<", "").replace("==", ""),
+        "pagosPag" : request.GET.get('pagosPag','').replace(">", "").replace("<", "").replace("==", ""),
+        "paginarPorPag" : int(request.GET.get('paginarPorPag','5')),
+        "ordenarPorPag" : request.GET.get('ordenarPorPag',''),
+
+        "compradorPro" : request.GET.get('compradorPro',''),
+        "ocidPro" : request.GET.get('ocidPro',''),
+        "tituloPro" : request.GET.get('tituloPro',''),
+        "categoriaCompraPro" : request.GET.get('categoriaCompraPro',''),
+        "estadoPro" : request.GET.get('estadoPro',''),
+        "montoContratadoPro" : request.GET.get('montoContratadoPro','').replace(">", "").replace("<", "").replace("==", ""),
+        "fechaInicioPro" : request.GET.get('fechaInicioPro','').replace(">", "").replace("<", "").replace("==", ""),
+        "fechaRecepcionPro" : request.GET.get('fechaRecepcionPro','').replace(">", "").replace("<", "").replace("==", ""),
+        "fechaPublicacionPro" : request.GET.get('fechaPublicacionPro','').replace(">", "").replace("<", "").replace("==", ""),
+        
+        "paginarPorPro" : int(request.GET.get('paginarPorPro','5')),
+        "ordenarPorPro" : request.GET.get('ordenarPorPro','')
+    }
+    parametros['operadorfechaFirmaCon'] = verificarOperador(request.GET.get('fechaFirmaCon',''))
+    parametros['operadorfechaInicioCon'] = verificarOperador(request.GET.get('fechaInicioCon',''))
+    parametros['operadormontoCon'] = verificarOperador(request.GET.get('montoCon',''))
+
+    parametros['ordencompradorCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'compradorCon')
+    parametros['ordentituloCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'tituloCon')
+    parametros['ordentituloLicitacionCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'tituloLicitacionCon')
+    parametros['ordendescripcionCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'descripcionCon')
+    parametros['ordencategoriaCompraCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'categoriaCompraCon')
+    parametros['ordenestadoCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'estadoCon')
+    parametros['ordenfechaFirmaCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'fechaFirmaCon')
+    parametros['ordenfechaInicioCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'fechaInicioCon')
+    parametros['ordenmontoCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'montoCon')
+
+
+    parametros['operadormontoPag'] = verificarOperador(request.GET.get('montoPag',''))
+    parametros['operadorfechaPag'] = verificarOperador(request.GET.get('fechaPag',''))
+    parametros['operadorpagosPag'] = verificarOperador(request.GET.get('pagosPag',''))
+
+    parametros['ordencompradorPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'compradorPag')
+    parametros['ordenproveedorPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'proveedorPag')
+    parametros['ordentituloPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'tituloPag')
+    parametros['ordenfechaPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'fechaPag')
+    parametros['ordenestadoPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'estadoPag')
+    parametros['ordenmontoPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'montoPag')
+    parametros['ordenpagosPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'pagosPag')
+
+
+    """Procesos"""
+    parametros['operadormontoContratadoPro'] = verificarOperador(request.GET.get('montoContratadoPro',''))
+    parametros['operadorfechaInicioPro'] = verificarOperador(request.GET.get('fechaInicioPro',''))
+    parametros['operadorfechaRecepcionPro'] = verificarOperador(request.GET.get('fechaRecepcionPro',''))
+    parametros['operadorfechaPublicacionPro'] = verificarOperador(request.GET.get('"fechaPublicacionPro',''))
+
+    parametros['ordencompradorPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'compradorPro')
+    parametros['ordenocidPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'ocidPro')
+    parametros['ordentituloPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'tituloPro')
+    parametros['ordencategoriaCompraPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'categoriaCompraPro')
+    parametros['ordenestadoPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'estadoPro')
+    parametros['ordenmontoContratadoPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'montoContratadoPro')
+    parametros['ordenfechaInicioPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'fechaInicioPro')
+    parametros['ordenfechaRecepcionPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'fechaRecepcionPro')
+    parametros['ordenfechaPublicacionPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'fechaPublicacionPro')
+    return render(request,'comprador/comprador.html',parametros)
 
 def Compradores(request):
     parametros = {
@@ -164,15 +244,17 @@ def Proveedor(request,id=''):
       "id":id.replace('"',''),
       "compradorPag" : request.GET.get('compradorPag',''),
       "tituloPag" : request.GET.get('tituloPag',''),
-      "descripcionCon" : request.GET.get('descripcionCon',''),
-      "categoriaCompraCon" : request.GET.get('categoriaCompraCon',''),
       "estadoPag" : request.GET.get('estadoPag',''),
-      "fechaPag" : request.GET.get('fechaFirmaCon','').replace(">", "").replace("<", "").replace("==", ""),
-      "fechaInicioCon" : request.GET.get('fechaInicioCon','').replace(">", "").replace("<", "").replace("==", ""),
+      "fechaPag" : request.GET.get('fechaPag','').replace(">", "").replace("<", "").replace("==", ""),
       "montoPag" : request.GET.get('montoPag','').replace(">", "").replace("<", "").replace("==", ""),
       "pagosPag" : request.GET.get('pagosPag','').replace(">", "").replace("<", "").replace("==", ""),
       "paginarPorPag" : int(request.GET.get('paginarPorPag','5')),
       "ordenarPorPag" : request.GET.get('ordenarPorPag',''),
+      "clasificacionPro" : request.GET.get('clasificacionPro',''),
+      "montoPro" : request.GET.get('montoPro','').replace(">", "").replace("<", "").replace("==", ""),
+      "cantidadContratosPro" : request.GET.get('cantidadContratosPro','').replace(">", "").replace("<", "").replace("==", ""),
+      "paginarPorPro" : int(request.GET.get('paginarPorPro','5')),
+      "ordenarPorPro" : request.GET.get('ordenarPorPro',''),
     }
     parametros['operadorfechaFirmaCon'] = verificarOperador(request.GET.get('fechaFirmaCon',''))
     parametros['operadorfechaInicioCon'] = verificarOperador(request.GET.get('fechaInicioCon',''))
@@ -182,8 +264,6 @@ def Proveedor(request,id=''):
     parametros['ordentituloCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'tituloCon')
     parametros['ordendescripcionCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'descripcionCon')
     parametros['ordencategoriaCompraCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'categoriaCompraCon')
-
-    
     parametros['ordencompradorCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'compradorCon')
     parametros['ordentituloCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'tituloCon')
     parametros['ordendescripcionCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'descripcionCon')
@@ -204,6 +284,15 @@ def Proveedor(request,id=''):
     parametros['ordenmontoPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'montoPag')
     parametros['ordenpagosPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'pagosPag')
     parametros['ordenestadoPag'] = verificarOrden(request.GET.get('ordenarPorPag',''),'estadoPag')
+
+
+    """Productos"""
+    parametros['operadormontoPro'] = verificarOperador(request.GET.get('montoPro',''))
+    parametros['operadorcantidadContratosPro'] = verificarOperador(request.GET.get('cantidadContratosPro',''))
+
+    parametros['ordenclasificacionPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'clasificacionPro')
+    parametros['ordenmontoPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'montoPro')
+    parametros['ordencantidadContratosPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'cantidadContratosPro')
 
 
 

@@ -360,7 +360,7 @@ function BotonesContratosAdjudicacion(id){
   var contratos=ObtenerContratos(id);
   var elementos=[];
   for( var i = 0; i < contratos.length ; i++){
-    elementos.push($('<a>',{class:'botonGeneral fondoColorSecundario',href:'/proceso/'+procesoRecord.ocid+'/?contrato='+contratos[i].id}).text('ver contrato'))
+    elementos.push($('<button>',{style:'border:none',class:'botonGeneral fondoColorSecundario',href:'/proceso/'+procesoRecord.ocid+'/?contrato='+contratos[i].id}).text('ver contrato'))
   }
   console.dir('contratos')
   console.dir(elementos)
@@ -482,7 +482,7 @@ function ObtenerDocumentosAdjudicaciones(documentos,id){
           $('<td>',{class:'textoAlineadoDerecha','data-label':''}).append(
             $('<h4>',{class:'descargaIconos'}).append(
               $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<a>',{href:documentos[i].url,download:'a',class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
+                $('<a>',{href:documentos[i].url,download:'a',class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',target:'_blank'}).append(
                   $('<i>',{class:'fas fa-file-download'}),
                 '&nbsp;'+ObtenerExtension(documentos[i].url)
                 )

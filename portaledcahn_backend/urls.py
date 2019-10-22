@@ -13,7 +13,9 @@ urlpatterns = [
 
 	path('inicio/', viewsets.Index.as_view()),
 	path('buscador/', viewsets.Buscador.as_view()),
+
 	path('proveedores/', viewsets.Proveedores.as_view()),
+	path('proveedores/<path:partieId>/productos/', viewsets.ProductosDelProveedor.as_view()),
 	path('proveedores/<path:partieId>/contratos/', viewsets.ContratosDelProveedor.as_view()),
 	path('proveedores/<path:partieId>/pagos/', viewsets.PagosDelProveedor.as_view()),
 	path('proveedores/<path:partieId>/', viewsets.Proveedor.as_view()),

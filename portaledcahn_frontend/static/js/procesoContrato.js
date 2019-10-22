@@ -60,7 +60,9 @@ function DefinirElementosContrato(){
     var elementos=[];
     for(var i = 0; i< contratos.length;i++){
       elementos.push(
-        $('<a class="nav-link enlaceContrato transicion '+(i===0?'active':'')+'" id="'+contratos[i].id+'ContratoTab" data-toggle="pill" href="#'+contratos[i].id+'ContratoContenido" role="tab" aria-controls="'+contratos[i].id+'ContratoContenido" aria-selected="true">CM-047-2018</a>')
+        $('<a class="nav-link enlaceContrato transicion '+(i===0?'active':'')+'" id="'+contratos[i].id+'ContratoTab" data-toggle="pill" href="#'+contratos[i].id+'ContratoContenido" role="tab" aria-controls="'+contratos[i].id+'ContratoContenido" aria-selected="true"></a>').text(
+          /*contratos[i].title?contratos[i].title:*/contratos[i].id
+        )
       )
     }
     return elementos;
@@ -96,12 +98,12 @@ function DefinirElementosContrato(){
                       $('<tbody>').append(
                             contratos[i].title?$('<tr>').append(
                             $('<td>',{class:'tituloTablaCaracteristicas',style:'color:#333',toolTexto:"contracts["+i+"].title"}).append(
-                              $('<b>',{text:'Título'}),
+                              $('<b>',{text:'Título '}),
                               contratos[i].title
                             )):null,
                             contratos[i].description?$('<tr>').append(
                                 $('<td>',{class:'',style:'color:#333',toolTexto:"contracts["+i+"].description"}).append(
-                                  $('<b>',{text:'Descripción'}),
+                                  $('<b>',{text:'Descripción '}),
                                   contratos[i].description
                                 )
                                 ):null
@@ -262,10 +264,53 @@ function ObtenerTransacciones(transacciones){
 
 }
 
-function ObtenerObligacionesFinancieras(transacciones){
+function ObtenerObligacionesFinancieras(obligaciones){
   var elementos=[];
-  for(var i =0; i < transacciones.length ; i++){
+  for(var i =0; i < obligaciones.length ; i++){
+    elementos.push(
+      $('<div class="mb-3" style="border-bottom: 3px solid #dee2e6;">').append(
+        $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+          $('<table>').append(
+            $('<tbody>').append(
+              obligaciones[i].approvalDate ?
+              $('<tr>').append(
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Aprobacion',toolTexto:"contracts[n].implementation.financialObligations["+i+"].approvalDate"}),
+                $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(obligaciones[i].approvalDate)})
+              ) : null,
+              (obligaciones[i].id) ?
+              $('<tr>').append(
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'Identificador',toolTexto:"contracts[n].implementation.financialObligations["+i+"].id"}),
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(obligaciones[i].id)
+              ) : null,
+              (obligaciones[i].description) ?
+              $('<tr>').append(
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'Descripción',toolTexto:"contracts[n].implementation.financialObligations["+i+"].description"}),
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(obligaciones[i].description)
+              ) : null
+              
+              
+            )
+          )
+        ),
+        obligaciones[i].bill&&obligaciones[i].bill.amount?$('<div>',{
+          class:'montoTotalProceso pb-3'
+        }).append(
+          /*$('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),*/
+          $('<div>',{class:'contenedorMonto procesoMonto'}).append(
+            $('<div>',{class:'textoColorGris',text:'Factura #'+obligaciones[i].bill.id+', '+ObtenerFecha(obligaciones[i].bill.date,'fecha')}),
+            $('<div>',{class:'valorMonto'}).append(
+              $('<span>',{toolTexto:"contracts[n].implementation.financialObligations["+i+"].bill.amount.amount"}).append(
+                ValorMoneda(obligaciones[i].bill.amount.amount)
+              )
+              ,
+              $('<span>',{class:'textoColorPrimario',text:obligaciones[i].bill.amount.currency,toolTexto:"contracts[n].transactions["+i+"].amount.currency"})
+            )
 
+            
+          )
+        ):null
+      )
+    );
   }
   return elementos;
 }
