@@ -2477,29 +2477,37 @@ class EstadisticaMontoDePagos(APIView):
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
 		s = Search(using=cliente, index='transaction')
-
+		ss = Search(using=cliente, index='transaction')
 		# Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__buyerFullName=institucion)
+			ss = ss.filter('match_phrase', extra__buyerFullName=institucion)
 			# compiledRelease.buyer.name
 
 		if proveedor.replace(' ', ''):
 			s = s.filter('match_phrase', payee__name__keyword=proveedor)
+			ss = ss.filter('match_phrase', payee__name__keyword=proveedor)
 
 		if anio.replace(' ', ''):
 			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
 			s = s.filter('match_phrase', value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 
 		if objetogasto.replace(' ', ''):
 			s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
+			ss = ss.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
 			# planning.budget.budgetBreakdown.n.classifications.objeto
 
 		if fuentefinanciamiento.replace(' ', ''):
 			s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+			ss = ss.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
 			# planning.budget.budgetBreakdown.n.classifications.fuente
-			
+		
+			ss = ss.filter('range', value__amount={'gte': 0})
+
 		# Agregados
 		s.aggs.metric(
 			'total_pagado',
@@ -2519,18 +2527,15 @@ class EstadisticaMontoDePagos(APIView):
 			field='value.amount'
 		)
 
-		s.aggs.metric(
-			'minimo_pagado',
-			'min',
-			field='value.amount'
-		)
+		ss.aggs.bucket('mayor_cero', 'filter', filter=Q('range', value__amount={'gte': 0})).metric('minimo_pagado', 'min', field='value.amount')
 
 		results = s.execute()
+		results2 = ss.execute()
 
 		resultados = {
 			"promedio": results.aggregations.promedio_pagado["value"],
 			"mayor": results.aggregations.maximo_pagado["value"],
-			"menor": results.aggregations.minimo_pagado["value"],
+			"menor": results2.aggregations.mayor_cero.minimo_pagado["value"],
 			"total": results.aggregations.total_pagado["value"],
 		}
 
@@ -2844,10 +2849,17 @@ class TopObjetosDeGastoPorMontoPagado(APIView):
 			size=10
 		)
 
+		# s.aggs["objetos"].metric(
+		# 	'total_pagado',
+		# 	'sum',
+		# 	field='value.amount'
+		# )
+
 		s.aggs["objetos"].metric(
 			'total_pagado',
-			'sum',
-			field='value.amount'
+			'cardinality',
+			field='id.keyword',
+			precision_threshold=40000
 		)
 
 		results = s.execute()
@@ -2887,10 +2899,6 @@ class EtapasPagoProcesoDeCompra(APIView):
 		sourceSEFIN = 'HN.SIAFI2'
 		institucion = request.GET.get('institucion', '')
 		anio = request.GET.get('año', '')
-		# moneda = request.GET.get('moneda', '')
-		# objetogasto = request.GET.get('objetogasto', '')
-		# fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
-		# proveedor = request.GET.get('proveedor', '')
 
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
@@ -2918,6 +2926,12 @@ class EtapasPagoProcesoDeCompra(APIView):
 			field='doc.compiledRelease.contracts.implementation.transactions.value.amount'
 		)
 
+		s.aggs["nested_contratos"].metric(
+			'monto_devengado',
+			'sum',
+			field='doc.compiledRelease.contracts.implementation.financialObligations.bill.amount.amount'
+		)
+
 		s.aggs.metric(
 			'monto_precomprometido',
 			'sum',
@@ -2942,23 +2956,24 @@ class EtapasPagoProcesoDeCompra(APIView):
 
 		precomprometido = buckets["monto_precomprometido"]["value"] 
 		comprometido = buckets["monto_comprometido"]["value"]
-		adjudicado = buckets["monto_adjudicado"]["value"]
+		# adjudicado = buckets["monto_adjudicado"]["value"]
+		devengado = buckets["nested_contratos"]["monto_devengado"]["value"]
 		transacciones = buckets["nested_contratos"]["monto_transacciones"]["value"]
 
 		if precomprometido != 0:
 			porcentaje_precomprometido = (precomprometido / precomprometido) * 100
 			porcentaje_comprometido = (comprometido / precomprometido) * 100
-			porcentaje_adjudicado = (adjudicado / precomprometido) * 100
+			porcentaje_devengado = (devengado / precomprometido) * 100
 			porcentaje_transacciones = (transacciones / precomprometido) * 100
 		else:
 			porcentaje_precomprometido = 0
 			porcentaje_comprometido = 0
-			porcentaje_adjudicado = 0
+			porcentaje_devengado = 0
 			porcentaje_transacciones = 0
 
 		series = ['Precomprometido', 'Comprometido', 'Devengado', 'Pagado']
-		montos = [precomprometido, comprometido, adjudicado, transacciones]
-		porcentajes = [porcentaje_precomprometido, porcentaje_comprometido, porcentaje_adjudicado, porcentaje_transacciones]
+		montos = [precomprometido, comprometido, devengado, transacciones]
+		porcentajes = [porcentaje_precomprometido, porcentaje_comprometido, porcentaje_devengado, porcentaje_transacciones]
 
 		resultados = {
 			"series": series,
