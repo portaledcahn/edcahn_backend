@@ -1014,13 +1014,13 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                             max: 810,*/
                             //interval: 100000,
                             axisLabel: {
-                                formatter: '{value} HNL',
+                                formatter: '{value}',
                                 rotate:45,
                         showMinLabel:false
                             },
                             axisPointer: {
                                 label: {
-                                    formatter: '{value} HNL'
+                                    formatter: '{value}'
                                 }
                             }
                         },
@@ -1030,9 +1030,9 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                         },
                         series: [
                             {
-                                name: 'Montos, Pagados en HNL',
+                                name: 'Cantidad de Pagos',
                                 type: 'bar',
-                                stack: 'Monto de Contrato',
+                                stack: 'Cantidad de Pagos',
                                 label: {
                                     normal: {
                                         show:true,
@@ -1041,7 +1041,7 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                     fontSize:15,
                                         position: 'right',
                                         formatter: function (e){
-                                            return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                                            return "{c}".replace('{c}',ValorNumerico(e.value));
                                         }
                                     }
                                 },
