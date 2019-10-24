@@ -802,14 +802,14 @@ function Top10Compradores(){
                         axisPointer: {
                             type: 'shadow'
                         },
-                        align: 'right',
+                        align: 'right'/*,
                         width:'50%',
                         padding:5,
                         rich: {
                             a: {
                                 // `align` is not set, then it will be right
                             }
-                        }
+                        }*/
                         
                         /*,
                         name: 'Monto',
