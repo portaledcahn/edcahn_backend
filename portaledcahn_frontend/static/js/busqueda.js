@@ -26,6 +26,9 @@ function EliminarFiltrosMetodo(datos){
     if(datos.filtros.categorias){
       delete datos.filtros.categorias
     }
+    if(datos.filtros.años){
+      delete datos.filtros.años
+    }
     break;
     case 'contrato':
     break;
@@ -828,7 +831,7 @@ function MostrarListaElastica(datos,selector){
   
   
 }
-
+//trabajo
 function AgregarPropiedadesListaElastica(valor,llave){
   var elementos=[]
   $.each(valor.buckets,function(i,propiedades){
