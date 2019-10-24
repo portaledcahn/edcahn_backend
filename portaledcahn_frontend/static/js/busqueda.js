@@ -585,7 +585,7 @@ function AgregarResultadoPago(datos){
               $('<div>',{class:'textoAlineadoDerecha'}).append(
                 $('<span>',{class:'textoColorGris textoAlineadoDerecha toolTip enLinea',toolTexto:
                 'Última Fecha de Pago'
-                ,text:ObtenerTransacciones(datos)?ObtenerFecha(ObtenerTransacciones(datos)[ObtenerTransacciones(datos).length-1].date):''}).append(
+                ,text:ObtenerTransacciones(datos)&&ObtenerTransacciones(datos).length?ObtenerFecha(ObtenerTransacciones(datos)[ObtenerTransacciones(datos).length-1].date):''}).append(
                 )
               )
             )
