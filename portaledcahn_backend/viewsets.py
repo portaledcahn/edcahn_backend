@@ -917,7 +917,7 @@ class ContratosDelProveedor(APIView):
 
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
-		paginator = Paginator(search_results, settings.PAGINATE_BY)
+		paginator = Paginator(search_results, paginarPor)
 
 		try:
 			posts = paginator.page(page)
@@ -1083,7 +1083,7 @@ class PagosDelProveedor(APIView):
 
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
-		paginator = Paginator(search_results, settings.PAGINATE_BY)
+		paginator = Paginator(search_results, paginarPor)
 
 		try:
 			posts = paginator.page(page)
@@ -1684,7 +1684,7 @@ class ProcesosDelComprador(APIView):
 			"comprador": "extra.buyerFullName",
 			"ocid": "doc.ocid",
 			"titulo": "doc.compiledRelease.tender.title",
-			"categoriaCompra": "extra.compiledRelease.tender.procurementMethodDetails",
+			"categoriaCompra": "doc.compiledRelease.tender.procurementMethodDetails",
 			"estado": "extra.lastSection",
 			"montoContratado": "doc.compiledRelease.tender.extra.sumContracts",
 			"fechaInicio": "doc.compiledRelease.tender.period.startDate",
@@ -1784,6 +1784,8 @@ class ContratosDelComprador(APIView):
 
 		# Sección de filtros
 		filtros = []
+
+		# s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 
 		if proveedor.replace(' ',''):
 			filtro = Q("match", supplier__name=proveedor)
@@ -2089,7 +2091,7 @@ class PagosDelComprador(APIView):
 
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
-		paginator = Paginator(search_results, settings.PAGINATE_BY)
+		paginator = Paginator(search_results, paginarPor)
 
 		try:
 			posts = paginator.page(page)
@@ -2849,16 +2851,11 @@ class TopObjetosDeGastoPorMontoPagado(APIView):
 			size=10
 		)
 
-		# s.aggs["objetos"].metric(
-		# 	'total_pagado',
-		# 	'sum',
-		# 	field='value.amount'
-		# )
 
 		s.aggs["objetos"].metric(
 			'total_pagado',
 			'cardinality',
-			field='id.keyword',
+			field='extra.ocid.keyword',
 			precision_threshold=40000
 		)
 

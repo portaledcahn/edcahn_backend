@@ -800,7 +800,7 @@ $('<div>',{class:''})
             delete filtros['ordenarPorCon'];
           }
           filtros['paginaCon']=1;
-          PushDireccionContratos(AccederUrlPaginas(filtros,true));
+          PushDireccionContratos(AccederUrlPagina(filtros,true));
         break;
       default:
           var filtros=ObtenerFiltrosContratos('Con');
@@ -827,7 +827,7 @@ $('<div>',{class:''})
             delete filtros['ordenarPorPag'];
           }
           filtros['paginaPag']=1;
-          PushDireccionPagos(AccederUrlPaginas(filtros,true));
+          PushDireccionPagos(AccederUrlPagina(filtros,true));
         break;
       default:
           var filtros=ObtenerFiltrosPagos('Pag');
@@ -855,7 +855,7 @@ $('<div>',{class:''})
             delete filtros['ordenarPorPro'];
           }
           filtros['paginaPro']=1;
-          PushDireccionProductos(AccederUrlPaginas(filtros,true));
+          PushDireccionProductos(AccederUrlPagina(filtros,true));
         break;
       default:
           var filtros=ObtenerFiltrosProductos('Pro');

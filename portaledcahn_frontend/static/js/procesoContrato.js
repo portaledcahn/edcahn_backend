@@ -197,8 +197,8 @@ function DefinirElementosContrato(){
               ):$('<h4 class="titularColor textoColorPrimario mt-3">Esta etapa no posee documentos</h4>')
             ),
             $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'implementacionTabContrato'+contratos[i].id,id:'implementacionTabContrato'+contratos[i].id}).append(
-              $('<h4 class="titularCajonSombreado">Transacciones</h4>'),
-              (contratos[i].implementation&&contratos[i].implementation.transactions)?ObtenerTransacciones(contratos[i].implementation.transactions):$('<h4 class="titularColor textoColorPrimario mt-3">No hay transacciones disponibles.</h4>'),
+              $('<h4 class="titularCajonSombreado" style="color:black">Transacciones</h4>'),
+              (contratos[i].implementation&&contratos[i].implementation.transactions)?ObtenerTransacciones(contratos[i].implementation.transactions,contratos[i].implementation):$('<h4 class="titularColor textoColorPrimario mt-3">No hay transacciones disponibles.</h4>'),
               
               $('<h4 class="titularCajonSombreado">Obligaciones Financieras</h4>'),
               (contratos[i].implementation&&contratos[i].implementation.financialObligations)?ObtenerObligacionesFinancieras(contratos[i].implementation.financialObligations):$('<h4 class="titularColor textoColorPrimario mt-3">No hay obligaciones Financieras disponibles.</h4>'),
@@ -210,7 +210,7 @@ function DefinirElementosContrato(){
     }
     return elementos;
   }
-function ObtenerTransacciones(transacciones){
+function ObtenerTransacciones(transacciones,implementacion){
   var elementos=[];
 
   for(var i =0; i < transacciones.length ; i++){
@@ -235,12 +235,19 @@ function ObtenerTransacciones(transacciones){
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
                   ObtenerElementosParte(transacciones[i].payee.id)
                 )
+              ) : null,
+              (ObtenerObligacionesTransaccion(transacciones[i],implementacion.financialObligations).length) ?
+              $('<tr>').append(
+                $('<td>',{class:'tituloTablaCaracteristicas',text:'Obligaciones Financieras',toolTexto:"contracts[n].financialObligations[n]"}),
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
+                  ObtenerObligacionesFinancieras(ObtenerObligacionesTransaccion(transacciones[i],implementacion.financialObligations))
+                )
               ) : null
             )
           )
         ),
         transacciones[i].value?$('<div>',{
-          class:'montoTotalProceso pb-3'
+          class:'montoTotalProceso pb-3',style:'width:100%;display:block;text-align:right'
         }).append(
           /*$('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),*/
           $('<div>',{class:'contenedorMonto procesoMonto'}).append(
@@ -274,18 +281,23 @@ function ObtenerObligacionesFinancieras(obligaciones){
             $('<tbody>').append(
               obligaciones[i].approvalDate ?
               $('<tr>').append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Aprobacion',toolTexto:"contracts[n].implementation.financialObligations["+i+"].approvalDate"}),
+                $('<td>',{class:'tituloTablaCaracteristicas', style:'color:black',text:'Fecha de Aprobacion',toolTexto:"contracts[n].implementation. financialObligations["+i+"].approvalDate"}),
                 $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(obligaciones[i].approvalDate)})
               ) : null,
               (obligaciones[i].id) ?
               $('<tr>').append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Identificador',toolTexto:"contracts[n].implementation.financialObligations["+i+"].id"}),
+                $('<td>',{class:'tituloTablaCaracteristicas', style:'color:black',text:'Identificador',toolTexto:"contracts[n].implementation. financialObligations["+i+"].id"}),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(obligaciones[i].id)
               ) : null,
               (obligaciones[i].description) ?
               $('<tr>').append(
-                $('<td>',{class:'tituloTablaCaracteristicas',text:'Descripción',toolTexto:"contracts[n].implementation.financialObligations["+i+"].description"}),
+                $('<td>',{class:'tituloTablaCaracteristicas', style:'color:black',text:'Descripción',toolTexto:"contracts[n].implementation. financialObligations["+i+"].description"}),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(obligaciones[i].description)
+              ) : null,
+              (obligaciones[i].retentions&&obligaciones[i].retentions.length) ?
+              $('<tr>').append(
+                $('<td>',{class:'tituloTablaCaracteristicas', style:'color:black',text:'Retenciones',toolTexto:"contracts[n].implementation. financialObligations["+i+"].retentions"}),
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(ObtenerRetenciones(obligaciones[i].retentions))
               ) : null
               
               
@@ -297,8 +309,8 @@ function ObtenerObligacionesFinancieras(obligaciones){
         }).append(
           /*$('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),*/
           $('<div>',{class:'contenedorMonto procesoMonto'}).append(
-            $('<div>',{class:'textoColorGris',text:'Factura #'+obligaciones[i].bill.id+', '+ObtenerFecha(obligaciones[i].bill.date,'fecha')}),
-            $('<div>',{class:'valorMonto'}).append(
+            $('<div>',{class:'textoColorGris',style:'font-size:20px',text:'Factura #'+obligaciones[i].bill.id+', '+ObtenerFecha(obligaciones[i].bill.date,'fecha')}),
+            $('<div>',{class:'valorMonto',style:'font-size:20px'}).append(
               $('<span>',{toolTexto:"contracts[n].implementation.financialObligations["+i+"].bill.amount.amount"}).append(
                 ValorMoneda(obligaciones[i].bill.amount.amount)
               )
@@ -311,6 +323,26 @@ function ObtenerObligacionesFinancieras(obligaciones){
         ):null
       )
     );
+  }
+  return elementos;
+}
+
+function ObtenerRetenciones(retenciones){
+  var elementos=[];
+  for(var i =0; i < retenciones.length ; i++){
+    if(retenciones[i].amount&&Validar(retenciones[i].amount.amount)){
+      elementos.push(
+        $('<div>',{class:'textoColorNegro',text:retenciones[i].name}),
+        $('<div>',{class:'valorMonto',style:'font-weight:700;font-size:20px;font-family:poppins'}).append(
+          $('<span>',{toolTexto:"contracts[n].implementation. financialObligations[n].retentions["+i+"].amount.amount"}).append(
+            ValorMoneda(retenciones[i].amount.amount)
+          )
+          ,
+          $('<span>',{class:'textoColorAdvertencia',text:retenciones[i].amount.currency,toolTexto:"contracts[n].implementation. financialObligations[n].retentions["+i+"].amount.currency"})
+        )
+        );
+    }
+    
   }
   return elementos;
 }
@@ -331,4 +363,18 @@ function ObtenerObligacionesFinancieras(obligaciones){
       }
     }
     return elementos;
+  }
+
+  function ObtenerObligacionesTransaccion(transaccion,obligaciones){
+    var arregloObligaciones=[];
+    if(transaccion.financialObligationIds && transaccion.financialObligationIds.length && obligaciones && obligaciones.length){
+      for(i=0;i<obligaciones.length;i++){
+        if(transaccion.financialObligationIds.includes(obligaciones[i].id)){
+          arregloObligaciones.push(
+            obligaciones[i]
+          )
+        }
+      }
+    }
+    return arregloObligaciones;
   }

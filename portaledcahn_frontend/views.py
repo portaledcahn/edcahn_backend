@@ -173,7 +173,7 @@ def Comprador(request,id=''):
     parametros['operadormontoContratadoPro'] = verificarOperador(request.GET.get('montoContratadoPro',''))
     parametros['operadorfechaInicioPro'] = verificarOperador(request.GET.get('fechaInicioPro',''))
     parametros['operadorfechaRecepcionPro'] = verificarOperador(request.GET.get('fechaRecepcionPro',''))
-    parametros['operadorfechaPublicacionPro'] = verificarOperador(request.GET.get('"fechaPublicacionPro',''))
+    parametros['operadorfechaPublicacionPro'] = verificarOperador(request.GET.get('fechaPublicacionPro',''))
 
     parametros['ordencompradorPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'compradorPro')
     parametros['ordenocidPro'] = verificarOrden(request.GET.get('ordenarPorPro',''),'ocidPro')

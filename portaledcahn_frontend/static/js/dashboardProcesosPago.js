@@ -517,6 +517,7 @@ function MontoPagosEtapas(){
     var parametros={}
         parametros=ObtenerJsonFiltrosAplicados(parametros)
         $.get(api+"/dashboardsefin/etapaspago/",parametros).done(function( datos ) {
+            console.dir('ETAPAS')
             console.dir(datos);
     var grafico=echarts.init(document.getElementById('montoPagosEtapas'));
     var opciones = {
@@ -530,7 +531,7 @@ function MontoPagosEtapas(){
             },
             formatter:  function (e){
                 console.dir(e)
-                return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(datos.resultados.montos[e[0].dataIndex] ) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',ObtenerNumero( e[0].value).toFixed(2));
+                return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{p0}',ValorNumerico(datos.resultados.porcentajes[e[0].dataIndex].toFixed(2) ) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{c0}',ValorMoneda( e[0].value));
                 //return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(e[0].value) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',((ObtenerNumero( e[0].value)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
             }
         },
@@ -556,15 +557,17 @@ function MontoPagosEtapas(){
                     axisLabel: {
                             formatter: function (e){
                                 
-                                return "{c} %".replace('{c}',(ObtenerNumero( e) ).toFixed(2));
+                                return "{c} HNL ".replace('{c}',ValorMoneda( e) );
                                 //return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, datos.resultados.montos)) *100)).toFixed(2));
-                            }
-                        },
-                        max:100,
+                                
+                            },rotate:45,
+                            showMinLabel:false
+                        },/*
+                        max:100,*/
                         
                     axisPointer: {
                         label: {
-                            formatter: '{value} %'
+                            formatter: '{value} HNL'
                         }
                     }
             }
@@ -583,7 +586,7 @@ function MontoPagosEtapas(){
             {
                // name:'Etapa',
                 type:'bar',
-                data:datos.resultados.porcentajes,
+                data:datos.resultados.montos,
                 itemStyle:{
                     color: '#F79A6A'
                 },
@@ -595,7 +598,7 @@ function MontoPagosEtapas(){
                     fontSize:20,
                     align:'right',
                     formatter:  function (e){
-                        return "{c} %".replace('{c}',ValorMoneda( e.value));
+                        return "{c} HNL".replace('{c}',ValorMoneda( e.value));
                     }
                     //formatter: '{c} Días'
                 }

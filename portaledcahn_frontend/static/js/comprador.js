@@ -31,7 +31,8 @@ var filtrosAPropiedades = {
     "montoContratadoPro": "montoContratado",
     "fechaInicioPro": "fechaInicio",
     "fechaRecepcionPro": "fechaRecepcion",
-    "fechaPublicacionPro": "fechaPublicacion"
+    "fechaPublicacionPro": "fechaPublicacion",
+    "ordenarPorPro": "ordenarPor"
 };
 $(function() {
     compradorId = decodeURIComponent($('#compradorId').val());
@@ -171,7 +172,7 @@ $(function() {
         CantidadResultadosPago($('#paginacionBusquedaPago').val() ? $('#paginacionBusquedaPago').val() : 5);
     });
     $('#paginacionBusquedaProceso').on('change', function(e) {
-        CantidadResultadosProducto($('#paginacionBusquedaProceso').val() ? $('#paginacionBusquedaProducto').val() : 5);
+        CantidadResultadosProceso($('#paginacionBusquedaProceso').val() ? $('#paginacionBusquedaProceso').val() : 5);
     });
 });
 
@@ -903,7 +904,7 @@ function OrdenFiltroContratos(filtro, orden) {
                 delete filtros['ordenarPorCon'];
             }
             filtros['paginaCon'] = 1;
-            PushDireccionContratos(AccederUrlPaginas(filtros, true));
+            PushDireccionContratos(AccederUrlPagina(filtros, true));
             break;
         default:
             var filtros = ObtenerFiltrosContratos('Con');
@@ -931,7 +932,7 @@ function OrdenFiltroPagos(filtro, orden) {
                 delete filtros['ordenarPorPag'];
             }
             filtros['paginaPag'] = 1;
-            PushDireccionPagos(AccederUrlPaginas(filtros, true));
+            PushDireccionPagos(AccederUrlPagina(filtros, true));
             break;
         default:
             var filtros = ObtenerFiltrosPagos('Pag');
@@ -959,7 +960,7 @@ function OrdenFiltroProcesos(filtro, orden) {
                 delete filtros['ordenarPorPro'];
             }
             filtros['paginaPro'] = 1;
-            PushDireccionProcesos(AccederUrlPaginas(filtros, true));
+            PushDireccionProcesos(AccederUrlPagina(filtros, true));
             break;
         default:
             var filtros = ObtenerFiltrosProcesos('Pro');
