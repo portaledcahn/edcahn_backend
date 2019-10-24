@@ -3,6 +3,7 @@ var datosComprador = {};
 var filtrosAPropiedades = {
     "proveedorCon": 'proveedor',
     "tituloCon": "titulo",
+    "compradorCon":"compradorCon",
     "tituloLicitacionCon": "tituloLicitacion",
     "descripcionCon": "descripcion",
     "categoriaCompraCon": "categoriaCompra",
@@ -891,6 +892,8 @@ function ObtenerFiltrosProcesos(sufijo) {
 
 
 function OrdenFiltroContratos(filtro, orden) {
+    console.dir('filtro contratos')
+    console.dir(filtro)
     switch (orden) {
         case 'ascendente':
             PushDireccionContratos(AccederUrlPagina({ paginaCon: 1, ordenarPorCon: 'asc(' + /*filtrosAPropiedades[*/ filtro /*]*/ + ')' }));

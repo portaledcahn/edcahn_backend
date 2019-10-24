@@ -3,6 +3,7 @@ var datosProveedor={};
 var filtrosAPropiedades={
   "proveedorCon" : 'proveedor',
   "tituloCon" :"titulo" ,
+  "compradorCon":"compradorCon",
   "tituloLicitacionCon" : "tituloLicitacion",
   "descripcionCon" : "descripcion",
   "categoriaCompraCon" : "categoriaCompra" ,
@@ -11,6 +12,7 @@ var filtrosAPropiedades={
   "fechaInicioCon" :"fechaInicio",
   "montoCon" :"monto" ,
   "dependencias" :"dependencias",
+  
   
   "compradorPag" : "comprador" ,
   "proveedorPag" :"proveedor" ,
@@ -25,6 +27,8 @@ var filtrosAPropiedades={
   "tituloPro" :"titulo",
   "categoriaCompraPro" : "categoriaCompra",
   "estadoPro" : "estado",
+  "clasificacionPro":"clasificacion",
+  "cantidadContratosPro":"cantidadContratos",
   "montoPro":"monto",
   "cantidadContratosPro":"cantidadContratos",
   "montoContratadoPro" : "montoContratado",
@@ -470,9 +474,12 @@ $('<div>',{class:''})
             $('<span>',{text: ReducirTexto(resultados[i]&&resultados[i]._source&&resultados[i]._source.description?resultados[i]._source.description:'',80) , toolTexto:resultados[i]&&resultados[i]._source&&resultados[i]._source.description?resultados[i]._source.description:''})
             
           ),
-        $('<td>',{'data-label':'Nombre del Proceso' ,class:'textoAlineadoCentrado'}).text(''),
-        $('<td>',{'data-label':'Categoría de Compras' ,class:'textoAlineadoCentrado'}).text(''
-                ),
+          $('<td>', { 'data-label': 'Nombre del Proceso', class: 'textoAlineadoCentrado' }).append(
+            resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderTitle ? resultados[i]._source.extra.tenderTitle : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+        ),
+        $('<td>', { 'data-label': 'Categoría de Compras', class: 'textoAlineadoCentrado' }).append(
+            resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderMainProcurementCategory ? resultados[i]._source.extra.tenderMainProcurementCategory : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+        ),
                 $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
                 [ValorMoneda(resultados[i]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.value.currency})]:''
@@ -487,8 +494,8 @@ $('<div>',{class:''})
             
             ),
           $('<td>',{'data-label':'Fecha de Inicio del Contrato' ,class:'textoAlineadoCentrado'}).append(
-            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
-                resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible'
+            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
+                resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?ObtenerFecha(resultados[i]._source.dateSigned,'fecha'):'No Disponible'
             )
             
             ),
@@ -789,10 +796,10 @@ $('<div>',{class:''})
   function OrdenFiltroContratos(filtro,orden){
     switch(orden){
       case 'ascendente':
-          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'asc('+filtrosAPropiedades[filtro]+')'}));
+          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'asc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
         break;
       case 'descendente':
-          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'desc('+filtrosAPropiedades[filtro]+')'}));
+          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'desc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
         break;
       case 'neutro':
           var filtros=ObtenerFiltrosContratos('Con');
@@ -816,10 +823,10 @@ $('<div>',{class:''})
   function OrdenFiltroPagos(filtro,orden){
     switch(orden){
       case 'ascendente':
-          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'asc('+filtrosAPropiedades[filtro]+')'}));
+          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'asc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
         break;
       case 'descendente':
-          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'desc('+filtrosAPropiedades[filtro]+')'}));
+          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'desc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
         break;
       case 'neutro':
           var filtros=ObtenerFiltrosPagos('Pag');
@@ -844,10 +851,10 @@ $('<div>',{class:''})
   function OrdenFiltroProductos(filtro,orden){
     switch(orden){
       case 'ascendente':
-          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'asc('+filtrosAPropiedades[filtro]+')'}));
+          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'asc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
         break;
       case 'descendente':
-          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'desc('+filtrosAPropiedades[filtro]+')'}));
+          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'desc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
         break;
       case 'neutro':
           var filtros=ObtenerFiltrosProductos('Pro');

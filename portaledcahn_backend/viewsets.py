@@ -347,8 +347,8 @@ class Buscador(APIView):
 
 		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
 
-		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')	# fecha de contratos o dependiendo lo que se este mostrando.
-	
+		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')
+
 		#resumen
 		s.aggs["contratos"].metric(
 			'promedio_montos_contrato', 
@@ -406,15 +406,23 @@ class Buscador(APIView):
 			)
 
 		if metodo == 'pago':
-			qPago = Q('exists', field='doc.compiledRelease.contracts.implementation.transactions.id') 
-			s = s.query('nested', path='doc.compiledRelease.contracts', query=qPago)
-			
-			s.aggs["contratos"].metric(
+			s.aggs.metric(
 				'procesos_total', 
 				'cardinality', 
 				precision_threshold=precision, 
-				field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
+				field='doc.compiledRelease.ocid.keyword'
 			)
+
+			# qPago = Q('exists', field='doc.compiledRelease.contracts.implementation.transactions.id') 
+			# s = s.query('nested', path='doc.compiledRelease.contracts', query=qPago)
+
+			# s.aggs["contratos"].metric(
+			# 	'procesos_total', 
+			# 	'cardinality', 
+			# 	precision_threshold=precision, 
+			# 	field='doc.compiledRelease.ocid.keyword'
+			# 	# field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
+			# )
 
 		if moneda is not None: 
 			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
@@ -476,7 +484,7 @@ class Buscador(APIView):
 
 		if metodo == 'pago':
 			monto_promedio = results.aggregations.contratos.promedio_montos_pago.value
-			total_procesos = results.aggregations.contratos.procesos_total.value
+			total_procesos = results.aggregations.procesos_total.value
 			total_proveedores = results.aggregations.contratos.distinct_proveedores_pagos.value
 		elif metodo == 'contrato':
 			monto_promedio = results.aggregations.contratos.promedio_montos_contrato.value
@@ -1884,7 +1892,7 @@ class ContratosDelComprador(APIView):
 
 		# Ordenar resultados.
 		mappingSort = {
-			"comprador": "buyer.name.keyword",
+			"comprador": "extra.buyerFullName.keyword",
 			"titulo": "title.keyword",
 			"tituloLicitacion": "extra.tenderTitle.keyword",
 			"categoriaCompra": "extra.tenderMainProcurementCategory.keyword",
