@@ -251,21 +251,24 @@ CargarElementosBusqueda()
   });
 
 
-function ObtenerJsonFiltrosAplicados(parametros){
+function ObtenerJsonFiltrosAplicados(parametros,url){
   if(Validar(ObtenerValor('year'))){
-    parametros['años']=ObtenerValor('year');
+    parametros[url?'year':'años']=ObtenerValor('year');
   }
   if(Validar(ObtenerValor('categoria'))){
-    parametros['categorias']=decodeURIComponent(ObtenerValor('categoria'));
+    parametros[url?'categoria':'categorias']=decodeURIComponent(ObtenerValor('categoria'));
   }
   if(Validar(ObtenerValor('institucion'))){
-    parametros['instituciones']=decodeURIComponent(ObtenerValor('institucion'));
+    parametros[url?'institucion':'instituciones']=decodeURIComponent(ObtenerValor('institucion'));
   }
   if(Validar(ObtenerValor('metodo_seleccion'))){
-    parametros['metodos_de_seleccion']=decodeURIComponent(ObtenerValor('metodo_seleccion'));
+    parametros[url?'metodo_seleccion':'metodos_de_seleccion']=decodeURIComponent(ObtenerValor('metodo_seleccion'));
   }
   if(Validar(ObtenerValor('moneda'))){
-    parametros['monedas']=ObtenerValor('moneda');
+    parametros[url?'moneda':'monedas']=ObtenerValor('moneda');
+  }
+  if(Validar(ObtenerValor('proveedor'))){
+    parametros[url?'proveedor':'proveedor']=ObtenerValor('proveedor');
   }
   return parametros;
 }
@@ -279,6 +282,8 @@ function MostrarEtiquetasFiltrosAplicados(parametros){
     $('#contenedorSinFiltros').show();
   }
   $('#listaFiltrosAplicados').html('');
+  console.dir('ETIQUETAS')
+  console.dir(parametros)
   $.each(parametros,function(llave,filtro){
     $('#listaFiltrosAplicados').append(
       $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(
@@ -288,13 +293,19 @@ function MostrarEtiquetasFiltrosAplicados(parametros){
               (traducciones[filtro]?traducciones[filtro].titulo:filtro),
             '&nbsp;',
             $('<i>',{class:'fas fa-times'}).on('click',function(e){
+              
               var filtros={
-                pagina:1
               };
+              filtros=ObtenerJsonFiltrosAplicados(filtros,true);
+              console.dir(JSON.stringify(filtros))
+              console.dir($(e.currentTarget).parent().attr('llave'));
+              filtros['pagina']=1;/*
               $('li.list-group-item.active').each(function(cla,val){
                 filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-              });
+              });*/
               delete filtros[filtrosAplicables[$(e.currentTarget).parent().attr('llave')]?filtrosAplicables[$(e.currentTarget).parent().attr('llave')].parametro:''];
+              //delete filtros[$(e.currentTarget).parent().attr('llave')];
+              console.dir(JSON.stringify(filtros))
               window.history.pushState({}, document.title,AccederBusqueda(filtros,true) );
               CargarElementosBusqueda(true);
             })
