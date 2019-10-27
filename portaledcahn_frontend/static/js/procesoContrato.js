@@ -365,16 +365,3 @@ function ObtenerRetenciones(retenciones){
     return elementos;
   }
 
-  function ObtenerObligacionesTransaccion(transaccion,obligaciones){
-    var arregloObligaciones=[];
-    if(transaccion.financialObligationIds && transaccion.financialObligationIds.length && obligaciones && obligaciones.length){
-      for(i=0;i<obligaciones.length;i++){
-        if(transaccion.financialObligationIds.includes(obligaciones[i].id)){
-          arregloObligaciones.push(
-            obligaciones[i]
-          )
-        }
-      }
-    }
-    return arregloObligaciones;
-  }

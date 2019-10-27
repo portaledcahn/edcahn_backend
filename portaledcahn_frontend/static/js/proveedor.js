@@ -513,41 +513,120 @@ $('<div>',{class:''})
           )))
     }
   }
+  function ObtenerFilasSubTablaPagos(datos){
+    var elementos = [];
+    if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
+        for (let i = 0; i < datos.implementation.transactions.length; i++) {
+            elementos.push(
+                $('<tr>').append(
+                    $('<td>', { 'data-label': 'Descripción de la Transacción' }).append(
+                        
+                        ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations) && ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations).length && ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations)[0].description? $('<span>', { text: ReducirTexto(ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations)[0].description, 80), toolTexto: ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations)[0].description}) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                    ),
+                    $('<td>', { 'data-label': 'Objeto de Gasto' }).append(
+                        datos && datos.extra && datos.extra.objetosGasto && datos.extra.objetosGasto.length ? $('<span>', { text: ReducirTexto(datos.extra.objetosGasto.join(', '), 80), toolTexto: datos.extra.objetosGasto.join(', ')}) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                        
+                    ),
+                    $('<td>', { 'data-label': 'Monto del Pago' }).append(
+                        datos.implementation.transactions[i].value && Validar(datos.implementation.transactions[i].value.amount) ? [ValorMoneda(datos.implementation.transactions[i].value.amount), $('<span>', { class: 'textoColorPrimario', text: ' '+(datos.implementation.transactions[i].date.currency?datos.implementation.transactions[i].date.currency:'HNL') })] : ''
+                    ),
+                    $('<td>', { 'data-label': 'Fecha del Pago' }).append(
+                        $('<span>', { class: datos.implementation.transactions[i].date&&datos.implementation.transactions[i].date != 'NaT' ? '' : 'textoColorGris' }).text(
+                            datos.implementation.transactions[i].date && datos.implementation.transactions[i].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[i].date, 'fecha') : 'No Disponible'
+                        )
+                    )
+                )
+            );
+            
+            
+        }
+    }
+    if(!elementos.length){
+        elementos.push(
+            $('<tr>', { style: '' }).append(
+                $('<td>', { 'data-label': '', 'colspan': 4 }).append(
+                    $('<h4>', { class: 'titularColor textoColorPrimario mt-3 mb-3' }).text('No hay pagos disponibles')
+                )))
+    }
+    return elementos;
+}
+function AgregarFilaPago(resultados,selector,i){
+  $(selector).append(
+    $('<tr>',{
+        class:'filaSubTabla transicion',
+        toolPosicon:'right-end',
+        toolTexto:'<span class="far fa-eye"><span> <span style="font-family:Roboto">Puedes ver los pagos <br> haciendo CLICK en esta fila.<span>',
+        on: {
+            click: function(e){
+                if(!$(e.currentTarget).hasClass('abierta')){
+                    $(e.currentTarget).after($('<tr class="subTabla">').append(
+                        $('<td colspan="'+$(e.currentTarget).find('td').length+'">').append(
+                            $('<div>',{class:'cajonSombreado'}).append(
+                                $('<h6>',{class:'textoColorPrimario textoTitulo'}).text('Pagos'),
+                                $('<table>',{class:'tablaGeneral'}).append(
+                                    $('<thead>').append(
+                                        $('<tr>').append(
+                                            $('<th>',{toolTexto:"contracts[n].implementation .financialObligations[n].description",text:'Descripción de la transacción'}),
+                                            $('<th>',{toolTexto:"planning.budget.budgetBreakdown[n] .classifications.objeto",text:'Objeto de gasto'}),
+                                            $('<th>',{toolTexto:"contracts[n].implementation. transactions[n].value.amount",text:'Monto del pago'}),
+                                            $('<th>',{toolTexto:"contracts[n].implementation .transactions[n].date",text:'Fecha del pago'})
+                                        )
+                                    ),
+                                    $('<tbody>').append(
+                                        ObtenerFilasSubTablaPagos(resultados[i]._source)
+                                    )
+                                )
 
+                            )
+                        )
+                        
+                    ));
+                    $(e.currentTarget).addClass('abierta');
+                }else{
+                    if($(e.currentTarget).next('.subTabla').length){
+                        $(e.currentTarget).next('.subTabla').remove();
+                        $(e.currentTarget).removeClass('abierta');
+                    }
+                    
+                }
+                AgregarToolTips();
+            }
+        }
+    }).append(
+      $('<td>',{'data-label':'Comprador'}).append(
+        resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyerFullName)}).text(resultados[i]._source.extra.buyerFullName):''
+      ),
+      $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoIzquierda'}).append(
+        resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id, toolTexto:resultados[i]._source.title}).text( ReducirTexto(resultados[i]._source.title,80)) :''
+      ),
+            $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
+            [ValorMoneda(resultados[i]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.value.currency})]:''
+            
+            
+            ),
+            $('<td>',{'data-label':'Suma de Todos los Pagos' ,class:'textoAlineadoDerecha'}).append(
+              resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&Validar(resultados[i]._source.extra.sumTransactions)?
+              [ValorMoneda(resultados[i]._source.extra.sumTransactions),$('<span>',{class:'textoColorPrimario',text:' HNL'})]:''
+              
+              
+              ),
+      
+      $('<td>',{'data-label':'Fecha de Último Pago' ,class:'textoAlineadoCentrado'}).append(
+        $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?'':'textoColorGris' }).text(
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?ObtenerFecha(resultados[i]._source.extra.transactionLastDate,'fecha'):'No Disponible'
+        )
+        
+        )
+        
+    )
+  );
+}
   function AgregarResultadosPagosProveedor(datos,selector){
     var resultados=datos.resultados;
     $(selector).html('');
     for(var i=0;i<resultados.length;i++){
-      $(selector).append(
-        $('<tr>').append(
-          $('<td>',{'data-label':'Comprador'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyerFullName)}).text(resultados[i]._source.extra.buyerFullName):''
-          ),
-          $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoIzquierda'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id, toolTexto:resultados[i]._source.title}).text( ReducirTexto(resultados[i]._source.title,80)) :''
-          ),
-                $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
-                resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
-                [ValorMoneda(resultados[i]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.value.currency})]:''
-                
-                
-                ),
-                $('<td>',{'data-label':'Suma de Todos los Pagos' ,class:'textoAlineadoDerecha'}).append(
-                  resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&Validar(resultados[i]._source.extra.sumTransactions)?
-                  [ValorMoneda(resultados[i]._source.extra.sumTransactions),$('<span>',{class:'textoColorPrimario',text:' HNL'})]:''
-                  
-                  
-                  ),
-          
-          $('<td>',{'data-label':'Fecha de Último Pago' ,class:'textoAlineadoCentrado'}).append(
-            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?'':'textoColorGris' }).text(
-                resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?ObtenerFecha(resultados[i]._source.extra.transactionLastDate,'fecha'):'No Disponible'
-            )
-            
-            )
-            
-        )
-      )
+      AgregarFilaPago(resultados,selector,i);
     }
     if(!resultados.length){
       $(selector).append(
@@ -682,18 +761,19 @@ $('<div>',{class:''})
     
     '&paginaPag='+(opciones.paginaPag?opciones.paginaPag:(ObtenerNumero(ObtenerValor('paginaPag')) ? ObtenerNumero(ObtenerValor('paginaPag')) : 1))+
     '&paginarPorPag='+(opciones.paginarPorPag?opciones.paginarPorPag:(ObtenerNumero(ObtenerValor('paginarPorPag')) ? ObtenerNumero(ObtenerValor('paginarPorPag')) : 5))+
-    (ValidarCadena(opciones.ordenarPorPag) ? '&ordenarPorPag='+encodeURIComponent(opciones.ordenarPorPag):(ValidarCadena(ObtenerValor('ordenarPorPag'))&&!desUrl?'&ordenarPorPag='+ObtenerValor('ordenarPorPag'):''))+
     (ValidarCadena(opciones.compradorPag)? '&compradorPag='+encodeURIComponent(opciones.compradorPag): (ValidarCadena(ObtenerValor('compradorPag'))&&!desUrl?'&compradorPag='+ObtenerValor('compradorPag'):''))+
     (ValidarCadena(opciones.tituloPag)? '&tituloPag='+encodeURIComponent(opciones.tituloPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
     (ValidarCadena(opciones.montoPag) ? '&montoPag='+encodeURIComponent(reemplazarValor(opciones.montoPag,',','')):(ValidarCadena(ObtenerValor('montoPag'))&&!desUrl?'&montoPag='+ObtenerValor('montoPag'):''))+
     (ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(opciones.pagosPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
     (ValidarCadena(opciones.fechaPag) ? '&fechaPag='+encodeURIComponent(reemplazarValor(opciones.fechaPag,',','')):(ValidarCadena(ObtenerValor('fechaPag'))&&!desUrl?'&fechaPag='+ObtenerValor('fechaPag'):''))+
+    (ValidarCadena(opciones.ordenarPorPag) ? '&ordenarPorPag='+encodeURIComponent(opciones.ordenarPorPag):(ValidarCadena(ObtenerValor('ordenarPorPag'))&&!desUrl?'&ordenarPorPag='+ObtenerValor('ordenarPorPag'):''))+
 
     '&paginaPro='+(opciones.paginaPro?opciones.paginaPro:(ObtenerNumero(ObtenerValor('paginaPro')) ? ObtenerNumero(ObtenerValor('paginaPro')) : 1))+
     '&paginarPorPro='+(opciones.paginarPorPro?opciones.paginarPorPro:(ObtenerNumero(ObtenerValor('paginarPorPro')) ? ObtenerNumero(ObtenerValor('paginarPorPro')) : 5))+
     (ValidarCadena(opciones.clasificacionPro)? '&clasificacionPro='+encodeURIComponent(opciones.clasificacionPro): (ValidarCadena(ObtenerValor('clasificacionPro'))&&!desUrl?'&clasificacionPro='+ObtenerValor('clasificacionPro'):''))+
     (ValidarCadena(opciones.cantidadContratosPro) ? '&cantidadContratosPro='+encodeURIComponent(reemplazarValor(opciones.cantidadContratosPro,',','')):(ValidarCadena(ObtenerValor('cantidadContratosPro'))&&!desUrl?'&cantidadContratosPro='+ObtenerValor('cantidadContratosPro'):''))+
-    (ValidarCadena(opciones.montoPro) ? '&montoPro='+encodeURIComponent(reemplazarValor(opciones.montoPro,',','')):(ValidarCadena(ObtenerValor('montoPro'))&&!desUrl?'&montoPro='+ObtenerValor('montoPro'):''))
+    (ValidarCadena(opciones.montoPro) ? '&montoPro='+encodeURIComponent(reemplazarValor(opciones.montoPro,',','')):(ValidarCadena(ObtenerValor('montoPro'))&&!desUrl?'&montoPro='+ObtenerValor('montoPro'):''))+
+    (ValidarCadena(opciones.ordenarPorPro) ? '&ordenarPorPro='+encodeURIComponent(opciones.ordenarPorPro):(ValidarCadena(ObtenerValor('ordenarPorPro'))&&!desUrl?'&ordenarPorPro='+ObtenerValor('ordenarPorPro'):''))
 
     );
   

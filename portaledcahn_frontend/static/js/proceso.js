@@ -304,48 +304,16 @@ function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
             $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
               $('<table>').append(
                 $('<tbody>').append(
-                  
-                  (desglosePresupuesto[i].classifications.fuente?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.fuente})
-                    )
-                    :null),
-                  
-                  (desglosePresupuesto[i].classifications.institucion?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Institución:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.institucion})
-                    )
-                    :null),
-                  (desglosePresupuesto[i].classifications.ue?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Unidad Ejecutora:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ue})
-                    )
-                    :null),
-                  (desglosePresupuesto[i].classifications.ga?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Gerencia Administrativa:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ga})
-                    )
-                    :null),
                   (desglosePresupuesto[i].classifications.gestion?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Periodo de Gestión:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.gestion})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.objeto?
+                  (desglosePresupuesto[i].classifications.institucion?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Objeto:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.objeto})
-                    )
-                    :null),
-                  (desglosePresupuesto[i].classifications.organismo?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Organismo:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.organismo})
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Institución:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.institucion})
                     )
                     :null),
                   (desglosePresupuesto[i].classifications.programa?
@@ -354,27 +322,58 @@ function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.programa})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.proyecto?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Proyecto:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.proyecto})
-                    )
-                    :null),
                   (desglosePresupuesto[i].classifications.subPrograma?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Sub Programa:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.subPrograma})
                     )
                     :null),
+                  (desglosePresupuesto[i].classifications.proyecto?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Proyecto:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.proyecto})
+                    )
+                    :null),
+                        
                   (desglosePresupuesto[i].classifications.actividadObra?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Actividad Obra:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.actividadObra})
                     )
                     :null),
+                  (desglosePresupuesto[i].classifications.ga?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Gerencia Administrativa:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ga})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.ue?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Unidad Ejecutora:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ue})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.fuente?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.fuente})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.organismo?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Organismo Financiador:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.organismo})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.objeto?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Objeto:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.objeto})
+                    )
+                    :null),
                   (desglosePresupuesto[i].classifications.trfBeneficiario?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Transferencia al Beneficiario:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Beneficiario de Transferencia:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.trfBeneficiario})
                     )
                     :null)
