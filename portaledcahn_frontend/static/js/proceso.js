@@ -516,13 +516,13 @@ function AnadirElementosPartes(partes){
                 : null,
                 partes[i].contactPoint&&partes[i].contactPoint.email ? 
                 $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electronico:',toolTexto:"parties["+i+"].contactPoint.email"}),
+                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electrónico:',toolTexto:"parties["+i+"].contactPoint.email"}),
                   $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.email})
                 )
                 : null,
                 partes[i].contactPoint&&partes[i].contactPoint.telephone ? 
                 $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Telefono:',toolTexto:"parties["+i+"].contactPoint.telephone"}),
+                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Teléfono:',toolTexto:"parties["+i+"].contactPoint.telephone"}),
                   $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.telephone})
                 )
                 : null,
