@@ -7,12 +7,6 @@ var estadosContrato={
     'unsuccessful':{titulo:'Sin Éxito',descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'}
    };
 var defaultMoneda='HNL';
-function TextoURL(texto){
-    return encodeURIComponent(texto);
-}
-function ObtenerTextoURL(texto){
-    return decodeURIComponent(texto);
-}
 
 function MostrarIntroduccion(){
     introJs().setOption("nextLabel", "Siguiente").setOption("prevLabel", "Atras").setOption("skipLabel", "SALTAR").setOption("doneLabel", "LISTO").start();
@@ -98,12 +92,14 @@ function ObtenerTexto(texto){
         return '';
     }
 }
+function SanitizarId(texto){
+    texto=ObtenerTexto(texto);
+    return reemplazarValor(reemplazarValor(reemplazarValor(texto,'\\\\',''),'/',''),' ','');
+}
 function reemplazarValor(texto,nombre,reemplazo)
 {   
     let regular=new RegExp(nombre, "g");;
     while(regular.test(texto)){
-        console.dir(texto)
-        console.dir(reemplazo)
       texto=texto.replace(nombre,reemplazo);
     }
     return texto;

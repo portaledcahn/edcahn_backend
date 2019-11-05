@@ -969,6 +969,7 @@ table.tablaGeneral tbody tr:first-child{
 	font-size: 15px;
 	background-color: #3B53A4!important;
 	color: white!important;
+	border-color: transparent;
 }
 .list-container{
 	padding: 0;
@@ -2463,4 +2464,38 @@ table.tablaGeneral{
 .cajonFiltrosAplicadosDashboard .etiquetaFiltro{
 	font-size: 12px;
 	height: 24px;
+}
+
+.cargaEfecto{
+	
+	background: -webkit-linear-gradient(230deg, #b3b3b3, #c4c4c4,#dedbdb);	
+	background: -moz-linear-gradient(230deg, #b3b3b3, #c4c4c4,#dedbdb);
+	background: -o-linear-gradient(230deg, #b3b3b3, #c4c4c4,#dedbdb);
+	background: -ms-linear-gradient(230deg, #b3b3b3, #c4c4c4,#dedbdb);
+	background: linear-gradient(230deg, #b3b3b3, #c4c4c4,#dedbdb);
+
+	-webkit-animation: cargaEfectoAnimacion 1.5s ease infinite;
+	-moz-animation: cargaEfectoAnimacion 1.5s ease infinite;
+	-ms-animation: cargaEfectoAnimacion 1.5s ease infinite;
+	-o-animation:cargaEfectoAnimacion 1.5s ease infinite;
+	animation: cargaEfectoAnimacion 1.5s ease infinite;
+
+	background-size: 300% 300%;
+}
+
+
+@-webkit-keyframes cargaEfectoAnimacion {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+@-moz-keyframes cargaEfectoAnimacion {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+@keyframes cargaEfectoAnimacion {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
 }

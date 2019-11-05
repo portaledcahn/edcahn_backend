@@ -71,6 +71,9 @@ function DefinirElementosConvocatoria(){
               $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabConvocatoria',href:'#informacionTabConvocatoria','aria-selected':'true'}).append(
                 $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Información'})
               ),
+              $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'ofertadoresTabConvocatoria',href:'#ofertadoresTabConvocatoria','aria-selected':'true'}).append(
+                $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Ofertadores'})
+              ),
               $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'itemsTabConvocatoria',href:'#itemsTabConvocatoria','aria-selected':'true'}).append(
                 $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Artículos Solicitados'})
               )
@@ -182,14 +185,14 @@ function DefinirElementosConvocatoria(){
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Número de propuestas recibidas',toolTexto:"tender.numberOfTenderers"}),
                       $('<td>',{class:'contenidoTablaCaracteristicas',text:procesoRecord.compiledRelease.tender.numberOfTenderers})
                     ) : null,
-                    procesoRecord.compiledRelease.tender.tenderers ?
-                    ObtenerOfertadores(procesoRecord.compiledRelease.tender.tenderers) : null,
+                    /*procesoRecord.compiledRelease.tender.tenderers ?
+                    ObtenerOfertadores(procesoRecord.compiledRelease.tender.tenderers) : null,*/
   
                     
-                    
+                 /*   
                     (procesoRecord.compiledRelease.tender.milestones ? 
                       ObtenerHitosRelacionados(procesoRecord.compiledRelease.tender.milestones)
-                      : null),
+                      : null),*/
   
                       //categoriaCompraAmpliada
   
@@ -386,6 +389,9 @@ function DefinirElementosConvocatoria(){
                   ):null)
               )
                 ),
+                $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'ofertadoresTabConvocatoria',id:'ofertadoresTabConvocatoria'}).append(
+
+                  ),
                 $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'itemsTabConvocatoria',id:'itemsTabConvocatoria'}).append(
 
                   ),
@@ -452,6 +458,27 @@ function DefinirElementosConvocatoria(){
             $('#documentosTabConvocatoria').html('<h4 class="titularColor textoColorPrimario mt-3">Esta etapa no posee documentos</h4>')
           
         }
+
+        if(procesoRecord.compiledRelease.tender.tenderers&&procesoRecord.compiledRelease.tender.tenderers.length){
+          $('#ofertadoresTabConvocatoria').append(
+            $('<div>', {class:' cajonSombreadox '}).append(
+              $('<table>',{class:'tablaGeneral'}).append(
+                $('<thead>').append(
+                  $('<tr>').append(
+                    $('<th>',{text:'Identificador', toolTexto:'tender.tenderers[n].id'}),
+                    $('<th>',{text:'Ofertador',toolTexto:'tender.tenderers[n].dname'})
+                  )
+                ),
+                $('<tbody>').append(
+                  ObtenerOfertadores(procesoRecord.compiledRelease.tender.tenderers)
+                )
+              )
+            )
+          );
+        }else{
+            $('#ofertadoresTabConvocatoria').html('<h4 class="titularColor textoColorPrimario mt-3">No hay ofertadores disponibles</h4>');
+          
+        }
       }
     }
   }
@@ -461,9 +488,9 @@ function DefinirElementosConvocatoria(){
     for(var i=0;i<ofertadores.length;i++){
       elementos.push(
         $('<tr>').append(
-          $('<td>',{class:'tituloTablaCaracteristicas',text:'Ofertador #'+ofertadores[i].id}),
-          $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-            $('<a>',{text:'Ofertador '+ObtenerTexto(ofertadores[i].name) ,class:'enlaceTablaGeneral',href:url+'/proveedor/'+ofertadores[i].id})
+          $('<td>',{class:'',text:ofertadores[i].id,'data-label':'Identificador'}),
+          $('<td>',{class:'','data-label':'Ofertador'}).append(
+            $('<a>',{text:ObtenerTexto(ofertadores[i].name) ,class:'enlaceTablaGeneral',href:url+'/proveedor/'+ofertadores[i].id})
           )
         )
       );

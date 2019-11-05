@@ -147,6 +147,7 @@ REST_FRAMEWORK = {
 
 ELASTICSEARCH_DSL_HOST = 'http://200.13.162.87:9200/'
 
+
 ELASTICSEARCH_DSL = {
     'default': {
         'hosts': ELASTICSEARCH_DSL_HOST

@@ -342,28 +342,20 @@ function ObtenerContratos(id){
     var contratos=procesoRecord.compiledRelease.contracts;
    
   for(var i = 0; i < contratos.length;i++){
-    console.dir(id)
-    console.dir(contratos[i])
     if(contratos[i].awardID==id){
       arreglo.push(contratos[i]);
     }else{
-      console.dir('no')
-      console.dir(id)
-    console.dir(contratos[i].awardID)
     }
   }
   }
-  console.dir(arreglo)
   return arreglo;
 }
 function BotonesContratosAdjudicacion(id){
   var contratos=ObtenerContratos(id);
   var elementos=[];
   for( var i = 0; i < contratos.length ; i++){
-    elementos.push($('<button>',{style:'border:none',class:'botonGeneral fondoColorSecundario',href:'/proceso/'+procesoRecord.ocid+'/?contrato='+contratos[i].id}).text('ver contrato'))
+    elementos.push($('<button>',{style:'border:none;outline:0;margin-bottom:5px;',class:'botonGeneral fondoColorSecundario',onclick:'location.href="/proceso/'+encodeURIComponent( procesoRecord.ocid)+'/?contrato='+encodeURIComponent(contratos[i].id)+'"' }).text('Ver Contrato'))
   }
-  console.dir('contratos')
-  console.dir(elementos)
   return elementos;
 }
 
@@ -399,13 +391,15 @@ function ObtenerAdjudicaciones(adjudicaciones){
       $('<tr>').append(
         $('<td>',{'data-label':'Id Adjudicación',text:adjudicaciones[i].id}),
         $('<td>',{'data-label':'Proveedores'}).append(ObtenerProveedores(adjudicaciones[i].suppliers)),
-        $('<td>',{'data-label':'Descripción',text:''}),
+        $('<td>',{'data-label':'Descripción',text:'No Disponible'}),
         /*$('<td>',{text:items[i].description}),*/
-        $('<td>',{'data-label':'Fecha de adjudicación',text:adjudicaciones[i].date?ObtenerFecha(adjudicaciones[i].date):'No Disponible'}),
+        $('<td>',{'data-label':'Fecha de adjudicación'}).append(
+          adjudicaciones[i].date?ObtenerFecha(adjudicaciones[i].date):'No Disponible'
+        ),
         $('<td>',{'data-label':'Monto'}).append(
-          (adjudicaciones[i].value!=undefined&&adjudicaciones[i].value!=null)?(
+          (adjudicaciones[i].value&&Validar(adjudicaciones[i].value.amount))?(
           $('<span>',{class: 'textoColorPrimario'}).text(ValorMoneda(adjudicaciones[i].value.amount) ),
-          $('<span>',{class: 'textoColorPrimario'}).text(adjudicaciones[i].value.currency)):'No Disponible'
+          $('<span>',{class: 'textoColorPrimario'}).text(adjudicaciones[i].value.currency)):$('<span>',{class:'textoColorGris',text:'No Disponible'})
         ),
         $('<td>',{'data-label':'Contratos'}).append(
           BotonesContratosAdjudicacion(adjudicaciones[i].id)

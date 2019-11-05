@@ -60,7 +60,7 @@ function DefinirElementosContrato(){
     var elementos=[];
     for(var i = 0; i< contratos.length;i++){
       elementos.push(
-        $('<a class="nav-link enlaceContrato transicion '+(i===0?'active':'')+'" id="'+contratos[i].id+'ContratoTab" data-toggle="pill" href="#'+contratos[i].id+'ContratoContenido" role="tab" aria-controls="'+contratos[i].id+'ContratoContenido" aria-selected="true"></a>').text(
+        $('<a class="nav-link enlaceContrato transicion '+(i===0?'active':'')+'" id="'+'X'+SanitizarId(contratos[i].id)+'ContratoTab" data-toggle="pill" href="#'+'X'+SanitizarId(contratos[i].id)+'ContratoContenido" role="tab" aria-controls="'+'X'+SanitizarId(contratos[i].id)+'ContratoContenido" aria-selected="true"></a>').text(
           /*contratos[i].title?contratos[i].title:*/contratos[i].id
         )
       )
@@ -71,27 +71,27 @@ function DefinirElementosContrato(){
     var elementos=[];
     for(var i = 0; i< contratos.length;i++){
       elementos.push(
-        $('<div class="tab-pane fade '+(i===0?'active show':'')+'" id="'+contratos[i].id+'ContratoContenido" role="tabpanel" aria-labelledby="'+contratos[i].id+'ContratoTab">').append(
+        $('<div class="tab-pane fade '+(i===0?'active show':'')+'" id="'+'X'+SanitizarId(contratos[i].id)+'ContratoContenido" role="tabpanel" aria-labelledby="'+'X'+SanitizarId(contratos[i].id)+'ContratoTab">').append(
           $('<nav>').append(
             $('<div>',{class:'nav nav-tabs',role:'tablist'}).append(
-            $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabContrato'+contratos[i].id,href:'#informacionTabContrato'+contratos[i].id,'aria-selected':'true'}).append(
+            $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabContrato'+'X'+SanitizarId(contratos[i].id),href:'#informacionTabContrato'+'X'+SanitizarId(contratos[i].id),'aria-selected':'true'}).append(
               $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Información'})
             ),
-            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'itemsTabContrato'+contratos[i].id,href:'#itemsTabContrato'+contratos[i].id,'aria-selected':'true'}).append(
+            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'itemsTabContrato'+'X'+SanitizarId(contratos[i].id),href:'#itemsTabContrato'+'X'+SanitizarId(contratos[i].id),'aria-selected':'true'}).append(
               $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Artículos Solicitados'})
             )
             ,
-            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'documentosTabContrato'+contratos[i].id,href:'#documentosTabContrato'+contratos[i].id,'aria-selected':'true'}).append(
+            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'documentosTabContrato'+'X'+SanitizarId(contratos[i].id),href:'#documentosTabContrato'+'X'+SanitizarId(contratos[i].id),'aria-selected':'true'}).append(
               $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Documentos'})
             )
             ,
-            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'implementacionTabContrato'+contratos[i].id,href:'#implementacionTabContrato'+contratos[i].id,'aria-selected':'true'}).append(
+            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'implementacionTabContrato'+'X'+SanitizarId(contratos[i].id),href:'#implementacionTabContrato'+'X'+SanitizarId(contratos[i].id),'aria-selected':'true'}).append(
               $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Implementación'})
             )
               )
           ),
-          $('<div>',{class:'tab-content cajonSombreado',id:'contenedorTabContrato'+contratos[i].id}).append(
-            $('<div>',{class:'tab-pane fade show active',role:'tabpanel','aria-labelledby':'informacionTabContrato'+contratos[i].id,id:'informacionTabContrato'+contratos[i].id}).append(
+          $('<div>',{class:'tab-content cajonSombreado',id:'contenedorTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
+            $('<div>',{class:'tab-pane fade show active',role:'tabpanel','aria-labelledby':'informacionTabContrato'+'X'+SanitizarId(contratos[i].id),id:'informacionTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
               (contratos[i].title||contratos[i].description?
                 $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
                     $('<table>').append(
@@ -102,7 +102,7 @@ function DefinirElementosContrato(){
                               contratos[i].title
                             )):null,
                             contratos[i].description?$('<tr>').append(
-                                $('<td>',{class:'',style:'color:#333',toolTexto:"contracts["+i+"].description"}).append(
+                                $('<td>',{class:'tituloTablaCaracteristicas',style:'color:#333',toolTexto:"contracts["+i+"].description"}).append(
                                   $('<b>',{text:'Descripción '}),
                                   contratos[i].description
                                 )
@@ -154,7 +154,7 @@ function DefinirElementosContrato(){
                     )
               ):null)
             ),
-            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'itemsTabContrato'+contratos[i].id,id:'itemsTabContrato'+contratos[i].id}).append(
+            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'itemsTabContrato'+'X'+SanitizarId(contratos[i].id),id:'itemsTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
               (contratos[i].items)?
               
                 $('<div>', {class:' cajonSombreadox '}).append(
@@ -176,9 +176,9 @@ function DefinirElementosContrato(){
                   )
                 )
               
-              : $('<h4 class="titularColor textoColorPrimario mt-3">Esta contrato no posee items</h4>')
+              : $('<h4 class="titularColor textoColorPrimario mt-3">Esta contrato no posee artículos</h4>')
             ),
-            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'documentosTabContrato'+contratos[i].id,id:'documentosTabContrato'+contratos[i].id}).append(
+            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'documentosTabContrato'+'X'+SanitizarId(contratos[i].id),id:'documentosTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
               (contratos[i].documents)?$('<div>', {class:' cajonSombreadox '}).append(
                 $('<table>',{class:'tablaGeneral'}).append(
                   $('<thead>').append(
@@ -196,12 +196,12 @@ function DefinirElementosContrato(){
                 )
               ):$('<h4 class="titularColor textoColorPrimario mt-3">Esta etapa no posee documentos</h4>')
             ),
-            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'implementacionTabContrato'+contratos[i].id,id:'implementacionTabContrato'+contratos[i].id}).append(
+            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'implementacionTabContrato'+'X'+SanitizarId(contratos[i].id),id:'implementacionTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
               $('<h4 class="titularCajonSombreado" style="color:black">Transacciones</h4>'),
               (contratos[i].implementation&&contratos[i].implementation.transactions)?ObtenerTransacciones(contratos[i].implementation.transactions,contratos[i].implementation):$('<h4 class="titularColor textoColorPrimario mt-3">No hay transacciones disponibles.</h4>'),
               
               $('<h4 class="titularCajonSombreado">Obligaciones Financieras</h4>'),
-              (contratos[i].implementation&&contratos[i].implementation.financialObligations)?ObtenerObligacionesFinancieras(contratos[i].implementation.financialObligations):$('<h4 class="titularColor textoColorPrimario mt-3">No hay obligaciones Financieras disponibles.</h4>'),
+              (contratos[i].implementation&&contratos[i].implementation.financialObligations)?ObtenerObligacionesFinancieras(contratos[i].implementation.financialObligations):$('<h4 class="titularColor textoColorPrimario mt-3">No hay obligaciones financieras disponibles.</h4>'),
             )
           )
           )

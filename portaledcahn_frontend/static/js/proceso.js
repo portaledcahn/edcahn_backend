@@ -56,6 +56,7 @@ function MostrarPrimerProceso(){
     $('.botonPasoProceso').removeClass('activo');
     if(ObtenerValor( 'contrato')){
       pasos=$('.botonPasoProceso[estado="contrato"]').not('.deshabilitado');
+      $('#X'+SanitizarId(decodeURIComponent(ObtenerValor( 'contrato')))+'ContratoTab').tab('show');
     }
     $(pasos[0]).addClass('activo');
 
@@ -481,10 +482,22 @@ function AnadirPartes(){
 }
 function AnadirElementosPartes(partes){
   var elementos=[];
+  elementos.push(
+    $('<div>',{class:'col-md-12'}).append(
+      $('<h4>',{class:'titularCajonSombreado',style:'color:black'}).append(
+        'Comprador'
+        )
+    )
+  )
   for(var i=0;i<partes.length;i++){
+    console.dir('PARTES')
+    console.dir(partes);
     elementos.push(
       $('<div>',{class:'col-md-12'}).append(
-        $('<h4>',{class:'titularCajonSombreado'}).text(partes[i].name),
+        $('<h4>',{class:'titularCajonSombreado'}).append(
+          ObtenerElementosParte( partes[i].id,procesoRecord.compiledRelease)
+          //partes[i].name
+          ),
         $('<div class="contenedorProceso informacionProceso">').append(
           $('<div class="contenedorTablaCaracteristicas">').append(
             $('<table>').append(
