@@ -35,4 +35,10 @@ urlpatterns = [
 	path('dashboardsefin/topproveedores/', viewsets.TopProveedoresPorMontoPagado.as_view()),
 	path('dashboardsefin/topobjetosgasto/', viewsets.TopObjetosDeGastoPorMontoPagado.as_view()),
 	path('dashboardsefin/etapaspago/', viewsets.EtapasPagoProcesoDeCompra.as_view()),
+
+	path('dashboardoncae/filtros/', viewsets.FiltrosDashboardONCAE.as_view()),
+	path('dashboardoncae/cantidaddeprocesos/', viewsets.GraficarCantidadDeProcesosMes.as_view()),
+	path('dashboardoncae/montosdecontratos/', viewsets.GraficarMontosDeContratosMes.as_view()),
+	path('dashboardoncae/estadisticacantidaddeprocesos/', viewsets.EstadisticaCantidadDeProcesos.as_view()),
+
 ]

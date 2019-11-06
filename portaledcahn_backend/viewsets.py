@@ -292,8 +292,8 @@ class Index(APIView):
 
 		oncae.aggs.metric(
 			'distinct_procesos', 
-			'cardinality', 
-			precision_threshold=precision, 
+			'value_count', 
+			# precision_threshold=precision, 
 			field='doc.compiledRelease.ocid.keyword'
 		)
 
@@ -319,11 +319,11 @@ class Buscador(APIView):
 
 		page = int(request.GET.get('pagina', '1'))
 		metodo = request.GET.get('metodo', 'proceso')
-		moneda = request.GET.get('moneda', None)
-		metodo_seleccion = request.GET.get('metodo_seleccion', None)
-		institucion = request.GET.get('institucion', None)
-		categoria = request.GET.get('categoria', None)
-		year = request.GET.get('year', None)
+		moneda = request.GET.get('moneda', '')
+		metodo_seleccion = request.GET.get('metodo_seleccion', '')
+		institucion = request.GET.get('institucion', '')
+		categoria = request.GET.get('categoria', '')
+		year = request.GET.get('year', '')
 
 		term = request.GET.get('term', '')
 		start = (page-1) * settings.PAGINATE_BY
@@ -336,18 +336,25 @@ class Buscador(APIView):
 
 		s = Search(using=cliente, index='edca')
 
-		s.aggs.metric('contratos', 'nested', path='doc.compiledRelease.contracts')
+		#Source
+		campos = ['doc.compiledRelease', 'extra']
+		s = s.source(campos)
 
 		#Filtros
+		s.aggs.metric('contratos', 'nested', path='doc.compiledRelease.contracts')
+
 		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
 
 		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
 
-		s.aggs.metric('instituciones', 'terms', field='doc.compiledRelease.buyer.name.keyword', size=100)
+		s.aggs.metric('instituciones', 'terms', field='extra.parentTop.name.keyword', size=10000)
 
 		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
 
-		s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy')
+		if metodo == 'pago':
+			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.date', interval='year', format='yyyy')
+		else:
+			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.datePublished', interval='year', format='yyyy')
 
 		#resumen
 		s.aggs["contratos"].metric(
@@ -390,7 +397,7 @@ class Buscador(APIView):
 				'procesos_total', 
 				'cardinality', 
 				precision_threshold=precision, 
-				field='doc.compiledRelease.tender.id.keyword'
+				field='doc.compiledRelease.ocid.keyword'
 			)
 
 		if metodo == 'contrato':
@@ -406,6 +413,8 @@ class Buscador(APIView):
 			)
 
 		if metodo == 'pago':
+			s = s.filter('exists', field='doc.compiledRelease.contracts.implementation.id')
+
 			s.aggs.metric(
 				'procesos_total', 
 				'cardinality', 
@@ -413,33 +422,22 @@ class Buscador(APIView):
 				field='doc.compiledRelease.ocid.keyword'
 			)
 
-			# qPago = Q('exists', field='doc.compiledRelease.contracts.implementation.transactions.id') 
-			# s = s.query('nested', path='doc.compiledRelease.contracts', query=qPago)
-
-			# s.aggs["contratos"].metric(
-			# 	'procesos_total', 
-			# 	'cardinality', 
-			# 	precision_threshold=precision, 
-			# 	field='doc.compiledRelease.ocid.keyword'
-			# 	# field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
-			# )
-
-		if moneda is not None: 
+		if moneda.replace(' ', ''): 
 			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
 			s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
 
-		if metodo_seleccion is not None:
+		if metodo_seleccion.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails=metodo_seleccion)
 
-		if institucion is not None:
-			s = s.filter('match_phrase', doc__compiledRelease__buyer__name=institucion)
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 
-		if categoria is not None:
+		if categoria.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory=categoria)
 
 		# Este filtro aun falta
-		if year is not None:
-			# s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory=categoria)
+		if year.replace(' ', ''):
+			print('YEASR???')
 			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
 
 		if term: 
@@ -491,7 +489,7 @@ class Buscador(APIView):
 			total_procesos = results.aggregations.contratos.procesos_total.value
 			total_proveedores = results.aggregations.contratos.distinct_proveedores_contratos.value
 		elif metodo == 'proceso':
-			monto_promedio = 0
+			monto_promedio = results.aggregations.contratos.promedio_montos_contrato.value
 			total_procesos = results.aggregations.procesos_total.value
 			total_proveedores = results.aggregations.contratos.distinct_proveedores_contratos.value
 		else:
@@ -516,8 +514,8 @@ class Buscador(APIView):
 		parametros["year"] = year
 
 		context = {
-			"paginador": pagination,
-			"parametros": parametros,
+			# "paginador": pagination,
+			# "parametros": parametros,
 			"resumen": resumen,
 			"filtros": filtros,
 			"resultados": results.hits.hits
@@ -2992,6 +2990,411 @@ class EtapasPagoProcesoDeCompra(APIView):
 
 		context = {
 			# "elastic": buckets
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+# Dashboard de ONCAE
+
+class FiltrosDashboardONCAE(APIView):
+
+	def get(self, request, format=None):
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+		
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+
+		# Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency__keyword=moneda)
+
+		# if objetogasto.replace(' ', ''):
+		# 	s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
+
+		# if fuentefinanciamiento.replace(' ', ''):
+		# 	s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
+
+		# Resumen	
+		s.aggs.metric(
+			'instituciones', 
+			'terms', 
+			field='extra.parentTop.name.keyword', 
+			size=10000
+		)
+
+		s.aggs.metric(
+			'años', 
+			'date_histogram', 
+			field='doc.compiledRelease.tender.datePublished', 
+			interval='year', 
+			format='yyyy'
+		)
+
+		s.aggs.metric(
+			'monedas', 
+			'terms', 
+			field='doc.compiledRelease.contracts.value.currency.keyword', 
+			size=10000
+		)
+
+		# s.aggs.metric(
+		# 	'fuentes', 
+		# 	'terms', 
+		# 	field='extra.fuentes.keyword', 
+		# 	size=10000
+		# )
+
+		# s.aggs.metric(
+		# 	'objetosGasto', 
+		# 	'terms',
+		# 	field='extra.objetosGasto.keyword', 
+		# 	size=10000
+		# )
+
+		results = s.execute()
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		# parametros["categoria"] = objetogasto
+		# parametros["modalidad"] = fuentefinanciamiento
+
+		resultados = results.aggregations.to_dict()
+
+		context = {
+			"parametros": parametros,
+			"respuesta": resultados
+		}
+
+		return Response(context)
+
+class GraficarCantidadDeProcesosMes(APIView):
+
+	def get(self, request, format=None):
+		pagos_mes = []
+		promedios_mes = []
+		lista_meses = []
+		meses = {}
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+		# proveedor = request.GET.get('proveedor', '')
+
+		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
+
+		for x in mm:
+			meses[str(x)] = {
+				"cantidad_procesos": 0,
+				"promedio_procesos": 0
+			}
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency=moneda)
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__=moneda)
+			
+		# if proveedor.replace(' ', ''):
+		# 	s = s.filter('match_phrase', payee__name__keyword=proveedor)
+
+		# Agregados
+		s.aggs.metric(
+			'total_procesos',
+			'value_count',
+			field='doc.compiledRelease.ocid.keyword'
+		)
+
+		s.aggs.metric(
+			'procesos_por_mes', 
+			'date_histogram', 
+			field='doc.compiledRelease.date',
+			interval= "month",
+			format= "MM"
+		)
+		
+		results = s.execute()
+
+		total_procesos = results.aggregations.total_procesos["value"]
+
+		aggs = results.aggregations.procesos_por_mes.to_dict()
+
+		for bucket in aggs["buckets"]:
+			if bucket["key_as_string"] in meses:
+
+				count = bucket["doc_count"]
+
+				meses[bucket["key_as_string"]] = {
+					"cantidad_procesos": meses[bucket["key_as_string"]]["cantidad_procesos"] + count,
+				}
+
+		for mes in meses:
+			pagos_mes.append(meses[mes]["cantidad_procesos"])
+			promedios_mes.append(meses[mes]["cantidad_procesos"]/total_procesos)
+			lista_meses.append(NombreDelMes(mes))
+
+		resultados = {
+			"cantidadprocesos": pagos_mes,
+			"promedioprocesos": promedios_mes,
+			"meses": lista_meses,
+			"totalprocesos": total_procesos,
+			# "elastic": results.aggregations.to_dict()
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		# parametros["objetogasto"] = objetogasto
+		# parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		# parametros["proveedor"] = proveedor
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class GraficarMontosDeContratosMes(APIView):
+
+	def get(self, request, format=None):
+		montos_contratos_mes = []
+		cantidad_contratos_mes = []
+		cantidad_procesos_mes = []
+		lista_meses = []
+		meses = {}
+
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
+
+		for x in mm:
+			meses[str(x)] = {
+				"monto_contratos": 0,
+				"cantidad_contratos": 0,
+				"cantidad_procesos": 0
+			}
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency=moneda)
+
+		# Agregados
+		s.aggs.metric(
+			'contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+
+		s.aggs["contratos"].metric(
+			'suma_total_contratos',
+			'sum',
+			field='doc.compiledRelease.contracts.value.amount'
+		)
+
+		s.aggs.metric(
+			'procesos_por_mes', 
+			'date_histogram', 
+			# field='doc.compiledRelease.date',
+			field='doc.compiledRelease.tender.datePublished',
+			interval= "month",
+			format= "MM"
+		)
+
+		s.aggs["procesos_por_mes"].metric(
+			'contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+
+
+		s.aggs["procesos_por_mes"]["contratos"].metric(
+			'suma_contratos',
+			'sum',
+			field='doc.compiledRelease.contracts.value.amount'
+		)
+		
+		results = s.execute()
+
+		total_procesos = 0
+
+		total_monto_contratado = results.aggregations.contratos.suma_total_contratos["value"]
+
+		total_contratos = results.aggregations.contratos.doc_count
+
+		aggs = results.aggregations.procesos_por_mes.to_dict()
+
+		for bucket in aggs["buckets"]:
+			if bucket["key_as_string"] in meses:
+
+				monto = bucket["contratos"]["suma_contratos"]["value"]
+				cantidad_contratos = bucket["contratos"]["doc_count"]
+				cantidad_procesos = bucket["doc_count"]
+
+				meses[bucket["key_as_string"]] = {
+					"monto_contratos": meses[bucket["key_as_string"]]["monto_contratos"] + monto,
+					"cantidad_contratos": meses[bucket["key_as_string"]]["cantidad_contratos"] + cantidad_contratos,
+					"cantidad_procesos": meses[bucket["key_as_string"]]["cantidad_procesos"] + cantidad_procesos
+				}
+
+				total_procesos += cantidad_procesos 
+
+		for mes in meses:
+			montos_contratos_mes.append(meses[mes]["monto_contratos"])
+			cantidad_contratos_mes.append(meses[mes]["cantidad_contratos"])
+			cantidad_procesos_mes.append(meses[mes]["cantidad_procesos"])
+			lista_meses.append(NombreDelMes(mes))
+
+		resultados = {
+			"cantidad_procesos_mes": cantidad_procesos_mes,
+			"monto_contratos_mes": montos_contratos_mes,
+			"cantidad_contratos_mes": cantidad_contratos_mes,
+			"total_procesos": total_procesos,
+			"cantidad_contratos": total_contratos,
+			"total_monto_contratos": total_monto_contratado,
+			"meses": lista_meses,
+			# "elastic": results.aggregations.to_dict()
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		# parametros["objetogasto"] = objetogasto
+		# parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		# parametros["proveedor"] = proveedor
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class EstadisticaCantidadDeProcesos(APIView):
+
+	def get(self, request, format=None):
+		meses = {}
+		institucion = request.GET.get('institucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
+
+		for x in mm:
+			meses[str(x)] = {
+				"cantidad_procesos": 0,
+			}
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		# Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency=moneda)
+
+		#Agregados
+		s.aggs.metric(
+			'procesos_por_mes', 
+			'date_histogram', 
+			field='doc.compiledRelease.tender.datePublished',
+			interval= "month",
+			format= "MM"
+		)
+
+		results = s.execute()
+
+		aggs = results.aggregations.procesos_por_mes.to_dict()
+
+		cantidad_por_meses = []
+		total_procesos = 0
+
+		for bucket in aggs["buckets"]:
+			meses[bucket["key_as_string"]]["cantidad_procesos"] += bucket["doc_count"]
+			total_procesos += bucket["doc_count"]
+
+		for m in meses:
+			cantidad_por_meses.append(meses[m]["cantidad_procesos"])			
+
+		resultados = {
+			"promedio": statistics.mean(cantidad_por_meses),
+			"mayor": max(cantidad_por_meses),
+			"menor": min(cantidad_por_meses),
+			"total": total_procesos
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		# parametros["objetogasto"] = objetogasto
+		# parametros["fuentefinanciamiento"] = fuentefinanciamiento
+		# parametros["proveedor"] = proveedor
+
+		context = {
 			"resultados": resultados,
 			"parametros": parametros
 		}
