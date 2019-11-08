@@ -1,6 +1,301 @@
+var filtrosAplicables={
+    monedas: {titulo:'Moneda',parametro:'moneda'},
+    instituciones: {titulo:'Institución Compradora',parametro:'institucion'},
+    años: {titulo:'Año',parametro:'año'},
+    proveedores: {titulo:'Proveedor',parametro:'proveedor'},
+    fuentes: {titulo:'Fuente de Financiamiento',parametro:'fuentefinanciamiento'},
+    objetosGasto : {titulo:'Objeto de Gasto',parametro:'objetosgasto'}
+    
+  };
+  var filtrosAplicablesR={
+    moneda: {titulo:'Moneda',parametro:'monedas'},
+    institucion: {titulo:'Institución Compradora',parametro:'instituciones'},
+    año: {titulo:'Año',parametro:'años'},
+    proveedor: {titulo:'Proveedor',parametro:'proveedores'},
+    fuentefinanciamiento: {titulo:'Fuente de Financiamiento',parametro:'fuentes'},
+    objetosgasto : {titulo:'Objeto de Gasto',parametro:'objetosGasto'}
+    
+  };
+  var traducciones={
+    'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
+    'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
+    'services':{titulo:'Servicios',descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
+    'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'}
+  }
+  window.onpopstate = function(e){
+    location.reload();
+  }
 
+  $(function(){
+    ObtenerFiltros();
+    $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
+        if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
+          $('.contenedorFiltrosBusqueda').removeClass('cerrado');
+        }else{
+          $('.contenedorFiltrosBusqueda').addClass('cerrado');
+        }
+      });
+    CargarGraficos();
+    //CantidadPagosEtapas()
+    
+    //TiempoPromedioEtapas();
+
+    
+    
+ 
+    //SegregacionMontosContratos();
+    $('#quitarFiltros').on('click',function(e){
+        PushDireccionGraficos(AccederUrlPagina({},true));
+      });
+
+    //VerificarIntroduccion('INTROJS_BUSQUEDA',1);
+})
+function CargarGraficos(){
+    CargarCajonesCantidad();
+
+
+
+    InicializarCantidadProcesos();
+    InicializarMontoProcesos();
+    
+    CantidadProcesosCategoriaCompra();
+    CantidadProcesosMetodoContratacion();
+
+
+    MontoProcesosCategoriaCompra();
+    MontoProcesosMetodoContratacion();
+    TiempoPromedioEtapas();
+    CantidadProcesosEtapas();
+    Top10Proveedores();
+    Top10Compradores();
+    SegregacionMontosContratos();
+    InicializarConteo()
+    
+}
+
+function ObtenerFiltros(){
+    var parametros=ObtenerJsonFiltrosAplicados({});
+    $.get(api+"/dashboardoncae/filtros/",parametros).done(function( datos ) {
+/*
+        if(datos.respuesta.pagos){
+            datos.respuesta['años']=datos.respuesta.pagos['años'];
+            datos.respuesta['monedas']=datos.respuesta.pagos['monedas'];
+            datos.respuesta['proveedores']=datos.respuesta.pagos['proveedores'];
+            delete datos.respuesta.pagos;
+            delete datos.respuesta.objetosGasto;
+            //delete datos.respuesta.instituciones;
+            //delete datos.respuesta.fuentes;
+
+        }*/
+       /* if(datos.respuesta.objetosGasto){
+            delete datos.respuesta.objetosGasto;
+        }*/
+        console.dir('filtros')
+    console.dir(datos);
+      
+       
+  
+    MostrarListaElastica(datos,'#elastic-list');
+    MostrarEtiquetaListaElasticaAplicada();
+    MostrarListaElasticaAplicados();
+ // }
+  
+  
+      
+        
+      }).fail(function() {
+          
+          
+        });
+
+}
+
+
+
+
+function ObtenerJsonFiltrosAplicados(parametros){
+    if(Validar(ObtenerValor('moneda'))){
+        parametros['moneda']=ObtenerValor('moneda');
+    }
+    if(Validar(ObtenerValor('institucion'))){
+    parametros['institucion']=decodeURIComponent(ObtenerValor('institucion'));
+    }
+    if(Validar(ObtenerValor('año'))){
+      parametros['año']=ObtenerValor('año');
+    }
+    if(Validar(ObtenerValor('proveedor'))){
+        parametros['proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
+    }
+    if(Validar(ObtenerValor('fuentefinanciamiento'))){
+      parametros['fuentefinanciamiento']=decodeURIComponent(ObtenerValor('fuentefinanciamiento'));
+    }
+    if(Validar(ObtenerValor('objetosgasto'))){
+        parametros['objetosgasto']=decodeURIComponent(ObtenerValor('objetosgasto'));
+    }
+    
+
+    return parametros;
+  }
+
+  function AccederUrlPagina(opciones,desUrl){
+    var direccion=('/dashboardProcesosContratacion/?'+
+    (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
+    (ValidarCadena(opciones.institucion)? '&institucion='+encodeURIComponent(opciones.institucion): (ValidarCadena(ObtenerValor('institucion'))&&!desUrl?'&institucion='+ObtenerValor('tituloCon'):''))+
+   
+    (ValidarCadena(opciones.año)? '&año='+encodeURIComponent(opciones.año): (ValidarCadena(ObtenerValor('año'))&&!desUrl?'&año='+ObtenerValor('año'):''))+
+    (ValidarCadena(opciones.proveedor)? '&proveedor='+encodeURIComponent(opciones.proveedor): (ValidarCadena(ObtenerValor('proveedor'))&&!desUrl?'&proveedor='+ObtenerValor('proveedor'):''))+
+    (ValidarCadena(opciones.fuentefinanciamiento)? '&fuentefinanciamiento='+encodeURIComponent(opciones.fuentefinanciamiento): (ValidarCadena(ObtenerValor('fuentefinanciamiento'))&&!desUrl?'&fuentefinanciamiento='+ObtenerValor('fuentefinanciamiento'):''))+
+    (ValidarCadena(opciones.objetosgasto) ? '&objetosgasto='+encodeURIComponent(opciones.objetosgasto):(ValidarCadena(ObtenerValor('objetosgasto'))&&!desUrl?'&objetosgasto='+ObtenerValor('objetosgasto'):''))
+  
+    );
+    return direccion;
+  }
+  function PushDireccionGraficos(direccion){
+    window.history.pushState({}, document.title,direccion);
+    ObtenerFiltros();
+    CargarGraficos();
+  }
+  
+  function MostrarEtiquetasFiltrosAplicados(parametros){
+    if(!$.isEmptyObject(parametros)){
+      $('#contenedorSinFiltros').hide();
+      $('#contenedorFiltros').show();
+    }else{
+      $('#contenedorFiltros').hide();
+      $('#contenedorSinFiltros').show();
+    }
+    $('#listaFiltrosAplicados').html('');
+    $.each(parametros,function(llave,filtro){
+      $('#listaFiltrosAplicados').append(
+        $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(
+          $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
+          $('<div>',{class:'filtrosAplicados'}).append(
+            $('<div>',{class:'etiquetaFiltro','llave':llave,'valor':filtro}).append(
+                (traducciones[filtro]?traducciones[filtro].titulo:filtro),
+              '&nbsp;',
+              $('<i>',{class:'fas fa-times'}).on('click',function(e){
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                //$('li.list-group-item.active')
+                /*$.each(filtros,function(cla,val){
+                  filtros[filtrosAplicablesR[$(val).attr('llave')]?filtrosAplicablesR[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+                });*/
+                delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
+
+                PushDireccionGraficos(AccederUrlPagina(filtros,true));
+              })
+            )
+          )
+        )
+      )
+    });
+  }
+
+  function MostrarEtiquetaListaElasticaAplicada(){
+  
+    var parametros={
+    };
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEtiquetasFiltrosAplicados(parametros);
+  }
+
+  function MostrarListaElasticaAplicados(){
+    var filtros={
+    };
+    filtros=ObtenerJsonFiltrosAplicados(filtros);
+    $.each(filtros,function(llave,valor){
+      $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
+        'li[formato="'+((traducciones[valor]?traducciones[valor].titulo:valor)).toString().toLowerCase()+'"]'
+      ).addClass('active');
+    });
+  }
+
+  function MostrarListaElastica(datos,selector){
+    $(selector).html('');
+    console.dir('vaciando***')
+    $.each(datos.respuesta,function(llave,valor){
+      $(selector).append(
+        $('<div class="list-container col-md-12 2">').append(
+          $('<div class="panel panel-default ">').append(
+            $('<div class="panel-heading">').text(
+              filtrosAplicables[llave]?filtrosAplicables[llave].titulo:llave
+            ),
+            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[llave]?filtrosAplicables[llave].titulo:llave ,filtro:llave,on:{
+              keyup:function(e){
+                var texto=$(e.currentTarget).val();
+                if (texto.length > 0) {
+                  texto = texto.toLocaleLowerCase();
+                  var regla = " ul#" + 'ul'+llave + ' li[formato*="' + texto + '"]{display:block;} ';
+                  regla += " ul#" + 'ul'+llave + ' li:not([formato*="' + texto + '"]){display:none;}';
+                  $('#style'+llave).html(regla);
+                } else {
+                  $('#style'+llave).html('');
+                }
+              }
+            }}),
+            $('<style>',{id:'style'+llave}),
+            $('<ul >',{class:'list-group',id:'ul'+llave}).append(
+              AgregarPropiedadesListaElastica(valor,llave)
+            )
+              
+            
+          )
+        )
+      )
+      
+      
+    });
+    AgregarToolTips();
+    
+    
+  }
+
+  
+function AgregarPropiedadesListaElastica(valor,llave){
+    var elementos=[]
+    $.each(valor.buckets,function(i,propiedades){
+      //resultadosElastic=AsignarValor(resultadosElastic,llave,,propiedades.doc_count);
+      elementos.push(
+        $('<li >',{
+        class:'list-group-item',
+        valor:propiedades.key_as_string?propiedades.key_as_string:propiedades.key, 
+        formato: (propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)).toString().toLowerCase(),'llave':llave,
+        toolTexto:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key),
+        toolCursor:'true',
+        on:{
+          click:function(e){
+            var filtro=$(e.currentTarget);
+            if(filtro.hasClass('active')){
+              filtro.removeClass('active')
+            }else{
+              filtro.parent().find('.list-group-item.active').removeClass('active');
+              filtro.addClass('active');
+            }
+            var filtros={
+            };
+            $('li.list-group-item.active').each(function(cla,val){
+                console.dir(filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'')
+                console.dir($(val).attr('valor'));
+              filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+            });
+            PushDireccionGraficos(AccederUrlPagina(filtros,true));
+          }
+        }}).append(
+          $('<div class="badge">').text(/*(Validar(propiedades.pagos)&&Validar(propiedades.pagos.doc_count))?propiedades.pagos&&propiedades.pagos.doc_count:*/propiedades.doc_count),
+          $('<div >',{
+          class:'elastic-data',
+          
+          text:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)}
+          )
+        )
+      )
+    });
+    return elementos;
+  }
+  
 function InicializarCantidadProcesos(){
-    //app.title = '折柱混合';
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    $.get(api+"/dashboardoncae/cantidaddeprocesos/",parametros).done(function( datos ) {
     var grafico=echarts.init(document.getElementById('cantidadProcesos'));
     var opciones = {
         tooltip: {
@@ -10,55 +305,90 @@ function InicializarCantidadProcesos(){
                 crossStyle: {
                     color: '#999'
                 }
+            },
+            formatter:  function (e){
+                return "{b0}<br>{a0} {s0} {c0} Procesos <br>{a1} {s1} {c1} %".replace('{c0}',e[0].value).replace('{c1}',e[1].value).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);;
             }
         },
-        toolbox: {
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
+    legend: {
+        plain: 'scroll',
+        orient: 'horizontal',
+        position:'bottom'
+        /*right: 10,
+        top: 20,
+        bottom: 20*//*,
+        data: ['lengend data 1','lengend data 2','lengend data 3'],
+
+        selected: [false,false,true]*/
+    },
+    toolbox: {
+        feature: {
+            dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+            magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+            restore: {show: true,title:'Restaurar'},
+            saveAsImage: {show: true,title:'Descargar'}
+        }
+    },
         xAxis: [
             {
                 type: 'category',
-                data: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+                data: datos.resultados.meses,//['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
                 axisPointer: {
                     type: 'shadow'
+                },
+                axisLabel:{
+                    interval:0,
+                    rotate:45,
+                    showMinLabel:false
                 }
             }
         ],
+        grid:{
+            containLabel:true
+        },
         yAxis: [
             {
                 type: 'value',
                 name: 'Cantidad',
                 min: 0,
-                max: 250,
-                interval: 50,
+                /*max: 250,*/
+              //  interval: 50,
                 axisLabel: {
                     formatter: '{value}'
+                },
+                position:'left',
+                axisPointer: {
+                    label: {
+                        formatter: '{value} Pagos'
+                    }
                 }
-            }/*,
+            },
             {
                 type: 'value',
-                name: 'Cantidad de Pagos Promedio',
+                //name: 'Cantidad de Pagos en Porcentaje',
                 min: 0,
-                max: 25,
-                interval: 5,
+                max: 100,/*
+                interval: 5,*/
                 axisLabel: {
-                    formatter: '{value}'
+                    //formatter: '{value} %'
+                    show:false
+                },
+                position:'right',
+                axisTick : {show: false},
+                axisLine:{show:false},
+                splitLine:{show:false},
+                axisPointer: {
+                    label: {
+                        formatter: '{value} %'
+                    }
                 }
-            }*/
+            }
         ],
         series: [
             {
                 name:'Cantidad de Procesos de Contratación',
                 type:'bar',
-                data:[2, 4, 7, 23, 25, 76, 135, 162, 40, 90, 6, 110],
+                data:datos.resultados.cantidadprocesos,
                 itemStyle:{
                     color: '#58C5CC'
                 }
@@ -67,7 +397,7 @@ function InicializarCantidadProcesos(){
                 name:'Cantidad de Procesos en Promedio',
                 type:'line',
                 //yAxisIndex: 1,
-                data:[4, 4.5, 25, 26, 27, 80, 150, 35, 23.5, 23, 6.5, 6.2],
+                data:datos.resultados.promedioprocesos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
                 symbol: 'circle',
                 symbolSize: 10,
                 lineStyle: {
@@ -79,7 +409,8 @@ function InicializarCantidadProcesos(){
                 },
                 itemStyle:{
                     color: '#6569CC'
-                }
+                },
+                yAxisIndex:1
             }
         ],
         grid:{
@@ -92,11 +423,20 @@ function InicializarCantidadProcesos(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+    }).fail(function() {
+            
+            
+    });
+    
 }
 
 
 function InicializarMontoProcesos(){
     //app.title = '折柱混合';
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    $.get(api+"/dashboardoncae/montosdecontratos/",parametros).done(function( datos ) {
+
     var grafico=echarts.init(document.getElementById('montoProcesos'));
     var opciones = {
         tooltip: {
@@ -106,11 +446,28 @@ function InicializarMontoProcesos(){
                 crossStyle: {
                     color: '#999'
                 }
+            },
+            formatter:  function (e){
+                return "{b0}<br>{a0} {s0} {c0} HNL <br>{a1} {s1} {c1} %".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);
             }
+        },
+        legend: {
+            plain: 'scroll',
+            orient: 'horizontal',
+            position:'bottom'
+            /*right: 10,
+            top: 20,
+            bottom: 20*//*,
+            data: ['lengend data 1','lengend data 2','lengend data 3'],
+    
+            selected: [false,false,true]*/
+        },
+        grid:{
+            containLabel:true
         },
         toolbox: {
             feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                 magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
@@ -122,9 +479,14 @@ function InicializarMontoProcesos(){
         xAxis: [
             {
                 type: 'category',
-                data: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+                data: datos.resultados.meses,
                 axisPointer: {
                     type: 'shadow'
+                },
+                axisLabel:{
+                    interval:0,
+                    rotate:45,
+                    showMinLabel:false
                 }
             }
         ],
@@ -133,28 +495,44 @@ function InicializarMontoProcesos(){
                 type: 'value',
                 name: 'Monto',
                 min: 0,
-                max: 250,
-                interval: 50,
+               /* max: 250,*/
+              //  interval: 10000000,
                 axisLabel: {
                     formatter: '{value} HNL'
+                },
+                name:'Lempiras',
+                axisPointer: {
+                    label: {
+                        formatter: '{value} HNL'
+                    }
                 }
-            }/*,
+            },
             {
                 type: 'value',
-                name: 'Cantidad de Pagos Promedio',
+                //name: '',
                 min: 0,
-                max: 25,
-                interval: 5,
+                max: 100,/*
+                interval: 5,*/
                 axisLabel: {
-                    formatter: '{value} HNL'
+                    //formatter: '{value} %'
+                    show:false
+                },
+                position:'right',
+                axisTick : {show: false},
+                axisLine:{show:false},
+                splitLine:{show:false},
+                axisPointer: {
+                    label: {
+                        formatter: '{value} %'
+                    }
                 }
-            }*/
+            }
         ],
         series: [
             {
                 name:'Monto de Procesos de Contratación',
                 type:'bar',
-                data:[6, 5, 10, 27, 28, 80, 200, 16, 39, 25, 7, 8],
+                data:datos.resultados.monto_contratos_mes,
                 itemStyle:{
                     color: '#D9527B'
                 }
@@ -162,7 +540,7 @@ function InicializarMontoProcesos(){
             {
                 name:'Monto Promedio de Procesos de Contratación',
                 type:'line',
-                data:[4, 4.5, 25, 26, 27, 80, 150, 35, 23.5, 23, 6.5, 6.2],
+                data:datos.resultados.monto_contratos_mes.map(function(e){return ObtenerNumero(((ObtenerNumero(e)/ObtenerNumero(datos.resultados.total_monto_contratos))*100).toFixed(2))}),//datos.resultados.cantidad_contratos_mes.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
                 symbol: 'circle',
                 symbolSize: 10,
                 lineStyle: {
@@ -174,7 +552,8 @@ function InicializarMontoProcesos(){
                 },
                 itemStyle:{
                     color: '#6569CC'
-                }
+                },
+                yAxisIndex:1
             
             }
         ],
@@ -188,6 +567,11 @@ function InicializarMontoProcesos(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+    }).fail(function() {
+          
+          
+    });
+    
 }
 
 
@@ -568,7 +952,6 @@ function MontoProcesosCategoriaCompra(){
         tooltip : {
             trigger: 'item',
             formatter:  function (e){
-                console.dir(e)
                 return "{a} <br/>{b}: {c} HNL ({d}%)".replace('{d}',e.percent).replace('{a}',e.seriesName).replace('{b}',e.name).replace('{c}',ValorMoneda(e.value));
             }
         },
@@ -1230,46 +1613,6 @@ function SegregacionMontosContratos(){
         grafico.resize();
     });
 }
-$(function(){
-    InicializarCantidadProcesos();
-    InicializarMontoProcesos();
-    
-    CantidadProcesosCategoriaCompra();
-    CantidadProcesosMetodoContratacion();
-    MontoProcesosCategoriaCompra();
-    MontoProcesosMetodoContratacion();
-    TiempoPromedioEtapas();
-    CantidadProcesosEtapas();
-    Top10Proveedores();
-    Top10Compradores();
-    SegregacionMontosContratos();
-    InicializarConteo()
-    view = new ElasticList({
-        el: $("#elastic-list"),
-        data: dataElastic,
-        hasFilter: true,
-        onchange: function (filters) {
-        },
-        columns: [
-            {
-              title: "Selección",
-                attr: "selection"
-            },{
-                title: "Categoría",
-                attr: "category"
-            },
-            {
-                title: "Institución",
-                attr: "name"
-            }, {
-                title: "Año",
-                attr: "year"
-            },{
-              title: "Moneda",
-                attr: "coin"
-            } ]
-    });
-})
 function InicializarConteo(){
     $('.conteo.moneda').countTo({
         formatter: function (value, options) {
@@ -1277,12 +1620,47 @@ function InicializarConteo(){
           value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
           return value;
       }
-      });
+      });/*
       $('.conteo').not('.moneda').countTo({
         formatter: function (value, options) {
             value = value.toFixed(options.decimals);
             value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             return value;
         }
+      });*/
+}
+
+function CargarCajonesCantidad(){
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/dashboardoncae/estadisticacantidaddeprocesos/",parametros).done(function( datos ) {
+    console.dir('cantidad***')
+console.dir(datos);
+    $('#CantidadProcesosPromedio').attr('data-to',datos.resultados.promedio);
+    $('#CantidadProcesosMenor').attr('data-to',datos.resultados.menor);
+    $('#CantidadProcesosMayor').attr('data-to',datos.resultados.mayor);
+    $('#CantidadProcesosTotal').attr('data-to',datos.resultados.total);
+/*
+    $('.conteo').not('.moneda').countTo({
+        formatter: function (value, options) {
+            value = value.toFixed(options.decimals);
+            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return value;
+        },
+        from: 0, to: 500
+      });*/
+      $('.conteo').not('.moneda').each(function(index,elemento){
+        $(elemento).countTo({
+            formatter: function (value, options) {
+                value = value.toFixed(options.decimals);
+                value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return value;
+            },
+            from: 0, to: $(elemento).attr('data-to'),'data-speed':$(elemento).attr('data-speed')
+          });
       });
+  }).fail(function() {
+      
+      
+    });
 }

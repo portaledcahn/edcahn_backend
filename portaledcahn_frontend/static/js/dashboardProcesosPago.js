@@ -1257,36 +1257,8 @@ $(function(){
     $('#quitarFiltros').on('click',function(e){
         PushDireccionGraficos(AccederUrlPagina({},true));
       });
-    
-    
-    /*view = new ElasticList({
-        el: $("#elastic-list"),
-        data: dataElastic,
-        hasFilter: true,
-        onchange: function (filters) {
-        },
-        columns: [
-            {
-                title: "Institución",
-                attr: "name"
-            }, {
-                title: "Año",
-                attr: "year"
-            },{
-              title: "Moneda",
-                attr: "coin"
-            },{
-                title: "Objeto de Gasto",
-                attr: "name"
-            }, {
-                title: "Fuente de Financiamiento",
-                attr: "name"
-            }, {
-                title: "Proveedor",
-                attr: "name"
-            }  ]
-    });*/
-    VerificarIntroduccion('INTROJS_BUSQUEDA',1);
+
+   // VerificarIntroduccion('INTROJS_BUSQUEDA',1);
 })
 function CargarGraficos(){
     InicializarCantidadPagos();

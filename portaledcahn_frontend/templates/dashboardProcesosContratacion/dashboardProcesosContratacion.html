@@ -10,85 +10,41 @@
 {% endblock %}
 {% block container %}
 <div class="container-fluid  busquedaEspaciadoHorizontal">
-      <div class="contenedorFiltrosBusqueda animated">
-         <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
-            Filtros 
-            <div class="cursorMano cerrarContenedorFiltrosBusqueda" style="display:none"><i class="fas fa-times textoColorGris"></i></div>
-         </h4>
-         <div class="filtrosContenedoFiltrosBusqueda">
-           
-            <div id="elastic-list">
-            </div>
+   <div class="cajonFiltrosAplicadosDashboard  cajonSombreado mt-4" id="filtrosAplicadosItems" style="position: fixed;right: 28px;z-index: 2; min-width: 280px;max-width: 600px;">
+
+      <div class="row">
+                        <div class="col-6 col-sm-7 col-md-6">
+                           <div class="tituloFiltrosAplicados textoAlineadoIzquierda">Filtros Aplicados:</div>
+                        </div>
+                        <div class="col-6 col-sm-5 col-md-6 textoAlineadoIzquierda" id="contenedorSinFiltros">
+                           
+                             <h4 class="textoColorPrimario titularColor" style="margin-top:3px">Ninguno</h4>
+                           </div>
+                        <div class="col-6 col-sm-5 col-md-6 textoAlineadoDerecha" id="contenedorFiltros" style="display: none">
+
+                           <a href="javascript:void(0)" class="botonGeneral fondoColorSecundario" id="quitarFiltros" style="font-size: 10px"> Quitar Todos</a>
+                        </div>
+                     </div>
+      <div class="row textoAlineadoDerecha pt-2" id="listaFiltrosAplicados"></div>
+   </div>
+   <div class="contenedorFiltrosBusqueda animated">
+      <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
+         Filtros 
+         <div class="cursorMano cerrarContenedorFiltrosBusqueda" style="display:none"><i class="fas fa-times textoColorGris"></i></div>
+      </h4>
+      <div class="filtrosContenedoFiltrosBusqueda">
+        
+         <div id="elastic-list">
          </div>
       </div>
+   </div>
       <div class="contenedorResultadosBusqueda">
    
-         <div class="container-fluid" style="display: none">
-            <div class="row">
-               <div class="contenedorFiltros">
-                  <div class="row">
-                     <div class="col-6 col-sm-7 col-md-6">
-                        <div class="tituloFiltrosAplicados">Filtros Aplicados:</div>
-                     </div>
-                     <div class="col-6 col-sm-5 col-md-6 textoAlineadoDerecha">
-                        <a href="/busqueda/" class="botonGeneral fondoColorSecundario">Quitar Todos</a>
-                     </div>
-                  </div>
-                  <div class="row">
-                     <div class="grupoEtiquetaFiltro col-md-12 mb-1">
-                        <div class="grupoEtiquetaTitulo">
-                           Moneda:
-                        </div>
-                        <div class="filtrosAplicados">
-                           <div class="etiquetaFiltro">
-                              USD
-                              <i class="fas fa-times"></i>
-                           </div>
-                           <div class="etiquetaFiltro">
-                              HNL
-                              <i class="fas fa-times"></i>
-                           </div>
-                        </div>
-                     </div>
-                     <div class="grupoEtiquetaFiltro col-md-12 mb-1">
-                        <div class="grupoEtiquetaTitulo">
-                           Seleccion:
-                        </div>
-                        <div class="filtrosAplicados">
-                           <div class="etiquetaFiltro">
-                              Concurso Público Nacional
-                              <i class="fas fa-times"></i>
-                           </div>
-                           <div class="etiquetaFiltro">
-                              Compras Menores
-                              <i class="fas fa-times"></i>
-                           </div>
-                        </div>
-                     </div>
-                     <div class="grupoEtiquetaFiltro col-md-12 mb-1">
-                        <div class="grupoEtiquetaTitulo">
-                           Categoria:
-                        </div>
-                        <div class="filtrosAplicados">
-                           <div class="etiquetaFiltro">
-                              Obras
-                              <i class="fas fa-times"></i>
-                           </div>
-                           <div class="etiquetaFiltro">
-                              Bienes
-                              <i class="fas fa-times"></i>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
          <div class="container-fluid contenedorBusqueda mb-5" >
             <div class="row">
                <div class="col-6 col-sm-6 col-md-6">
                   <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
-                     Dashboard
+                     Dashboard de Procesos de Contratación
                   </h4>
                </div>
    
@@ -165,25 +121,25 @@
                               <div class="row">
                                     <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                        <div class="p-2">
-                                       <div class="titularColor textoAlineadoDerecha" style="color:#57C5CB;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="452" class="conteo">0</span></div>
+                                       <div class="titularColor textoAlineadoDerecha" style="color:#57C5CB;font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadProcesosPromedio">0</span></div>
                                        <div class="titularColor textoAlineadoDerecha textoColorGris" >Promedio</div>
                                        </div>
                                     </div>
                                     <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                           <div class="p-2">
-                                          <div class="titularColor textoAlineadoDerecha" style="color:#57C5CB;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="396" class="conteo">0</span></div>
+                                          <div class="titularColor textoAlineadoDerecha" style="color:#57C5CB;font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadProcesosMayor">0</span></div>
                                           <div class="titularColor textoAlineadoDerecha textoColorGris" >Mayor</div>
                                           </div>
                                        </div>
                                        <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                              <div class="p-2">
-                                             <div class="titularColor textoAlineadoDerecha" style="color:#57C5CB;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="78" class="conteo">0</span></div>
+                                             <div class="titularColor textoAlineadoDerecha" style="color:#57C5CB;font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadProcesosMenor">0</span></div>
                                              <div class="titularColor textoAlineadoDerecha textoColorGris" >Menor</div>
                                              </div>
                                           </div>
                                           <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                                 <div class="p-2">
-                                                <div class="titularColor textoAlineadoDerecha" style="color:#57C5CB;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="1500" class="conteo">0</span></div>
+                                                <div class="titularColor textoAlineadoDerecha" style="color:#57C5CB;font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadProcesosTotal">0</span></div>
                                                 <div class="titularColor textoAlineadoDerecha textoColorGris" >Total</div>
                                                 </div>
                                              </div>
