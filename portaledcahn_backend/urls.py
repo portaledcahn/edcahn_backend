@@ -37,8 +37,11 @@ urlpatterns = [
 	path('dashboardsefin/etapaspago/', viewsets.EtapasPagoProcesoDeCompra.as_view()),
 
 	path('dashboardoncae/filtros/', viewsets.FiltrosDashboardONCAE.as_view()),
+	path('dashboardoncae/procesosporcategoria/', viewsets.GraficarProcesosPorCategorias.as_view()),
+	path('dashboardoncae/procesospormodalidad/', viewsets.GraficarProcesosPorModalidad.as_view()),
 	path('dashboardoncae/cantidaddeprocesos/', viewsets.GraficarCantidadDeProcesosMes.as_view()),
-	path('dashboardoncae/montosdecontratos/', viewsets.GraficarMontosDeContratosMes.as_view()),
 	path('dashboardoncae/estadisticacantidaddeprocesos/', viewsets.EstadisticaCantidadDeProcesos.as_view()),
+	path('dashboardoncae/procesosporetapa/', viewsets.GraficarProcesosPorEtapa.as_view()),
+	path('dashboardoncae/montosdecontratos/', viewsets.GraficarMontosDeContratosMes.as_view()),
 
 ]
