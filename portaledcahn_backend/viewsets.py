@@ -3130,12 +3130,35 @@ class FiltrosDashboardONCAE(APIView):
 		# 	size=10000
 		# )
 
-		# ss.aggs.metric(
-		# 	'monedas', 
-		# 	'terms',
-		# 	field='value.currency.keyword', 
-		# 	size=10000
-		# )
+		ss.aggs.metric(
+			'monedasContratoFechaFirma', 
+			'terms',
+			field='value.currency.keyword', 
+			missing='N/D',
+			size=10000
+		)
+
+		ss.aggs["monedasContratoFechaFirma"].metric(
+			'procesos',
+			'cardinality',
+			field='extra.ocid.keyword',
+			precision_threshold=40000
+		)
+
+		sss.aggs.metric(
+			'monedasContratoFechaInicio', 
+			'terms',
+			field='value.currency.keyword',
+			missing='N/D', 
+			size=10000
+		)
+
+		sss.aggs["monedasContratoFechaInicio"].metric(
+			'procesos',
+			'cardinality',
+			field='extra.ocid.keyword',
+			precision_threshold=40000
+		)
 
 		procesos = s.execute()
 		contratosPC = ss.execute()
@@ -3149,7 +3172,8 @@ class FiltrosDashboardONCAE(APIView):
 		institucionesProcesos = procesos.aggregations.instituciones.to_dict()
 		institucionesContratosPC = contratosPC.aggregations.instituciones.to_dict()
 		institucionesContratosDD = contratosDD.aggregations.instituciones.to_dict()
-		# monedas = contratosPC.aggregations.monedas.to_dict()
+		monedasContratosPC = contratosPC.aggregations.monedasContratoFechaFirma.to_dict()
+		monedasContratosDD = contratosDD.aggregations.monedasContratoFechaInicio.to_dict()
 
 		#Valores para filtros por anio
 		anios = {}
@@ -3191,6 +3215,7 @@ class FiltrosDashboardONCAE(APIView):
 
 		#Valores para filtros por institucion padre
 		instituciones = []
+
 		for codigo in institucionesProcesos["buckets"]:
 
 			for nombre in codigo["nombre"]["buckets"]:
@@ -3200,26 +3225,27 @@ class FiltrosDashboardONCAE(APIView):
 					"procesos": nombre["doc_count"],
 					"contratos": 0
 				})
+		
+		if anio.replace(' ', ''):	
+			for codigo in institucionesContratosPC["buckets"]:
 
-		for codigo in institucionesContratosPC["buckets"]:
+				for nombre in codigo["nombre"]["buckets"]:
+					instituciones.append({
+						"codigo": codigo["key"],
+						"nombre": nombre["key"],
+						"procesos": 0,
+						"contratos": nombre["doc_count"]
+					})
 
-			for nombre in codigo["nombre"]["buckets"]:
-				instituciones.append({
-					"codigo": codigo["key"],
-					"nombre": nombre["key"],
-					"procesos": 0,
-					"contratos": nombre["doc_count"]
-				})
+			for codigo in institucionesContratosDD["buckets"]:
 
-		for codigo in institucionesContratosDD["buckets"]:
-
-			for nombre in codigo["nombre"]["buckets"]:
-				instituciones.append({
-					"codigo": codigo["key"],
-					"nombre": nombre["key"],
-					"procesos": 0,
-					"contratos": nombre["doc_count"]
-				})
+				for nombre in codigo["nombre"]["buckets"]:
+					instituciones.append({
+						"codigo": codigo["key"],
+						"nombre": nombre["key"],
+						"procesos": 0,
+						"contratos": nombre["doc_count"]
+					})
 
 		if instituciones:
 			dfInstituciones = pd.DataFrame(instituciones)
@@ -3234,12 +3260,44 @@ class FiltrosDashboardONCAE(APIView):
 
 			instituciones = dfInstituciones.to_dict('records')
 
+		#Valores para filtros por moneda del contrato.
+
+		monedas = [] 
+		for valor in monedasContratosPC["buckets"]:
+			monedas.append({
+				"moneda": valor["key"],
+				"contratos": valor["doc_count"],
+				"procesos": valor["procesos"]["value"]
+			})
+
+		if anio.replace(' ', ''):
+			for valor in monedasContratosDD["buckets"]:
+				monedas.append({
+				"moneda": valor["key"],
+				"contratos": valor["doc_count"],
+				"procesos": valor["procesos"]["value"]
+			})
+
+		if monedas:
+			dfMonedas = pd.DataFrame(monedas)
+
+			agregaciones = {
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfMonedas = dfMonedas.groupby('moneda', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+
+			monedas = dfMonedas.to_dict('records')
+
 		resultados = {}
 		resultados["años"] = years
+		resultados["monedas"] = monedas
 		resultados["instituciones"] = instituciones
 		# resultados["categorias"] = categorias
 		# resultados["modalidades"] = modalidades
-		# resultados["monedas"] = monedas
+		# resultados["fechaFirma"] = contratosPC.aggregations.monedasContratoFechaFirma.to_dict()
+		# resultados["fechaInicio"] = contratosDD.aggregations.monedasContratoFechaInicio.to_dict()
 
 		parametros = {}
 		parametros["institucion"] = institucion
