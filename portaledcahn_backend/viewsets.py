@@ -413,7 +413,8 @@ class Buscador(APIView):
 			)
 
 		if metodo == 'pago':
-			s = s.filter('exists', field='doc.compiledRelease.contracts.implementation.id')
+			filtro_pago = Q('exists', field='doc.compiledRelease.contracts.implementation')
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=filtro_pago)
 
 			s.aggs.metric(
 				'procesos_total', 
@@ -437,7 +438,6 @@ class Buscador(APIView):
 
 		# Este filtro aun falta
 		if year.replace(' ', ''):
-			print('YEASR???')
 			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
 
 		if term: 
@@ -514,8 +514,8 @@ class Buscador(APIView):
 		parametros["year"] = year
 
 		context = {
-			# "paginador": pagination,
-			# "parametros": parametros,
+			"paginador": pagination,
+			"parametros": parametros,
 			"resumen": resumen,
 			"filtros": filtros,
 			"resultados": results.hits.hits
@@ -550,7 +550,7 @@ class Proveedores(APIView):
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=30)
 
 		s = Search(using=cliente, index='edca')
 
@@ -3003,6 +3003,7 @@ class FiltrosDashboardONCAE(APIView):
 	def get(self, request, format=None):
 
 		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
 		anio = request.GET.get('año', '')
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
@@ -3010,73 +3011,243 @@ class FiltrosDashboardONCAE(APIView):
 
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
-		s = Search(using=cliente, index='contract')
+		s = Search(using=cliente, index='edca')
+		ss = Search(using=cliente, index='contract')
+		sss = Search(using=cliente, index='contract')
 		
+		# Excluyendo procesos de SEFIN
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		sss = sss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
 		# Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			sss = sss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			sss = sss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
 			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			sss = sss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+			sss = sss.filter('match_phrase', value__currency__keyword=moneda)
 
-		# if objetogasto.replace(' ', ''):
-		# 	s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
-
-		# if fuentefinanciamiento.replace(' ', ''):
-		# 	s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
-
-		# Resumen	
+		# Resumen
 		s.aggs.metric(
 			'instituciones', 
+			'terms', 
+			field='extra.parentTop.id.keyword', 
+			size=10000
+		)
+
+		s.aggs["instituciones"].metric(
+			'nombre', 
 			'terms', 
 			field='extra.parentTop.name.keyword', 
 			size=10000
 		)
 
+		ss.aggs.metric(
+			'instituciones',
+			'terms',
+			field='extra.parentTop.id.keyword', 
+			size=10000	
+		)
+
+		ss.aggs["instituciones"].metric(
+			'nombre',
+			'terms',
+			field='extra.parentTop.name.keyword', 
+			size=10000	
+		)
+
+		sss.aggs.metric(
+			'instituciones',
+			'terms',
+			field='extra.parentTop.id.keyword', 
+			size=10000	
+		)
+
+		sss.aggs["instituciones"].metric(
+			'nombre',
+			'terms',
+			field='extra.parentTop.name.keyword', 
+			size=10000	
+		)
+
 		s.aggs.metric(
-			'años', 
+			'aniosProcesos', 
 			'date_histogram', 
 			field='doc.compiledRelease.tender.datePublished', 
 			interval='year', 
-			format='yyyy'
+			format='yyyy',
+			min_doc_count=1
 		)
 
-		s.aggs.metric(
-			'monedas', 
-			'terms', 
-			field='doc.compiledRelease.contracts.value.currency.keyword', 
-			size=10000
+		ss.aggs.metric(
+			'aniosContratoFechaFirma', 
+			'date_histogram', 
+			field='dateSigned', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
+		)
+
+		sss.aggs.metric(
+			'aniosContratoFechaInicio', 
+			'date_histogram', 
+			field='period.startDate', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
 		)
 
 		# s.aggs.metric(
-		# 	'fuentes', 
+		# 	'categorias', 
 		# 	'terms', 
-		# 	field='extra.fuentes.keyword', 
+		# 	field='doc.compiledRelease.tender.mainProcurementCategory.keyword', 
 		# 	size=10000
 		# )
 
 		# s.aggs.metric(
-		# 	'objetosGasto', 
+		# 	'modalidades', 
 		# 	'terms',
-		# 	field='extra.objetosGasto.keyword', 
+		# 	field='doc.compiledRelease.tender.procurementMethodDetails.keyword', 
 		# 	size=10000
 		# )
 
-		results = s.execute()
+		# ss.aggs.metric(
+		# 	'monedas', 
+		# 	'terms',
+		# 	field='value.currency.keyword', 
+		# 	size=10000
+		# )
+
+		procesos = s.execute()
+		contratosPC = ss.execute()
+		contratosDD = sss.execute()
+
+		# categorias = procesos.aggregations.categorias.to_dict()
+		# modalidades = procesos.aggregations.modalidades.to_dict()
+		aniosProcesos = procesos.aggregations.aniosProcesos.to_dict()
+		aniosFechaFirma = contratosPC.aggregations.aniosContratoFechaFirma.to_dict()
+		aniosFechaInicio = contratosDD.aggregations.aniosContratoFechaInicio.to_dict()
+		institucionesProcesos = procesos.aggregations.instituciones.to_dict()
+		institucionesContratosPC = contratosPC.aggregations.instituciones.to_dict()
+		institucionesContratosDD = contratosDD.aggregations.instituciones.to_dict()
+		# monedas = contratosPC.aggregations.monedas.to_dict()
+
+		#Valores para filtros por anio
+		anios = {}
+
+		for value in aniosProcesos["buckets"]:
+			anios[value["key_as_string"]] = {}
+			anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+			if "procesos" in anios[value["key_as_string"]]:
+				anios[value["key_as_string"]]["procesos"] += value["doc_count"]
+			else:
+				anios[value["key_as_string"]]["procesos"] = value["doc_count"]
+
+		for value in aniosFechaFirma["buckets"]:
+			if value["key_as_string"] in anios:
+				if "contratos" in anios[value["key_as_string"]]:
+					anios[value["key_as_string"]]["contratos"] += value["doc_count"]
+				else:
+					anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+			else:
+				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+
+		for value in aniosFechaInicio["buckets"]:
+			if value["key_as_string"] in anios:
+				if "contratos" in anios[value["key_as_string"]]:
+					anios[value["key_as_string"]]["contratos"] += value["doc_count"]
+				else:
+					anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+			else:
+				anios[value["key_as_string"]] = {}
+				anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+				anios[value["key_as_string"]]["procesos"] = 0
+				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+
+		years = []
+		for key, value in anios.items():
+			years.append(value)
+
+		years = sorted(years, key=lambda k: k['key_as_string'], reverse=True) 
+
+		#Valores para filtros por institucion padre
+		instituciones = []
+		for codigo in institucionesProcesos["buckets"]:
+
+			for nombre in codigo["nombre"]["buckets"]:
+				instituciones.append({
+					"codigo": codigo["key"],
+					"nombre": nombre["key"],
+					"procesos": nombre["doc_count"],
+					"contratos": 0
+				})
+
+		for codigo in institucionesContratosPC["buckets"]:
+
+			for nombre in codigo["nombre"]["buckets"]:
+				instituciones.append({
+					"codigo": codigo["key"],
+					"nombre": nombre["key"],
+					"procesos": 0,
+					"contratos": nombre["doc_count"]
+				})
+
+		for codigo in institucionesContratosDD["buckets"]:
+
+			for nombre in codigo["nombre"]["buckets"]:
+				instituciones.append({
+					"codigo": codigo["key"],
+					"nombre": nombre["key"],
+					"procesos": 0,
+					"contratos": nombre["doc_count"]
+				})
+
+		if instituciones:
+			dfInstituciones = pd.DataFrame(instituciones)
+
+			agregaciones = {
+				"nombre": 'first',
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfInstituciones = dfInstituciones.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+
+			instituciones = dfInstituciones.to_dict('records')
+
+		resultados = {}
+		resultados["años"] = years
+		resultados["instituciones"] = instituciones
+		# resultados["categorias"] = categorias
+		# resultados["modalidades"] = modalidades
+		# resultados["monedas"] = monedas
 
 		parametros = {}
 		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = idinstitucion
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
-		# parametros["categoria"] = objetogasto
-		# parametros["modalidad"] = fuentefinanciamiento
-
-		resultados = results.aggregations.to_dict()
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
 
 		context = {
 			"parametros": parametros,
