@@ -43,5 +43,11 @@ urlpatterns = [
 	path('dashboardoncae/estadisticacantidaddeprocesos/', viewsets.EstadisticaCantidadDeProcesos.as_view()),
 	path('dashboardoncae/procesosporetapa/', viewsets.GraficarProcesosPorEtapa.as_view()),
 	path('dashboardoncae/montosdecontratos/', viewsets.GraficarMontosDeContratosMes.as_view()),
+	path('dashboardoncae/estadisticacantidaddecontratos/', viewsets.EstadisticaCantidadDeContratos.as_view()),
+	path('dashboardoncae/estadisticamontosdecontratos/', viewsets.EstadisticaMontosDeContratos.as_view()),
+	path('dashboardoncae/contratosporcategoria/', viewsets.GraficarContratosPorCategorias.as_view()),
+	path('dashboardoncae/contratospormodalidad/', viewsets.GraficarContratosPorModalidad.as_view()),
+	path('dashboardoncae/topcompradores/', viewsets.TopCompradoresPorMontoContratado.as_view()),
+	path('dashboardoncae/topproveedores/', viewsets.TopProveedoresPorMontoContratado.as_view()),
 
 ]
