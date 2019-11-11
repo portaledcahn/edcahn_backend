@@ -3038,13 +3038,13 @@ class FiltrosDashboardONCAE(APIView):
 
 		if categoria.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
-			# ss = ss.filter('match_phrase', extra__tender__mainProcurementCategory__keyword=modalidad)
-			# sss = sss.filter('match_phrase', extra____tender__mainProcurementCategory__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			sss = sss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
-			# ss = ss.filter('match_phrase', extra__tender__procurementMethodDetails__keyword=modalidad)
-			# sss = sss.filter('match_phrase', extra__tender__procurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			sss = sss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
 			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
@@ -3120,25 +3120,59 @@ class FiltrosDashboardONCAE(APIView):
 			min_doc_count=1
 		)
 
-		# s.aggs.metric(
-		# 	'categorias', 
-		# 	'terms', 
-		# 	field='doc.compiledRelease.tender.mainProcurementCategory.keyword', 
-		# 	size=10000
-		# )
+		s.aggs.metric(
+			'categoriasProcesos', 
+			'terms', 
+			missing='No Definido',
+			field='doc.compiledRelease.tender.mainProcurementCategory.keyword', 
+			size=10000
+		)
 
-		# s.aggs.metric(
-		# 	'modalidades', 
-		# 	'terms',
-		# 	field='doc.compiledRelease.tender.procurementMethodDetails.keyword', 
-		# 	size=10000
-		# )
+		ss.aggs.metric(
+			'categoriasContratosFechaFirma', 
+			'terms', 
+			missing='No Definido',
+			field='extra.tenderMainProcurementCategory.keyword', 
+			size=10000
+		)
+
+		sss.aggs.metric(
+			'categoriasContratosFechaInicio', 
+			'terms',
+			missing='No Definido', 
+			field='extra.tenderMainProcurementCategory.keyword', 
+			size=10000
+		)
+
+		s.aggs.metric(
+			'modalidadesProcesos', 
+			'terms', 
+			missing='No Definido',
+			field='doc.compiledRelease.tender.procurementMethodDetails.keyword', 
+			size=10000
+		)
+
+		ss.aggs.metric(
+			'modalidadesContratosFechaFirma', 
+			'terms', 
+			missing='No Definido',
+			field='extra.tenderProcurementMethodDetails.keyword', 
+			size=10000
+		)
+
+		sss.aggs.metric(
+			'modalidadesContratosFechaInicio', 
+			'terms',
+			missing='No Definido', 
+			field='extra.tenderProcurementMethodDetails.keyword', 
+			size=10000
+		)
 
 		ss.aggs.metric(
 			'monedasContratoFechaFirma', 
 			'terms',
 			field='value.currency.keyword', 
-			missing='N/D',
+			missing='No Definido',
 			size=10000
 		)
 
@@ -3153,7 +3187,7 @@ class FiltrosDashboardONCAE(APIView):
 			'monedasContratoFechaInicio', 
 			'terms',
 			field='value.currency.keyword',
-			missing='N/D', 
+			missing='No Definido', 
 			size=10000
 		)
 
@@ -3168,14 +3202,22 @@ class FiltrosDashboardONCAE(APIView):
 		contratosPC = ss.execute()
 		contratosDD = sss.execute()
 
-		# categorias = procesos.aggregations.categorias.to_dict()
-		# modalidades = procesos.aggregations.modalidades.to_dict()
+		categoriasProcesos = procesos.aggregations.categoriasProcesos.to_dict()
+		categoriasContratosPC = contratosPC.aggregations.categoriasContratosFechaFirma.to_dict()
+		categoriasContratosDD = contratosDD.aggregations.categoriasContratosFechaInicio.to_dict()
+
+		modalidadesProcesos = procesos.aggregations.modalidadesProcesos.to_dict()
+		modalidadesContratosPC = contratosPC.aggregations.modalidadesContratosFechaFirma.to_dict()
+		modalidadesContratosDD = contratosDD.aggregations.modalidadesContratosFechaInicio.to_dict()
+
 		aniosProcesos = procesos.aggregations.aniosProcesos.to_dict()
 		aniosFechaFirma = contratosPC.aggregations.aniosContratoFechaFirma.to_dict()
 		aniosFechaInicio = contratosDD.aggregations.aniosContratoFechaInicio.to_dict()
+
 		institucionesProcesos = procesos.aggregations.instituciones.to_dict()
 		institucionesContratosPC = contratosPC.aggregations.instituciones.to_dict()
 		institucionesContratosDD = contratosDD.aggregations.instituciones.to_dict()
+
 		monedasContratosPC = contratosPC.aggregations.monedasContratoFechaFirma.to_dict()
 		monedasContratosDD = contratosDD.aggregations.monedasContratoFechaInicio.to_dict()
 
@@ -3294,14 +3336,86 @@ class FiltrosDashboardONCAE(APIView):
 
 			monedas = dfMonedas.to_dict('records')
 
+		#valores para filtros por categoria.
+		categorias = []
+
+		for valor in categoriasProcesos["buckets"]:
+			categorias.append({
+				"categoria": valor["key"],
+				"procesos": valor["doc_count"],
+				"contratos": 0
+			})
+
+		for valor in categoriasContratosPC["buckets"]:
+			categorias.append({
+				"categoria": valor["key"],
+				"procesos": 0,
+				"contratos": valor["doc_count"]
+			})
+
+		if anio.replace(' ', ''):
+			for valor in categoriasContratosDD["buckets"]:
+				categorias.append({
+					"categoria": valor["key"],
+					"procesos": 0,
+					"contratos": valor["doc_count"]
+				})
+
+		if categorias:
+			dfCategorias = pd.DataFrame(categorias)
+
+			agregaciones = {
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfCategorias = dfCategorias.groupby('categoria', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+
+			categorias = dfCategorias.to_dict('records')
+
+		#valores para filtros por modalidades.
+		modalidades = []
+
+		for valor in modalidadesProcesos["buckets"]:
+			modalidades.append({
+				"modalidad": valor["key"],
+				"procesos": valor["doc_count"],
+				"contratos": 0
+			})
+
+		for valor in modalidadesContratosPC["buckets"]:
+			modalidades.append({
+				"modalidad": valor["key"],
+				"procesos": 0,
+				"contratos": valor["doc_count"]
+			})
+
+		if anio.replace(' ', ''):
+			for valor in modalidadesContratosDD["buckets"]:
+				modalidades.append({
+					"modalidad": valor["key"],
+					"procesos": 0,
+					"contratos": valor["doc_count"]
+				})
+
+		if modalidades:
+			dfModalidades = pd.DataFrame(modalidades)
+
+			agregaciones = {
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfModalidades = dfModalidades.groupby('modalidad', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+
+			modalidades = dfModalidades.to_dict('records')
+
 		resultados = {}
 		resultados["años"] = years
 		resultados["monedas"] = monedas
 		resultados["instituciones"] = instituciones
-		# resultados["categorias"] = categorias
-		# resultados["modalidades"] = modalidades
-		# resultados["fechaFirma"] = contratosPC.aggregations.monedasContratoFechaFirma.to_dict()
-		# resultados["fechaInicio"] = contratosDD.aggregations.monedasContratoFechaInicio.to_dict()
+		resultados["categorias"] = categorias
+		resultados["modalidades"] = modalidades
 
 		parametros = {}
 		parametros["institucion"] = institucion
@@ -3369,7 +3483,7 @@ class GraficarProcesosPorCategorias(APIView):
 		s.aggs.metric(
 			'procesosPorEtapa', 
 			'terms', 
-			missing='N/D',
+			missing='No Definido',
 			field='doc.compiledRelease.tender.mainProcurementCategory.keyword' 
 		)
 		
@@ -3454,7 +3568,7 @@ class GraficarProcesosPorModalidad(APIView):
 		s.aggs.metric(
 			'procesosPorModalidad', 
 			'terms', 
-			missing='N/D',
+			missing='No Definido',
 			field='doc.compiledRelease.tender.procurementMethodDetails.keyword' 
 		)
 		
@@ -3726,7 +3840,7 @@ class GraficarProcesosPorEtapa(APIView):
 		s.aggs.metric(
 			'procesosPorSeccion', 
 			'terms', 
-			missing='N/D',
+			missing='No Definido',
 			field='extra.lastSection.keyword' 
 		)
 		
