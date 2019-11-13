@@ -1,19 +1,19 @@
 var filtrosAplicables={
     monedas: {titulo:'Moneda',parametro:'moneda'},
-    instituciones: {titulo:'Institución Compradora',parametro:'institucion'},
+    instituciones: {titulo:'Institución Compradora',parametro:'idinstitucion'},
     años: {titulo:'Año',parametro:'año'},
     proveedores: {titulo:'Proveedor',parametro:'proveedor'},
-    fuentes: {titulo:'Fuente de Financiamiento',parametro:'fuentefinanciamiento'},
-    objetosGasto : {titulo:'Objeto de Gasto',parametro:'objetosgasto'}
+    categorias: {titulo:'Categoría de Compra',parametro:'categoria'},
+    modalidades : {titulo:'Modalidad de Compra',parametro:'modalidad'}
     
   };
   var filtrosAplicablesR={
     moneda: {titulo:'Moneda',parametro:'monedas'},
-    institucion: {titulo:'Institución Compradora',parametro:'instituciones'},
+    idinstitucion: {titulo:'Institución Compradora',parametro:'instituciones'},
     año: {titulo:'Año',parametro:'años'},
     proveedor: {titulo:'Proveedor',parametro:'proveedores'},
-    fuentefinanciamiento: {titulo:'Fuente de Financiamiento',parametro:'fuentes'},
-    objetosgasto : {titulo:'Objeto de Gasto',parametro:'objetosGasto'}
+    modalidad: {titulo:'Modalidad de Compra',parametro:'modalidades'},
+    categoria : {titulo:'Categoría de Compra',parametro:'categorias'}
     
   };
   var traducciones={
@@ -117,8 +117,8 @@ function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('moneda'))){
         parametros['moneda']=ObtenerValor('moneda');
     }
-    if(Validar(ObtenerValor('institucion'))){
-    parametros['institucion']=decodeURIComponent(ObtenerValor('institucion'));
+    if(Validar(ObtenerValor('idinstitucion'))){
+    parametros['idinstitucion']=decodeURIComponent(ObtenerValor('idinstitucion'));
     }
     if(Validar(ObtenerValor('año'))){
       parametros['año']=ObtenerValor('año');
@@ -126,11 +126,11 @@ function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('proveedor'))){
         parametros['proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
     }
-    if(Validar(ObtenerValor('fuentefinanciamiento'))){
-      parametros['fuentefinanciamiento']=decodeURIComponent(ObtenerValor('fuentefinanciamiento'));
+    if(Validar(ObtenerValor('categoria'))){
+      parametros['categoria']=decodeURIComponent(ObtenerValor('categoria'));
     }
-    if(Validar(ObtenerValor('objetosgasto'))){
-        parametros['objetosgasto']=decodeURIComponent(ObtenerValor('objetosgasto'));
+    if(Validar(ObtenerValor('modalidad'))){
+        parametros['modalidad']=decodeURIComponent(ObtenerValor('modalidad'));
     }
     
 
@@ -140,12 +140,12 @@ function ObtenerJsonFiltrosAplicados(parametros){
   function AccederUrlPagina(opciones,desUrl){
     var direccion=('/dashboardProcesosContratacion/?'+
     (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
-    (ValidarCadena(opciones.institucion)? '&institucion='+encodeURIComponent(opciones.institucion): (ValidarCadena(ObtenerValor('institucion'))&&!desUrl?'&institucion='+ObtenerValor('tituloCon'):''))+
+    (ValidarCadena(opciones.idinstitucion)? '&idinstitucion='+encodeURIComponent(opciones.idinstitucion): (ValidarCadena(ObtenerValor('idinstitucion'))&&!desUrl?'&idinstitucion='+ObtenerValor('idinstitucion'):''))+
    
     (ValidarCadena(opciones.año)? '&año='+encodeURIComponent(opciones.año): (ValidarCadena(ObtenerValor('año'))&&!desUrl?'&año='+ObtenerValor('año'):''))+
     (ValidarCadena(opciones.proveedor)? '&proveedor='+encodeURIComponent(opciones.proveedor): (ValidarCadena(ObtenerValor('proveedor'))&&!desUrl?'&proveedor='+ObtenerValor('proveedor'):''))+
-    (ValidarCadena(opciones.fuentefinanciamiento)? '&fuentefinanciamiento='+encodeURIComponent(opciones.fuentefinanciamiento): (ValidarCadena(ObtenerValor('fuentefinanciamiento'))&&!desUrl?'&fuentefinanciamiento='+ObtenerValor('fuentefinanciamiento'):''))+
-    (ValidarCadena(opciones.objetosgasto) ? '&objetosgasto='+encodeURIComponent(opciones.objetosgasto):(ValidarCadena(ObtenerValor('objetosgasto'))&&!desUrl?'&objetosgasto='+ObtenerValor('objetosgasto'):''))
+    (ValidarCadena(opciones.categoria)? '&categoria='+encodeURIComponent(opciones.categoria): (ValidarCadena(ObtenerValor('categoria'))&&!desUrl?'&categoria='+ObtenerValor('categoria'):''))+
+    (ValidarCadena(opciones.modalidad) ? '&modalidad='+encodeURIComponent(opciones.modalidad):(ValidarCadena(ObtenerValor('modalidad'))&&!desUrl?'&modalidad='+ObtenerValor('modalidad'):''))
   
     );
     return direccion;
@@ -203,15 +203,16 @@ function ObtenerJsonFiltrosAplicados(parametros){
     };
     filtros=ObtenerJsonFiltrosAplicados(filtros);
     $.each(filtros,function(llave,valor){
+        console.dir('ul#ul'+filtrosAplicablesR[llave].parametro)
+        console.dir('li[valor="'+(valor).toString().toLowerCase()+'"]')
       $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
-        'li[formato="'+((traducciones[valor]?traducciones[valor].titulo:valor)).toString().toLowerCase()+'"]'
+        'li[valor="'+(valor).toString()+'"]'
       ).addClass('active');
     });
   }
 
   function MostrarListaElastica(datos,selector){
     $(selector).html('');
-    console.dir('vaciando***')
     $.each(datos.respuesta,function(llave,valor){
       $(selector).append(
         $('<div class="list-container col-md-12 2">').append(
@@ -249,18 +250,32 @@ function ObtenerJsonFiltrosAplicados(parametros){
     
   }
 
-  
+function ValoresLlaves(llave){
+    switch(llave){
+        case 'años':
+            return {valor:'key_as_string',cantidad:'procesos',codigo:'key_as_string'};
+        case 'categorias':
+            return {valor:'categoria',cantidad:'procesos',codigo:'categoria'};
+        case 'instituciones':
+            return {valor:'nombre',cantidad:'procesos',codigo:'codigo'};
+        case 'modalidades':
+            return {valor:'modalidad',cantidad:'procesos',codigo:'modalidad'};
+        case 'monedas':
+            return {valor:'moneda',cantidad:'procesos',codigo:'moneda'};
+        default:
+            return {valor:'key_as_string',cantidad:'procesos',codigo:'key_as_string'};
+    }
+}
 function AgregarPropiedadesListaElastica(valor,llave){
     var elementos=[]
-    $.each(valor.buckets,function(i,propiedades){
+    $.each(valor,function(i,propiedades){
       //resultadosElastic=AsignarValor(resultadosElastic,llave,,propiedades.doc_count);
       elementos.push(
         $('<li >',{
         class:'list-group-item',
-        valor:propiedades.key_as_string?propiedades.key_as_string:propiedades.key, 
-        formato: (propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)).toString().toLowerCase(),'llave':llave,
-        toolTexto:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key),
-        toolCursor:'true',
+        valor:propiedades[ValoresLlaves(llave).codigo]?propiedades[ValoresLlaves(llave).codigo]:propiedades.key, 
+        formato: ((traducciones[propiedades[ValoresLlaves(llave).valor]]?traducciones[propiedades[ValoresLlaves(llave).valor]].titulo:propiedades[ValoresLlaves(llave).valor])).toString().toLowerCase(),'llave':llave,
+        
         on:{
           click:function(e){
             var filtro=$(e.currentTarget);
@@ -273,18 +288,22 @@ function AgregarPropiedadesListaElastica(valor,llave){
             var filtros={
             };
             $('li.list-group-item.active').each(function(cla,val){
-                console.dir(filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'')
-                console.dir($(val).attr('valor'));
               filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
             });
             PushDireccionGraficos(AccederUrlPagina(filtros,true));
           }
         }}).append(
-          $('<div class="badge">').text(/*(Validar(propiedades.pagos)&&Validar(propiedades.pagos.doc_count))?propiedades.pagos&&propiedades.pagos.doc_count:*/propiedades.doc_count),
+          $('<div>',{
+              class:'badge',
+              toolTexto: ('Procesos: '+propiedades.procesos+'<br>Contratos: '+propiedades.contratos),
+              text:propiedades[ValoresLlaves(llave).cantidad]
+            }),
           $('<div >',{
           class:'elastic-data',
+          toolTexto:(traducciones[propiedades[ValoresLlaves(llave).valor]]?traducciones[propiedades[ValoresLlaves(llave).valor]].titulo:propiedades[ValoresLlaves(llave).valor]),
+          toolCursor:'true',
           
-          text:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)}
+          text:(traducciones[propiedades[ValoresLlaves(llave).valor]]?traducciones[propiedades[ValoresLlaves(llave).valor]].titulo:propiedades[ValoresLlaves(llave).valor])}
           )
         )
       )
@@ -394,7 +413,7 @@ function InicializarCantidadProcesos(){
                 }
             },
             {
-                name:'Cantidad de Procesos en Promedio',
+                name:'Porcentaje de la Cantidad de Procesos de Contratación en Relación a los Demás Meses',
                 type:'line',
                 //yAxisIndex: 1,
                 data:datos.resultados.promedioprocesos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),

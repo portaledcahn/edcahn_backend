@@ -59,11 +59,21 @@ function InicializarCantidadPagos(){
             selected: [false,false,true]*/
         },
         toolbox: {
+            orient:'horizontal',
+            itemsize:20,
+            itemGap:15,
+            right:20,
+            top:25,
             feature: {
                 dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
+            },
+            emphasis:{
+                iconStyle:{
+                    textPosition:'top'
+                }
             }
         },
             xAxis: [
@@ -81,7 +91,8 @@ function InicializarCantidadPagos(){
                 }
             ],
             grid:{
-                containLabel:true
+                containLabel:true,
+                right:'15%'
             },
             yAxis: [
                 {
@@ -200,14 +211,25 @@ function InicializarMontoPagos(){
                 selected: [false,false,true]*/
             },
             grid:{
-                containLabel:true
+                containLabel:true,
+                right:'15%'
             },
             toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
                 feature: {
                     dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                    magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
                     saveAsImage: {show: true,title:'Descargar'}
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
                 }
             },/*
             legend: {
@@ -542,11 +564,21 @@ function MontoPagosEtapas(){
             bottom: '3%',
         },
         toolbox: {
+            orient:'horizontal',
+            itemsize:20,
+            itemGap:15,
+            right:20,
+            top:25,
             feature: {
                 dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
+            },
+            emphasis:{
+                iconStyle:{
+                    textPosition:'top'
+                }
             }
         },
         xAxis: [
@@ -645,9 +677,7 @@ function TiempoPromedioEtapas(){
     
             selected: [false,false,true]*/
         },
-        grid:{
-            containLabel:true
-        },
+        
         xAxis:  {
             type: 'value',
             min: 0,
@@ -756,6 +786,7 @@ function Top10Compradores(){
             var grafico=echarts.init(document.getElementById('top10Compradores'));
             var opciones = {
                 tooltip: {
+                    show:true,
                     trigger: 'axis',
                     axisPointer: {
                         type: 'cross',
@@ -764,13 +795,23 @@ function Top10Compradores(){
                         }
                     }
                 },
-                
+            
             toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
                 feature: {
                     dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                    magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
                     saveAsImage: {show: true,title:'Descargar'}
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
                 }
             },/*
                 legend: {
@@ -792,7 +833,9 @@ function Top10Compradores(){
                     }
                 ],
                 grid:{
-                    containLabel:true
+                    containLabel:true,
+                    //top:10,
+                    right:'15%'
                 },
                 yAxis: [
                     {
@@ -887,13 +930,31 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                     color: '#999'
                                 }
                             }
+                        },
+                        toolbox: {
+                            orient:'horizontal',
+                            itemsize:20,
+                            itemGap:15,
+                            right:20,
+                            top:25,
+                            feature: {
+                                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                                restore: {show: true,title:'Restaurar'},
+                                saveAsImage: {show: true,title:'Descargar'}
+                            },
+                            emphasis:{
+                                iconStyle:{
+                                    textPosition:'top'
+                                }
+                            }
                         },/*
                         legend: {
                             data: ['Precompromiso','Compromiso','Devengado','Transacciones']
                         },*/
                         grid: {
                             left: '3%',
-                            right: '4%',
+                            right:'15%',
                             bottom: '3%',
                             containLabel: true
                         },
@@ -1001,13 +1062,31 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
                                     color: '#999'
                                 }
                             }
+                        },
+                        toolbox: {
+                            orient:'horizontal',
+                            itemsize:20,
+                            itemGap:15,
+                            right:20,
+                            top:25,
+                            feature: {
+                                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                                restore: {show: true,title:'Restaurar'},
+                                saveAsImage: {show: true,title:'Descargar'}
+                            },
+                            emphasis:{
+                                iconStyle:{
+                                    textPosition:'top'
+                                }
+                            }
                         },/*
                         legend: {
                             data: ['Precompromiso','Compromiso','Devengado','Transacciones']
                         },*/
                         grid: {
                             left: '3%',
-                            right: '4%',
+                            right:'15%',
                             bottom: '3%',
                             containLabel: true
                         },
@@ -1410,7 +1489,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
   function AccederUrlPagina(opciones,desUrl){
     var direccion=('/dashboardProcesosPago/?'+
     (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
-    (ValidarCadena(opciones.institucion)? '&institucion='+encodeURIComponent(opciones.institucion): (ValidarCadena(ObtenerValor('institucion'))&&!desUrl?'&institucion='+ObtenerValor('tituloCon'):''))+
+    (ValidarCadena(opciones.institucion)? '&institucion='+encodeURIComponent(opciones.institucion): (ValidarCadena(ObtenerValor('institucion'))&&!desUrl?'&institucion='+ObtenerValor('institucion'):''))+
    
     (ValidarCadena(opciones.año)? '&año='+encodeURIComponent(opciones.año): (ValidarCadena(ObtenerValor('año'))&&!desUrl?'&año='+ObtenerValor('año'):''))+
     (ValidarCadena(opciones.proveedor)? '&proveedor='+encodeURIComponent(opciones.proveedor): (ValidarCadena(ObtenerValor('proveedor'))&&!desUrl?'&proveedor='+ObtenerValor('proveedor'):''))+

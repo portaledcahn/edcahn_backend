@@ -118,7 +118,7 @@ function CargarElementosBusqueda(cargaFiltro){
     EliminarFiltrosMetodo(datos);
     MostrarResumen(datos)
     MostrarResultados(datos)
-    MostrarPaginacion(datos);
+    
     AgregarToolTips();
     //if(!cargaFiltro){
      //InicializarElastic(datos);
@@ -126,9 +126,11 @@ function CargarElementosBusqueda(cargaFiltro){
       MostrarListaElastica(datos,'#elastic-list');
       MostrarEtiquetaListaElasticaAplicada();
       MostrarListaElasticaAplicados();
+     
    // }
     
     VerificarIntroduccion('INTROJS_BUSQUEDA',1);
+    MostrarPaginacion(datos);
   }).fail(function() {
       /*Error de Conexion al servidor */
       $('#listaResultadosBusqueda').html('<h4 class="titularColor textoColorNegro mt-3">No se encontraron resultados.</h4>')

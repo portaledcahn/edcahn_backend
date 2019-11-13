@@ -413,7 +413,8 @@ class Buscador(APIView):
 			)
 
 		if metodo == 'pago':
-			s = s.filter('exists', field='doc.compiledRelease.contracts.implementation.id')
+			filtro_pago = Q('exists', field='doc.compiledRelease.contracts.implementation')
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=filtro_pago)
 
 			s.aggs.metric(
 				'procesos_total', 
@@ -437,7 +438,6 @@ class Buscador(APIView):
 
 		# Este filtro aun falta
 		if year.replace(' ', ''):
-			print('YEASR???')
 			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
 
 		if term: 
@@ -514,8 +514,8 @@ class Buscador(APIView):
 		parametros["year"] = year
 
 		context = {
-			# "paginador": pagination,
-			# "parametros": parametros,
+			"paginador": pagination,
+			"parametros": parametros,
 			"resumen": resumen,
 			"filtros": filtros,
 			"resultados": results.hits.hits
@@ -550,7 +550,7 @@ class Proveedores(APIView):
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=30)
 
 		s = Search(using=cliente, index='edca')
 
@@ -3003,6 +3003,7 @@ class FiltrosDashboardONCAE(APIView):
 	def get(self, request, format=None):
 
 		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
 		anio = request.GET.get('año', '')
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
@@ -3010,73 +3011,419 @@ class FiltrosDashboardONCAE(APIView):
 
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
-		s = Search(using=cliente, index='contract')
+		s = Search(using=cliente, index='edca')
+		ss = Search(using=cliente, index='contract')
+		sss = Search(using=cliente, index='contract')
 		
+		# Excluyendo procesos de SEFIN
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		sss = sss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
 		# Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			sss = sss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			sss = sss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
 			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			sss = sss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			sss = sss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			sss = sss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+			sss = sss.filter('match_phrase', value__currency__keyword=moneda)
 
-		# if objetogasto.replace(' ', ''):
-		# 	s = s.filter('match_phrase', extra__objetosGasto__keyword=objetogasto)
-
-		# if fuentefinanciamiento.replace(' ', ''):
-		# 	s = s.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
-
-		# Resumen	
+		# Resumen
 		s.aggs.metric(
 			'instituciones', 
+			'terms', 
+			field='extra.parentTop.id.keyword', 
+			size=10000
+		)
+
+		s.aggs["instituciones"].metric(
+			'nombre', 
 			'terms', 
 			field='extra.parentTop.name.keyword', 
 			size=10000
 		)
 
+		ss.aggs.metric(
+			'instituciones',
+			'terms',
+			field='extra.parentTop.id.keyword', 
+			size=10000	
+		)
+
+		ss.aggs["instituciones"].metric(
+			'nombre',
+			'terms',
+			field='extra.parentTop.name.keyword', 
+			size=10000	
+		)
+
+		sss.aggs.metric(
+			'instituciones',
+			'terms',
+			field='extra.parentTop.id.keyword', 
+			size=10000	
+		)
+
+		sss.aggs["instituciones"].metric(
+			'nombre',
+			'terms',
+			field='extra.parentTop.name.keyword', 
+			size=10000	
+		)
+
 		s.aggs.metric(
-			'años', 
+			'aniosProcesos', 
 			'date_histogram', 
 			field='doc.compiledRelease.tender.datePublished', 
 			interval='year', 
-			format='yyyy'
+			format='yyyy',
+			min_doc_count=1
+		)
+
+		ss.aggs.metric(
+			'aniosContratoFechaFirma', 
+			'date_histogram', 
+			field='dateSigned', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
+		)
+
+		sss.aggs.metric(
+			'aniosContratoFechaInicio', 
+			'date_histogram', 
+			field='period.startDate', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
 		)
 
 		s.aggs.metric(
-			'monedas', 
+			'categoriasProcesos', 
 			'terms', 
-			field='doc.compiledRelease.contracts.value.currency.keyword', 
+			missing='No Definido',
+			field='doc.compiledRelease.tender.mainProcurementCategory.keyword', 
 			size=10000
 		)
 
-		# s.aggs.metric(
-		# 	'fuentes', 
-		# 	'terms', 
-		# 	field='extra.fuentes.keyword', 
-		# 	size=10000
-		# )
+		ss.aggs.metric(
+			'categoriasContratosFechaFirma', 
+			'terms', 
+			missing='No Definido',
+			field='extra.tenderMainProcurementCategory.keyword', 
+			size=10000
+		)
 
-		# s.aggs.metric(
-		# 	'objetosGasto', 
-		# 	'terms',
-		# 	field='extra.objetosGasto.keyword', 
-		# 	size=10000
-		# )
+		sss.aggs.metric(
+			'categoriasContratosFechaInicio', 
+			'terms',
+			missing='No Definido', 
+			field='extra.tenderMainProcurementCategory.keyword', 
+			size=10000
+		)
 
-		results = s.execute()
+		s.aggs.metric(
+			'modalidadesProcesos', 
+			'terms', 
+			missing='No Definido',
+			field='doc.compiledRelease.tender.procurementMethodDetails.keyword', 
+			size=10000
+		)
+
+		ss.aggs.metric(
+			'modalidadesContratosFechaFirma', 
+			'terms', 
+			missing='No Definido',
+			field='extra.tenderProcurementMethodDetails.keyword', 
+			size=10000
+		)
+
+		sss.aggs.metric(
+			'modalidadesContratosFechaInicio', 
+			'terms',
+			missing='No Definido', 
+			field='extra.tenderProcurementMethodDetails.keyword', 
+			size=10000
+		)
+
+		ss.aggs.metric(
+			'monedasContratoFechaFirma', 
+			'terms',
+			field='value.currency.keyword', 
+			missing='No Definido',
+			size=10000
+		)
+
+		ss.aggs["monedasContratoFechaFirma"].metric(
+			'procesos',
+			'cardinality',
+			field='extra.ocid.keyword',
+			precision_threshold=40000
+		)
+
+		sss.aggs.metric(
+			'monedasContratoFechaInicio', 
+			'terms',
+			field='value.currency.keyword',
+			missing='No Definido', 
+			size=10000
+		)
+
+		sss.aggs["monedasContratoFechaInicio"].metric(
+			'procesos',
+			'cardinality',
+			field='extra.ocid.keyword',
+			precision_threshold=40000
+		)
+
+		procesos = s.execute()
+		contratosPC = ss.execute()
+		contratosDD = sss.execute()
+
+		categoriasProcesos = procesos.aggregations.categoriasProcesos.to_dict()
+		categoriasContratosPC = contratosPC.aggregations.categoriasContratosFechaFirma.to_dict()
+		categoriasContratosDD = contratosDD.aggregations.categoriasContratosFechaInicio.to_dict()
+
+		modalidadesProcesos = procesos.aggregations.modalidadesProcesos.to_dict()
+		modalidadesContratosPC = contratosPC.aggregations.modalidadesContratosFechaFirma.to_dict()
+		modalidadesContratosDD = contratosDD.aggregations.modalidadesContratosFechaInicio.to_dict()
+
+		aniosProcesos = procesos.aggregations.aniosProcesos.to_dict()
+		aniosFechaFirma = contratosPC.aggregations.aniosContratoFechaFirma.to_dict()
+		aniosFechaInicio = contratosDD.aggregations.aniosContratoFechaInicio.to_dict()
+
+		institucionesProcesos = procesos.aggregations.instituciones.to_dict()
+		institucionesContratosPC = contratosPC.aggregations.instituciones.to_dict()
+		institucionesContratosDD = contratosDD.aggregations.instituciones.to_dict()
+
+		monedasContratosPC = contratosPC.aggregations.monedasContratoFechaFirma.to_dict()
+		monedasContratosDD = contratosDD.aggregations.monedasContratoFechaInicio.to_dict()
+
+		#Valores para filtros por anio
+		anios = {}
+
+		for value in aniosProcesos["buckets"]:
+			anios[value["key_as_string"]] = {}
+			anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+			if "procesos" in anios[value["key_as_string"]]:
+				anios[value["key_as_string"]]["procesos"] += value["doc_count"]
+			else:
+				anios[value["key_as_string"]]["procesos"] = value["doc_count"]
+
+		for value in aniosFechaFirma["buckets"]:
+			if value["key_as_string"] in anios:
+				if "contratos" in anios[value["key_as_string"]]:
+					anios[value["key_as_string"]]["contratos"] += value["doc_count"]
+				else:
+					anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+			else:
+				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+
+		for value in aniosFechaInicio["buckets"]:
+			if value["key_as_string"] in anios:
+				if "contratos" in anios[value["key_as_string"]]:
+					anios[value["key_as_string"]]["contratos"] += value["doc_count"]
+				else:
+					anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+			else:
+				anios[value["key_as_string"]] = {}
+				anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+				anios[value["key_as_string"]]["procesos"] = 0
+				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+
+		years = []
+		for key, value in anios.items():
+			years.append(value)
+
+		years = sorted(years, key=lambda k: k['key_as_string'], reverse=True) 
+
+		#Valores para filtros por institucion padre
+		instituciones = []
+
+		for codigo in institucionesProcesos["buckets"]:
+
+			for nombre in codigo["nombre"]["buckets"]:
+				instituciones.append({
+					"codigo": codigo["key"],
+					"nombre": nombre["key"],
+					"procesos": nombre["doc_count"],
+					"contratos": 0
+				})
+		
+		if anio.replace(' ', ''):	
+			for codigo in institucionesContratosPC["buckets"]:
+
+				for nombre in codigo["nombre"]["buckets"]:
+					instituciones.append({
+						"codigo": codigo["key"],
+						"nombre": nombre["key"],
+						"procesos": 0,
+						"contratos": nombre["doc_count"]
+					})
+
+			for codigo in institucionesContratosDD["buckets"]:
+
+				for nombre in codigo["nombre"]["buckets"]:
+					instituciones.append({
+						"codigo": codigo["key"],
+						"nombre": nombre["key"],
+						"procesos": 0,
+						"contratos": nombre["doc_count"]
+					})
+
+		if instituciones:
+			dfInstituciones = pd.DataFrame(instituciones)
+
+			agregaciones = {
+				"nombre": 'first',
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfInstituciones = dfInstituciones.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+
+			instituciones = dfInstituciones.to_dict('records')
+
+		#Valores para filtros por moneda del contrato.
+
+		monedas = [] 
+		for valor in monedasContratosPC["buckets"]:
+			monedas.append({
+				"moneda": valor["key"],
+				"contratos": valor["doc_count"],
+				"procesos": valor["procesos"]["value"]
+			})
+
+		if anio.replace(' ', ''):
+			for valor in monedasContratosDD["buckets"]:
+				monedas.append({
+				"moneda": valor["key"],
+				"contratos": valor["doc_count"],
+				"procesos": valor["procesos"]["value"]
+			})
+
+		if monedas:
+			dfMonedas = pd.DataFrame(monedas)
+
+			agregaciones = {
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfMonedas = dfMonedas.groupby('moneda', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+
+			monedas = dfMonedas.to_dict('records')
+
+		#valores para filtros por categoria.
+		categorias = []
+
+		for valor in categoriasProcesos["buckets"]:
+			categorias.append({
+				"categoria": valor["key"],
+				"procesos": valor["doc_count"],
+				"contratos": 0
+			})
+
+		for valor in categoriasContratosPC["buckets"]:
+			categorias.append({
+				"categoria": valor["key"],
+				"procesos": 0,
+				"contratos": valor["doc_count"]
+			})
+
+		if anio.replace(' ', ''):
+			for valor in categoriasContratosDD["buckets"]:
+				categorias.append({
+					"categoria": valor["key"],
+					"procesos": 0,
+					"contratos": valor["doc_count"]
+				})
+
+		if categorias:
+			dfCategorias = pd.DataFrame(categorias)
+
+			agregaciones = {
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfCategorias = dfCategorias.groupby('categoria', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+
+			categorias = dfCategorias.to_dict('records')
+
+		#valores para filtros por modalidades.
+		modalidades = []
+
+		for valor in modalidadesProcesos["buckets"]:
+			modalidades.append({
+				"modalidad": valor["key"],
+				"procesos": valor["doc_count"],
+				"contratos": 0
+			})
+
+		for valor in modalidadesContratosPC["buckets"]:
+			modalidades.append({
+				"modalidad": valor["key"],
+				"procesos": 0,
+				"contratos": valor["doc_count"]
+			})
+
+		if anio.replace(' ', ''):
+			for valor in modalidadesContratosDD["buckets"]:
+				modalidades.append({
+					"modalidad": valor["key"],
+					"procesos": 0,
+					"contratos": valor["doc_count"]
+				})
+
+		if modalidades:
+			dfModalidades = pd.DataFrame(modalidades)
+
+			agregaciones = {
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfModalidades = dfModalidades.groupby('modalidad', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+
+			modalidades = dfModalidades.to_dict('records')
+
+		resultados = {}
+		resultados["años"] = years
+		resultados["monedas"] = monedas
+		resultados["instituciones"] = instituciones
+		resultados["categorias"] = categorias
+		resultados["modalidades"] = modalidades
 
 		parametros = {}
 		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = idinstitucion
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
-		# parametros["categoria"] = objetogasto
-		# parametros["modalidad"] = fuentefinanciamiento
-
-		resultados = results.aggregations.to_dict()
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
 
 		context = {
 			"parametros": parametros,
@@ -3085,20 +3432,190 @@ class FiltrosDashboardONCAE(APIView):
 
 		return Response(context)
 
+class GraficarProcesosPorCategorias(APIView):
+
+	def get(self, request, format=None):
+
+		categorias = []
+		procesosCategoria = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+
+		# Agregados
+		s.aggs.metric(
+			'totalProcesos',
+			'value_count',
+			field='doc.compiledRelease.ocid.keyword'
+		)
+
+		s.aggs.metric(
+			'procesosPorEtapa', 
+			'terms', 
+			missing='No Definido',
+			field='doc.compiledRelease.tender.mainProcurementCategory.keyword' 
+		)
+		
+		results = s.execute()
+
+		totalProcesos = results.aggregations.totalProcesos["value"]
+
+		aggs = results.aggregations.procesosPorEtapa.to_dict()
+
+		for bucket in aggs["buckets"]:
+			categorias.append(bucket["key"])
+			procesosCategoria.append(bucket["doc_count"])
+
+		resultados = {
+			"categorias": categorias,
+			"procesos": procesosCategoria,
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["`modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class GraficarProcesosPorModalidad(APIView):
+
+	def get(self, request, format=None):
+
+		modalidades = []
+		procesosModalidad = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+
+		# Agregados
+		s.aggs.metric(
+			'totalProcesos',
+			'value_count',
+			field='doc.compiledRelease.ocid.keyword'
+		)
+
+		s.aggs.metric(
+			'procesosPorModalidad', 
+			'terms', 
+			missing='No Definido',
+			field='doc.compiledRelease.tender.procurementMethodDetails.keyword' 
+		)
+		
+		results = s.execute()
+
+		totalProcesos = results.aggregations.totalProcesos["value"]
+
+		aggs = results.aggregations.procesosPorModalidad.to_dict()
+
+		for bucket in aggs["buckets"]:
+			modalidades.append(bucket["key"])
+			procesosModalidad.append(bucket["doc_count"])
+
+		resultados = {
+			"modalidades": modalidades,
+			"procesos": procesosModalidad,
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
 class GraficarCantidadDeProcesosMes(APIView):
 
 	def get(self, request, format=None):
-		pagos_mes = []
+		procesos_mes = []
 		promedios_mes = []
 		lista_meses = []
 		meses = {}
 
 		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
 		anio = request.GET.get('año', '')
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
-		# proveedor = request.GET.get('proveedor', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -3119,17 +3636,21 @@ class GraficarCantidadDeProcesosMes(APIView):
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
 		if anio.replace(' ', ''):
 			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency=moneda)
+			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
 
 		if categoria.replace(' ', ''):
-			s = s.filter('match_phrase', doc__compiledRelease__tender__=moneda)
-			
-		# if proveedor.replace(' ', ''):
-		# 	s = s.filter('match_phrase', payee__name__keyword=proveedor)
+			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
 
 		# Agregados
 		s.aggs.metric(
@@ -3162,12 +3683,12 @@ class GraficarCantidadDeProcesosMes(APIView):
 				}
 
 		for mes in meses:
-			pagos_mes.append(meses[mes]["cantidad_procesos"])
+			procesos_mes.append(meses[mes]["cantidad_procesos"])
 			promedios_mes.append(meses[mes]["cantidad_procesos"]/total_procesos)
 			lista_meses.append(NombreDelMes(mes))
 
 		resultados = {
-			"cantidadprocesos": pagos_mes,
+			"cantidadprocesos": procesos_mes,
 			"promedioprocesos": promedios_mes,
 			"meses": lista_meses,
 			"totalprocesos": total_procesos,
@@ -3176,144 +3697,11 @@ class GraficarCantidadDeProcesosMes(APIView):
 
 		parametros = {}
 		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
-		# parametros["objetogasto"] = objetogasto
-		# parametros["fuentefinanciamiento"] = fuentefinanciamiento
-		# parametros["proveedor"] = proveedor
-
-		context = {
-			"resultados": resultados,
-			"parametros": parametros
-		}
-
-		return Response(context)
-
-class GraficarMontosDeContratosMes(APIView):
-
-	def get(self, request, format=None):
-		montos_contratos_mes = []
-		cantidad_contratos_mes = []
-		cantidad_procesos_mes = []
-		lista_meses = []
-		meses = {}
-
-		institucion = request.GET.get('institucion', '')
-		anio = request.GET.get('año', '')
-		moneda = request.GET.get('moneda', '')
-		categoria = request.GET.get('categoria', '')
-		modalidad = request.GET.get('modalidad', '')
-
-		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
-
-		for x in mm:
-			meses[str(x)] = {
-				"monto_contratos": 0,
-				"cantidad_contratos": 0,
-				"cantidad_procesos": 0
-			}
-
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
-
-		s = Search(using=cliente, index='edca')
-
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
-		s = s.filter('exists', field='doc.compiledRelease.tender.id')
-
-		# # Filtros
-		if institucion.replace(' ', ''):
-			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
-
-		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-
-		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', doc__compiledRelease__contracts__value__currency=moneda)
-
-		# Agregados
-		s.aggs.metric(
-			'contratos', 
-			'nested', 
-			path='doc.compiledRelease.contracts'
-		)
-
-		s.aggs["contratos"].metric(
-			'suma_total_contratos',
-			'sum',
-			field='doc.compiledRelease.contracts.value.amount'
-		)
-
-		s.aggs.metric(
-			'procesos_por_mes', 
-			'date_histogram', 
-			# field='doc.compiledRelease.date',
-			field='doc.compiledRelease.tender.datePublished',
-			interval= "month",
-			format= "MM"
-		)
-
-		s.aggs["procesos_por_mes"].metric(
-			'contratos', 
-			'nested', 
-			path='doc.compiledRelease.contracts'
-		)
-
-
-		s.aggs["procesos_por_mes"]["contratos"].metric(
-			'suma_contratos',
-			'sum',
-			field='doc.compiledRelease.contracts.value.amount'
-		)
-		
-		results = s.execute()
-
-		total_procesos = 0
-
-		total_monto_contratado = results.aggregations.contratos.suma_total_contratos["value"]
-
-		total_contratos = results.aggregations.contratos.doc_count
-
-		aggs = results.aggregations.procesos_por_mes.to_dict()
-
-		for bucket in aggs["buckets"]:
-			if bucket["key_as_string"] in meses:
-
-				monto = bucket["contratos"]["suma_contratos"]["value"]
-				cantidad_contratos = bucket["contratos"]["doc_count"]
-				cantidad_procesos = bucket["doc_count"]
-
-				meses[bucket["key_as_string"]] = {
-					"monto_contratos": meses[bucket["key_as_string"]]["monto_contratos"] + monto,
-					"cantidad_contratos": meses[bucket["key_as_string"]]["cantidad_contratos"] + cantidad_contratos,
-					"cantidad_procesos": meses[bucket["key_as_string"]]["cantidad_procesos"] + cantidad_procesos
-				}
-
-				total_procesos += cantidad_procesos 
-
-		for mes in meses:
-			montos_contratos_mes.append(meses[mes]["monto_contratos"])
-			cantidad_contratos_mes.append(meses[mes]["cantidad_contratos"])
-			cantidad_procesos_mes.append(meses[mes]["cantidad_procesos"])
-			lista_meses.append(NombreDelMes(mes))
-
-		resultados = {
-			"cantidad_procesos_mes": cantidad_procesos_mes,
-			"monto_contratos_mes": montos_contratos_mes,
-			"cantidad_contratos_mes": cantidad_contratos_mes,
-			"total_procesos": total_procesos,
-			"cantidad_contratos": total_contratos,
-			"total_monto_contratos": total_monto_contratado,
-			"meses": lista_meses,
-			# "elastic": results.aggregations.to_dict()
-		}
-
-		parametros = {}
-		parametros["institucion"] = institucion
-		parametros["año"] = anio
-		parametros["moneda"] = moneda
-		# parametros["objetogasto"] = objetogasto
-		# parametros["fuentefinanciamiento"] = fuentefinanciamiento
-		# parametros["proveedor"] = proveedor
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
 
 		context = {
 			"resultados": resultados,
@@ -3400,3 +3788,1313 @@ class EstadisticaCantidadDeProcesos(APIView):
 		}
 
 		return Response(context)
+
+class GraficarProcesosPorEtapa(APIView):
+
+	def get(self, request, format=None):
+
+		secciones = []
+		procesosSeccion = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+
+		# Agregados
+		s.aggs.metric(
+			'totalProcesos',
+			'value_count',
+			field='doc.compiledRelease.ocid.keyword'
+		)
+
+		s.aggs.metric(
+			'procesosPorSeccion', 
+			'terms', 
+			missing='No Definido',
+			field='extra.lastSection.keyword' 
+		)
+		
+		results = s.execute()
+
+		totalProcesos = results.aggregations.totalProcesos["value"]
+
+		aggs = results.aggregations.procesosPorSeccion.to_dict()
+
+		for bucket in aggs["buckets"]:
+			secciones.append(bucket["key"])
+			procesosSeccion.append(bucket["doc_count"])
+
+		resultados = {
+			"etapas": secciones,
+			"procesos": procesosSeccion
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class GraficarMontosDeContratosMes(APIView):
+
+	def get(self, request, format=None):
+		montos_contratos_mes = []
+		cantidad_contratos_mes = []
+		lista_meses = []
+		porcentaje_montos_mes = []
+		porcentaje_contratos_mes = []
+		meses = {}
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
+
+		for x in mm:
+			meses[str(x)] = {
+				"monto_contratos": 0,
+				"cantidad_contratos": 0,			}
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+		ss = Search(using=cliente, index='contract')
+
+		s = s.exclude('match_phrase', extra__sources__id__keyword=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id__keyword=settings.SOURCE_SEFIN_ID)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+
+		s.aggs.metric(
+			'suma_total_contratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs.metric(
+			'suma_total_contratos',
+			'sum',
+			field='value.amount'
+		)
+
+		s.aggs.metric(
+			'cantidad_total_contratos',
+			'value_count',
+			field='id.keyword'
+		)
+
+		ss.aggs.metric(
+			'cantidad_total_contratos',
+			'value_count',
+			field='id.keyword'
+		)
+
+		s.aggs.metric(
+			'procesosPorMesFechaFirma', 
+			'date_histogram', 
+			field='dateSigned',
+			interval= "month",
+			format= "MM",
+			min_doc_count=1
+		)
+
+		ss.aggs.metric(
+			'procesosPorMesFechaInicio', 
+			'date_histogram', 
+			field='period.startDate',
+			interval= "month",
+			format= "MM",
+			min_doc_count=1
+		)
+
+		s.aggs["procesosPorMesFechaFirma"].metric(
+			'suma_contratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs["procesosPorMesFechaInicio"].metric(
+			'suma_contratos',
+			'sum',
+			field='value.amount'
+		)
+		
+		contratosPC = s.execute()
+		contratosDD = ss.execute()
+
+		total_contratos = 0
+
+		total_monto_contratado = contratosPC.aggregations.suma_total_contratos["value"]
+		total_cantidad_contratos = contratosPC.aggregations.cantidad_total_contratos["value"]
+
+		if anio.replace(' ', ''):
+			total_monto_contratado += contratosDD.aggregations.suma_total_contratos["value"]
+			total_cantidad_contratos += contratosDD.aggregations.cantidad_total_contratos["value"]
+
+		montosContratosPC = contratosPC.aggregations.procesosPorMesFechaFirma.to_dict()
+		montosContratosDD = contratosDD.aggregations.procesosPorMesFechaInicio.to_dict()
+
+		contratos = []
+		for valor in montosContratosPC["buckets"]:
+			contratos.append({
+				"mesNumero": valor["key_as_string"],
+				"mes": NombreDelMes(valor["key_as_string"]),
+				"cantidad": valor["doc_count"],
+				"monto": valor["suma_contratos"]["value"]
+			})
+
+
+		for valor in montosContratosDD["buckets"]:
+			contratos.append({
+				"mesNumero": valor["key_as_string"],
+				"mes": NombreDelMes(valor["key_as_string"]),
+				"cantidad": valor["doc_count"],
+				"monto": valor["suma_contratos"]["value"]
+			})
+
+
+		if contratos:
+			dfContratos = pd.DataFrame(contratos)
+
+			agregaciones = {
+				"cantidad": 'sum',
+				"monto": 'sum'
+			}
+
+			dfContratos = dfContratos.groupby(['mes', 'mesNumero'], as_index=True).agg(agregaciones).reset_index().sort_values("mesNumero", ascending=True)
+
+			contratos = dfContratos.to_dict('records')
+
+		for m in contratos:
+			montos_contratos_mes.append(m["monto"])
+			cantidad_contratos_mes.append(m["cantidad"])
+			lista_meses.append(m['mes'])
+
+			if total_monto_contratado > 0:
+				porcentaje_montos_mes.append(m["monto"]/total_monto_contratado)
+			else:
+				porcentaje_montos_mes.append(0)
+
+			if total_cantidad_contratos > 0:
+				porcentaje_contratos_mes.append(m["cantidad"]/total_cantidad_contratos)
+			else:
+				porcentaje_contratos_mes.append(0)
+
+		resultados = {
+			# "contratos": contratos,
+			"meses": lista_meses,
+			"monto_contratos_mes": montos_contratos_mes,
+			"porcentaje_montos_mes": porcentaje_montos_mes,
+			"cantidad_contratos_mes": cantidad_contratos_mes,
+			"porcentaje_cantidad_contratos_mes": porcentaje_contratos_mes,
+			"total_monto_contratado": total_monto_contratado,
+			"total_cantidad_contratos": total_cantidad_contratos,
+			# "elastic": contratosPC.aggregations.to_dict()
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class EstadisticaCantidadDeContratos(APIView):
+
+	def get(self, request, format=None):
+		montos_contratos_mes = []
+		cantidad_contratos_mes = []
+		lista_meses = []
+		porcentaje_montos_mes = []
+		porcentaje_contratos_mes = []
+		meses = {}
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
+
+		for x in mm:
+			meses[str(x)] = {
+				"monto_contratos": 0,
+				"cantidad_contratos": 0,			}
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+		ss = Search(using=cliente, index='contract')
+
+		s = s.exclude('match_phrase', extra__sources__id__keyword=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id__keyword=settings.SOURCE_SEFIN_ID)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+
+		s.aggs.metric(
+			'suma_total_contratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs.metric(
+			'suma_total_contratos',
+			'sum',
+			field='value.amount'
+		)
+
+		s.aggs.metric(
+			'cantidad_total_contratos',
+			'value_count',
+			field='id.keyword'
+		)
+
+		ss.aggs.metric(
+			'cantidad_total_contratos',
+			'value_count',
+			field='id.keyword'
+		)
+
+		s.aggs.metric(
+			'procesosPorMesFechaFirma', 
+			'date_histogram', 
+			field='dateSigned',
+			interval= "month",
+			format= "MM",
+			min_doc_count=1
+		)
+
+		ss.aggs.metric(
+			'procesosPorMesFechaInicio', 
+			'date_histogram', 
+			field='period.startDate',
+			interval= "month",
+			format= "MM",
+			min_doc_count=1
+		)
+
+		s.aggs["procesosPorMesFechaFirma"].metric(
+			'suma_contratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs["procesosPorMesFechaInicio"].metric(
+			'suma_contratos',
+			'sum',
+			field='value.amount'
+		)
+		
+		contratosPC = s.execute()
+		contratosDD = ss.execute()
+
+		total_contratos = 0
+
+		total_monto_contratado = contratosPC.aggregations.suma_total_contratos["value"]
+		total_cantidad_contratos = contratosPC.aggregations.cantidad_total_contratos["value"]
+
+		if anio.replace(' ', ''):
+			total_monto_contratado += contratosDD.aggregations.suma_total_contratos["value"]
+			total_cantidad_contratos += contratosDD.aggregations.cantidad_total_contratos["value"]
+
+		montosContratosPC = contratosPC.aggregations.procesosPorMesFechaFirma.to_dict()
+		montosContratosDD = contratosDD.aggregations.procesosPorMesFechaInicio.to_dict()
+
+		contratos = []
+		for valor in montosContratosPC["buckets"]:
+			contratos.append({
+				"mesNumero": valor["key_as_string"],
+				"mes": NombreDelMes(valor["key_as_string"]),
+				"cantidad": valor["doc_count"],
+				"monto": valor["suma_contratos"]["value"]
+			})
+
+
+		for valor in montosContratosDD["buckets"]:
+			contratos.append({
+				"mesNumero": valor["key_as_string"],
+				"mes": NombreDelMes(valor["key_as_string"]),
+				"cantidad": valor["doc_count"],
+				"monto": valor["suma_contratos"]["value"]
+			})
+
+
+		if contratos:
+			dfContratos = pd.DataFrame(contratos)
+
+			agregaciones = {
+				"cantidad": 'sum',
+				"monto": 'sum'
+			}
+
+			dfContratos = dfContratos.groupby(['mes', 'mesNumero'], as_index=True).agg(agregaciones).reset_index().sort_values("mesNumero", ascending=True)
+
+			contratos = dfContratos.to_dict('records')
+
+		for m in contratos:
+			montos_contratos_mes.append(m["monto"])
+			cantidad_contratos_mes.append(m["cantidad"])
+			lista_meses.append(m['mes'])
+
+			if total_monto_contratado > 0:
+				porcentaje_montos_mes.append(m["monto"]/total_monto_contratado)
+			else:
+				porcentaje_montos_mes.append(0)
+
+			if total_cantidad_contratos > 0:
+				porcentaje_contratos_mes.append(m["cantidad"]/total_cantidad_contratos)
+			else:
+				porcentaje_contratos_mes.append(0)
+
+		resultados = {
+			"promedio": statistics.mean(cantidad_contratos_mes),
+			"mayor": max(cantidad_contratos_mes),
+			"menor": min(cantidad_contratos_mes),
+			"total": total_cantidad_contratos
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class EstadisticaMontosDeContratos(APIView):
+
+	def get(self, request, format=None):
+		montos_contratos_mes = []
+		cantidad_contratos_mes = []
+		lista_meses = []
+		porcentaje_montos_mes = []
+		porcentaje_contratos_mes = []
+		meses = {}
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
+
+		for x in mm:
+			meses[str(x)] = {
+				"monto_contratos": 0,
+				"cantidad_contratos": 0,			}
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+		ss = Search(using=cliente, index='contract')
+
+		s = s.exclude('match_phrase', extra__sources__id__keyword=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id__keyword=settings.SOURCE_SEFIN_ID)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+
+		s.aggs.metric(
+			'suma_total_contratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs.metric(
+			'suma_total_contratos',
+			'sum',
+			field='value.amount'
+		)
+
+		s.aggs.metric(
+			'cantidad_total_contratos',
+			'value_count',
+			field='id.keyword'
+		)
+
+		ss.aggs.metric(
+			'cantidad_total_contratos',
+			'value_count',
+			field='id.keyword'
+		)
+
+		s.aggs.metric(
+			'procesosPorMesFechaFirma', 
+			'date_histogram', 
+			field='dateSigned',
+			interval= "month",
+			format= "MM",
+			min_doc_count=1
+		)
+
+		ss.aggs.metric(
+			'procesosPorMesFechaInicio', 
+			'date_histogram', 
+			field='period.startDate',
+			interval= "month",
+			format= "MM",
+			min_doc_count=1
+		)
+
+		s.aggs["procesosPorMesFechaFirma"].metric(
+			'suma_contratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs["procesosPorMesFechaInicio"].metric(
+			'suma_contratos',
+			'sum',
+			field='value.amount'
+		)
+		
+		contratosPC = s.execute()
+		contratosDD = ss.execute()
+
+		total_contratos = 0
+
+		total_monto_contratado = contratosPC.aggregations.suma_total_contratos["value"]
+		total_cantidad_contratos = contratosPC.aggregations.cantidad_total_contratos["value"]
+
+		if anio.replace(' ', ''):
+			total_monto_contratado += contratosDD.aggregations.suma_total_contratos["value"]
+			total_cantidad_contratos += contratosDD.aggregations.cantidad_total_contratos["value"]
+
+		montosContratosPC = contratosPC.aggregations.procesosPorMesFechaFirma.to_dict()
+		montosContratosDD = contratosDD.aggregations.procesosPorMesFechaInicio.to_dict()
+
+		contratos = []
+		for valor in montosContratosPC["buckets"]:
+			contratos.append({
+				"mesNumero": valor["key_as_string"],
+				"mes": NombreDelMes(valor["key_as_string"]),
+				"cantidad": valor["doc_count"],
+				"monto": valor["suma_contratos"]["value"]
+			})
+
+
+		for valor in montosContratosDD["buckets"]:
+			contratos.append({
+				"mesNumero": valor["key_as_string"],
+				"mes": NombreDelMes(valor["key_as_string"]),
+				"cantidad": valor["doc_count"],
+				"monto": valor["suma_contratos"]["value"]
+			})
+
+
+		if contratos:
+			dfContratos = pd.DataFrame(contratos)
+
+			agregaciones = {
+				"cantidad": 'sum',
+				"monto": 'sum'
+			}
+
+			dfContratos = dfContratos.groupby(['mes', 'mesNumero'], as_index=True).agg(agregaciones).reset_index().sort_values("mesNumero", ascending=True)
+
+			contratos = dfContratos.to_dict('records')
+
+		for m in contratos:
+			montos_contratos_mes.append(m["monto"])
+			cantidad_contratos_mes.append(m["cantidad"])
+			lista_meses.append(m['mes'])
+
+			if total_monto_contratado > 0:
+				porcentaje_montos_mes.append(m["monto"]/total_monto_contratado)
+			else:
+				porcentaje_montos_mes.append(0)
+
+			if total_cantidad_contratos > 0:
+				porcentaje_contratos_mes.append(m["cantidad"]/total_cantidad_contratos)
+			else:
+				porcentaje_contratos_mes.append(0)
+
+		resultados = {
+			"promedio": statistics.mean(montos_contratos_mes),
+			"mayor": max(montos_contratos_mes),
+			"menor": min(montos_contratos_mes),
+			"total": total_monto_contratado
+		}
+		
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class GraficarContratosPorCategorias(APIView):
+
+	def get(self, request, format=None):
+
+		categorias = []
+		procesosCategoria = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+		ss = Search(using=cliente, index='contract')
+
+		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+		s.aggs.metric(
+			'sumaTotalContratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs.metric(
+			'sumaTotalContratos',
+			'sum',
+			field='value.amount'
+		)
+		
+		s.aggs.metric(
+			'contratosPorCategorias', 
+			'terms', 
+			missing='No Definido',
+			field='extra.tenderMainProcurementCategory.keyword' 
+		)
+
+		ss.aggs.metric(
+			'contratosPorCategorias', 
+			'terms', 
+			missing='No Definido',
+			field='extra.tenderMainProcurementCategory.keyword' 
+		)
+
+		s.aggs["contratosPorCategorias"].metric(
+			'sumaContratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs["contratosPorCategorias"].metric(
+			'sumaContratos',
+			'sum',
+			field='value.amount'
+		)		
+
+		contratosPC = s.execute()
+		contratosDD = ss.execute()
+
+		montosContratosPC = contratosPC.aggregations.contratosPorCategorias.to_dict()
+		montosContratosDD = contratosDD.aggregations.contratosPorCategorias.to_dict()
+
+		total_monto_contratado = contratosPC.aggregations.sumaTotalContratos["value"]
+
+		if anio.replace(' ', ''):
+			total_monto_contratado += contratosDD.aggregations.sumaTotalContratos["value"]
+
+		categorias = []
+
+		for valor in montosContratosPC["buckets"]:
+			categorias.append({
+				"name": valor["key"],
+				"value": valor["sumaContratos"]["value"],
+			})
+
+		if anio.replace(' ', ''):
+			for valor in montosContratosDD["buckets"]:
+				categorias.append({
+					"name": valor["key"],
+					"value": valor["sumaContratos"]["value"],
+				})
+
+		if categorias:
+			dfCategorias = pd.DataFrame(categorias)
+
+			agregaciones = {
+				"value": 'sum',
+			}
+
+			dfCategorias = dfCategorias.groupby('name', as_index=True).agg(agregaciones).reset_index().sort_values("value", ascending=False)
+
+			categorias = dfCategorias.to_dict('records')
+
+		resultados = {
+			"categorias": categorias,
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["`modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class GraficarContratosPorModalidad(APIView):
+
+	def get(self, request, format=None):
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+		ss = Search(using=cliente, index='contract')
+
+		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+		s.aggs.metric(
+			'sumaTotalContratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs.metric(
+			'sumaTotalContratos',
+			'sum',
+			field='value.amount'
+		)
+		
+		s.aggs.metric(
+			'contratosPorModalidades', 
+			'terms', 
+			missing='No Definido',
+			field='extra.tenderProcurementMethodDetails.keyword',
+			size=10000
+		)
+
+		ss.aggs.metric(
+			'contratosPorModalidades', 
+			'terms', 
+			missing='No Definido',
+			field='extra.tenderProcurementMethodDetails.keyword',
+			size=10000
+		)
+
+		s.aggs["contratosPorModalidades"].metric(
+			'sumaContratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs["contratosPorModalidades"].metric(
+			'sumaContratos',
+			'sum',
+			field='value.amount'
+		)		
+
+		contratosPC = s.execute()
+		contratosDD = ss.execute()
+
+		montosContratosPC = contratosPC.aggregations.contratosPorModalidades.to_dict()
+		montosContratosDD = contratosDD.aggregations.contratosPorModalidades.to_dict()
+
+		total_monto_contratado = contratosPC.aggregations.sumaTotalContratos["value"]
+
+		if anio.replace(' ', ''):
+			total_monto_contratado += contratosDD.aggregations.sumaTotalContratos["value"]
+
+		modalidades = []
+
+		for valor in montosContratosPC["buckets"]:
+			modalidades.append({
+				"name": valor["key"],
+				"value": valor["sumaContratos"]["value"],
+			})
+
+		if anio.replace(' ', ''):
+			for valor in montosContratosDD["buckets"]:
+				modalidades.append({
+					"name": valor["key"],
+					"value": valor["sumaContratos"]["value"],
+				})
+
+		if modalidades:
+			dfModalidades = pd.DataFrame(modalidades)
+
+			agregaciones = {
+				"value": 'sum',
+			}
+
+			dfModalidades = dfModalidades.groupby('name', as_index=True).agg(agregaciones).reset_index().sort_values("value", ascending=False)
+
+			modalidades = dfModalidades.to_dict('records')
+
+		resultados = {
+			"modalidades": modalidades,
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["`modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class TopCompradoresPorMontoContratado(APIView):
+
+	def get(self, request, format=None):
+
+		codigoCompradores = []
+		nombreCompradores = []
+		totalContratado = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+		ss = Search(using=cliente, index='contract')
+
+		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+		s.aggs.metric(
+			'sumaTotalContratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs.metric(
+			'sumaTotalContratos',
+			'sum',
+			field='value.amount'
+		)
+		
+		s.aggs.metric(
+			'contratosPorComprador', 
+			'terms', 
+			missing='No Definido',
+			field='extra.parentTop.id.keyword',
+			size=10000
+		)
+
+		ss.aggs.metric(
+			'contratosPorComprador', 
+			'terms', 
+			missing='No Definido',
+			field='extra.parentTop.id.keyword',
+			size=10000
+		)
+
+		s.aggs["contratosPorComprador"].metric(
+			'nombreComprador', 
+			'terms', 
+			missing='No Definido',
+			field='extra.parentTop.name.keyword',
+			size=10000
+		)
+
+		ss.aggs["contratosPorComprador"].metric(
+			'nombreComprador', 
+			'terms', 
+			missing='No Definido',
+			field='extra.parentTop.name.keyword',
+			size=10000
+		)
+
+		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
+			'sumaContratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
+			'sumaContratos',
+			'sum',
+			field='value.amount'
+		)		
+
+		contratosPC = s.execute()
+		contratosDD = ss.execute()
+
+		montosContratosPC = contratosPC.aggregations.contratosPorComprador.to_dict()
+		montosContratosDD = contratosDD.aggregations.contratosPorComprador.to_dict()
+
+		total_monto_contratado = contratosPC.aggregations.sumaTotalContratos["value"]
+
+		if anio.replace(' ', ''):
+			total_monto_contratado += contratosDD.aggregations.sumaTotalContratos["value"]
+
+		compradores = []
+
+		for valor in montosContratosPC["buckets"]:
+			for comprador in valor["nombreComprador"]["buckets"]:
+				compradores.append({
+					"codigo": valor["key"],
+					"nombre": comprador["key"],
+					"montoContratado": comprador["sumaContratos"]["value"],
+				})
+
+		if anio.replace(' ', ''):
+			for valor in montosContratosDD["buckets"]:
+				for comprador in valor["nombreComprador"]["buckets"]:
+					compradores.append({
+						"codigo": valor["key"],
+						"nombre": comprador["key"],
+						"montoContratado": comprador["sumaContratos"]["value"]
+					})
+
+		if compradores:
+			dfCompradores = pd.DataFrame(compradores)
+
+			agregaciones = {
+				"nombre": 'first',
+				"montoContratado": 'sum',
+			}
+
+			dfCompradores = dfCompradores.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("montoContratado", ascending=False)
+
+			compradores = dfCompradores[0:10].to_dict('records')
+
+			for c in compradores:
+				codigoCompradores.append(c["codigo"])
+				nombreCompradores.append(c["nombre"])
+				totalContratado.append(c["montoContratado"])
+
+
+		resultados = {
+			"codigoCompradores": codigoCompradores,
+			"nombreCompradores": nombreCompradores,
+			"montoContratado": totalContratado,
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["`modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class TopProveedoresPorMontoContratado(APIView):
+
+	def get(self, request, format=None):
+
+		codigoProveedores = []
+		nombreProveedores = []
+		totalContratado = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+		ss = Search(using=cliente, index='contract')
+
+		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', value__currency__keyword=moneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+		s.aggs.metric(
+			'sumaTotalContratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs.metric(
+			'sumaTotalContratos',
+			'sum',
+			field='value.amount'
+		)
+		
+		s.aggs.metric(
+			'contratosPorComprador', 
+			'terms', 
+			missing='No Definido',
+			field='suppliers.id.keyword',
+			size=10000
+		)
+
+		ss.aggs.metric(
+			'contratosPorComprador', 
+			'terms', 
+			missing='No Definido',
+			field='suppliers.id.keyword',
+			size=10000
+		)
+
+		s.aggs["contratosPorComprador"].metric(
+			'nombreComprador', 
+			'terms', 
+			missing='No Definido',
+			field='suppliers.name.keyword',
+			size=10000
+		)
+
+		ss.aggs["contratosPorComprador"].metric(
+			'nombreComprador', 
+			'terms', 
+			missing='No Definido',
+			field='suppliers.name.keyword',
+			size=10000
+		)
+
+		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
+			'sumaContratos',
+			'sum',
+			field='value.amount'
+		)
+
+		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
+			'sumaContratos',
+			'sum',
+			field='value.amount'
+		)		
+
+		contratosPC = s.execute()
+		contratosDD = ss.execute()
+
+		montosContratosPC = contratosPC.aggregations.contratosPorComprador.to_dict()
+		montosContratosDD = contratosDD.aggregations.contratosPorComprador.to_dict()
+
+		total_monto_contratado = contratosPC.aggregations.sumaTotalContratos["value"]
+
+		if anio.replace(' ', ''):
+			total_monto_contratado += contratosDD.aggregations.sumaTotalContratos["value"]
+
+		compradores = []
+
+		for valor in montosContratosPC["buckets"]:
+			for comprador in valor["nombreComprador"]["buckets"]:
+				compradores.append({
+					"codigo": valor["key"],
+					"nombre": comprador["key"],
+					"montoContratado": comprador["sumaContratos"]["value"],
+				})
+
+		if anio.replace(' ', ''):
+			for valor in montosContratosDD["buckets"]:
+				for comprador in valor["nombreComprador"]["buckets"]:
+					compradores.append({
+						"codigo": valor["key"],
+						"nombre": comprador["key"],
+						"montoContratado": comprador["sumaContratos"]["value"]
+					})
+
+		if compradores:
+			dfCompradores = pd.DataFrame(compradores)
+
+			agregaciones = {
+				"nombre": 'first',
+				"montoContratado": 'sum',
+			}
+
+			dfCompradores = dfCompradores.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("montoContratado", ascending=False)
+
+			compradores = dfCompradores[0:10].to_dict('records')
+
+			for c in compradores:
+				codigoProveedores.append(c["codigo"])
+				nombreProveedores.append(c["nombre"])
+				totalContratado.append(c["montoContratado"])
+
+
+		resultados = {
+			"codigoProveedores": codigoProveedores,
+			"nombreProveedores": nombreProveedores,
+			"montoContratado": totalContratado,
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["`modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
