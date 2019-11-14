@@ -5098,3 +5098,90 @@ class TopProveedoresPorMontoContratado(APIView):
 
 		return Response(context)
 
+class GraficarProcesosTiposPromediosPorEtapa(APIView):
+
+	def get(self, request, format=None):
+
+		categorias = []
+		procesosCategoria = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='edca')
+		ss = Search(using=cliente, index='contract')
+
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
+		# Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if moneda.replace(' ', ''):
+			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
+			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		# Agregados
+		s.aggs.metric(
+			'promedioDiasLicitacion',
+			'avg',
+			field='extra.daysTenderPeriod'
+		)
+
+		ss.aggs.metric(
+			'promedioDiasIniciarContrato',
+			'avg',
+			field='extra.tiempoContrato'
+		)
+		
+		results = s.execute()
+		results2 = ss.execute()
+
+		diasLicitacion = results.aggregations.promedioDiasLicitacion["value"]
+		diasIniciarContrato = results2.aggregations.promedioDiasIniciarContrato["value"]
+
+		resultados = {
+			"promedioDiasLicitacion": diasLicitacion,
+			"promedioDiasIniciarContrato": diasIniciarContrato
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
