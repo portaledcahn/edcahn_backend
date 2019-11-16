@@ -20,7 +20,15 @@ var filtrosAplicables={
     'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
     'services':{titulo:'Servicios',descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
-    'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'}
+    'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'},
+    'tender':{titulo:'Licitación',descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'},
+    'awards':{titulo:'Adjudicación',descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'},
+    'contracts':{titulo:'Contrato',descripcion:'Da información sobre los detalles de un contrato que ha entrado, o entrará, en vigencia. La sección de licitación puede ser poblada con detalles del proceso que lleva al contrato, y la sección de adjudicación puede tener detalles sobre la adjudicación sobre la '},
+    'planning':{
+        titulo:'Planeación',
+        descripcion:'Se propone o planea un proceso de contratación. La información en la sección de licitación describe el proceso propuesto. El campo tender.status debe de usarse para identificar si la planeación está en una etapa temprana o si hay planes detallados para una licitación.'
+    }
+
   }
   window.onpopstate = function(e){
     location.reload();
@@ -51,17 +59,13 @@ var filtrosAplicables={
     //VerificarIntroduccion('INTROJS_BUSQUEDA',1);
 })
 function CargarGraficos(){
-    CargarCajonesCantidad();
-
-
-
+    CargarCajonesCantidadProcesos();
+    CargarCajonesCantidadContratos();
+    CargarCajonesMontoContratos();
     InicializarCantidadProcesos();
     InicializarMontoProcesos();
-    
     CantidadProcesosCategoriaCompra();
     CantidadProcesosMetodoContratacion();
-
-
     MontoProcesosCategoriaCompra();
     MontoProcesosMetodoContratacion();
     TiempoPromedioEtapas();
@@ -595,201 +599,92 @@ function InicializarMontoProcesos(){
 
 
 
-function CantidadProcesosEtapas(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('montoPagos'));
-    var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
-                }
-            }
-        },
-        toolbox: {
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
-        xAxis: [
-            {
-                type: 'category',
-                data: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-                axisPointer: {
-                    type: 'shadow'
-                }
-            }
-        ],
-        yAxis: [
-            {
-                type: 'value',
-                name: 'Monto',
-                min: 0,
-                max: 250,
-                interval: 50,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }/*,
-            {
-                type: 'value',
-                name: 'Cantidad de Pagos Promedio',
-                min: 0,
-                max: 25,
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }*/
-        ],
-        series: [
-            {
-                name:'Monto Pagado',
-                type:'bar',
-                data:[6, 5, 10, 27, 28, 80, 200, 16, 39, 25, 7, 8],
-                itemStyle:{
-                    color: '#D9527B'
-                }
-            },
-            {
-                name:'Monto Devengado',
-                type:'bar',
-                data:[2, 4, 7, 23, 25, 76, 135, 162, 32, 20, 6, 3],
-                itemStyle:{
-                    color: '#F69A6B'
-                }
-            },
-            {
-                name:'Promedio Pagado',
-                type:'line',
-                data:[4, 4.5, 25, 26, 27, 80, 150, 35, 23.5, 23, 6.5, 6.2],
-                symbol: 'circle',
-                symbolSize: 10,
-                lineStyle: {
-                    normal: {
-                        color: '#6569CC',
-                        width: 4/*,
-                        type: 'dashed'*/
-                    }
-                },
-                itemStyle:{
-                    color: '#6569CC'
-                }
-            },
-            {
-                name:'Promedio Devengado',
-                type:'line',
-                data:[5, 8, 15, 35, 10, 70, 100, 20, 15, 10, 8, 9],
-                symbol: 'circle',
-                symbolSize: 10,
-                lineStyle: {
-                    normal: {
-                        color: '#FECB7E',
-                        width: 4/*,
-                        type: 'dashed'*/
-                    }
-                },
-                itemStyle:{
-                    color: '#FECB7E'
-                }
-            }
-        ],
-        grid:{
-            containLabel:true
-        }
-    };
-    grafico.setOption(opciones, true);
-
-    
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
-}
 
 
 function CantidadProcesosEtapas(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('CantidadProcesosEtapas'));
-    var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
-                }
-            }
-        },
-        toolbox: {
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
-        xAxis: [
-            {
-                type: 'category',
-                data: ['Planeación','Licitación','Adjudicación','Contrato'],
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    $.get(api+"/dashboardoncae/procesosporetapa/",parametros).done(function( datos ) {
+    console.dir('PROCESOS POR ETAPA')
+    console.dir(datos)
+        //app.title = '折柱混合';
+        var grafico=echarts.init(document.getElementById('CantidadProcesosEtapas'));
+        var opciones = {
+            tooltip: {
+                trigger: 'axis',
                 axisPointer: {
-                    type: 'shadow'
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
                 }
+            },
+            toolbox: {
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista'},
+                    magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                }
+            },/*
+            legend: {
+                data:['蒸发量1','降水量','平均温度3']
+            },*/
+            xAxis: [
+                {
+                    type: 'category',
+                    data: datos.resultados.etapas.map(function(e){return (traducciones[e]?traducciones[e].titulo:e);}),
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Cantidad',
+                    min: 0,/*
+                    max: 250,
+                    interval: 50,*/
+                    axisLabel: {
+                        formatter: '{value}'
+                    }
+                }/*,
+                {
+                    type: 'value',
+                    name: 'Cantidad de Pagos Promedio',
+                    min: 0,
+                    max: 25,
+                    interval: 5,
+                    axisLabel: {
+                        formatter: '{value} HNL'
+                    }
+                }*/
+            ],
+            series: [
+                {
+                    name:'Procesos',
+                    type:'bar',
+                    data:datos.resultados.procesos,
+                    itemStyle:{
+                        color: '#F89A67'
+                    }
+                }
+            ],
+            grid:{
+                containLabel:true
             }
-        ],
-        yAxis: [
-            {
-                type: 'value',
-                name: 'Cantidad',
-                min: 0,
-                max: 250,
-                interval: 50,
-                axisLabel: {
-                    formatter: '{value}'
-                }
-            }/*,
-            {
-                type: 'value',
-                name: 'Cantidad de Pagos Promedio',
-                min: 0,
-                max: 25,
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }*/
-        ],
-        series: [
-            {
-                name:'Pagos',
-                type:'bar',
-                data:[65, 97, 198, 150],
-                itemStyle:{
-                    color: '#F89A67'
-                }
-            }
-        ],
-        grid:{
-            containLabel:true
-        }
-    };
-    grafico.setOption(opciones, true);
-
+        };
+        grafico.setOption(opciones, true);
     
-    window.addEventListener("resize", function(){
-        grafico.resize();
+        
+        window.addEventListener("resize", function(){
+            grafico.resize();
+        });
+    }).fail(function() {
+    
     });
+    
 }
 
 
@@ -907,7 +802,21 @@ function TiempoPromedioEtapas(){
 }
 
 function CantidadProcesosCategoriaCompra(){
-    var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompra'));
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/dashboardoncae/procesosporcategoria/",parametros).done(function( datos ) {
+console.dir('PROCESOS POR CATEGORIA DE COMPRA')
+console.dir(datos)
+var datosPastel=[];
+datos.resultados.categorias.forEach(function(valor,indice){
+    datosPastel.push(
+        {
+            name:traducciones[valor]?traducciones[valor].titulo:valor,
+            value:datos.resultados.procesos[indice]?datos.resultados.procesos[indice]:0
+        }
+    )
+});
+var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompra'));
     var opciones = {
         /*title : {
             text: '同名数量统计',
@@ -934,7 +843,7 @@ function CantidadProcesosCategoriaCompra(){
                 type: 'pie',
                 radius : '55%',
                 center: ['40%', '50%'],
-                data: [{name:'Obras',value: 20},{name:'Bienes',value: 40},{name:'Servicios',value: 60}],
+                data: datosPastel,//[{name:'Obras',value: 20},{name:'Bienes',value: 40},{name:'Servicios',value: 60}],
                 itemStyle: {
                     color: function(e){
                         var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
@@ -958,9 +867,27 @@ function CantidadProcesosCategoriaCompra(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+}).fail(function() {
+    
+});
+    
 }
 
 function MontoProcesosCategoriaCompra(){
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    $.get(api+"/dashboardoncae/contratosporcategoria/",parametros).done(function( datos ) {
+    console.dir('CONTRATOS POR CATEGORIA DE COMPRA')
+    console.dir(datos)
+    var datosPastel=[];
+    datos.resultados.categorias.forEach(function(valor,indice){
+        datosPastel.push(
+            {
+                name:traducciones[valor.name]?traducciones[valor.name].titulo:valor.name,
+                value:valor.value
+            }
+        )
+    });
     var grafico=echarts.init(document.getElementById('MontoProcesosCategoriaCompra'));
     var opciones = {
         /*title : {
@@ -986,14 +913,14 @@ function MontoProcesosCategoriaCompra(){
         },
         series : [
             {
-                name: 'Monto de Procesos por Categoría de Compra',
+                name: 'Monto de Contratos por Categoría de Compra',
                 type: 'pie',
                 radius : '55%',
                 center: ['40%', '50%'],
-                data: [{name:'Obras',value: 60912},{name:'Bienes',value: 50928},{name:'Servicios',value: 73490}],
+                data: datosPastel,
                 itemStyle: {
                     color: function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED'];
                         return colores[e.dataIndex];
                     },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
                     emphasis: {
@@ -1014,66 +941,103 @@ function MontoProcesosCategoriaCompra(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+    }).fail(function(e) {
+        
+    });
+    
 }
 
 function CantidadProcesosMetodoContratacion(){
-    var grafico=echarts.init(document.getElementById('CantidadProcesosMetodoContratacion'));
-    var opciones = {
-        /*title : {
-            text: '同名数量统计',
-            subtext: '纯属虚构',
-            x:'center'
-        },*/
-        tooltip : {
-            trigger: 'item',
-            formatter: "{a} <br/>{b} : {c} ({d}%)"
-        },
-        legend: {
-            type: 'scroll',
-            orient: 'vertical',
-            right: 10,
-            top: 20,
-            bottom: 20/*,
-            data: ['lengend data 1','lengend data 2','lengend data 3'],
-    
-            selected: [false,false,true]*/
-        },
-        series : [
-            {
-                name: 'Cantidad de Procesos por Método de Contratación',
-                type: 'pie',
-                radius : '55%',
-                center: ['40%', '50%'],
-                data: [{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
-                itemStyle: {
-                    color: function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
-                        return colores[e.dataIndex];
-                    },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
-                    emphasis: {
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                },
-                grid:{
-                    containLabel:true
-                },
-                formatter: '{c}'
-            }
-        ],
-        grid:{
-            containLabel:true
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/dashboardoncae/procesospormodalidad/",parametros).done(function( datos ) {
+console.dir('PROCESOS POR MODALIDAD DE COMPRA')
+console.dir(datos)
+var datosPastel=[];
+datos.resultados.modalidades.forEach(function(valor,indice){
+    datosPastel.push(
+        {
+            name:traducciones[valor]?traducciones[valor].titulo:valor,
+            value:datos.resultados.procesos[indice]?datos.resultados.procesos[indice]:0
         }
-    };
-    grafico.setOption(opciones, true);
+    )
+});
+var grafico=echarts.init(document.getElementById('CantidadProcesosMetodoContratacion'));
+var opciones = {
+    /*title : {
+        text: '同名数量统计',
+        subtext: '纯属虚构',
+        x:'center'
+    },*/
+    tooltip : {
+        trigger: 'item',
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
+    legend: {
+        type: 'scroll',
+        orient: 'vertical',
+        right: 10,
+        top: 20,
+        bottom: 20/*,
+        data: ['lengend data 1','lengend data 2','lengend data 3'],
 
+        selected: [false,false,true]*/
+    },
+    series : [
+        {
+            name: 'Cantidad de Procesos por Modalidad de Contratación',
+            type: 'pie',
+            radius : '55%',
+            center: ['40%', '50%'],
+            data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
+            itemStyle: {
+                color: function(e){
+                    var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED'];
+                    return colores[e.dataIndex];
+                },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                emphasis: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            },
+            grid:{
+                containLabel:true
+            },
+            formatter: '{c}'
+        }
+    ],
+    grid:{
+        containLabel:true
+    }
+};
+grafico.setOption(opciones, true);
+
+
+window.addEventListener("resize", function(){
+    grafico.resize();
+});
+
+}).fail(function() {
     
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
+});
+
 }
 function MontoProcesosMetodoContratacion(){
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/dashboardoncae/contratospormodalidad/",parametros).done(function( datos ) {
+console.dir('MONTO POR MODALIDAD DE CONTRATACION')
+console.dir(datos)
+var datosPastel=[];
+    datos.resultados.modalidades.forEach(function(valor,indice){
+        datosPastel.push(
+            {
+                name:traducciones[valor.name]?traducciones[valor.name].titulo:valor.name,
+                value:valor.value
+            }
+        )
+    });
     var grafico=echarts.init(document.getElementById('MontoProcesosMetodoContratacion'));
     var opciones = {
         /*title : {
@@ -1099,14 +1063,14 @@ function MontoProcesosMetodoContratacion(){
         },
         series : [
             {
-                name: 'Monto de Procesos por Método de Contratación',
+                name: 'Monto de Contratos por Método de Contratación',
                 type: 'pie',
                 radius : '55%',
                 center: ['40%', '50%'],
-                data: [{name:'Compra Menor',value: 50978},{name:'Licitación Privada',value: 79784},{name:'Licitación Pública Nacional',value: 789556},{name:'Concurso Público Nacional',value: 75892}],
+                data:datosPastel,
                 itemStyle: {
                     color: function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED'];
                         return colores[e.dataIndex];
                     },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
                     emphasis: {
@@ -1129,62 +1093,19 @@ function MontoProcesosMetodoContratacion(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+}).fail(function() {
+    
+});
+    
 }
-/*
-,
-        series: [
-            {
-                name: 'Monto de Contrato, Pagados en HNL',
-                type: 'bar',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                itemStyle:{
-                    color: '#27AEB4'
-                }
-            },
-            {
-                name: 'Monto de Contrato, Pagados en USD',
-                type: 'bar',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                itemStyle:{
-                    color: '#F69A69'
-                }
 
-                
-            },
-            {
-                name: 'Monto de Contrato, Pagados en EUR',
-                type: 'bar',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                itemStyle:{
-                    color: '#FFCA7E'
-                }
-            }
-        ]
-*/
 function Top10Compradores(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('top10Compradores'));
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/dashboardoncae/topcompradores/",parametros).done(function( datos ) {
+console.dir('TOP COMPRADORES')
+console.dir(datos)
+var grafico=echarts.init(document.getElementById('top10Compradores'));
     var opciones = {
         tooltip: {
             trigger: 'axis',
@@ -1218,8 +1139,7 @@ function Top10Compradores(){
             {
                 
                 type: 'category',
-                data: ['Secretaria de Salud Pública','Empresa Nacional de Energía Eléctrica','Empresa Hondureña de Telecomunicaciones','Secretaría de Defensa Nacional'
-            ,'Instituto Hondureño de Seguridad Social','Consejo Nacional Supervisor de Cooperativas','Instituto Nacional de Previsión del Magisterio','Secretaría de Desarrollo Económico','Direccion de la Marina Mercante','Fondo Hondureño de Inversión Social'],
+                data: datos.resultados.nombreCompradores,
                 axisPointer: {
                     type: 'shadow'
                 }
@@ -1246,9 +1166,9 @@ function Top10Compradores(){
         ],
         series: [
             {
-                name:'Monto Pagado',
+                name:'Monto Contratado',
                 type:'bar',
-                data:[150000,80444,69000,72000,64248,93734,99214,92792,4351,97934],
+                data:datos.resultados.montoContratado,
                 itemStyle:{
                     color: '#58C5CC'
                 },
@@ -1279,12 +1199,23 @@ function Top10Compradores(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+}).fail(function() {
+    
+});
+   
 }
 
 
 
 function Top10Proveedores(){
-    //app.title = '折柱混合';
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/dashboardoncae/topproveedores/",parametros).done(function( datos ) {
+console.dir('TOP PROVEEDORES')
+console.dir(datos)
+}).fail(function() {
+    
+});
     var grafico=echarts.init(document.getElementById('top10Proveedores'));
     var opciones = {
         tooltip: {
@@ -1401,95 +1332,6 @@ function Top10Proveedores(){
 
 
 
-function Top10Proveedores2(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('top10Proveedores'));
-    var opciones ={
-        tooltip : {
-            trigger: 'axis',
-            axisPointer : {           
-                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-            }
-        },/*
-        legend: {
-            data: ['Precompromiso','Compromiso','Devengado','Transacciones']
-        },*/
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
-        },
-        xAxis:  {
-            type: 'value',
-            /*min: 0,
-            max: 810,*/
-            interval: 100000,
-            axisLabel: {
-                formatter: '{value}'
-            }
-        },
-        yAxis: {
-            type: 'category',
-            data: ['Centro de Inmunodiagnostico Especializado, S. de R.L.','QUALITY , SISTEMAS Y REACTIVOS SOCIEDAD DE RESPONSAILIDAD LIMITADA','INFINITE TRAVEL GROUP S DE R L','Cash Business, S. de R. L.','Yip Supermercados, S. A. de C. V.','DISTRIBUIDORA CHOROTEGA','JETSTEREO S.A DE C.V.','INDUFESA','PACASA','LICONA AUTOREPUESTOS']
-        },
-        series: [
-            {
-                name: 'Monto de Contrato, Pagados en HNL',
-                type: 'bar',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                itemStyle:{
-                    color: '#27AEB4'
-                }
-            },
-            {
-                name: 'Monto de Contrato, Pagados en USD',
-                type: 'bar',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                itemStyle:{
-                    color: '#F69A69'
-                }
-
-                
-            },
-            {
-                name: 'Monto de Contrato, Pagados en EUR',
-                type: 'bar',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                itemStyle:{
-                    color: '#FFCA7E'
-                }
-            }
-        ]
-    };
-    grafico.setOption(opciones, true);
-
-    
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
-}
 
 function SegregacionMontosContratos(){
     //app.title = '折柱混合';
@@ -1649,7 +1491,7 @@ function InicializarConteo(){
       });*/
 }
 
-function CargarCajonesCantidad(){
+function CargarCajonesCantidadProcesos(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
 $.get(api+"/dashboardoncae/estadisticacantidaddeprocesos/",parametros).done(function( datos ) {
@@ -1668,10 +1510,78 @@ console.dir(datos);
         },
         from: 0, to: 500
       });*/
-      $('.conteo').not('.moneda').each(function(index,elemento){
+      $('.cantidadProcesos .conteo').not('.moneda').each(function(index,elemento){
         $(elemento).countTo({
             formatter: function (value, options) {
                 value = value.toFixed(options.decimals);
+                value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return value;
+            },
+            from: 0, to: $(elemento).attr('data-to'),'data-speed':$(elemento).attr('data-speed')
+          });
+      });
+  }).fail(function() {
+      
+      
+    });
+}
+function CargarCajonesCantidadContratos(){
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/dashboardoncae/estadisticacantidaddecontratos/",parametros).done(function( datos ) {
+    console.dir('cantidad***')
+console.dir(datos);
+    $('#CantidadContratosPromedio').attr('data-to',datos.resultados.promedio);
+    $('#CantidadContratosMenor').attr('data-to',datos.resultados.menor);
+    $('#CantidadContratosMayor').attr('data-to',datos.resultados.mayor);
+    $('#CantidadContratosTotal').attr('data-to',datos.resultados.total);
+/*
+    $('.conteo').not('.moneda').countTo({
+        formatter: function (value, options) {
+            value = value.toFixed(options.decimals);
+            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return value;
+        },
+        from: 0, to: 500
+      });*/
+      $('.cantidadContratos .conteo').not('.moneda').each(function(index,elemento){
+        $(elemento).countTo({
+            formatter: function (value, options) {
+                value = value.toFixed(options.decimals);
+                value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return value;
+            },
+            from: 0, to: $(elemento).attr('data-to'),'data-speed':$(elemento).attr('data-speed')
+          });
+      });
+  }).fail(function() {
+      
+      
+    });
+}
+function CargarCajonesMontoContratos(){
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/dashboardoncae/estadisticamontosdecontratos/",parametros).done(function( datos ) {
+    console.dir('cantidad***')
+console.dir(datos);
+    $('#MontoContratosPromedio').attr('data-to',datos.resultados.promedio);
+    $('#MontoContratosMenor').attr('data-to',datos.resultados.menor);
+    $('#MontoContratosMayor').attr('data-to',datos.resultados.mayor);
+    $('#MontoContratosTotal').attr('data-to',datos.resultados.total);
+/*
+    $('.conteo').not('.moneda').countTo({
+        formatter: function (value, options) {
+            value = value.toFixed(options.decimals);
+            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return value;
+        },
+        from: 0, to: 500
+      });*/
+      $('.montoContratos .conteo.moneda').each(function(index,elemento){
+        $(elemento).countTo({
+            formatter: function (value, options) {
+                value = value.toFixed(2/*options.decimals*/);
                 value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                 return value;
             },

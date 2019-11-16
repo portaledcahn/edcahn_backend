@@ -49,5 +49,11 @@ urlpatterns = [
 	path('dashboardoncae/contratospormodalidad/', viewsets.GraficarContratosPorModalidad.as_view()),
 	path('dashboardoncae/topcompradores/', viewsets.TopCompradoresPorMontoContratado.as_view()),
 	path('dashboardoncae/topproveedores/', viewsets.TopProveedoresPorMontoContratado.as_view()),
+	path('dashboardoncae/tiemposporetapa/', viewsets.GraficarProcesosTiposPromediosPorEtapa.as_view()),
+
+	path('indicadoresoncae/filtros/', viewsets.FiltrosDashboardONCAE.as_view()),
+	path('indicadoresoncae/montoporcategoria/', viewsets.IndicadorMontoContratadoPorCategoria.as_view()),
+	path('indicadoresoncae/cantidadcontratosporcategoria/', viewsets.IndicadorCantidadProcesosPorCategoria.as_view()),
+	path('indicadoresoncae/topcompradores/', viewsets.IndicadorTopCompradores.as_view()),
 
 ]

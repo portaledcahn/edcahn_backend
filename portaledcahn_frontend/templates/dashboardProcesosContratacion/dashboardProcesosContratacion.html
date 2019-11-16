@@ -159,7 +159,7 @@
                         <div class="col-md-6">
                                     <div class="cajonSombreado">
                                           <div class="tituloGrafico">
-                                          <h4 class="titularCajonSombreado textoAlineadoCentrado">Cantidad de Procesos de Contratación por Metodo de Contratación</h4>
+                                          <h4 class="titularCajonSombreado textoAlineadoCentrado">Cantidad de Procesos de Contratación por Modalidad de Contratación</h4>
                                           </div>
                                           <div class="contenedorGrafico">
                                           <div class="grafico" id="CantidadProcesosMetodoContratacion"  style="height: 300px"></div>
@@ -169,7 +169,7 @@
                                     <div class="col-md-6 mt-4">
                                                 <div class="cajonSombreado">
                                                       <div class="tituloGrafico">
-                                                      <h4 class="titularCajonSombreado textoAlineadoCentrado">Monto de Procesos de Contratación por Categoría de Compra</h4>
+                                                      <h4 class="titularCajonSombreado textoAlineadoCentrado">Monto de Contratos por Categoría de Compra</h4>
                                                       </div>
                                                       <div class="contenedorGrafico">
                                                       <div class="grafico" id="MontoProcesosCategoriaCompra"  style="height: 300px"></div>
@@ -179,7 +179,7 @@
                                     <div class="col-md-6 mt-4">
                                                 <div class="cajonSombreado">
                                                       <div class="tituloGrafico">
-                                                      <h4 class="titularCajonSombreado textoAlineadoCentrado">Monto de Procesos de Contratación por Metodo de Contratación</h4>
+                                                      <h4 class="titularCajonSombreado textoAlineadoCentrado">Monto de Contratos por Modalidad de Contratación</h4>
                                                       </div>
                                                       <div class="contenedorGrafico">
                                                       <div class="grafico" id="MontoProcesosMetodoContratacion"  style="height: 300px"></div>
@@ -213,7 +213,7 @@
                            <h4 class="titularCajonSombreado textoAlineadoCentrado">Cantidad de Procesos de Contratación
                         </div>
                         <div class="contenedorGrafico">
-                           <div class="grafico" id="cantidadPagosCajas"  style="/*min-height: 300px*/">
+                           <div class="grafico cantidadProcesos" id="cantidadPagosCajas"  style="/*min-height: 300px*/">
                               <div class="row">
                                     <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                        <div class="p-2">
@@ -251,29 +251,29 @@
                            <h4 class="titularCajonSombreado textoAlineadoCentrado">Cantidad de Contratos
                         </div>
                         <div class="contenedorGrafico">
-                           <div class="grafico" id="cantidadPagosCajas"  style="/*min-height: 300px*/">
+                           <div class="grafico cantidadContratos" id="cantidadPagosCajas"  style="/*min-height: 300px*/">
                               <div class="row">
                                     <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                        <div class="p-2">
-                                       <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="302" class="conteo">0</span></div>
+                                       <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadContratosPromedio">0</span></div>
                                        <div class="titularColor textoAlineadoDerecha textoColorGris" >Promedio</div>
                                        </div>
                                     </div>
                                     <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                           <div class="p-2">
-                                          <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="356" class="conteo">0</span></div>
+                                          <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadContratosMayor">0</span></div>
                                           <div class="titularColor textoAlineadoDerecha textoColorGris" >Mayor</div>
                                           </div>
                                        </div>
                                        <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                              <div class="p-2">
-                                             <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="9" class="conteo">0</span></div>
+                                             <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadContratosMenor">0</span></div>
                                              <div class="titularColor textoAlineadoDerecha textoColorGris" >Menor</div>
                                              </div>
                                           </div>
                                           <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                                 <div class="p-2">
-                                                <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="1200" class="conteo">0</span></div>
+                                                <div class="titularColor textoAlineadoDerecha" style="color:#D9527B;font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadContratosTotal">0</span></div>
                                                 <div class="titularColor textoAlineadoDerecha textoColorGris" >Total</div>
                                                 </div>
                                              </div>
@@ -290,29 +290,29 @@
                         </div>
                         
                         <div class="contenedorGrafico">
-                           <div class="grafico" id="montosPagosCajas"  style="/*min-height: 300px*/">
+                           <div class="grafico montoContratos" id="montosPagosCajas"  style="/*min-height: 300px*/">
                            <div class="row">
                                  <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                     <div class="pt-2 pb-2">
-                                    <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="65784" class="conteo moneda">0</span> <span class="textoColorPrimario">HNL</span></div>
+                                    <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo moneda" id="MontoContratosPromedio">0</span> <span class="textoColorPrimario">HNL</span></div>
                                     <div class="titularColor textoAlineadoDerecha textoColorGris" >Promedio</div>
                                     </div>
                                  </div>
                                  <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                        <div class="pt-2 pb-2">
-                                       <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="9765784" class="conteo moneda">0</span> <span class="textoColorPrimario">HNL</span></div>
+                                       <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo moneda" id="MontoContratosMayor">0</span> <span class="textoColorPrimario">HNL</span></div>
                                        <div class="titularColor textoAlineadoDerecha textoColorGris" >Mayor</div>
                                        </div>
                                     </div>
                                     <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                           <div class="pt-2 pb-2">
-                                          <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="250" class="conteo moneda">0</span> <span class="textoColorPrimario">HNL</span></div>
+                                          <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo moneda" id="MontoContratosMenor">0</span> <span class="textoColorPrimario">HNL</span></div>
                                           <div class="titularColor textoAlineadoDerecha textoColorGris" >Menor</div>
                                           </div>
                                        </div>
                                        <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                              <div class="pt-2 pb-2">
-                                             <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="1000" data-refresh-interval="20" data-from="0" data-to="250164554" class="conteo moneda">0</span> <span class="textoColorPrimario">HNL</span></div>
+                                             <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 20px;line-height: 20px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo moneda" id="MontoContratosTotal">0</span> <span class="textoColorPrimario">HNL</span></div>
                                              <div class="titularColor textoAlineadoDerecha textoColorGris" >Total</div>
                                              </div>
                                           </div>
@@ -382,9 +382,9 @@
 </div>
 {% endblock %}
 {% block script_content %}
-<script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
-<script src="{% static 'plugins/elastic-list/data.js' %}"></script>
-<script src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>
-<script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
-<script src="{% static 'js/dashboardProcesosContratacion.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/elastic-list/data.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/dashboardProcesosContratacion.js' %}"></script>
 {% endblock %}
