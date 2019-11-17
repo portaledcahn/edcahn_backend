@@ -5703,3 +5703,128 @@ class IndicadorTopCompradores(APIView):
 		}
 
 		return Response(context)
+
+class IndicadorCatalogoElectronico(APIView):
+
+	def get(self, request, format=None):
+
+		nombreCatalogo = []
+		totalContratado = []
+		cantidadProcesos = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+
+		s = Search(using=cliente, index='contract')
+		s = s.filter('match_phrase', extra__sources__id='catalogo-electronico')
+
+		# Source 
+		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
+		s = s.source(campos)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			s = s.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+
+		s.aggs.metric(
+			'items', 
+			'nested', 
+			path='items'
+		)
+
+		s.aggs["items"].metric(
+			'sumaTotalMontos',
+			'sum',
+			field='items.extra.total'
+		)
+		
+		s.aggs["items"].metric(
+			'porCatalogo', 
+			'terms', 
+			missing='No Definido',
+			field='items.attributes.value.keyword',
+			order={'montoContratado': 'desc'},
+			size=10000
+		)
+
+		s.aggs["items"]["porCatalogo"].metric(
+			'montoContratado', 
+			'sum', 
+			field='items.extra.total'
+		)
+
+		s.aggs["items"]["porCatalogo"].metric(
+			'contract', 
+			'reverse_nested'
+		)
+
+		s.aggs["items"]["porCatalogo"]["contract"].metric(
+			'contadorOCIDs',
+			'cardinality',
+			precision_threshold=10000,
+			field='extra.ocid.keyword'
+		)
+
+		contratosCE = s.execute()
+
+		itemsCE = contratosCE.aggregations.items.porCatalogo.to_dict()
+
+		# catalogos = []
+		for c in itemsCE["buckets"]:
+
+			nombreCatalogo.append(c["key"])
+			totalContratado.append(c["montoContratado"]["value"])
+			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
+
+			# catalogos.append({
+			# 	"key": c["key"],
+			# 	"montoContratado": c["montoContratado"]["value"],
+			# 	"ocids": c["contract"]["contadorOCIDs"]["value"]
+			# })
+
+		resultados = {
+			# "catalogos": catalogos,
+			"nombreCatalogos": nombreCatalogo,
+			"montoContratado": totalContratado,
+			"cantidadProcesos": cantidadProcesos
+			# "elasticsearch": itemsCE,
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["`modalidad"] = modalidad
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
