@@ -56,5 +56,6 @@ urlpatterns = [
 	path('indicadoresoncae/cantidadcontratosporcategoria/', viewsets.IndicadorCantidadProcesosPorCategoria.as_view()),
 	path('indicadoresoncae/topcompradores/', viewsets.IndicadorTopCompradores.as_view()),
 	path('indicadoresoncae/catalogos/', viewsets.IndicadorCatalogoElectronico.as_view()),
+	path('indicadoresoncae/contratospormodalidad/', viewsets.IndicadorContratosPorModalidad.as_view()),
 
 ]
