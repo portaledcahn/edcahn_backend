@@ -581,6 +581,9 @@ function MontoPagosEtapas(){
                 }
             }
         },
+
+
+        
         xAxis: [
             {
                 

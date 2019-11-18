@@ -1,6 +1,43 @@
+var filtrosAplicables={
+    monedas: {titulo:'Moneda',parametro:'moneda'},
+    instituciones: {titulo:'Institución Compradora',parametro:'idinstitucion'},
+    años: {titulo:'Año',parametro:'año'},
+    proveedores: {titulo:'Proveedor',parametro:'proveedor'},
+    categorias: {titulo:'Categoría de Compra',parametro:'categoria'},
+    modalidades : {titulo:'Modalidad de Compra',parametro:'modalidad'},
+    sistemas :{titulo:'Sistema de Origen', parametro: 'sistema'}
+    
+  };
+  var filtrosAplicablesR={
+    moneda: {titulo:'Moneda',parametro:'monedas'},
+    idinstitucion: {titulo:'Institución Compradora',parametro:'instituciones'},
+    año: {titulo:'Año',parametro:'años'},
+    proveedor: {titulo:'Proveedor',parametro:'proveedores'},
+    modalidad: {titulo:'Modalidad de Compra',parametro:'modalidades'},
+    categoria : {titulo:'Categoría de Compra',parametro:'categorias'},
+    sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
+  };
+  var traducciones={
+    'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
+    'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
+    'services':{titulo:'Servicios',descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
+    'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'},
+    'tender':{titulo:'Licitación',descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'},
+    'awards':{titulo:'Adjudicación',descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'},
+    'contracts':{titulo:'Contrato',descripcion:'Da información sobre los detalles de un contrato que ha entrado, o entrará, en vigencia. La sección de licitación puede ser poblada con detalles del proceso que lleva al contrato, y la sección de adjudicación puede tener detalles sobre la adjudicación sobre la '},
+    'planning':{
+        titulo:'Planeación',
+        descripcion:'Se propone o planea un proceso de contratación. La información en la sección de licitación describe el proceso propuesto. El campo tender.status debe de usarse para identificar si la planeación está en una etapa temprana o si hay planes detallados para una licitación.'
+    }
 
+  }
 function InicializarCantidadProcesos(){
-    //app.title = '折柱混合';
+    
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    $.get(api+"/indicadoresoncae/contratospormodalidad/",parametros).done(function( datos ) {
+    console.dir('PROCESOS POR CATEGORIA DE COMPRA');
+    console.dir(datos);
     var grafico=echarts.init(document.getElementById('cantidadProcesos'));
     var opciones = {
         tooltip: {
@@ -13,11 +50,21 @@ function InicializarCantidadProcesos(){
             }
         },
         toolbox: {
+            orient:'horizontal',
+            itemsize:20,
+            itemGap:15,
+            right:20,
+            top:25,
             feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
+            },
+            emphasis:{
+                iconStyle:{
+                    textPosition:'top'
+                }
             }
         },/*
         legend: {
@@ -26,7 +73,7 @@ function InicializarCantidadProcesos(){
         xAxis: [
             {
                 type: 'category',
-                data: ['Compra Menor','Licitación privada','Licitación pública nacional','Licitación pública nacional','Concurso público nacional','Concurso Privado','Concurso Publico Internacional','Contratación Directa'],
+                data:datos.resultados.nombreModalidades,
                 axisPointer: {
                     type: 'shadow'
                 },
@@ -78,7 +125,7 @@ function InicializarCantidadProcesos(){
             {
                 name:'Cantidad de Contratos',
                 type:'bar',
-                data:[2, 4, 7, 23, 25, 76, 135, 162, 40, 90, 6, 110],
+                data:datos.resultados.cantidadContratos,
                 itemStyle:{
                     color: '#DA517A'
                 },
@@ -89,17 +136,28 @@ function InicializarCantidadProcesos(){
             },
             {
                 name:'Monto de Contratos',
-                type:'bar',
+                type:'line',
                 //yAxisIndex: 1,
-                data:[4, 4.5, 25, 26, 27, 80, 150, 35, 23.5, 23, 6.5, 6.2],
-                itemStyle:{
-                    color: '#27AEB4'
-                },
-                yAxisIndex: 1,
+                data:datos.resultados.montosContratos,
+                yAxisIndex: 1,/*
                 barMaxWidth:20,
                 barGap:'0%',
                 barCategoryGap: '0%',
-                padding:0
+                padding:0,*/
+
+
+                symbol: 'circle',
+                symbolSize: 10,
+                lineStyle: {
+                    normal: {
+                        color: '#27AEB4',
+                        width: 4/*,
+                        type: 'dashed'*/
+                    }
+                },
+                itemStyle:{
+                    color: '#27AEB4'
+                }
 
                 
             }
@@ -114,6 +172,10 @@ function InicializarCantidadProcesos(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+    }).fail(function() {
+        
+    });
+    
 }
 
 
@@ -123,60 +185,92 @@ function InicializarCantidadProcesos(){
 
 
 function CantidadContratosCategoriaCompra(){
-    var grafico=echarts.init(document.getElementById('CantidadContratosCategoriaCompra'));
-    var opciones = {
-        /*title : {
-            text: '同名数量统计',
-            subtext: '纯属虚构',
-            x:'center'
-        },*/
-        tooltip : {
-            trigger: 'item',
-            formatter: "{a} <br/>{b} : {c} ({d}%)"
-        },
-        legend: {
-            type: 'scroll',
-            orient: 'vertical',
-            right: 10,
-            top: 20,
-            bottom: 20/*,
-            data: ['lengend data 1','lengend data 2','lengend data 3'],
-    
-            selected: [false,false,true]*/
-        },
-        series : [
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/indicadoresoncae/cantidadcontratosporcategoria/",parametros).done(function( datos ) {
+console.dir('CONTRATOS POR CATEGORIA');
+console.dir(datos);
+var datosPastel=[];
+    datos.resultados.categorias.forEach(function(valor,indice){
+        datosPastel.push(
             {
-                name: 'Cantidad de Contratos por Categoría de Compra',
-                type: 'pie',
-                radius : '55%',
-                center: ['40%', '50%'],
-                data: [{name:'Obras',value: 20},{name:'Bienes',value: 40},{name:'Servicios',value: 60}],
-                itemStyle: {
-                    color: function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
-                        return colores[e.dataIndex];
-                    },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
-                    emphasis: {
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
+                name:traducciones[valor.name]?traducciones[valor.name].titulo:valor.name,
+                value:valor.value
+            }
+        )
+    });
+var grafico=echarts.init(document.getElementById('CantidadContratosCategoriaCompra'));
+var opciones = {
+    /*title : {
+        text: '同名数量统计',
+        subtext: '纯属虚构',
+        x:'center'
+    },*/
+    tooltip : {
+        trigger: 'item',
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
+    legend: {
+        type: 'scroll',
+        orient: 'vertical',
+        right: 10,
+        top: 20,
+        bottom: 20/*,
+        data: ['lengend data 1','lengend data 2','lengend data 3'],
+
+        selected: [false,false,true]*/
+    },
+    series : [
+        {
+            name: 'Cantidad de Contratos por Categoría de Compra',
+            type: 'pie',
+            radius : '55%',
+            center: ['40%', '50%'],
+            data: datosPastel,
+            itemStyle: {
+                color: function(e){
+                    var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                    return colores[e.dataIndex];
+                },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                emphasis: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
                 }
             }
-        ],
-        grid:{
-            containLabel:true
         }
-    };
-    grafico.setOption(opciones, true);
+    ],
+    grid:{
+        containLabel:true
+    }
+};
+grafico.setOption(opciones, true);
 
+
+window.addEventListener("resize", function(){
+    grafico.resize();
+});
+}).fail(function() {
     
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
+});
+   
 }
 
 function MontoContratosCategoriaCompra(){
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/indicadoresoncae/montoporcategoria/",parametros).done(function( datos ) {
+console.dir('MONTOS POR CATEGORIA DE COMPRA');
+console.dir(datos);
+var datosPastel=[];
+    datos.resultados.categorias.forEach(function(valor,indice){
+        datosPastel.push(
+            {
+                name:traducciones[valor.name]?traducciones[valor.name].titulo:valor.name,
+                value:valor.value
+            }
+        )
+    });
     var grafico=echarts.init(document.getElementById('MontoContratosCategoriaCompra'));
     var opciones = {
         /*title : {
@@ -206,7 +300,7 @@ function MontoContratosCategoriaCompra(){
                 type: 'pie',
                 radius : '55%',
                 center: ['40%', '50%'],
-                data: [{name:'Obras',value: 60912},{name:'Bienes',value: 50928},{name:'Servicios',value: 73490}],
+                data: datosPastel,
                 itemStyle: {
                     color: function(e){
                         var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
@@ -230,64 +324,19 @@ function MontoContratosCategoriaCompra(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+}).fail(function() {
+    
+});
+    
 }
 
-
-/*
-,
-        series: [
-            {
-                name: 'Monto de Contrato, Pagados en HNL',
-                type: 'bar',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                itemStyle:{
-                    color: '#27AEB4'
-                }
-            },
-            {
-                name: 'Monto de Contrato, Pagados en USD',
-                type: 'bar',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                itemStyle:{
-                    color: '#F69A69'
-                }
-
-                
-            },
-            {
-                name: 'Monto de Contrato, Pagados en EUR',
-                type: 'bar',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                itemStyle:{
-                    color: '#FFCA7E'
-                }
-            }
-        ]
-*/
 function Top10InstitucionesMontos(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/indicadoresoncae/topcompradores/",parametros).done(function( datos ) {
+console.dir('TOP COMPRADORES');
+console.dir(datos);
+var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
     var opciones = {
         tooltip: {
             trigger: 'axis',
@@ -299,11 +348,21 @@ function Top10InstitucionesMontos(){
             }
         },
         toolbox: {
+            orient:'horizontal',
+            itemsize:20,
+            itemGap:15,
+            right:20,
+            top:25,
             feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
+            },
+            emphasis:{
+                iconStyle:{
+                    textPosition:'top'
+                }
             }
         },/*
         legend: {
@@ -329,8 +388,7 @@ function Top10InstitucionesMontos(){
             {
                 
                 type: 'category',
-                data: ['Secretaria de Salud Pública','Empresa Nacional de Energía Eléctrica','Empresa Hondureña de Telecomunicaciones','Secretaría de Defensa Nacional'
-            ,'Instituto Hondureño de Seguridad Social','Consejo Nacional Supervisor de Cooperativas','Instituto Nacional de Previsión del Magisterio','Secretaría de Desarrollo Económico','Direccion de la Marina Mercante','Fondo Hondureño de Inversión Social'],
+                data: datos.resultados.nombreCompradores,
                 axisPointer: {
                     type: 'shadow'
                 }
@@ -359,7 +417,7 @@ function Top10InstitucionesMontos(){
             {
                 name:'Monto Contratado',
                 type:'bar',
-                data:[150000,80444,69000,72000,64248,93734,99214,92792,4351,97934],
+                data:datos.resultados.montoContratado,
                 itemStyle:{
                     color: '#DA517A'
                 },
@@ -374,10 +432,10 @@ function Top10InstitucionesMontos(){
                 barGap:'50%'
             },
             {
-                name:'Cantidad de Contratos',
+                name:'Cantidad de Procesos de Contratación',
                 type:'line',
                 //yAxisIndex: 1,
-                data:[9000,90444,59000,82000,54248,63734,79214,72792,3351,87934],
+                data:datos.resultados.cantidadOCIDs,
                 symbol: 'circle',
                 symbolSize: 10,
                 lineStyle: {
@@ -409,13 +467,21 @@ function Top10InstitucionesMontos(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+}).fail(function() {
+    
+});
+    
 }
 
 
 
 function MontoCatalogoElectronico(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+$.get(api+"/indicadoresoncae/catalogos/",parametros).done(function( datos ) {
+console.dir('MONTO CATALOGO ELECTRONICO');
+console.dir(datos);
+var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
     var opciones = {
         tooltip: {
             trigger: 'axis',
@@ -427,11 +493,21 @@ function MontoCatalogoElectronico(){
             }
         },
         toolbox: {
+            orient:'horizontal',
+            itemsize:20,
+            itemGap:15,
+            right:20,
+            top:25,
             feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
+            },
+            emphasis:{
+                iconStyle:{
+                    textPosition:'top'
+                }
             }
         },/*
         legend: {
@@ -457,7 +533,7 @@ function MontoCatalogoElectronico(){
             {
                 
                 type: 'category',
-                data: ['Útiles de Oficina','Alimentos y Bebidas','Bienes Infórmaticos','Elementos de Limpieza y Aseo Personal','Impresoras y Escáneres','Llantas y Cámaras De Aire','Material Médico Quirúrgico','Tintas y Tóner','Lubricantes para Vehículo','Fondo Hondureño de Inversión Social'],
+                data: datos.resultados.nombreCatalogos,
                 axisPointer: {
                     type: 'shadow'
                 }
@@ -486,7 +562,7 @@ function MontoCatalogoElectronico(){
             {
                 name:'Monto de Contrato',
                 type:'bar',
-                data:[150000,80444,69000,72000,64248,93734,99214,92792,4351,97934],
+                data:datos.resultados.montoContratado,
                 itemStyle:{
                     color: '#FECB7E'
                 },
@@ -504,7 +580,7 @@ function MontoCatalogoElectronico(){
                 name:'Cantidad de Contratos',
                 type:'line',
                 //yAxisIndex: 1,
-                data:[9000,90444,59000,82000,54248,63734,79214,72792,3351,87934],
+                data:datos.resultados.cantidadProcesos,
                 symbol: 'circle',
                 symbolSize: 10,
                 lineStyle: {
@@ -536,6 +612,10 @@ function MontoCatalogoElectronico(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+}).fail(function() {
+    
+});
+    
 }
 
 
@@ -543,36 +623,253 @@ function MontoCatalogoElectronico(){
 
 
 $(function(){
+
+    ObtenerFiltros();
+    $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
+        if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
+          $('.contenedorFiltrosBusqueda').removeClass('cerrado');
+        }else{
+          $('.contenedorFiltrosBusqueda').addClass('cerrado');
+        }
+      });
+    CargarGraficos();
+    $('#quitarFiltros').on('click',function(e){
+        PushDireccionGraficos(AccederUrlPagina({},true));
+      });
+})
+function CargarGraficos(){
     InicializarCantidadProcesos();
-    
     CantidadContratosCategoriaCompra();
     MontoContratosCategoriaCompra();
     Top10InstitucionesMontos();
     MontoCatalogoElectronico();
-    //InicializarConteo()
-    view = new ElasticList({
-        el: $("#elastic-list"),
-        data: dataElastic,
-        hasFilter: true,
-        onchange: function (filters) {
-        },
-        columns: [
-            {
-              title: "Selección",
-                attr: "selection"
-            },{
-                title: "Categoría",
-                attr: "category"
-            },
-            {
-                title: "Institución",
-                attr: "name"
-            }, {
-                title: "Año",
-                attr: "year"
-            },{
-              title: "Moneda",
-                attr: "coin"
-            } ]
+}
+function ObtenerJsonFiltrosAplicados(parametros){
+    if(Validar(ObtenerValor('moneda'))){
+        parametros['moneda']=ObtenerValor('moneda');
+    }
+    if(Validar(ObtenerValor('idinstitucion'))){
+    parametros['idinstitucion']=decodeURIComponent(ObtenerValor('idinstitucion'));
+    }
+    if(Validar(ObtenerValor('año'))){
+      parametros['año']=ObtenerValor('año');
+    }
+    if(Validar(ObtenerValor('proveedor'))){
+        parametros['proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
+    }
+    if(Validar(ObtenerValor('categoria'))){
+      parametros['categoria']=decodeURIComponent(ObtenerValor('categoria'));
+    }
+    if(Validar(ObtenerValor('modalidad'))){
+        parametros['modalidad']=decodeURIComponent(ObtenerValor('modalidad'));
+    }
+    if(Validar(ObtenerValor('sistema'))){
+        parametros['sistema']=decodeURIComponent(ObtenerValor('sistema'));
+    }
+    
+
+    return parametros;
+  }
+
+  
+function ObtenerFiltros(){
+    var parametros=ObtenerJsonFiltrosAplicados({});
+    $.get(api+"/dashboardoncae/filtros/",parametros).done(function( datos ) {
+
+        console.dir('filtros')
+    console.dir(datos);
+      
+       
+  
+    MostrarListaElastica(datos,'#elastic-list');
+    MostrarEtiquetaListaElasticaAplicada();
+    MostrarListaElasticaAplicados();
+ // }
+  
+  
+      
+        
+      }).fail(function() {
+          
+          
+        });
+
+}
+
+
+function AccederUrlPagina(opciones,desUrl){
+    var direccion=('/dashboardProcesosContratacion/?'+
+    (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
+    (ValidarCadena(opciones.idinstitucion)? '&idinstitucion='+encodeURIComponent(opciones.idinstitucion): (ValidarCadena(ObtenerValor('idinstitucion'))&&!desUrl?'&idinstitucion='+ObtenerValor('idinstitucion'):''))+
+   
+    (ValidarCadena(opciones.año)? '&año='+encodeURIComponent(opciones.año): (ValidarCadena(ObtenerValor('año'))&&!desUrl?'&año='+ObtenerValor('año'):''))+
+    (ValidarCadena(opciones.proveedor)? '&proveedor='+encodeURIComponent(opciones.proveedor): (ValidarCadena(ObtenerValor('proveedor'))&&!desUrl?'&proveedor='+ObtenerValor('proveedor'):''))+
+    (ValidarCadena(opciones.categoria)? '&categoria='+encodeURIComponent(opciones.categoria): (ValidarCadena(ObtenerValor('categoria'))&&!desUrl?'&categoria='+ObtenerValor('categoria'):''))+
+    (ValidarCadena(opciones.modalidad) ? '&modalidad='+encodeURIComponent(opciones.modalidad):(ValidarCadena(ObtenerValor('modalidad'))&&!desUrl?'&modalidad='+ObtenerValor('modalidad'):''))+
+    (ValidarCadena(opciones.sistema) ? '&sistema='+encodeURIComponent(opciones.sistema):(ValidarCadena(ObtenerValor('sistema'))&&!desUrl?'&sistema='+ObtenerValor('sistema'):''))
+  
+    );
+    return direccion;
+  }
+  function PushDireccionGraficos(direccion){
+    window.history.pushState({}, document.title,direccion);
+    ObtenerFiltros();
+    CargarGraficos();
+  }
+  
+  function MostrarEtiquetasFiltrosAplicados(parametros){
+    if(!$.isEmptyObject(parametros)){
+      $('#contenedorSinFiltros').hide();
+      $('#contenedorFiltros').show();
+    }else{
+      $('#contenedorFiltros').hide();
+      $('#contenedorSinFiltros').show();
+    }
+    $('#listaFiltrosAplicados').html('');
+    $.each(parametros,function(llave,filtro){
+      $('#listaFiltrosAplicados').append(
+        $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(
+          $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
+          $('<div>',{class:'filtrosAplicados'}).append(
+            $('<div>',{class:'etiquetaFiltro','llave':llave,'valor':filtro}).append(
+                (traducciones[filtro]?traducciones[filtro].titulo:filtro),
+              '&nbsp;',
+              $('<i>',{class:'fas fa-times'}).on('click',function(e){
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                //$('li.list-group-item.active')
+                /*$.each(filtros,function(cla,val){
+                  filtros[filtrosAplicablesR[$(val).attr('llave')]?filtrosAplicablesR[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+                });*/
+                delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
+
+                PushDireccionGraficos(AccederUrlPagina(filtros,true));
+              })
+            )
+          )
+        )
+      )
     });
-})
+  }
+
+  function MostrarEtiquetaListaElasticaAplicada(){
+  
+    var parametros={
+    };
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEtiquetasFiltrosAplicados(parametros);
+  }
+
+  function MostrarListaElasticaAplicados(){
+    var filtros={
+    };
+    filtros=ObtenerJsonFiltrosAplicados(filtros);
+    $.each(filtros,function(llave,valor){
+        console.dir('ul#ul'+filtrosAplicablesR[llave].parametro)
+        console.dir('li[valor="'+(valor).toString().toLowerCase()+'"]')
+      $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
+        'li[valor="'+(valor).toString()+'"]'
+      ).addClass('active');
+    });
+  }
+
+  function MostrarListaElastica(datos,selector){
+    $(selector).html('');
+    $.each(datos.respuesta,function(llave,valor){
+      $(selector).append(
+        $('<div class="list-container col-md-12 2">').append(
+          $('<div class="panel panel-default ">').append(
+            $('<div class="panel-heading">').text(
+              filtrosAplicables[llave]?filtrosAplicables[llave].titulo:llave
+            ),
+            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[llave]?filtrosAplicables[llave].titulo:llave ,filtro:llave,on:{
+              keyup:function(e){
+                var texto=$(e.currentTarget).val();
+                if (texto.length > 0) {
+                  texto = texto.toLocaleLowerCase();
+                  var regla = " ul#" + 'ul'+llave + ' li[formato*="' + texto + '"]{display:block;} ';
+                  regla += " ul#" + 'ul'+llave + ' li:not([formato*="' + texto + '"]){display:none;}';
+                  $('#style'+llave).html(regla);
+                } else {
+                  $('#style'+llave).html('');
+                }
+              }
+            }}),
+            $('<style>',{id:'style'+llave}),
+            $('<ul >',{class:'list-group',id:'ul'+llave}).append(
+              AgregarPropiedadesListaElastica(valor,llave)
+            )
+              
+            
+          )
+        )
+      )
+      
+      
+    });
+    AgregarToolTips();
+    
+    
+  }
+
+function ValoresLlaves(llave){
+    switch(llave){
+        case 'años':
+            return {valor:'key_as_string',cantidad:'procesos',codigo:'key_as_string'};
+        case 'categorias':
+            return {valor:'categoria',cantidad:'procesos',codigo:'categoria'};
+        case 'instituciones':
+            return {valor:'nombre',cantidad:'procesos',codigo:'codigo'};
+        case 'modalidades':
+            return {valor:'modalidad',cantidad:'procesos',codigo:'modalidad'};
+        case 'monedas':
+            return {valor:'moneda',cantidad:'procesos',codigo:'moneda'};
+        case 'sistemas':
+            return {valor:'id',cantidad:'ocids',codigo:'id'};
+        default:
+            return {valor:'key_as_string',cantidad:'procesos',codigo:'key_as_string'};
+    }
+}
+function AgregarPropiedadesListaElastica(valor,llave){
+    var elementos=[]
+    $.each(valor,function(i,propiedades){
+      //resultadosElastic=AsignarValor(resultadosElastic,llave,,propiedades.doc_count);
+      elementos.push(
+        $('<li >',{
+        class:'list-group-item',
+        valor:propiedades[ValoresLlaves(llave).codigo]?propiedades[ValoresLlaves(llave).codigo]:propiedades.key, 
+        formato: (ObtenerTexto(traducciones[propiedades[ValoresLlaves(llave).valor]]?traducciones[propiedades[ValoresLlaves(llave).valor]].titulo:propiedades[ ValoresLlaves(llave).valor])).toString().toLowerCase(),'llave':llave,
+        
+        on:{
+          click:function(e){
+            var filtro=$(e.currentTarget);
+            if(filtro.hasClass('active')){
+              filtro.removeClass('active')
+            }else{
+              filtro.parent().find('.list-group-item.active').removeClass('active');
+              filtro.addClass('active');
+            }
+            var filtros={
+            };
+            $('li.list-group-item.active').each(function(cla,val){
+              filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+            });
+            PushDireccionGraficos(AccederUrlPagina(filtros,true));
+          }
+        }}).append(
+          $('<div>',{
+              class:'badge',
+              toolTexto: ('Procesos: '+propiedades.procesos+'<br>Contratos: '+propiedades.contratos),
+              text:propiedades[ValoresLlaves(llave).cantidad]
+            }),
+          $('<div >',{
+          class:'elastic-data',
+          toolTexto:(traducciones[propiedades[ValoresLlaves(llave).valor]]?traducciones[propiedades[ValoresLlaves(llave).valor]].titulo:propiedades[ValoresLlaves(llave).valor]),
+          toolCursor:'true',
+          
+          text:(traducciones[propiedades[ValoresLlaves(llave).valor]]?traducciones[propiedades[ValoresLlaves(llave).valor]].titulo:propiedades[ValoresLlaves(llave).valor])}
+          )
+        )
+      )
+    });
+    return elementos;
+  }

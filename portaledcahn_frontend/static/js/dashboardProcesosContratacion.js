@@ -80,20 +80,7 @@ function CargarGraficos(){
 function ObtenerFiltros(){
     var parametros=ObtenerJsonFiltrosAplicados({});
     $.get(api+"/dashboardoncae/filtros/",parametros).done(function( datos ) {
-/*
-        if(datos.respuesta.pagos){
-            datos.respuesta['años']=datos.respuesta.pagos['años'];
-            datos.respuesta['monedas']=datos.respuesta.pagos['monedas'];
-            datos.respuesta['proveedores']=datos.respuesta.pagos['proveedores'];
-            delete datos.respuesta.pagos;
-            delete datos.respuesta.objetosGasto;
-            //delete datos.respuesta.instituciones;
-            //delete datos.respuesta.fuentes;
 
-        }*/
-       /* if(datos.respuesta.objetosGasto){
-            delete datos.respuesta.objetosGasto;
-        }*/
         console.dir('filtros')
     console.dir(datos);
       
@@ -345,11 +332,21 @@ function InicializarCantidadProcesos(){
         selected: [false,false,true]*/
     },
     toolbox: {
+        orient:'horizontal',
+        itemsize:20,
+        itemGap:15,
+        right:20,
+        top:25,
         feature: {
             dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-            magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+            magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
             restore: {show: true,title:'Restaurar'},
             saveAsImage: {show: true,title:'Descargar'}
+        },
+        emphasis:{
+            iconStyle:{
+                textPosition:'top'
+            }
         }
     },
         xAxis: [
@@ -489,11 +486,21 @@ function InicializarMontoProcesos(){
             containLabel:true
         },
         toolbox: {
+            orient:'horizontal',
+            itemsize:20,
+            itemGap:15,
+            right:20,
+            top:25,
             feature: {
                 dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
+            },
+            emphasis:{
+                iconStyle:{
+                    textPosition:'top'
+                }
             }
         },/*
         legend: {
@@ -620,11 +627,21 @@ function CantidadProcesosEtapas(){
                 }
             },
             toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
                 feature: {
-                    dataView: {show: true, readOnly: false,title:'Vista'},
-                    magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
                     saveAsImage: {show: true,title:'Descargar'}
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
                 }
             },/*
             legend: {
@@ -1117,11 +1134,21 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
             }
         },
         toolbox: {
+            orient:'horizontal',
+            itemsize:20,
+            itemGap:15,
+            right:20,
+            top:25,
             feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
+            },
+            emphasis:{
+                iconStyle:{
+                    textPosition:'top'
+                }
             }
         },/*
         legend: {
@@ -1228,11 +1255,21 @@ console.dir(datos)
             }
         },
         toolbox: {
+            orient:'horizontal',
+            itemsize:20,
+            itemGap:15,
+            right:20,
+            top:25,
             feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                 restore: {show: true,title:'Restaurar'},
                 saveAsImage: {show: true,title:'Descargar'}
+            },
+            emphasis:{
+                iconStyle:{
+                    textPosition:'top'
+                }
             }
         },/*
         legend: {

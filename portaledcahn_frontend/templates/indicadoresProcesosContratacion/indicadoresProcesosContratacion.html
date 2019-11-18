@@ -10,7 +10,24 @@
 {% endblock %}
 {% block container %}
 <div class="container-fluid  busquedaEspaciadoHorizontal" >
-      <div class="contenedorFiltrosBusqueda animated" style="display: none">
+      <div class="cajonFiltrosAplicadosDashboard  cajonSombreado mt-4" id="filtrosAplicadosItems" style="position: fixed;right: 28px;z-index: 2; min-width: 280px;max-width: 600px;">
+
+            <div class="row">
+                              <div class="col-6 col-sm-7 col-md-6">
+                                 <div class="tituloFiltrosAplicados textoAlineadoIzquierda">Filtros Aplicados:</div>
+                              </div>
+                              <div class="col-6 col-sm-5 col-md-6 textoAlineadoIzquierda" id="contenedorSinFiltros">
+                                 
+                                   <h4 class="textoColorPrimario titularColor" style="margin-top:3px">Ninguno</h4>
+                              </div>
+                              <div class="col-6 col-sm-5 col-md-6 textoAlineadoDerecha" id="contenedorFiltros" style="display: none">
+      
+                                 <a href="javascript:void(0)" class="botonGeneral fondoColorSecundario" id="quitarFiltros" style="font-size: 10px"> Quitar Todos</a>
+                              </div>
+            </div>
+            <div class="row textoAlineadoDerecha pt-2" id="listaFiltrosAplicados"></div>
+         </div>
+      <div class="contenedorFiltrosBusqueda animated" >
          <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
             Filtros 
             <div class="cursorMano cerrarContenedorFiltrosBusqueda" style="display:none"><i class="fas fa-times textoColorGris"></i></div>
@@ -18,10 +35,106 @@
          <div class="filtrosContenedoFiltrosBusqueda">
            
             <div id="elastic-list">
+                  <div class="list-container col-md-12 2">
+                        <div class="panel panel-default ">
+                            <div class="panel-heading cargaEfecto" style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                            <input type="text" class="elastic-filter" placeholder="" >
+                            <ul class="list-group" id="ulmonedas">
+                                 <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="list-container col-md-12 2">
+                        <div class="panel panel-default ">
+                            <div class="panel-heading cargaEfecto" style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                            <input type="text" class="elastic-filter" placeholder="" >
+                            <ul class="list-group" id="ulmonedas">
+                                 <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="list-container col-md-12 2">
+                        <div class="panel panel-default ">
+                            <div class="panel-heading cargaEfecto" style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                            <input type="text" class="elastic-filter" placeholder="" >
+                            <ul class="list-group" id="ulmonedas">
+                                 <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="list-container col-md-12 2">
+                        <div class="panel panel-default ">
+                            <div class="panel-heading cargaEfecto"  style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                            <input type="text" class="elastic-filter" placeholder="" >
+                            <ul class="list-group" id="ulmonedas">
+                                 <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                                   <li class="list-group-item" >
+                                       <div class="badge cargaEfecto">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                       <div class="elastic-data">&nbsp;&nbsp;&nbsp;</div>
+                                   </li>
+                            </ul>
+                        </div>
+                    </div>
             </div>
          </div>
       </div>
-      <div class="contenedorResultadosBusqueda" style="width: 100%">
+      <div class="contenedorResultadosBusqueda" >
    
        
          <div class="container-fluid contenedorBusqueda mb-5" >
@@ -59,7 +172,7 @@
                                                    <div class="cajonSombreado">
                                                       <div class="tituloGrafico">
                                                          <h4 class="titularCajonSombreado textoAlineadoCentrado">Top 10 Instituciones con mayor Monto de Contratos de Categoría</h4>
-                                                         <b>Bienes y Servicios, Obras, Consultorias, todas</b>
+                                                         <!--<b>Bienes y Servicios, Obras, Consultorias, todas</b>-->
                                                       </div>
                                                       <div class="contenedorGrafico">
                                                          <div class="grafico" id="top10InstitucionesMontos"  style="height: 500px"></div>
