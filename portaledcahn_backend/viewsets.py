@@ -3,6 +3,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.views import APIView
+from rest_framework import pagination
+from rest_framework import status
 from django.db import connections
 from django.db.models import Avg, Count, Min, Sum
 from decimal import Decimal 
@@ -10,6 +12,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 from .serializers import *
 from .functions import *
+from .pagination import PaginationHandlerMixin
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 import json, copy, urllib.parse, datetime, operator, statistics
 import pandas as pd 
@@ -45,6 +48,9 @@ tasas_de_cambio = {
 	2019: {"HNL": 24.5777, "USD": 1},
 }
 
+class BasicPagination(pagination.PageNumberPagination):
+    page_size_query_param = 'limit'
+
 class SearchResults(LazyObject):
     def __init__(self, search_object):
         self._wrapped = search_object
@@ -65,8 +71,61 @@ class ReleaseViewSet(viewsets.ModelViewSet):
 
 	def retrieve(self, request, pk=None):
 		queryset = Release.objects.all()
-		release = get_object_or_404(queryset, ocid=pk)
+		release = get_object_or_404(queryset, release_id=pk)
 		serializer = ReleaseSerializer(release)
+		return Response(serializer.data)
+
+class PublicAPI(APIView, PaginationHandlerMixin):
+
+	def get(self, request, format=None, *args, **kwargs):
+		urlAPI = '/api/v1/'
+
+		endpoints = {}
+		endpoints["release"] =  request.build_absolute_uri(urlAPI + "release/")
+		endpoints["record"] =  request.build_absolute_uri(urlAPI + "record/")
+
+		return Response(endpoints)
+
+class Releases(APIView, PaginationHandlerMixin):
+	pagination_class = BasicPagination
+	serializer_class = ReleaseSerializer
+
+	def get(self, request, format=None, *args, **kwargs):
+		instance = Release.objects.all()
+		page = self.paginate_queryset(instance)
+		if page is not None:
+			serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+		else:
+			serializer = self.serializer_class(instance, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+class GetRelease(APIView):
+
+	def get(self, request, pk=None, format=None):
+		queryset = Release.objects.all()
+		release = get_object_or_404(queryset, release_id=pk)
+		serializer = ReleaseSerializer(release)
+		return Response(serializer.data)
+
+class Records(APIView, PaginationHandlerMixin):
+	pagination_class = BasicPagination
+	serializer_class = RecordSerializer
+
+	def get(self, request, format=None, *args, **kwargs):
+		instance = Record.objects.all()
+		page = self.paginate_queryset(instance)
+		if page is not None:
+			serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+		else:
+			serializer = self.serializer_class(instance, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+class GetRecord(APIView):
+
+	def get(self, request, pk=None, format=None):
+		queryset = Record.objects.all()
+		record = get_object_or_404(queryset, ocid=pk)
+		serializer = RecordSerializer(record)
 		return Response(serializer.data)
 
 class RecordViewSet(viewsets.ModelViewSet):
@@ -197,7 +256,7 @@ class DataRecordViewSet(DocumentViewSet):
     document = articles_documents.RecordDocument
     serializer_class = articles_serializers.RecordDocumentSerializer
 
-class Record(APIView):
+class RecordAPIView(APIView):
 
 	def get(self, request, format=None):
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)

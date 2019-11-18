@@ -706,7 +706,11 @@ function CantidadProcesosEtapas(){
 
 
 function TiempoPromedioEtapas(){
-    //app.title = '折柱混合';
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    $.get(api+"/dashboardoncae/tiemposporetapa/",parametros).done(function( datos ) {
+    console.dir('TIEMPOS POR ETAPA');
+    console.dir(datos);
     var grafico=echarts.init(document.getElementById('tiempoPromedioEtapas'));
     var opciones ={
         tooltip : {
@@ -738,7 +742,7 @@ function TiempoPromedioEtapas(){
             data: ['']
         },
         series: [
-            {
+            /*{
                 name: 'Planeación',
                 type: 'bar',
                 stack: '总量',
@@ -752,7 +756,7 @@ function TiempoPromedioEtapas(){
                 itemStyle:{
                     color: '#27AEB4'
                 }
-            },
+            },*/
             {
                 name: 'Licitación',
                 type: 'bar',
@@ -763,14 +767,14 @@ function TiempoPromedioEtapas(){
                         position: 'insideRight'
                     }
                 },
-                data: [120],
+                data: datos.resultados.promedioDiasLicitacion,
                 itemStyle:{
                     color: '#F69A69'
                 }
 
                 
             },
-            {
+            /*{
                 name: 'Adjudicación',
                 type: 'bar',
                 stack: '总量',
@@ -784,7 +788,7 @@ function TiempoPromedioEtapas(){
                 itemStyle:{
                     color: '#FFCA7E'
                 }
-            },
+            },*/
             {
                 name: 'Contrato',
                 type: 'bar',
@@ -795,7 +799,7 @@ function TiempoPromedioEtapas(){
                         position: 'insideRight'
                     }
                 },
-                data: [150],
+                data: datos.resultados.promedioDiasIniciarContrato,
                 itemStyle:{
                     color: '#DA527A'
                 }
@@ -816,6 +820,10 @@ function TiempoPromedioEtapas(){
     window.addEventListener("resize", function(){
         grafico.resize();
     });
+    }).fail(function() {
+    
+    });
+    
 }
 
 function CantidadProcesosCategoriaCompra(){
@@ -1238,133 +1246,133 @@ function Top10Proveedores(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
 $.get(api+"/dashboardoncae/topproveedores/",parametros).done(function( datos ) {
-console.dir('TOP PROVEEDORES')
-console.dir(datos)
+console.dir('TOP PROVEEDORES');
+console.dir(datos);
+var grafico=echarts.init(document.getElementById('top10Proveedores'));
+var opciones = {
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'cross',
+            crossStyle: {
+                color: '#999'
+            }
+        }
+    },
+    toolbox: {
+        orient:'horizontal',
+        itemsize:20,
+        itemGap:15,
+        right:20,
+        top:25,
+        feature: {
+            dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+            magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+            restore: {show: true,title:'Restaurar'},
+            saveAsImage: {show: true,title:'Descargar'}
+        },
+        emphasis:{
+            iconStyle:{
+                textPosition:'top'
+            }
+        }
+    },/*
+    legend: {
+        data:['蒸发量1','降水量','平均温度3']
+    },*/
+    xAxis: [
+        {
+            type: 'value',
+            axisLabel: {
+                formatter: '{value} HNL'
+            }
+        }
+    ],
+    yAxis: [
+        {
+            
+            type: 'category',
+            data: datos.resultados.nombreProveedores,
+            axisPointer: {
+                type: 'shadow'
+            }
+            
+            /*,
+            name: 'Monto',
+            min: 0,
+            max: 200000,
+            interval: 50000,
+            axisLabel: {
+                formatter: '{value} HNL'
+            }*/
+        }/*,
+        {
+            type: 'value',
+            name: 'Cantidad de Pagos Promedio',
+            min: 0,
+            max: 25,
+            interval: 5,
+            axisLabel: {
+                formatter: '{value} HNL'
+            }
+        }*/
+    ],
+    series: [
+        {
+            name:'Monto Contratado',
+            type:'bar',
+            data:datos.resultados.montoContratado,
+            itemStyle:{
+                color: '#58C5CC'
+            },
+            label: {
+                normal: {
+                    show: true,
+                    position: 'insideRight'
+                }
+            },
+            barWidth:30,
+            barCategoryGap:'20%',
+            barGap:'50%'
+        }/*,
+        {
+            name:'Cantidad de Procesos en Promedio',
+            type:'line',
+            //yAxisIndex: 1,
+            data:[9000,90444,59000,82000,54248,63734,79214,72792,3351,87934],
+            symbol: 'circle',
+            symbolSize: 10,
+            lineStyle: {
+                normal: {
+                    color: '#6569CC',
+                    width: 4
+                }
+            },
+            itemStyle:{
+                color: '#6569CC'
+            }
+        }*/
+    ],
+    grid:{
+        containLabel:true
+    },
+    label:{
+        show:true,
+        fontFamily:'Poppins',
+        fontWeight:700,
+        fontSize:15
+    }
+};
+grafico.setOption(opciones, true);
+
+
+window.addEventListener("resize", function(){
+    grafico.resize();
+});
 }).fail(function() {
     
 });
-    var grafico=echarts.init(document.getElementById('top10Proveedores'));
-    var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
-                }
-            }
-        },
-        toolbox: {
-            orient:'horizontal',
-            itemsize:20,
-            itemGap:15,
-            right:20,
-            top:25,
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            },
-            emphasis:{
-                iconStyle:{
-                    textPosition:'top'
-                }
-            }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
-        xAxis: [
-            {
-                type: 'value',
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }
-        ],
-        yAxis: [
-            {
-                
-                type: 'category',
-                data: ['Centro de Inmunodiagnostico Especializado, S. de R.L.','QUALITY , SISTEMAS Y REACTIVOS SOCIEDAD DE RESPONSAILIDAD LIMITADA','INFINITE TRAVEL GROUP S DE R L','Cash Business, S. de R. L.','Yip Supermercados, S. A. de C. V.','DISTRIBUIDORA CHOROTEGA','JETSTEREO S.A DE C.V.','INDUFESA','PACASA','LICONA AUTOREPUESTOS'],
-                axisPointer: {
-                    type: 'shadow'
-                }
-                
-                /*,
-                name: 'Monto',
-                min: 0,
-                max: 200000,
-                interval: 50000,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }*/
-            }/*,
-            {
-                type: 'value',
-                name: 'Cantidad de Pagos Promedio',
-                min: 0,
-                max: 25,
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }*/
-        ],
-        series: [
-            {
-                name:'Monto Pagado',
-                type:'bar',
-                data:[150000,80444,69000,72000,64248,93734,99214,92792,4351,97934],
-                itemStyle:{
-                    color: '#58C5CC'
-                },
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                barWidth:30,
-                barCategoryGap:'20%',
-                barGap:'50%'
-            },
-            {
-                name:'Cantidad de Procesos en Promedio',
-                type:'line',
-                //yAxisIndex: 1,
-                data:[9000,90444,59000,82000,54248,63734,79214,72792,3351,87934],
-                symbol: 'circle',
-                symbolSize: 10,
-                lineStyle: {
-                    normal: {
-                        color: '#6569CC',
-                        width: 4/*,
-                        type: 'dashed'*/
-                    }
-                },
-                itemStyle:{
-                    color: '#6569CC'
-                }
-            }
-        ],
-        grid:{
-            containLabel:true
-        },
-        label:{
-            show:true,
-            fontFamily:'Poppins',
-            fontWeight:700,
-            fontSize:15
-        }
-    };
-    grafico.setOption(opciones, true);
-
-    
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
+   
 }
 
 
