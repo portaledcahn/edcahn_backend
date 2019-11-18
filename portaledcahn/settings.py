@@ -86,11 +86,11 @@ DATABASES = {
         'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': '192.168.1.7',
-        # 'NAME': 'ocdskingfisher',
-        # 'USER': 'ocdskingfisher',
-        # 'PASSWORD': 'ocdskingfisher',        
-        # 'HOST': '34.74.53.102',
+        # 'HOST': '192.168.1.15',
+        'NAME': 'ocdskingfisher',
+        'USER': 'ocdskingfisher',
+        'PASSWORD': 'ocdskingfisher',        
+        'HOST': '200.13.162.87',
         'PORT': '5432',
     },
     'default': {
@@ -149,7 +149,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-ELASTICSEARCH_DSL_HOST = '192.168.1.15:9200/'
+ELASTICSEARCH_DSL_HOST = '192.168.1.12:9200/'
 # ELASTICSEARCH_DSL_HOST = '192.168.104.94:9200/'
 # ELASTICSEARCH_DSL_HOST = 'http://200.13.162.87:9200/'
 

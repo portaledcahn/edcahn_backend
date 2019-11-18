@@ -85,7 +85,7 @@ class Data(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'v_data'
+        db_table = 'data'
         app_label = 'kingfisher'
 
 class PackageData(models.Model):
@@ -107,6 +107,7 @@ class Record(models.Model):
         managed = False
         db_table = 'record'
         app_label = 'kingfisher'
+        ordering = ['-id']
 
 class RecordCheck(models.Model):
     record = models.ForeignKey(Record, models.DO_NOTHING)
@@ -141,6 +142,7 @@ class Release(models.Model):
         managed = False
         db_table = 'release'
         app_label = 'kingfisher'
+        ordering = ['-id']
 
 class ReleaseCheck(models.Model):
     release = models.ForeignKey(Release, models.DO_NOTHING)
