@@ -1555,12 +1555,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
     };
     filtros=ObtenerJsonFiltrosAplicados(filtros);
     $.each(filtros,function(llave,valor){
-        console.dir(llave)
-        console.dir(valor)
-        console.dir('ul#ul'+ filtrosAplicablesR[llave].parametro)
-        console.dir( 'li[formato="'+(valor).toString().toLowerCase()+'"]')
       $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
-        'li[formato="'+((traducciones[valor]?traducciones[valor].titulo:valor)).toString().toLowerCase()+'"]'
+        'li[valor="'+(valor).toString()+'"]'
+        //'li[formato="'+((traducciones[valor]?traducciones[valor].titulo:valor)).toString().toLowerCase()+'"]'
       ).addClass('active');
     });
   }

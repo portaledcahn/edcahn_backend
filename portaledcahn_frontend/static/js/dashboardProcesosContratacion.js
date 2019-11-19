@@ -194,8 +194,6 @@ function ObtenerJsonFiltrosAplicados(parametros){
     };
     filtros=ObtenerJsonFiltrosAplicados(filtros);
     $.each(filtros,function(llave,valor){
-        console.dir('ul#ul'+filtrosAplicablesR[llave].parametro)
-        console.dir('li[valor="'+(valor).toString().toLowerCase()+'"]')
       $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
         'li[valor="'+(valor).toString()+'"]'
       ).addClass('active');
@@ -265,7 +263,7 @@ function AgregarPropiedadesListaElastica(valor,llave){
         $('<li >',{
         class:'list-group-item',
         valor:propiedades[ValoresLlaves(llave).codigo]?propiedades[ValoresLlaves(llave).codigo]:propiedades.key, 
-        formato: ((traducciones[propiedades[ValoresLlaves(llave).valor]]?traducciones[propiedades[ValoresLlaves(llave).valor]].titulo:propiedades[ValoresLlaves(llave).valor])).toString().toLowerCase(),'llave':llave,
+        formato: (ObtenerTexto(traducciones[propiedades[ValoresLlaves(llave).valor]]?traducciones[propiedades[ValoresLlaves(llave).valor]].titulo:propiedades[ValoresLlaves(llave).valor])).toString().toLowerCase(),'llave':llave,
         
         on:{
           click:function(e){

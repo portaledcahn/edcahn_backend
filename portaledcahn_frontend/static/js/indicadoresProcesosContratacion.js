@@ -764,8 +764,6 @@ function AccederUrlPagina(opciones,desUrl){
     };
     filtros=ObtenerJsonFiltrosAplicados(filtros);
     $.each(filtros,function(llave,valor){
-        console.dir('ul#ul'+filtrosAplicablesR[llave].parametro)
-        console.dir('li[valor="'+(valor).toString().toLowerCase()+'"]')
       $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
         'li[valor="'+(valor).toString()+'"]'
       ).addClass('active');
