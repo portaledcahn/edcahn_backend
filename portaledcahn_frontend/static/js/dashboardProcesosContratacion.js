@@ -302,8 +302,10 @@ function AgregarPropiedadesListaElastica(valor,llave){
   
 function InicializarCantidadProcesos(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#cantidadProcesos',true)
     $.get(api+"/dashboardoncae/cantidaddeprocesos/",parametros).done(function( datos ) {
+        OcultarEspera('#cantidadProcesos')
     var grafico=echarts.init(document.getElementById('cantidadProcesos'));
     var opciones = {
         tooltip: {
@@ -452,9 +454,12 @@ function InicializarCantidadProcesos(){
 function InicializarMontoProcesos(){
     //app.title = '折柱混合';
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#montoProcesos',true);
     $.get(api+"/dashboardoncae/montosdecontratos/",parametros).done(function( datos ) {
-
+        console.dir('Monto Procesos')
+        console.dir(datos);
+        OcultarEspera('#montoProcesos')
     var grafico=echarts.init(document.getElementById('montoProcesos'));
     var opciones = {
         tooltip: {
@@ -608,10 +613,12 @@ function InicializarMontoProcesos(){
 
 function CantidadProcesosEtapas(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#CantidadProcesosEtapas',true)
     $.get(api+"/dashboardoncae/procesosporetapa/",parametros).done(function( datos ) {
     console.dir('PROCESOS POR ETAPA')
     console.dir(datos)
+    OcultarEspera('#CantidadProcesosEtapas')
         //app.title = '折柱混合';
         var grafico=echarts.init(document.getElementById('CantidadProcesosEtapas'));
         var opciones = {
@@ -705,8 +712,10 @@ function CantidadProcesosEtapas(){
 
 function TiempoPromedioEtapas(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#tiempoPromedioEtapas',true);
     $.get(api+"/dashboardoncae/tiemposporetapa/",parametros).done(function( datos ) {
+    OcultarEspera('#tiempoPromedioEtapas');
     console.dir('TIEMPOS POR ETAPA');
     console.dir(datos);
     var grafico=echarts.init(document.getElementById('tiempoPromedioEtapas'));
@@ -827,9 +836,11 @@ function TiempoPromedioEtapas(){
 function CantidadProcesosCategoriaCompra(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
+    MostrarEspera('#CantidadProcesosCategoriaCompra',true);
 $.get(api+"/dashboardoncae/procesosporcategoria/",parametros).done(function( datos ) {
 console.dir('PROCESOS POR CATEGORIA DE COMPRA')
 console.dir(datos)
+OcultarEspera('#CantidadProcesosCategoriaCompra');
 var datosPastel=[];
 datos.resultados.categorias.forEach(function(valor,indice){
     datosPastel.push(
@@ -898,10 +909,12 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
 
 function MontoProcesosCategoriaCompra(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#MontoProcesosCategoriaCompra',true);
     $.get(api+"/dashboardoncae/contratosporcategoria/",parametros).done(function( datos ) {
     console.dir('CONTRATOS POR CATEGORIA DE COMPRA')
     console.dir(datos)
+    OcultarEspera('#MontoProcesosCategoriaCompra');
     var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
         datosPastel.push(
@@ -973,9 +986,11 @@ function MontoProcesosCategoriaCompra(){
 function CantidadProcesosMetodoContratacion(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
+    MostrarEspera('#CantidadProcesosMetodoContratacion',true);
 $.get(api+"/dashboardoncae/procesospormodalidad/",parametros).done(function( datos ) {
 console.dir('PROCESOS POR MODALIDAD DE COMPRA')
 console.dir(datos)
+OcultarEspera('#CantidadProcesosMetodoContratacion');
 var datosPastel=[];
 datos.resultados.modalidades.forEach(function(valor,indice){
     datosPastel.push(
@@ -1048,10 +1063,12 @@ window.addEventListener("resize", function(){
 }
 function MontoProcesosMetodoContratacion(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#MontoProcesosMetodoContratacion',true);
 $.get(api+"/dashboardoncae/contratospormodalidad/",parametros).done(function( datos ) {
 console.dir('MONTO POR MODALIDAD DE CONTRATACION')
-console.dir(datos)
+console.dir(datos);
+OcultarEspera('#MontoProcesosMetodoContratacion');
 var datosPastel=[];
     datos.resultados.modalidades.forEach(function(valor,indice){
         datosPastel.push(
@@ -1124,10 +1141,12 @@ var datosPastel=[];
 
 function Top10Compradores(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#top10Compradores',true);
 $.get(api+"/dashboardoncae/topcompradores/",parametros).done(function( datos ) {
 console.dir('TOP COMPRADORES')
-console.dir(datos)
+console.dir(datos);
+OcultarEspera('#top10Compradores');
 var grafico=echarts.init(document.getElementById('top10Compradores'));
     var opciones = {
         tooltip: {
@@ -1164,7 +1183,14 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
             {
                 type: 'value',
                 axisLabel: {
-                    formatter: '{value} HNL'
+                    formatter: '{value} HNL',
+                    rotate:45,
+                showMinLabel:false
+                },
+                axisPointer: {
+                    label: {
+                        formatter: '{value} HNL'
+                    }
                 }
             }
         ],
@@ -1175,7 +1201,8 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                 data: datos.resultados.nombreCompradores,
                 axisPointer: {
                     type: 'shadow'
-                }
+                },
+                align: 'right'
                 
                 /*,
                 name: 'Monto',
@@ -1207,8 +1234,14 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                 },
                 label: {
                     normal: {
-                        show: true,
-                        position: 'insideRight'
+                        show:true,
+                            fontFamily:'Poppins',
+                            fontWeight:700,
+                            fontSize:15,
+                        position: 'right',
+                        formatter: function (e){
+                            return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                        }
                     }
                 },
                 barWidth:30,
@@ -1217,7 +1250,8 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
             }
         ],
         grid:{
-            containLabel:true
+            containLabel:true,
+            right:'15%'
         },
         label:{
             show:true,
@@ -1242,10 +1276,13 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
 
 function Top10Proveedores(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    
+    MostrarEspera('#top10Proveedores',true);
 $.get(api+"/dashboardoncae/topproveedores/",parametros).done(function( datos ) {
 console.dir('TOP PROVEEDORES');
 console.dir(datos);
+OcultarEspera('#top10Proveedores');
 var grafico=echarts.init(document.getElementById('top10Proveedores'));
 var opciones = {
     tooltip: {
@@ -1281,14 +1318,24 @@ var opciones = {
     xAxis: [
         {
             type: 'value',
-            axisLabel: {
-                formatter: '{value} HNL'
-            }
+                            /*min: 0,
+                            max: 810,*/
+                            //interval: 100000,
+                            axisLabel: {
+                                formatter: '{value} HNL',
+                                rotate:45,
+                        showMinLabel:false
+                            },
+                            axisPointer: {
+                                label: {
+                                    formatter: '{value} HNL'
+                                }
+                            }
         }
     ],
     yAxis: [
         {
-            
+            name:'Monto Contratado',
             type: 'category',
             data: datos.resultados.nombreProveedores,
             axisPointer: {
@@ -1321,12 +1368,18 @@ var opciones = {
             type:'bar',
             data:datos.resultados.montoContratado,
             itemStyle:{
-                color: '#58C5CC'
+                color: '#FECB7E'
             },
             label: {
                 normal: {
-                    show: true,
-                    position: 'insideRight'
+                    show:true,
+                    fontFamily:'Poppins',
+                    fontWeight:700,
+                    fontSize:15,
+                    position: 'right',
+                    formatter: function (e){
+                        return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                    }
                 }
             },
             barWidth:30,
@@ -1352,7 +1405,8 @@ var opciones = {
         }*/
     ],
     grid:{
-        containLabel:true
+        containLabel:true,
+        right:'15%'
     },
     label:{
         show:true,

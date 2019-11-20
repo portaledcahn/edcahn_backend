@@ -179,12 +179,12 @@ function DescargarElemento(direccion){
     enlace.click();
 }
 
-function MostrarEspera(selector){
-    if($(selector+' .espera').length){
-        $(selector+' .espera').show();
+function MostrarEspera(selector,elemento){
+    if($(selector+' .espera'+(elemento?'.elemento':'')).length){
+        $(selector+' .espera'+(elemento?'.elemento':'')).show();
     }else{
         $(selector).append(
-            $('<div>',{class:'espera'}).append(
+            $('<div>',{class:'espera'+(elemento?' elemento':'')}).append(
                 $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'})
             )
         )

@@ -35,9 +35,11 @@ function InicializarCantidadProcesos(){
     
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
+    MostrarEspera('#cantidadProcesos',true)
     $.get(api+"/indicadoresoncae/contratospormodalidad/",parametros).done(function( datos ) {
     console.dir('PROCESOS POR CATEGORIA DE COMPRA');
     console.dir(datos);
+    OcultarEspera('#cantidadProcesos')
     var grafico=echarts.init(document.getElementById('cantidadProcesos'));
     var opciones = {
         tooltip: {
@@ -79,7 +81,7 @@ function InicializarCantidadProcesos(){
                 },
                 axisLabel:{
                     interval:0,
-                    rotate:85,
+                    rotate:45,
                     showMinLabel:false,
                     padding:[0,0,0,0]
                 },
@@ -117,7 +119,13 @@ function InicializarCantidadProcesos(){
                 max: 25,
                 interval: 5,*/
                 axisLabel: {
-                    formatter: '{value} HNL'
+                    formatter: '{value} HNL',
+                    rotate:315
+                },
+                axisPointer: {
+                    label: {
+                        formatter: '{value} HNL'
+                    }
                 }
             }
         ],
@@ -129,10 +137,13 @@ function InicializarCantidadProcesos(){
                 itemStyle:{
                     color: '#DA517A'
                 },
+                barWidth:30,
+                barCategoryGap:'20%',
+                barGap:'50%'/*
                 barMaxWidth:20,
                 barGap:'0%',
                 barCategoryGap: '0%',
-                padding:0
+                padding:0*/
             },
             {
                 name:'Monto de Contratos',
@@ -187,9 +198,11 @@ function InicializarCantidadProcesos(){
 function CantidadContratosCategoriaCompra(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
+    MostrarEspera('#CantidadContratosCategoriaCompra',true)
 $.get(api+"/indicadoresoncae/cantidadcontratosporcategoria/",parametros).done(function( datos ) {
 console.dir('CONTRATOS POR CATEGORIA');
 console.dir(datos);
+OcultarEspera('#CantidadContratosCategoriaCompra',true)
 var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
         datosPastel.push(
@@ -258,10 +271,12 @@ window.addEventListener("resize", function(){
 
 function MontoContratosCategoriaCompra(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#MontoContratosCategoriaCompra',true);
 $.get(api+"/indicadoresoncae/montoporcategoria/",parametros).done(function( datos ) {
 console.dir('MONTOS POR CATEGORIA DE COMPRA');
 console.dir(datos);
+OcultarEspera('#MontoContratosCategoriaCompra',true);
 var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
         datosPastel.push(
@@ -332,10 +347,12 @@ var datosPastel=[];
 
 function Top10InstitucionesMontos(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#top10InstitucionesMontos',true);
 $.get(api+"/indicadoresoncae/topcompradores/",parametros).done(function( datos ) {
 console.dir('TOP COMPRADORES');
 console.dir(datos);
+OcultarEspera('#top10InstitucionesMontos',true);
 var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
     var opciones = {
         tooltip: {
@@ -371,9 +388,19 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
         xAxis: [
             {
                 type: 'value',
-                axisLabel: {
-                    formatter: '{value} HNL'
-                },
+                            /*min: 0,
+                            max: 810,*/
+                            //interval: 100000,
+                            axisLabel: {
+                                formatter: '{value} HNL',
+                                rotate:45,
+                        showMinLabel:false
+                            },
+                            axisPointer: {
+                                label: {
+                                    formatter: '{value} HNL'
+                                }
+                            },
                 position:'bottom'
             },
             {
@@ -423,8 +450,14 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                 },
                 label: {
                     normal: {
-                        show: true,
-                        position: 'insideRight'
+                        show:true,
+                        fontFamily:'Poppins',
+                        fontWeight:700,
+                        fontSize:15,
+                        position: 'right',
+                        formatter: function (e){
+                            return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                        }
                     }
                 },
                 barWidth:30,
@@ -452,7 +485,8 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
             }
         ],
         grid:{
-            containLabel:true
+            containLabel:true,
+            right:'15%'
         },
         label:{
             show:true,
@@ -477,10 +511,12 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
 
 function MontoCatalogoElectronico(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#montoCatalogoElectronico',true);
 $.get(api+"/indicadoresoncae/catalogos/",parametros).done(function( datos ) {
 console.dir('MONTO CATALOGO ELECTRONICO');
 console.dir(datos);
+OcultarEspera('#montoCatalogoElectronico',true);
 var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
     var opciones = {
         tooltip: {
@@ -516,17 +552,27 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
         xAxis: [
             {
                 type: 'value',
-                axisLabel: {
-                    formatter: '{value} HNL'
-                },
-                position:'top'
+                            /*min: 0,
+                            max: 810,*/
+                            //interval: 100000,
+                            axisLabel: {
+                                formatter: '{value} HNL',
+                                rotate:45,
+                        showMinLabel:false
+                            },
+                            axisPointer: {
+                                label: {
+                                    formatter: '{value} HNL'
+                                }
+                            },
+                position:'bottom'
             },
             {
                 type: 'value',
                 axisLabel: {
                     formatter: '{value}'
                 },
-                position:'bottom'
+                position:'top'
             }
         ],
         yAxis: [
@@ -568,8 +614,14 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                 },
                 label: {
                     normal: {
-                        show: true,
-                        position: 'insideRight'
+                        show:true,
+                        fontFamily:'Poppins',
+                        fontWeight:700,
+                        fontSize:15,
+                        position: 'right',
+                        formatter: function (e){
+                            return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                        }
                     }
                 },
                 barWidth:30,
@@ -597,7 +649,8 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
             }
         ],
         grid:{
-            containLabel:true
+            containLabel:true,
+            right:'15%'
         },
         label:{
             show:true,

@@ -1965,6 +1965,18 @@ vertical-align: top;
 	margin-top:calc(40vh - 50px);
 
 }
+.espera.elemento .imagen{
+	width:100px;
+	left:0;
+	right:0;
+	margin:auto;
+	display:block;
+	margin-top:auto;
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+
+}
 .fuente18{
 	font-size: 18px;
 }
