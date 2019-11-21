@@ -29,10 +29,12 @@ function InicializarCantidadPagos(){
     //app.title = '折柱混合';
 
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#cantidadPagos',true);
     $.get(api+"/dashboardsefin/cantidaddepagos/",parametros).done(function( datos ) {
         console.dir('Cantidad de Pagos')
         console.dir(datos);
+        OcultarEspera('#cantidadPagos');
         var grafico=echarts.init(document.getElementById('cantidadPagos'));
         var opciones = {
             tooltip: {
@@ -180,10 +182,12 @@ function InicializarMontoPagos(){
     //app.title = '折柱混合';
 
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEspera('#montoPagos',true);
     $.get(api+"/dashboardsefin/montosdepagos/",parametros).done(function( datos ) {
-        console.dir('Monto Pagos')
+        console.dir('Monto Pagos');
         console.dir(datos);
+        OcultarEspera('#montoPagos');
         var grafico=echarts.init(document.getElementById('montoPagos'));
         var opciones = {
             tooltip: {
@@ -537,10 +541,12 @@ function CantidadPagosEtapas(){
 function MontoPagosEtapas(){
     //app.title = '折柱混合';
     var parametros={}
-        parametros=ObtenerJsonFiltrosAplicados(parametros)
+        parametros=ObtenerJsonFiltrosAplicados(parametros);
+        MostrarEspera('#montoPagosEtapas',true);
         $.get(api+"/dashboardsefin/etapaspago/",parametros).done(function( datos ) {
             console.dir('ETAPAS')
             console.dir(datos);
+            OcultarEspera('#montoPagosEtapas');
     var grafico=echarts.init(document.getElementById('montoPagosEtapas'));
     var opciones = {
         tooltip: {
@@ -783,9 +789,11 @@ function TiempoPromedioEtapas(){
 function Top10Compradores(){
     //app.title = '折柱混合';
     var parametros={}
-        parametros=ObtenerJsonFiltrosAplicados(parametros)
+        parametros=ObtenerJsonFiltrosAplicados(parametros);
+        MostrarEspera('#top10Compradores',true);
         $.get(api+"/dashboardsefin/topcompradores/",parametros).done(function( datos ) {
             console.dir(datos);
+            OcultarEspera('#top10Compradores');
             var grafico=echarts.init(document.getElementById('top10Compradores'));
             var opciones = {
                 tooltip: {
@@ -920,9 +928,11 @@ function Top10Compradores(){
 function Top10Proveedores(){
     //app.title = '折柱混合';
     var parametros={}
-parametros=ObtenerJsonFiltrosAplicados(parametros)
+parametros=ObtenerJsonFiltrosAplicados(parametros);
+MostrarEspera('#top10Proveedores',true);
                 $.get(api+"/dashboardsefin/topproveedores/",parametros).done(function( datos ) {
                     console.dir(datos);
+                    OcultarEspera('#top10Proveedores');
                     var grafico=echarts.init(document.getElementById('top10Proveedores'));
                     var opciones ={
                         tooltip : {
@@ -1052,9 +1062,11 @@ parametros=ObtenerJsonFiltrosAplicados(parametros)
 function Top10MontosProcesos(){
     
     var parametros={}
-parametros=ObtenerJsonFiltrosAplicados(parametros)
+parametros=ObtenerJsonFiltrosAplicados(parametros);
+MostrarEspera('#top10MontosProcesos',true);
                 $.get(api+"/dashboardsefin/topobjetosgasto/",parametros).done(function( datos ) {
                     console.dir(datos);
+                    OcultarEspera('#top10MontosProcesos');
                     var grafico=echarts.init(document.getElementById('top10MontosProcesos'));
                     var opciones ={
                         tooltip : {
