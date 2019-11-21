@@ -737,9 +737,9 @@ function TiempoPromedioEtapas(){
         },
         xAxis:  {
             type: 'value',
-            min: 0,
+           /* min: 0,
             max: 810,
-            interval: 100,
+            interval: 100,*/
             axisLabel: {
                 formatter: '{value} Días'
             }
@@ -774,7 +774,7 @@ function TiempoPromedioEtapas(){
                         position: 'insideRight'
                     }
                 },
-                data: datos.resultados.promedioDiasLicitacion,
+                data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion))],
                 itemStyle:{
                     color: '#F69A69'
                 }
@@ -806,7 +806,7 @@ function TiempoPromedioEtapas(){
                         position: 'insideRight'
                     }
                 },
-                data: datos.resultados.promedioDiasIniciarContrato,
+                data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))],
                 itemStyle:{
                     color: '#DA527A'
                 }

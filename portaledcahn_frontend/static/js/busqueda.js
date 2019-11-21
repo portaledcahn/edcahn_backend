@@ -26,9 +26,10 @@ function EliminarFiltrosMetodo(datos){
     if(datos.filtros.categorias){
       delete datos.filtros.categorias
     }
+    /*
     if(datos.filtros.años){
       delete datos.filtros.años
-    }
+    }*/
     break;
     case 'contrato':
     break;
