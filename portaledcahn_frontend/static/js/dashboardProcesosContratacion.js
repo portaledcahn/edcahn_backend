@@ -735,6 +735,17 @@ function TiempoPromedioEtapas(){
             bottom: '3%',
             containLabel: true
         },
+        legend: {
+            plain: 'scroll',
+            orient: 'horizontal',
+            position:'bottom'
+            /*right: 10,
+            top: 20,
+            bottom: 20*//*,
+            data: ['lengend data 1','lengend data 2','lengend data 3'],
+    
+            selected: [false,false,true]*/
+        },
         xAxis:  {
             type: 'value',
            /* min: 0,
@@ -818,7 +829,9 @@ function TiempoPromedioEtapas(){
             fontWeight:700,
             fontSize:25,
             align:'right',
-            formatter: '{c} Días'
+            formatter: function (e){
+                return "{c} Días".replace('{c}',e.value);
+            }
         }
     };
     grafico.setOption(opciones, true);
