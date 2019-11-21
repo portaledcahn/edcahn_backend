@@ -92,6 +92,17 @@ function ObtenerTexto(texto){
         return '';
     }
 }
+
+function ContenerCadena(texto,palabra){
+    texto=ObtenerTexto(texto);
+    palabra=ObtenerTexto(palabra);
+    if(texto.trim().toLowerCase().indexOf(palabra.trim().toLowerCase())!=-1){
+    return true;
+    }
+    else{
+    return false;
+    }
+}
 function SanitizarId(texto){
     texto=ObtenerTexto(texto);
     return reemplazarValor(reemplazarValor(reemplazarValor(texto,'\\\\',''),'/',''),' ','');
