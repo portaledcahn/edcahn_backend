@@ -33,7 +33,10 @@
        {% block container %}
        {% endblock %}
 
-       {% include "footer.html" %}
+       
+       
+{% if request.path != '/dashboardProcesosContratacion/' and request.path != '/indicadoresProcesosContratacion/' and request.path != '/dashboardProcesosPago/' %}{% include "footer.html" %}{% endif %}
+
       <script type="text/javascript" src="{% static 'plugins/intro.js-2.9.3/intro.min.js' %}"></script>
       <script type="text/javascript" src="{% static 'js/polyfill.js' %}"></script>
       <script type="text/javascript" src="{% static 'plugins/jquery-3.4.1/jquery-3.4.1.min.js' %}"></script>

@@ -1348,7 +1348,7 @@ $(function(){
     
  
     //SegregacionMontosContratos();
-    $('#quitarFiltros').on('click',function(e){
+    $('#quitarFiltros, #quitarFiltros2').on('click',function(e){
         PushDireccionGraficos(AccederUrlPagina({},true));
       });
 
@@ -1531,7 +1531,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
     $('#listaFiltrosAplicados').html('');
     $.each(parametros,function(llave,filtro){
       $('#listaFiltrosAplicados').append(
-        $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(
+        $('<div>',{class:'grupoEtiquetaFiltro col-md-12x mb-1x',style:'display:inline-block'}).append(
           $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
           $('<div>',{class:'filtrosAplicados'}).append(
             $('<div>',{class:'etiquetaFiltro','llave':llave,'valor':filtro}).append(

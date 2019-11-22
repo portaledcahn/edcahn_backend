@@ -224,11 +224,10 @@ var opciones = {
         formatter: "{a} <br/>{b} : {c} ({d}%)"
     },
     legend: {
-        type: 'scroll',
-        orient: 'vertical',
-        right: 10,
-        top: 20,
-        bottom: 20/*,
+        type: 'plain',
+        orient: 'horizontal',
+        bottom: 0,
+        right:'center'/*,
         data: ['lengend data 1','lengend data 2','lengend data 3'],
 
         selected: [false,false,true]*/
@@ -238,7 +237,7 @@ var opciones = {
             name: 'Cantidad de Contratos por Categoría de Compra',
             type: 'pie',
             radius : '55%',
-            center: ['40%', '50%'],
+            center: ['50%', '50%'],
             data: datosPastel,
             itemStyle: {
                 color: function(e){
@@ -300,11 +299,10 @@ var datosPastel=[];
             }
         },
         legend: {
-            type: 'scroll',
-            orient: 'vertical',
-            right: 10,
-            top: 20,
-            bottom: 20/*,
+            type: 'plain',
+        orient: 'horizontal',
+        bottom: 0,
+        right:'center'/*,
             data: ['lengend data 1','lengend data 2','lengend data 3'],
     
             selected: [false,false,true]*/
@@ -314,7 +312,7 @@ var datosPastel=[];
                 name: 'Monto de Contratos por Categoría de Compra',
                 type: 'pie',
                 radius : '55%',
-                center: ['40%', '50%'],
+                center: ['50%', '50%'],
                 data: datosPastel,
                 itemStyle: {
                     color: function(e){
@@ -415,9 +413,15 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
             {
                 
                 type: 'category',
-                data: datos.resultados.nombreCompradores,
+                data: datos.resultados.nombreCompradores.reverse(),
                 axisPointer: {
                     type: 'shadow'
+                },
+                axisLabel:{
+                    interval:0,
+                    rotate:45,
+                    showMinLabel:false,
+                    padding:[0,0,0,0]
                 }
                 
                 /*,
@@ -444,7 +448,7 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
             {
                 name:'Monto Contratado',
                 type:'bar',
-                data:datos.resultados.montoContratado,
+                data:datos.resultados.montoContratado.reverse(),
                 itemStyle:{
                     color: '#DA517A'
                 },
@@ -468,7 +472,7 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                 name:'Cantidad de Procesos de Contratación',
                 type:'line',
                 //yAxisIndex: 1,
-                data:datos.resultados.cantidadOCIDs,
+                data:datos.resultados.cantidadOCIDs.reverse(),
                 symbol: 'circle',
                 symbolSize: 10,
                 lineStyle: {
@@ -579,10 +583,12 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
             {
                 
                 type: 'category',
-                data: datos.resultados.nombreCatalogos,
+                data: datos.resultados.nombreCatalogos.reverse(),
                 axisPointer: {
                     type: 'shadow'
-                }
+                },axisLabel: {
+                    rotate:45
+                },
                 
                 /*,
                 name: 'Monto',
@@ -608,7 +614,7 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
             {
                 name:'Monto de Contrato',
                 type:'bar',
-                data:datos.resultados.montoContratado,
+                data:datos.resultados.montoContratado.reverse(),
                 itemStyle:{
                     color: '#FECB7E'
                 },
@@ -632,7 +638,7 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                 name:'Cantidad de Contratos',
                 type:'line',
                 //yAxisIndex: 1,
-                data:datos.resultados.cantidadProcesos,
+                data:datos.resultados.cantidadProcesos.reverse(),
                 symbol: 'circle',
                 symbolSize: 10,
                 lineStyle: {
@@ -686,7 +692,7 @@ $(function(){
         }
       });
     CargarGraficos();
-    $('#quitarFiltros').on('click',function(e){
+    $('#quitarFiltros, #quitarFiltros2').on('click',function(e){
         PushDireccionGraficos(AccederUrlPagina({},true));
       });
 })
@@ -781,7 +787,7 @@ function AccederUrlPagina(opciones,desUrl){
     $('#listaFiltrosAplicados').html('');
     $.each(parametros,function(llave,filtro){
       $('#listaFiltrosAplicados').append(
-        $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(
+        $('<div>',{class:'grupoEtiquetaFiltro col-md-12x mb-1x',style:'display:inline-block'}).append(
           $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
           $('<div>',{class:'filtrosAplicados'}).append(
             $('<div>',{class:'etiquetaFiltro','llave':llave,'valor':filtro}).append(

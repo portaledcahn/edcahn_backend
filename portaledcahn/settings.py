@@ -86,7 +86,7 @@ DATABASES = {
         'NAME': 'ocdskingfisher',
         'USER': 'ocdskingfisher',
         'PASSWORD': 'ocdskingfisher',
-        'HOST': '34.74.53.102',
+        'HOST': '200.13.162.87',
         'PORT': '5432',
     },
     'default': {

@@ -4,7 +4,8 @@ var filtrosAplicables={
     años: {titulo:'Año',parametro:'año'},
     proveedores: {titulo:'Proveedor',parametro:'proveedor'},
     categorias: {titulo:'Categoría de Compra',parametro:'categoria'},
-    modalidades : {titulo:'Modalidad de Compra',parametro:'modalidad'}
+    modalidades : {titulo:'Modalidad de Compra',parametro:'modalidad'},
+    sistemas :{titulo:'Sistema de Origen', parametro: 'sistema'}
     
   };
   var filtrosAplicablesR={
@@ -13,7 +14,8 @@ var filtrosAplicables={
     año: {titulo:'Año',parametro:'años'},
     proveedor: {titulo:'Proveedor',parametro:'proveedores'},
     modalidad: {titulo:'Modalidad de Compra',parametro:'modalidades'},
-    categoria : {titulo:'Categoría de Compra',parametro:'categorias'}
+    categoria : {titulo:'Categoría de Compra',parametro:'categorias'},
+    sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
     
   };
   var traducciones={
@@ -52,7 +54,7 @@ var filtrosAplicables={
     
  
     //SegregacionMontosContratos();
-    $('#quitarFiltros').on('click',function(e){
+    $('#quitarFiltros, #quitarFiltros2').on('click',function(e){
         PushDireccionGraficos(AccederUrlPagina({},true));
       });
 
@@ -123,6 +125,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('modalidad'))){
         parametros['modalidad']=decodeURIComponent(ObtenerValor('modalidad'));
     }
+    if(Validar(ObtenerValor('sistema'))){
+        parametros['sistema']=decodeURIComponent(ObtenerValor('sistema'));
+    }
     
 
     return parametros;
@@ -136,7 +141,8 @@ function ObtenerJsonFiltrosAplicados(parametros){
     (ValidarCadena(opciones.año)? '&año='+encodeURIComponent(opciones.año): (ValidarCadena(ObtenerValor('año'))&&!desUrl?'&año='+ObtenerValor('año'):''))+
     (ValidarCadena(opciones.proveedor)? '&proveedor='+encodeURIComponent(opciones.proveedor): (ValidarCadena(ObtenerValor('proveedor'))&&!desUrl?'&proveedor='+ObtenerValor('proveedor'):''))+
     (ValidarCadena(opciones.categoria)? '&categoria='+encodeURIComponent(opciones.categoria): (ValidarCadena(ObtenerValor('categoria'))&&!desUrl?'&categoria='+ObtenerValor('categoria'):''))+
-    (ValidarCadena(opciones.modalidad) ? '&modalidad='+encodeURIComponent(opciones.modalidad):(ValidarCadena(ObtenerValor('modalidad'))&&!desUrl?'&modalidad='+ObtenerValor('modalidad'):''))
+    (ValidarCadena(opciones.modalidad) ? '&modalidad='+encodeURIComponent(opciones.modalidad):(ValidarCadena(ObtenerValor('modalidad'))&&!desUrl?'&modalidad='+ObtenerValor('modalidad'):''))+
+    (ValidarCadena(opciones.sistema) ? '&sistema='+encodeURIComponent(opciones.sistema):(ValidarCadena(ObtenerValor('sistema'))&&!desUrl?'&sistema='+ObtenerValor('sistema'):''))
   
     );
     return direccion;
@@ -158,7 +164,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
     $('#listaFiltrosAplicados').html('');
     $.each(parametros,function(llave,filtro){
       $('#listaFiltrosAplicados').append(
-        $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(
+        $('<div>',{class:'grupoEtiquetaFiltro col-md-12x mb-1x',style:'display:inline-block'}).append(
           $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
           $('<div>',{class:'filtrosAplicados'}).append(
             $('<div>',{class:'etiquetaFiltro','llave':llave,'valor':filtro}).append(
@@ -251,6 +257,8 @@ function ValoresLlaves(llave){
             return {valor:'modalidad',cantidad:'procesos',codigo:'modalidad'};
         case 'monedas':
             return {valor:'moneda',cantidad:'procesos',codigo:'moneda'};
+        case 'sistemas':
+        return {valor:'id',cantidad:'ocids',codigo:'id'};
         default:
             return {valor:'key_as_string',cantidad:'procesos',codigo:'key_as_string'};
     }
@@ -876,10 +884,11 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
         },
         legend: {
             type: 'scroll',
-            orient: 'vertical',
+            orient: 'horizontal',/*
             right: 10,
             top: 20,
-            bottom: 20/*,
+            bottom: 20,*/
+            position:'bottom'/*,
             data: ['lengend data 1','lengend data 2','lengend data 3'],
     
             selected: [false,false,true]*/
@@ -889,7 +898,7 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
                 name: 'Cantidad de Procesos por Categoría de Compra',
                 type: 'pie',
                 radius : '55%',
-                center: ['40%', '50%'],
+                //center: ['40%', '50%'],
                 data: datosPastel,//[{name:'Obras',value: 20},{name:'Bienes',value: 40},{name:'Servicios',value: 60}],
                 itemStyle: {
                     color: function(e){
@@ -952,10 +961,7 @@ function MontoProcesosCategoriaCompra(){
         },
         legend: {
             type: 'scroll',
-            orient: 'vertical',
-            right: 10,
-            top: 20,
-            bottom: 20/*,
+            orient: 'horizontal'/*,
             data: ['lengend data 1','lengend data 2','lengend data 3'],
     
             selected: [false,false,true]*/
@@ -965,7 +971,7 @@ function MontoProcesosCategoriaCompra(){
                 name: 'Monto de Contratos por Categoría de Compra',
                 type: 'pie',
                 radius : '55%',
-                center: ['40%', '50%'],
+                center: ['50%', '50%'],
                 data: datosPastel,
                 itemStyle: {
                     color: function(e){
@@ -1039,7 +1045,7 @@ var opciones = {
             name: 'Cantidad de Procesos por Modalidad de Contratación',
             type: 'pie',
             radius : '55%',
-            center: ['40%', '50%'],
+            center: ['50%', '50%'],
             data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
             itemStyle: {
                 color: function(e){
@@ -1098,6 +1104,7 @@ var datosPastel=[];
             subtext: '纯属虚构',
             x:'center'
         },*/
+        baseOption:{
         tooltip : {
             trigger: 'item',
             formatter: function (e){
@@ -1114,12 +1121,13 @@ var datosPastel=[];
     
             selected: [false,false,true]*/
         },
+        calculable:true,
         series : [
             {
                 name: 'Monto de Contratos por Método de Contratación',
                 type: 'pie',
-                radius : '55%',
-                center: ['40%', '50%'],
+                radius : '50%',
+                center: ['50%', '50%'],
                 data:datosPastel,
                 itemStyle: {
                     color: function(e){
@@ -1137,13 +1145,44 @@ var datosPastel=[];
             }
         ],
         grid:{
-            containLabel:true
-        }
+            containLabel:false,
+            /*right:'15%',
+            left:'15%',*/
+        }}/*,
+        media: [ // each rule of media query is defined here
+            {
+                query: {
+                    //minWidth: 200,
+                    maxWidth: 500
+                },   // write rule here
+                option: {       // write options accordingly
+                    legend: {
+                        type:'plain',
+                        orient:'horizontal',
+                        bottom:0,
+                        right:'center'
+                    }
+                }
+            }
+        ]*/
     };
     grafico.setOption(opciones, true);
 
     
     window.addEventListener("resize", function(){
+        /*if($( window ).width()<768){
+            grafico.setOption({
+                legend:{
+                    show:false
+                }
+            })
+        }else{
+            grafico.setOption({
+                legend:{
+                    show:true
+                }
+            })
+        }*/
         grafico.resize();
     });
 }).fail(function() {
@@ -1211,11 +1250,17 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
             {
                 
                 type: 'category',
-                data: datos.resultados.nombreCompradores,
+                data: datos.resultados.nombreCompradores.reverse(),
                 axisPointer: {
                     type: 'shadow'
                 },
-                align: 'right'
+                align: 'right',
+                axisLabel:{
+                    interval:0,
+                    rotate:45,
+                    showMinLabel:false,
+                    padding:[0,0,0,0]
+                }
                 
                 /*,
                 name: 'Monto',
@@ -1241,7 +1286,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
             {
                 name:'Monto Contratado',
                 type:'bar',
-                data:datos.resultados.montoContratado,
+                data:datos.resultados.montoContratado.reverse(),
                 itemStyle:{
                     color: '#58C5CC'
                 },
@@ -1264,7 +1309,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
         ],
         grid:{
             containLabel:true,
-            right:'15%'
+            right:'5%'
         },
         label:{
             show:true,
@@ -1350,9 +1395,15 @@ var opciones = {
         {
             name:'Monto Contratado',
             type: 'category',
-            data: datos.resultados.nombreProveedores,
+            data: datos.resultados.nombreProveedores.reverse(),
             axisPointer: {
                 type: 'shadow'
+            },
+            axisLabel:{
+                interval:0,
+                rotate:45,
+                showMinLabel:false,
+                padding:[0,0,0,0]
             }
             
             /*,
@@ -1379,7 +1430,7 @@ var opciones = {
         {
             name:'Monto Contratado',
             type:'bar',
-            data:datos.resultados.montoContratado,
+            data:datos.resultados.montoContratado.reverse(),
             itemStyle:{
                 color: '#FECB7E'
             },
@@ -1419,7 +1470,8 @@ var opciones = {
     ],
     grid:{
         containLabel:true,
-        right:'15%'
+        right:'15%',
+        bottom:'10%'
     },
     label:{
         show:true,
