@@ -2508,6 +2508,18 @@ table.tablaGeneral{
 		padding-right: 0;
 		padding-left: 0;
 	}
+	.minAlto_500{
+		height: 500px!important;
+	}
+	.minAlto_700{
+		height: 700px!important;
+	}
+	.minAlto_850{
+		height: 850px!important;
+	}
+	.minAlto_400{
+		height: 400px!important;
+	}
 
 }
 @media only screen and (min-width:768px){

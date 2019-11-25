@@ -31,7 +31,7 @@ var filtrosAplicables={
     }
 
   }
-function InicializarCantidadProcesos(){
+function ModalidadMontoCantidad(){
     
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
@@ -42,140 +42,262 @@ function InicializarCantidadProcesos(){
     OcultarEspera('#cantidadProcesos')
     var grafico=echarts.init(document.getElementById('cantidadProcesos'));
     var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
+        baseOption:{
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
                 }
+            },
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
+                }
+            },/*
+            legend: {
+                data:['蒸发量1','降水量','平均温度3']
+            },*/
+            xAxis: [
+                {
+                    type: 'category',
+                    data:datos.resultados.nombreModalidades,
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    axisLabel:{
+                        interval:0,
+                        rotate:45,
+                        showMinLabel:false,
+                        padding:[0,0,0,0]
+                    },
+                    //boundaryGap:false,
+                    scale: true,
+                    barGap:'0',
+                    barCategoryGap: '0',
+                    nameGap:"0",
+                    axisTick: {
+                        show: false,
+                        alignWithLabel: true,
+                      //  interval: 8,
+                        inside: false,
+                        length: 5,
+                        padding:0
+                    }
+                    ,padding:0
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Cantidad de Contratos',/*
+                    min: 0,
+                    max: 250,
+                    interval: 50,*/
+                    axisLabel: {
+                        formatter: '{value}'
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Monto de Contratos',/*
+                    min: 0,
+                    max: 25,
+                    interval: 5,*/
+                    axisLabel: {
+                        formatter: '{value} HNL',
+                        rotate:315
+                    },
+                    axisPointer: {
+                        label: {
+                            formatter: '{value} HNL'
+                        }
+                    }
+                }
+            ],
+            series: [
+                {
+                    name:'Cantidad de Contratos',
+                    type:'bar',
+                    data:datos.resultados.cantidadContratos,
+                    itemStyle:{
+                        color: '#DA517A'
+                    },
+                    barWidth:30,
+                    barCategoryGap:'20%',
+                    barGap:'50%'/*
+                    barMaxWidth:20,
+                    barGap:'0%',
+                    barCategoryGap: '0%',
+                    padding:0*/
+                },
+                {
+                    name:'Monto de Contratos',
+                    type:'line',
+                    //yAxisIndex: 1,
+                    data:datos.resultados.montosContratos,
+                    yAxisIndex: 1,/*
+                    barMaxWidth:20,
+                    barGap:'0%',
+                    barCategoryGap: '0%',
+                    padding:0,*/
+    
+    
+                    symbol: 'circle',
+                    symbolSize: 10,
+                    lineStyle: {
+                        normal: {
+                            color: '#27AEB4',
+                            width: 4/*,
+                            type: 'dashed'*/
+                        }
+                    },
+                    itemStyle:{
+                        color: '#27AEB4'
+                    }
+    
+                    
+                }
+            ],
+            grid:{
+                containLabel:true
             }
         },
-        toolbox: {
-            orient:'horizontal',
-            itemsize:20,
-            itemGap:15,
-            right:20,
-            top:25,
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            },
-            emphasis:{
-                iconStyle:{
-                    textPosition:'top'
-                }
-            }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
-        xAxis: [
-            {
-                type: 'category',
-                data:datos.resultados.nombreModalidades,
-                axisPointer: {
-                    type: 'shadow'
+        media:[
+            {   query:{
+                maxWidth:600
                 },
-                axisLabel:{
-                    interval:0,
-                    rotate:45,
-                    showMinLabel:false,
-                    padding:[0,0,0,0]
-                },
-                //boundaryGap:false,
-                scale: true,
-                barGap:'0',
-                barCategoryGap: '0',
-                nameGap:"0",
-                axisTick: {
-                    show: false,
-                    alignWithLabel: true,
-                  //  interval: 8,
-                    inside: false,
-                    length: 5,
-                    padding:0
-                }
-                ,padding:0
-            }
-        ],
-        yAxis: [
-            {
-                type: 'value',
-                name: 'Cantidad de Contratos',/*
-                min: 0,
-                max: 250,
-                interval: 50,*/
-                axisLabel: {
-                    formatter: '{value}'
-                }
-            },
-            {
-                type: 'value',
-                name: 'Monto de Contratos',/*
-                min: 0,
-                max: 25,
-                interval: 5,*/
-                axisLabel: {
-                    formatter: '{value} HNL',
-                    rotate:315
-                },
-                axisPointer: {
-                    label: {
-                        formatter: '{value} HNL'
+                option:{
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data:datos.resultados.nombreModalidades,
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            axisLabel:{
+                                interval:0,
+                                rotate:90,
+                                showMinLabel:false,
+                                padding:[0,0,0,0]
+                            },
+                            //boundaryGap:false,
+                            scale: true,
+                            barGap:'0',
+                            barCategoryGap: '0',
+                            nameGap:"0",
+                            axisTick: {
+                                show: false,
+                                alignWithLabel: true,
+                              //  interval: 8,
+                                inside: false,
+                                length: 5,
+                                padding:0
+                            }
+                            ,padding:0
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            name: 'Cantidad de\nContratos',/*
+                            min: 0,
+                            max: 250,
+                            interval: 50,*/
+                            axisLabel: {
+                                formatter: '{value}',
+                                rotate:65
+                            }
+                        },
+                        {
+                            type: 'value',
+                            name: 'Monto de\nContratos',/*
+                            min: 0,
+                            max: 25,
+                            interval: 5,*/
+                            axisLabel: {
+                                formatter: '{value} HNL',
+                                rotate:295
+                            },
+                            axisPointer: {
+                                label: {
+                                    formatter: '{value} HNL'
+                                }
+                            }
+                        }
+                    ],
+                    series: [
+                        {
+                            name:'Cantidad de Contratos',
+                            type:'bar',
+                            data:datos.resultados.cantidadContratos,
+                            itemStyle:{
+                                color: '#DA517A'
+                            },
+                            barWidth:20,
+                            barCategoryGap:'10%',
+                            barGap:'10%'/*
+                            barMaxWidth:20,
+                            barGap:'0%',
+                            barCategoryGap: '0%',
+                            padding:0*/
+                        },
+                        {
+                            name:'Monto de Contratos',
+                            type:'line',
+                            //yAxisIndex: 1,
+                            data:datos.resultados.montosContratos,
+                            yAxisIndex: 1,/*
+                            barMaxWidth:20,
+                            barGap:'0%',
+                            barCategoryGap: '0%',
+                            padding:0,*/
+            
+            
+                            symbol: 'circle',
+                            symbolSize: 10,
+                            lineStyle: {
+                                normal: {
+                                    color: '#27AEB4',
+                                    width: 4/*,
+                                    type: 'dashed'*/
+                                }
+                            },
+                            itemStyle:{
+                                color: '#27AEB4'
+                            }
+            
+                            
+                        }
+                    ],
+                    grid:{
+                        right:'10%',
+                        left:0,
+                        top:100
+                    },
+                    tooltip:{
+                        position:['0%','50%']
                     }
                 }
+
             }
-        ],
-        series: [
-            {
-                name:'Cantidad de Contratos',
-                type:'bar',
-                data:datos.resultados.cantidadContratos,
-                itemStyle:{
-                    color: '#DA517A'
-                },
-                barWidth:30,
-                barCategoryGap:'20%',
-                barGap:'50%'/*
-                barMaxWidth:20,
-                barGap:'0%',
-                barCategoryGap: '0%',
-                padding:0*/
-            },
-            {
-                name:'Monto de Contratos',
-                type:'line',
-                //yAxisIndex: 1,
-                data:datos.resultados.montosContratos,
-                yAxisIndex: 1,/*
-                barMaxWidth:20,
-                barGap:'0%',
-                barCategoryGap: '0%',
-                padding:0,*/
-
-
-                symbol: 'circle',
-                symbolSize: 10,
-                lineStyle: {
-                    normal: {
-                        color: '#27AEB4',
-                        width: 4/*,
-                        type: 'dashed'*/
-                    }
-                },
-                itemStyle:{
-                    color: '#27AEB4'
-                }
-
-                
-            }
-        ],
-        grid:{
-            containLabel:true
-        }
+        ]
+        
     };
     grafico.setOption(opciones, true);
 
@@ -214,11 +336,7 @@ var datosPastel=[];
     });
 var grafico=echarts.init(document.getElementById('CantidadContratosCategoriaCompra'));
 var opciones = {
-    /*title : {
-        text: '同名数量统计',
-        subtext: '纯属虚构',
-        x:'center'
-    },*/
+    baseOption:{
     tooltip : {
         trigger: 'item',
         formatter: "{a} <br/>{b} : {c} ({d}%)"
@@ -254,7 +372,62 @@ var opciones = {
     ],
     grid:{
         containLabel:true
-    }
+    }},
+    media:[
+        {
+            query:{
+                maxWidth:500
+            },
+            option:{
+                
+            }
+        },
+        {
+            query:{
+                maxWidth:600
+            },
+            option:{
+                series : [
+                    {
+                        name: 'Cantidad de Contratos por Categoría de Compra',
+                        type: 'pie',
+                        radius : '55%',
+                        center: ['50%', '30%'],
+                        data: datosPastel,
+                        itemStyle: {
+                            color: function(e){
+                                var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                                return colores[e.dataIndex];
+                            },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        },
+                    
+                        label:{
+                            show :false
+                        },
+                        labelLine:{
+                            show:false
+                        }
+                    }
+                ],legend: {
+                    type:'plain',
+                    orient:'horizontal',
+                    bottom:0,
+                    right:'center',
+                    formatter: function (e){
+                        return e +'. '+ ValorNumerico(datosPastel.filter(function(data){ if(data.name===e){return true;}})[0].value);
+                    }
+                },
+                tooltip: {
+                    position:['0%','50%']
+                }
+            }
+        }
+    ]
 };
 grafico.setOption(opciones, true);
 
@@ -287,49 +460,103 @@ var datosPastel=[];
     });
     var grafico=echarts.init(document.getElementById('MontoContratosCategoriaCompra'));
     var opciones = {
-        /*title : {
-            text: '同名数量统计',
-            subtext: '纯属虚构',
-            x:'center'
-        },*/
-        tooltip : {
-            trigger: 'item',
-            formatter:  function (e){
-                return "{a} <br/>{b}: {c} HNL ({d}%)".replace('{d}',e.percent).replace('{a}',e.seriesName).replace('{b}',e.name).replace('{c}',ValorMoneda(e.value));
-            }
-        },
-        legend: {
-            type: 'plain',
-        orient: 'horizontal',
-        bottom: 0,
-        right:'center'/*,
-            data: ['lengend data 1','lengend data 2','lengend data 3'],
-    
-            selected: [false,false,true]*/
-        },
-        series : [
-            {
-                name: 'Monto de Contratos por Categoría de Compra',
-                type: 'pie',
-                radius : '55%',
-                center: ['50%', '50%'],
-                data: datosPastel,
-                itemStyle: {
-                    color: function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
-                        return colores[e.dataIndex];
-                    },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
-                    emphasis: {
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+        baseOption:{
+            tooltip : {
+                trigger: 'item',
+                formatter:  function (e){
+                    return "{a} <br/>{b}: {c} HNL ({d}%)".replace('{d}',e.percent).replace('{a}',e.seriesName).replace('{b}',e.name).replace('{c}',ValorMoneda(e.value));
+                }
+            },
+            legend: {
+                type: 'plain',
+            orient: 'horizontal',
+            bottom: 0,
+            right:'center'/*,
+                data: ['lengend data 1','lengend data 2','lengend data 3'],
+        
+                selected: [false,false,true]*/
+            },
+            series : [
+                {
+                    name: 'Monto de Contratos por Categoría de Compra',
+                    type: 'pie',
+                    radius : '55%',
+                    center: ['50%', '50%'],
+                    data: datosPastel,
+                    itemStyle: {
+                        color: function(e){
+                            var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                            return colores[e.dataIndex];
+                        },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                        emphasis: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
                     }
                 }
+            ],
+            grid:{
+                containLabel:true
             }
-        ],
-        grid:{
-            containLabel:true
-        }
+        },
+        media:[
+            {
+                query:{
+                    maxWidth:500
+                },
+                option:{
+                    
+                }
+            },
+            {
+                query:{
+                    maxWidth:600
+                },
+                option:{
+                    series : [
+                        {
+                            name: 'Cantidad de Contratos por Categoría de Compra',
+                            type: 'pie',
+                            radius : '55%',
+                            center: ['50%', '30%'],
+                            data: datosPastel,
+                            itemStyle: {
+                                color: function(e){
+                                    var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                                    return colores[e.dataIndex];
+                                },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                                emphasis: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            },
+                            label:{
+                                show :false
+                            },
+                            labelLine:{
+                                show:false
+                            }
+                        }
+                    
+                ],legend: {
+                    type:'plain',
+                    orient:'horizontal',
+                    bottom:0,
+                    right:'center',
+                    formatter: function (e){
+                        return e +'. '+ ValorMoneda(datosPastel.filter(function(data){ if(data.name===e){return true;}})[0].value)+' HNL';
+                    }
+                },
+                tooltip: {
+                    position:['0%','50%']
+                }
+            }
+                
+            }
+        ]
+        
     };
     grafico.setOption(opciones, true);
 
@@ -353,151 +580,241 @@ console.dir(datos);
 OcultarEspera('#top10InstitucionesMontos',true);
 var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
     var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
+        baseOption:{
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
                 }
+            },
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
+                }
+            },/*
+            legend: {
+                data:['蒸发量1','降水量','平均温度3']
+            },*/
+            xAxis: [
+                {
+                    type: 'value',
+                                /*min: 0,
+                                max: 810,*/
+                                //interval: 100000,
+                                axisLabel: {
+                                    formatter: '{value} HNL',
+                                    rotate:45,
+                            showMinLabel:false
+                                },
+                                axisPointer: {
+                                    label: {
+                                        formatter: '{value} HNL'
+                                    }
+                                },
+                    position:'bottom'
+                },
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}'
+                    },
+                    position:'top'
+                }
+            ],
+            yAxis: [
+                {
+                    
+                    type: 'category',
+                    data: datos.resultados.nombreCompradores.reverse(),
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    axisLabel:{
+                        interval:0,
+                        rotate:45,
+                        showMinLabel:false,
+                        padding:[0,0,0,0]
+                    }
+                }
+            ],
+            series: [
+                {
+                    name:'Monto Contratado',
+                    type:'bar',
+                    data:datos.resultados.montoContratado.reverse(),
+                    itemStyle:{
+                        color: '#DA517A'
+                    },
+                    label: {
+                        normal: {
+                            show:true,
+                            fontFamily:'Poppins',
+                            fontWeight:700,
+                            fontSize:15,
+                            position: 'right',
+                            formatter: function (e){
+                                return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                            }
+                        }
+                    },
+                    barWidth:30,
+                    barCategoryGap:'20%',
+                    barGap:'50%'
+                },
+                {
+                    name:'Cantidad de Procesos de Contratación',
+                    type:'line',
+                    //yAxisIndex: 1,
+                    data:datos.resultados.cantidadOCIDs.reverse(),
+                    symbol: 'circle',
+                    symbolSize: 10,
+                    lineStyle: {
+                        normal: {
+                            color: '#57C5CB',
+                            width: 4/*,
+                            type: 'dashed'*/
+                        }
+                    },
+                    itemStyle:{
+                        color: '#57C5CB'
+                    },
+                    xAxisIndex: 1
+                }
+            ],
+            grid:{
+                containLabel:true,
+                right:'15%'
+            },
+            label:{
+                show:true,
+                fontFamily:'Poppins',
+                fontWeight:700,
+                fontSize:15
             }
         },
-        toolbox: {
-            orient:'horizontal',
-            itemsize:20,
-            itemGap:15,
-            right:20,
-            top:25,
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            },
-            emphasis:{
-                iconStyle:{
-                    textPosition:'top'
-                }
-            }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
-        xAxis: [
+        media:[
             {
-                type: 'value',
-                            /*min: 0,
-                            max: 810,*/
-                            //interval: 100000,
-                            axisLabel: {
-                                formatter: '{value} HNL',
-                                rotate:45,
-                        showMinLabel:false
-                            },
+                query:{
+                    maxWidth:600
+                },
+                option:{
+                    xAxis: [
+                        
+                        {
+                            
+                            type: 'category',
+                            data: datos.resultados.nombreCompradores.reverse(),
                             axisPointer: {
-                                label: {
-                                    formatter: '{value} HNL'
+                                type: 'shadow'
+                            },
+                            axisLabel:{
+                                //interval:0,
+                                rotate:90,
+                                showMinLabel:false,
+                                padding:[0,0,0,0]
+                            }
+                        }
+                    ],
+                    yAxis: [
+                        {   name:'Monto\nContratado',
+                            type: 'value',
+                                        axisLabel: {
+                                            formatter: '{value} HNL',
+                                            rotate:65,
+                                    showMinLabel:false
+                                        },
+                                        axisPointer: {
+                                            label: {
+                                                formatter: '{value} HNL'
+                                            }
+                                        },
+                            position:'bottom'
+                        },
+                        {
+                            name:'Cantidad de \nProcesos de Contratación',
+                            type: 'value',
+                            axisLabel: {
+                                formatter: '{value}',
+                                rotate:295
+                            },
+                            position:'top'
+                        }
+                    ],
+                    series: [
+                        {
+                            name:'Monto Contratado',
+                            type:'bar',
+                            data:datos.resultados.montoContratado.reverse(),
+                            itemStyle:{
+                                color: '#DA517A'
+                            },
+                            label: {
+                                normal: {
+                                    show:false
+                                    ,
+                                    fontFamily:'Poppins',
+                                    fontWeight:700,
+                                    fontSize:15,
+                                    position: 'right',
+                                    formatter: function (e){
+                                        return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                                    }
                                 }
                             },
-                position:'bottom'
-            },
-            {
-                type: 'value',
-                axisLabel: {
-                    formatter: '{value}'
-                },
-                position:'top'
-            }
-        ],
-        yAxis: [
-            {
-                
-                type: 'category',
-                data: datos.resultados.nombreCompradores.reverse(),
-                axisPointer: {
-                    type: 'shadow'
-                },
-                axisLabel:{
-                    interval:0,
-                    rotate:45,
-                    showMinLabel:false,
-                    padding:[0,0,0,0]
-                }
-                
-                /*,
-                name: 'Monto',
-                min: 0,
-                max: 200000,
-                interval: 50000,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }*/
-            }/*,
-            {
-                type: 'value',
-                name: 'Cantidad de Pagos Promedio',
-                min: 0,
-                max: 25,
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }*/
-        ],
-        series: [
-            {
-                name:'Monto Contratado',
-                type:'bar',
-                data:datos.resultados.montoContratado.reverse(),
-                itemStyle:{
-                    color: '#DA517A'
-                },
-                label: {
-                    normal: {
-                        show:true,
-                        fontFamily:'Poppins',
-                        fontWeight:700,
-                        fontSize:15,
-                        position: 'right',
-                        formatter: function (e){
-                            return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                            barWidth:30,
+                            barCategoryGap:'20%',
+                            barGap:'50%'
+                        },
+                        {
+                            name:'Cantidad de Procesos de Contratación',
+                            type:'line',
+                            //yAxisIndex: 1,
+                            data:datos.resultados.cantidadOCIDs.reverse(),
+                            symbol: 'circle',
+                            symbolSize: 10,
+                            lineStyle: {
+                                normal: {
+                                    color: '#57C5CB',
+                                    width: 4/*,
+                                    type: 'dashed'*/
+                                }
+                            },
+                            itemStyle:{
+                                color: '#57C5CB'
+                            },
+                            xAxisIndex: 0,
+                            yAxisIndex: 1
                         }
+                    ]
+                    ,
+                    grid:{
+                        right:'10%',
+                        left:0,
+                        top:100
+                    },
+                    tooltip:{
+                        position:['0%','50%']
                     }
-                },
-                barWidth:30,
-                barCategoryGap:'20%',
-                barGap:'50%'
-            },
-            {
-                name:'Cantidad de Procesos de Contratación',
-                type:'line',
-                //yAxisIndex: 1,
-                data:datos.resultados.cantidadOCIDs.reverse(),
-                symbol: 'circle',
-                symbolSize: 10,
-                lineStyle: {
-                    normal: {
-                        color: '#57C5CB',
-                        width: 4/*,
-                        type: 'dashed'*/
-                    }
-                },
-                itemStyle:{
-                    color: '#57C5CB'
-                },
-                xAxisIndex: 1
+                }
             }
-        ],
-        grid:{
-            containLabel:true,
-            right:'15%'
-        },
-        label:{
-            show:true,
-            fontFamily:'Poppins',
-            fontWeight:700,
-            fontSize:15
-        }
+        ]
+        
     };
     grafico.setOption(opciones, true);
 
@@ -523,147 +840,233 @@ console.dir(datos);
 OcultarEspera('#montoCatalogoElectronico',true);
 var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
     var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
+        baseOption:{
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
                 }
+            },
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
+                }
+            },
+            xAxis: [
+                {
+                    type: 'value',
+                                /*min: 0,
+                                max: 810,*/
+                                //interval: 100000,
+                                axisLabel: {
+                                    formatter: '{value} HNL',
+                                    rotate:45,
+                            showMinLabel:false
+                                },
+                                axisPointer: {
+                                    label: {
+                                        formatter: '{value} HNL'
+                                    }
+                                },
+                    position:'bottom'
+                },
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}'
+                    },
+                    position:'top'
+                }
+            ],
+            yAxis: [
+                {
+                    
+                    type: 'category',
+                    data: datos.resultados.nombreCatalogos.reverse(),
+                    axisPointer: {
+                        type: 'shadow'
+                    },axisLabel: {
+                        rotate:45
+                    }
+                    
+                }
+            ],
+            series: [
+                {
+                    name:'Monto de Contrato',
+                    type:'bar',
+                    data:datos.resultados.montoContratado.reverse(),
+                    itemStyle:{
+                        color: '#FECB7E'
+                    },
+                    label: {
+                        normal: {
+                            show:true,
+                            fontFamily:'Poppins',
+                            fontWeight:700,
+                            fontSize:15,
+                            position: 'right',
+                            formatter: function (e){
+                                return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                            }
+                        }
+                    },
+                    barWidth:30,
+                    barCategoryGap:'20%',
+                    barGap:'50%'
+                },
+                {
+                    name:'Cantidad de Contratos',
+                    type:'line',
+                    //yAxisIndex: 1,
+                    data:datos.resultados.cantidadProcesos.reverse(),
+                    symbol: 'circle',
+                    symbolSize: 10,
+                    lineStyle: {
+                        normal: {
+                            color: '#57C5CB',
+                            width: 4/*,
+                            type: 'dashed'*/
+                        }
+                    },
+                    itemStyle:{
+                        color: '#57C5CB'
+                    },
+                    xAxisIndex: 1
+                }
+            ],
+            grid:{
+                containLabel:true,
+                right:'15%'
+            },
+            label:{
+                show:true,
+                fontFamily:'Poppins',
+                fontWeight:700,
+                fontSize:15
             }
         },
-        toolbox: {
-            orient:'horizontal',
-            itemsize:20,
-            itemGap:15,
-            right:20,
-            top:25,
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            },
-            emphasis:{
-                iconStyle:{
-                    textPosition:'top'
-                }
-            }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
-        xAxis: [
+        media:[
             {
-                type: 'value',
-                            /*min: 0,
-                            max: 810,*/
-                            //interval: 100000,
+                query:{
+                    maxWidth:600
+                },
+                option:{
+                    xAxis: [
+                        {
+                            
+                            type: 'category',
+                            data: datos.resultados.nombreCatalogos.reverse(),
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            axisLabel: {
+                                rotate:90
+                            }
+                            
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            name:'Monto de\nContrato',
+                            type: 'value',
                             axisLabel: {
                                 formatter: '{value} HNL',
-                                rotate:45,
-                        showMinLabel:false
+                                rotate:65,
+                            showMinLabel:false
                             },
                             axisPointer: {
                                 label: {
                                     formatter: '{value} HNL'
                                 }
                             },
-                position:'bottom'
-            },
-            {
-                type: 'value',
-                axisLabel: {
-                    formatter: '{value}'
-                },
-                position:'top'
-            }
-        ],
-        yAxis: [
-            {
-                
-                type: 'category',
-                data: datos.resultados.nombreCatalogos.reverse(),
-                axisPointer: {
-                    type: 'shadow'
-                },axisLabel: {
-                    rotate:45
-                },
-                
-                /*,
-                name: 'Monto',
-                min: 0,
-                max: 200000,
-                interval: 50000,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }*/
-            }/*,
-            {
-                type: 'value',
-                name: 'Cantidad de Pagos Promedio',
-                min: 0,
-                max: 25,
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }*/
-        ],
-        series: [
-            {
-                name:'Monto de Contrato',
-                type:'bar',
-                data:datos.resultados.montoContratado.reverse(),
-                itemStyle:{
-                    color: '#FECB7E'
-                },
-                label: {
-                    normal: {
-                        show:true,
-                        fontFamily:'Poppins',
-                        fontWeight:700,
-                        fontSize:15,
-                        position: 'right',
-                        formatter: function (e){
-                            return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                            position:'bottom'
+                        },
+                        {
+                            name:'Cantidad de\nContratos',
+                            type: 'value',
+                            axisLabel: {
+                                formatter: '{value}',
+                                rotate:295
+                            },
+                            position:'top'
                         }
+                        
+                    ],
+                    series: [
+                        {
+                            name:'Monto de\nContrato',
+                            type:'bar',
+                            data:datos.resultados.montoContratado.reverse(),
+                            itemStyle:{
+                                color: '#FECB7E'
+                            },
+                            label: {
+                                normal: {
+                                    show:false,
+                                    fontFamily:'Poppins',
+                                    fontWeight:700,
+                                    fontSize:15,
+                                    position: 'right',
+                                    formatter: function (e){
+                                        return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                                    }
+                                }
+                            },
+                            barWidth:20,
+                            barCategoryGap:'10%',
+                            barGap:'10%'
+                        },
+                        {
+                            name:'Cantidad de\nContratos',
+                            type:'line',
+                            //yAxisIndex: 1,
+                            data:datos.resultados.cantidadProcesos.reverse(),
+                            symbol: 'circle',
+                            symbolSize: 10,
+                            lineStyle: {
+                                normal: {
+                                    color: '#57C5CB',
+                                    width: 4/*,
+                                    type: 'dashed'*/
+                                }
+                            },
+                            itemStyle:{
+                                color: '#57C5CB'
+                            },
+                            xAxisIndex: 0,
+                            yAxisIndex: 1
+                        }
+                    ],
+                    grid:{
+                        right:'10%',
+                        left:0,
+                        top:100
+                    },
+                    tooltip:{
+                        position:['0%','50%']
                     }
-                },
-                barWidth:30,
-                barCategoryGap:'20%',
-                barGap:'50%'
-            },
-            {
-                name:'Cantidad de Contratos',
-                type:'line',
-                //yAxisIndex: 1,
-                data:datos.resultados.cantidadProcesos.reverse(),
-                symbol: 'circle',
-                symbolSize: 10,
-                lineStyle: {
-                    normal: {
-                        color: '#57C5CB',
-                        width: 4/*,
-                        type: 'dashed'*/
-                    }
-                },
-                itemStyle:{
-                    color: '#57C5CB'
-                },
-                xAxisIndex: 1
+                }
             }
-        ],
-        grid:{
-            containLabel:true,
-            right:'15%'
-        },
-        label:{
-            show:true,
-            fontFamily:'Poppins',
-            fontWeight:700,
-            fontSize:15
-        }
+
+        ]
+        
     };
     grafico.setOption(opciones, true);
 
@@ -697,7 +1100,7 @@ $(function(){
       });
 })
 function CargarGraficos(){
-    InicializarCantidadProcesos();
+    ModalidadMontoCantidad();
     CantidadContratosCategoriaCompra();
     MontoContratosCategoriaCompra();
     Top10InstitucionesMontos();

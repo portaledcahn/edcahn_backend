@@ -3,93 +3,96 @@ function InicializarCantidadPagos(){
     //app.title = '折柱混合';
     var grafico=echarts.init(document.getElementById('cantidadPagos'));
     var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
-                }
-            }
-        },
-        toolbox: {
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista'},
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
-        xAxis: [
-            {
-                type: 'category',
-                data: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+        baseOption:{
+            tooltip: {
+                trigger: 'axis',
                 axisPointer: {
-                    type: 'shadow'
-                },
-                axisLabel:{
-                    interval:0,
-                    rotate:45,
-                    showMinLabel:false
-                }
-            }
-        ],
-        grid:{
-            containLabel:true
-        },
-        yAxis: [
-            {
-                type: 'value',
-                name: 'Cantidad',
-                min: 0,
-                max: 250,
-                interval: 50,
-                axisLabel: {
-                    formatter: '{value}'
-                }
-            }/*,
-            {
-                type: 'value',
-                name: 'Cantidad de Pagos Promedio',
-                min: 0,
-                max: 25,
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value}'
-                }
-            }*/
-        ],
-        series: [
-            {
-                name:'Cantidad de Pagos',
-                type:'bar',
-                data:[2, 4, 7, 23, 25, 76, 135, 162, 40, 90, 6, 110],
-                itemStyle:{
-                    color: '#58C5CC'
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
                 }
             },
-            {
-                name:'Cantidad de Pagos Promedio',
-                type:'line',
-                //yAxisIndex: 1,
-                data:[4, 4.5, 25, 26, 27, 80, 150, 35, 23.5, 23, 6.5, 6.2],
-                symbol: 'circle',
-                symbolSize: 10,
-                lineStyle: {
-                    normal: {
-                        color: '#6569CC',
-                        width: 4/*,
-                        type: 'dashed'*/
+            toolbox: {
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista'},
+                    magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                }
+            },/*
+            legend: {
+                data:['蒸发量1','降水量','平均温度3']
+            },*/
+            xAxis: [
+                {
+                    type: 'category',
+                    data: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    axisLabel:{
+                        interval:0,
+                        rotate:45,
+                        showMinLabel:false
+                    }
+                }
+            ],
+            grid:{
+                containLabel:true
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Cantidad',
+                    min: 0,
+                    max: 250,
+                    interval: 50,
+                    axisLabel: {
+                        formatter: '{value}'
+                    }
+                }/*,
+                {
+                    type: 'value',
+                    name: 'Cantidad de Pagos Promedio',
+                    min: 0,
+                    max: 25,
+                    interval: 5,
+                    axisLabel: {
+                        formatter: '{value}'
+                    }
+                }*/
+            ],
+            series: [
+                {
+                    name:'Cantidad de Pagos',
+                    type:'bar',
+                    data:[2, 4, 7, 23, 25, 76, 135, 162, 40, 90, 6, 110],
+                    itemStyle:{
+                        color: '#58C5CC'
                     }
                 },
-                itemStyle:{
-                    color: '#6569CC'
+                {
+                    name:'Cantidad de Pagos Promedio',
+                    type:'line',
+                    //yAxisIndex: 1,
+                    data:[4, 4.5, 25, 26, 27, 80, 150, 35, 23.5, 23, 6.5, 6.2],
+                    symbol: 'circle',
+                    symbolSize: 10,
+                    lineStyle: {
+                        normal: {
+                            color: '#6569CC',
+                            width: 4/*,
+                            type: 'dashed'*/
+                        }
+                    },
+                    itemStyle:{
+                        color: '#6569CC'
+                    }
                 }
-            }
-        ]
+            ]
+        }
+        
     };
     grafico.setOption(opciones, true);
 

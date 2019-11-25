@@ -37,132 +37,184 @@ function InicializarCantidadPagos(){
         OcultarEspera('#cantidadPagos');
         var grafico=echarts.init(document.getElementById('cantidadPagos'));
         var opciones = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'cross',
-                    crossStyle: {
-                        color: '#999'
-                    }
-                },
-                formatter:  function (e){
-                    return "{b0}<br>{a0} {s0} {c0} Pagos <br>{a1} {s1} {c1} %".replace('{c0}',e[0].value).replace('{c1}',e[1].value).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);;
-                }
-            },
-        legend: {
-            plain: 'scroll',
-            orient: 'horizontal',
-            position:'bottom'
-            /*right: 10,
-            top: 20,
-            bottom: 20*//*,
-            data: ['lengend data 1','lengend data 2','lengend data 3'],
-    
-            selected: [false,false,true]*/
-        },
-        toolbox: {
-            orient:'horizontal',
-            itemsize:20,
-            itemGap:15,
-            right:20,
-            top:25,
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            },
-            emphasis:{
-                iconStyle:{
-                    textPosition:'top'
-                }
-            }
-        },
-            xAxis: [
-                {
-                    type: 'category',
-                    data: datos.resultados.meses,//['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+            baseOption:{
+                tooltip: {
+                    trigger: 'axis',
                     axisPointer: {
-                        type: 'shadow'
-                    },
-                    axisLabel:{
-                        interval:0,
-                        rotate:45,
-                        showMinLabel:false
-                    }
-                }
-            ],
-            grid:{
-                containLabel:true,
-                right:'15%'
-            },
-            yAxis: [
-                {
-                    type: 'value',
-                    name: 'Cantidad',
-                    min: 0,
-                    /*max: 250,*/
-                  //  interval: 50,
-                    axisLabel: {
-                        formatter: '{value}'
-                    },
-                    position:'left',
-                    axisPointer: {
-                        label: {
-                            formatter: '{value} Pagos'
-                        }
-                    }
-                },
-                {
-                    type: 'value',
-                    //name: 'Cantidad de Pagos en Porcentaje',
-                    min: 0,
-                    max: 100,/*
-                    interval: 5,*/
-                    axisLabel: {
-                        //formatter: '{value} %'
-                        show:false
-                    },
-                    position:'right',
-                    axisTick : {show: false},
-                    axisLine:{show:false},
-                    splitLine:{show:false},
-                    axisPointer: {
-                        label: {
-                            formatter: '{value} %'
-                        }
-                    }
-                }
-            ],
-            series: [
-                {
-                    name:'Cantidad de Pagos',
-                    type:'bar',
-                    data:datos.resultados.cantidadpagos,
-                    itemStyle:{
-                        color: '#58C5CC'
-                    }
-                },
-                {
-                    name:'Porcentaje en Relación al Año',
-                    type:'line',
-                    //yAxisIndex: 1,
-                    data:datos.resultados.promediopagos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
-                    symbol: 'circle',
-                    symbolSize: 10,
-                    lineStyle: {
-                        normal: {
-                            color: '#6569CC',
-                            width: 4/*,
-                            type: 'dashed'*/
+                        type: 'cross',
+                        crossStyle: {
+                            color: '#999'
                         }
                     },
-                    itemStyle:{
-                        color: '#6569CC'
+                    formatter:  function (e){
+                        return "{b0}<br>{a0} {s0} {c0} Pagos <br>{a1} {s1} {c1} %".replace('{c0}',e[0].value).replace('{c1}',e[1].value).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);;
+                    }
+                },
+            legend: {
+                plain: 'scroll',
+                orient: 'horizontal',
+                position:'bottom'
+            },
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
+                }
+            },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: datos.resultados.meses,//['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+                        axisPointer: {
+                            type: 'shadow'
+                        },
+                        axisLabel:{
+                            interval:0,
+                            rotate:45,
+                            showMinLabel:false
+                        }
+                    }
+                ],
+                grid:{
+                    containLabel:true,
+                    right:'15%'
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: 'Cantidad',
+                        min: 0,
+                        /*max: 250,*/
+                      //  interval: 50,
+                        axisLabel: {
+                            formatter: '{value}'
+                        },
+                        position:'left',
+                        axisPointer: {
+                            label: {
+                                formatter: '{value} Pagos'
+                            }
+                        }
                     },
-                    yAxisIndex:1
+                    {
+                        type: 'value',
+                        //name: 'Cantidad de Pagos en Porcentaje',
+                        min: 0,
+                        max: 100,/*
+                        interval: 5,*/
+                        axisLabel: {
+                            //formatter: '{value} %'
+                            show:false
+                        },
+                        position:'right',
+                        axisTick : {show: false},
+                        axisLine:{show:false},
+                        splitLine:{show:false},
+                        axisPointer: {
+                            label: {
+                                formatter: '{value} %'
+                            }
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name:'Cantidad de Pagos',
+                        type:'bar',
+                        data:datos.resultados.cantidadpagos,
+                        itemStyle:{
+                            color: '#58C5CC'
+                        }
+                    },
+                    {
+                        name:'Porcentaje en Relación al Año',
+                        type:'line',
+                        //yAxisIndex: 1,
+                        data:datos.resultados.promediopagos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
+                        symbol: 'circle',
+                        symbolSize: 10,
+                        lineStyle: {
+                            normal: {
+                                color: '#6569CC',
+                                width: 4/*,
+                                type: 'dashed'*/
+                            }
+                        },
+                        itemStyle:{
+                            color: '#6569CC'
+                        },
+                        yAxisIndex:1
+                    }
+                ]
+            },
+            media:[
+                {
+                    query:{
+                        maxWidth:600
+                    },
+                    option:{
+                        yAxis: [
+                            {
+                                type: 'value',
+                                name: 'Cantidad',
+                                min: 0,
+                                /*max: 250,*/
+                              //  interval: 50,
+                                axisLabel: {
+                                    formatter: '{value}',
+                                    rotate:65
+                                },
+                                position:'left',
+                                axisPointer: {
+                                    label: {
+                                        formatter: '{value} Pagos'
+                                    }
+                                }
+                            },
+                            {
+                                type: 'value',
+                                //name: 'Cantidad de Pagos en Porcentaje',
+                                min: 0,
+                                max: 100,/*
+                                interval: 5,*/
+                                axisLabel: {
+                                    //formatter: '{value} %'
+                                    show:false
+                                },
+                                position:'right',
+                                axisTick : {show: false},
+                                axisLine:{show:false},
+                                splitLine:{show:false},
+                                axisPointer: {
+                                    label: {
+                                        formatter: '{value} %'
+                                    }
+                                }
+                            }
+                        ],
+                        tooltip: {
+                            position:['0%','50%']
+                        },
+                        grid:{
+                            left:0,
+                            right:0
+                        }
+                    }
                 }
             ]
+            
         };
         grafico.setOption(opciones, true);
     
@@ -190,7 +242,9 @@ function InicializarMontoPagos(){
         OcultarEspera('#montoPagos');
         var grafico=echarts.init(document.getElementById('montoPagos'));
         var opciones = {
+            baseOption:{
             tooltip: {
+                
                 trigger: 'axis',
                 axisPointer: {
                     type: 'cross',
@@ -207,12 +261,6 @@ function InicializarMontoPagos(){
                 plain: 'scroll',
                 orient: 'horizontal',
                 position:'bottom'
-                /*right: 10,
-                top: 20,
-                bottom: 20*//*,
-                data: ['lengend data 1','lengend data 2','lengend data 3'],
-        
-                selected: [false,false,true]*/
             },
             grid:{
                 containLabel:true,
@@ -342,6 +390,62 @@ function InicializarMontoPagos(){
                         color: '#FECB7E'
                     }
                 }*/
+            ]
+        },
+            media:[
+                {
+                    query:{
+                        maxWidth:600
+                    },
+                    option:{
+                        yAxis: [
+                            {
+                                type: 'value',
+                                name: 'Monto',
+                                min: 0,
+                               /* max: 250,*/
+                              //  interval: 10000000,
+                                axisLabel: {
+                                    formatter: '{value} HNL',
+                                    rotate:65
+                                },
+                                name:'Lempiras',
+                                axisPointer: {
+                                    label: {
+                                        formatter: '{value} HNL'
+                                    }
+                                }
+                            },
+                            {
+                                type: 'value',
+                                //name: '',
+                                min: 0,
+                                max: 100,/*
+                                interval: 5,*/
+                                axisLabel: {
+                                    //formatter: '{value} %'
+                                    show:false
+                                },
+                                position:'right',
+                                axisTick : {show: false},
+                                axisLine:{show:false},
+                                splitLine:{show:false},
+                                axisPointer: {
+                                    label: {
+                                        formatter: '{value} %'
+                                    }
+                                }
+                            }
+                        ],
+                        tooltip: {
+                            position:['0%','50%']
+                        },
+                        grid:{
+                            left:0,
+                            right:0
+                        }
+                    }
+                }
             ]
         };
         grafico.setOption(opciones, true);
@@ -549,99 +653,180 @@ function MontoPagosEtapas(){
             OcultarEspera('#montoPagosEtapas');
     var grafico=echarts.init(document.getElementById('montoPagosEtapas'));
     var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
-                }
-            },
-            formatter:  function (e){
-                console.dir(e)
-                return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{p0}',ValorNumerico(datos.resultados.porcentajes[e[0].dataIndex].toFixed(2) ) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{c0}',ValorMoneda( e[0].value));
-                //return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(e[0].value) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',((ObtenerNumero( e[0].value)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
-            }
-        },
-        grid: {
-            containLabel: true,
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-        },
-        toolbox: {
-            orient:'horizontal',
-            itemsize:20,
-            itemGap:15,
-            right:20,
-            top:25,
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            },
-            emphasis:{
-                iconStyle:{
-                    textPosition:'top'
-                }
-            }
-        },
-
-
-        
-        xAxis: [
-            {
-                
-                    type : 'value',
-                    splitLine:{show:false},
-                    axisLabel: {
-                            formatter: function (e){
-                                
-                                return "{c} HNL ".replace('{c}',ValorMoneda( e) );
-                                //return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, datos.resultados.montos)) *100)).toFixed(2));
-                                
-                            },rotate:45,
-                            showMinLabel:false
-                        },/*
-                        max:100,*/
-                        
-                    axisPointer: {
-                        label: {
-                            formatter: '{value} HNL'
-                        }
+        baseOption:{
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
                     }
-            }
-        ],
-        yAxis: [
-            
-            
-            {
-                type : 'category',
-                axisTick : {show: false},
-                axisLine:{show:false},
-                data : datos.resultados.series
-            }
-        ],
-        series: [
-            {
-               // name:'Etapa',
-                type:'bar',
-                data:datos.resultados.montos,
-                itemStyle:{
-                    color: '#F79A6A'
                 },
-                seriesLayoutBy: 'row',
-                label:{
-                    show:true,
-                    fontFamily:'Poppins',
-                    fontWeight:700,
-                    fontSize:20,
-                    align:'right',
-                    formatter:  function (e){
-                        return "{c} HNL".replace('{c}',ValorMoneda( e.value));
+                formatter:  function (e){
+                    console.dir(e)
+                    return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{p0}',ValorNumerico(datos.resultados.porcentajes[e[0].dataIndex].toFixed(2) ) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{c0}',ValorMoneda( e[0].value));
+                    //return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(e[0].value) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',((ObtenerNumero( e[0].value)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
+                }
+            },
+            grid: {
+                containLabel: true,
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+            },
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
                     }
-                    //formatter: '{c} Días'
+                }
+            },
+    
+    
+            
+            xAxis: [
+                {
+                    
+                        type : 'value',
+                        splitLine:{show:false},
+                        axisLabel: {
+                                formatter: function (e){
+                                    
+                                    return "{c} HNL ".replace('{c}',ValorMoneda( e) );
+                                    //return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, datos.resultados.montos)) *100)).toFixed(2));
+                                    
+                                },rotate:45,
+                                showMinLabel:false
+                            },/*
+                            max:100,*/
+                            
+                        axisPointer: {
+                            label: {
+                                formatter: '{value} HNL'
+                            }
+                        }
+                }
+            ],
+            yAxis: [
+                
+                
+                {
+                    type : 'category',
+                    axisTick : {show: false},
+                    axisLine:{show:false},
+                    data : datos.resultados.series
+                }
+            ],
+            series: [
+                {
+                   // name:'Etapa',
+                    type:'bar',
+                    data:datos.resultados.montos,
+                    itemStyle:{
+                        color: '#F79A6A'
+                    },
+                    seriesLayoutBy: 'row',
+                    label:{
+                        show:true,
+                        fontFamily:'Poppins',
+                        fontWeight:700,
+                        fontSize:20,
+                        align:'right',
+                        formatter:  function (e){
+                            return "{c} HNL".replace('{c}',ValorMoneda( e.value));
+                        }
+                        //formatter: '{c} Días'
+                    }
+                }
+            ]
+        }
+        ,
+        media:[
+            {
+                query:{
+                    maxWidth:600
+                },
+                option:{
+                    xAxis: [
+                        {
+                            
+                                type : 'value',
+                                splitLine:{show:false},
+                                axisLabel: {
+                                        formatter: function (e){
+                                            
+                                            return "{c} HNL ".replace('{c}',ValorMoneda( e) );
+                                            //return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, datos.resultados.montos)) *100)).toFixed(2));
+                                            
+                                        },
+                                        rotate:90,
+                                        showMinLabel:false
+                                    },/*
+                                    max:100,*/
+                                    
+                                axisPointer: {
+                                    label: {
+                                        formatter: '{value} HNL'
+                                    }
+                                }
+                        }
+                    ],
+                    yAxis: [
+                        
+                        
+                        {
+                            type : 'category',
+                            axisTick : {show: false},
+                            axisLine:{show:false},
+                            axisLabel:{
+                                rotate:65,
+                                showMinLabel:false,
+                                interval:0
+                            },
+                            data : datos.resultados.series,
+                            
+                        }
+                    ],
+                    series: [
+                        {
+                           // name:'Etapa',
+                            type:'bar',
+                            data:datos.resultados.montos,
+                            itemStyle:{
+                                color: '#F79A6A'
+                            },
+                            seriesLayoutBy: 'row',
+                            label:{
+                                show:false,
+                                fontFamily:'Poppins',
+                                fontWeight:700,
+                                fontSize:20,
+                                align:'right',
+                                formatter:  function (e){
+                                    return "{c} HNL".replace('{c}',ValorMoneda( e.value));
+                                }
+                                //formatter: '{c} Días'
+                            }
+                        }
+                    ],
+                    tooltip: {
+                        position:['0%','50%']
+                    },
+                    grid:{
+                        left:0,
+                        right:'10%'
+                    }
                 }
             }
         ]
@@ -775,7 +960,23 @@ function TiempoPromedioEtapas(){
                 return "{c} Días".replace('{c}',e.value);
             }
             //formatter: '{c} Días'
-        }
+        },
+        media:[
+            {
+                query:{
+                    maxWidth:600
+                },
+                option:{
+                    tooltip: {
+                        position:['0%','50%']
+                    },
+                    grid:{
+                        left:0,
+                        right:0
+                    }
+                }
+            }
+        ]
     };
     grafico.setOption(opciones, true);
 
@@ -796,118 +997,166 @@ function Top10Compradores(){
             OcultarEspera('#top10Compradores');
             var grafico=echarts.init(document.getElementById('top10Compradores'));
             var opciones = {
-                tooltip: {
-                    show:true,
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        crossStyle: {
-                            color: '#999'
-                        }
-                    }
-                },
-            
-            toolbox: {
-                orient:'horizontal',
-                itemsize:20,
-                itemGap:15,
-                right:20,
-                top:25,
-                feature: {
-                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
-                    restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
-                },
-                emphasis:{
-                    iconStyle:{
-                        textPosition:'top'
-                    }
-                }
-            },/*
-                legend: {
-                    data:['蒸发量1','降水量','平均温度3']
-                },*/
-                xAxis: [
-                    {
-                        type: 'value',
-                        axisLabel: {
-                            formatter: '{value} HNL',
-                            rotate:45,
-                        showMinLabel:false
-                        },
+                baseOption:{
+                    tooltip: {
+                        show:true,
+                        trigger: 'axis',
                         axisPointer: {
-                            label: {
-                                formatter: '{value} HNL'
+                            type: 'cross',
+                            crossStyle: {
+                                color: '#999'
                             }
                         }
-                    }
-                ],
-                grid:{
-                    containLabel:true,
-                    //top:10,
-                    right:'15%'
-                },
-                yAxis: [
-                    {
-                        
-                        type: 'category',
-                        data: datos.resultados.compradores.reverse(),
-                        axisPointer: {
-                            type: 'shadow'
-                        },
-                        align: 'right'/*,
-                        width:'50%',
-                        padding:5,
-                        rich: {
-                            a: {
-                                // `align` is not set, then it will be right
-                            }
-                        }*/
-                        
-                        /*,
-                        name: 'Monto',
-                        min: 0,
-                        max: 200000,
-                        interval: 50000,
-                        axisLabel: {
-                            formatter: '{value} HNL'
-                        }*/
-                    }/*,
-                    {
-                        type: 'value',
-                        name: 'Cantidad de Pagos Promedio',
-                        min: 0,
-                        max: 25,
-                        interval: 5,
-                        axisLabel: {
-                            formatter: '{value} HNL'
+                    },
+                
+                toolbox: {
+                    orient:'horizontal',
+                    itemsize:20,
+                    itemGap:15,
+                    right:20,
+                    top:25,
+                    feature: {
+                        dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                        magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                        restore: {show: true,title:'Restaurar'},
+                        saveAsImage: {show: true,title:'Descargar'}
+                    },
+                    emphasis:{
+                        iconStyle:{
+                            textPosition:'top'
                         }
-                    }*/
-                ],
-                series: [
-                    {
-                        name:'Monto Pagado',
-                        type:'bar',
-                        data:datos.resultados.montos.reverse(),
-                        itemStyle:{
-                            color: '#6569CC'
-                        },
-                        label: {
-                            normal: {
-                                show:true,
-                                    fontFamily:'Poppins',
-                                    fontWeight:700,
-                                    fontSize:15,
-                                position: 'right',
-                                formatter: function (e){
-                                    return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                    }
+                },/*
+                    legend: {
+                        data:['蒸发量1','降水量','平均温度3']
+                    },*/
+                    xAxis: [
+                        {
+                            type: 'value',
+                            axisLabel: {
+                                formatter: '{value} HNL',
+                                rotate:45,
+                            showMinLabel:false
+                            },
+                            axisPointer: {
+                                label: {
+                                    formatter: '{value} HNL'
                                 }
                             }
+                        }
+                    ],
+                    grid:{
+                        containLabel:true,
+                        //top:10,
+                        right:'15%'
+                    },
+                    yAxis: [
+                        {
+                            
+                            type: 'category',
+                            data: datos.resultados.compradores.reverse(),
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            align: 'right'
+                        }
+                    ],
+                    series: [
+                        {
+                            name:'Monto Pagado',
+                            type:'bar',
+                            data:datos.resultados.montos.reverse(),
+                            itemStyle:{
+                                color: '#6569CC'
+                            },
+                            label: {
+                                normal: {
+                                    show:true,
+                                        fontFamily:'Poppins',
+                                        fontWeight:700,
+                                        fontSize:15,
+                                    position: 'right',
+                                    formatter: function (e){
+                                        return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                                    }
+                                }
+                            },
+                            barWidth:30,
+                            barCategoryGap:'20%',
+                            barGap:'50%'
+                        }
+                    ]
+                }
+                ,
+                media:[
+                    {
+                        query:{
+                            maxWidth:600
                         },
-                        barWidth:30,
-                        barCategoryGap:'20%',
-                        barGap:'50%'
+                        option:{
+                            xAxis: [
+                                
+                                {
+                                    
+                                    type: 'category',
+                                    data: datos.resultados.compradores.reverse(),
+                                    axisPointer: {
+                                        type: 'shadow'
+                                    },
+                                    align: 'right',
+                                    axisLabel:{
+                                        rotate:90
+                                    }
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                    type: 'value',
+                                    axisLabel: {
+                                        formatter: '{value} HNL',
+                                        rotate:65,
+                                    showMinLabel:false
+                                    },
+                                    axisPointer: {
+                                        label: {
+                                            formatter: '{value} HNL'
+                                        }
+                                    }
+                                }
+                            ],
+                            series: [
+                                {
+                                    name:'Monto Pagado',
+                                    type:'bar',
+                                    data:datos.resultados.montos.reverse(),
+                                    itemStyle:{
+                                        color: '#6569CC'
+                                    },
+                                    label: {
+                                        normal: {
+                                            show:false,
+                                                fontFamily:'Poppins',
+                                                fontWeight:700,
+                                                fontSize:11,
+                                            position: 'right',
+                                            formatter: function (e){
+                                                return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                                            }
+                                        }
+                                    },
+                                    barWidth:20,
+                                    barCategoryGap:'10%',
+                                    barGap:'10%'
+                                }
+                            ],
+                            tooltip: {
+                                position:['0%','50%']
+                            },
+                            grid:{
+                                left:0,
+                                right:0
+                            }
+                        }
                     }
                 ]
             };
@@ -935,116 +1184,146 @@ MostrarEspera('#top10Proveedores',true);
                     OcultarEspera('#top10Proveedores');
                     var grafico=echarts.init(document.getElementById('top10Proveedores'));
                     var opciones ={
-                        tooltip : {
-                            trigger: 'axis',
-                            axisPointer : {           
-                                type : 'cross',
-                                crossStyle: {
-                                    color: '#999'
+                        baseOption:{
+                            tooltip : {
+                                trigger: 'axis',
+                                axisPointer : {           
+                                    type : 'cross',
+                                    crossStyle: {
+                                        color: '#999'
+                                    }
                                 }
-                            }
-                        },
-                        toolbox: {
-                            orient:'horizontal',
-                            itemsize:20,
-                            itemGap:15,
-                            right:20,
-                            top:25,
-                            feature: {
-                                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
-                                restore: {show: true,title:'Restaurar'},
-                                saveAsImage: {show: true,title:'Descargar'}
                             },
-                            emphasis:{
-                                iconStyle:{
-                                    textPosition:'top'
+                            toolbox: {
+                                orient:'horizontal',
+                                itemsize:20,
+                                itemGap:15,
+                                right:20,
+                                top:25,
+                                feature: {
+                                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                                    restore: {show: true,title:'Restaurar'},
+                                    saveAsImage: {show: true,title:'Descargar'}
+                                },
+                                emphasis:{
+                                    iconStyle:{
+                                        textPosition:'top'
+                                    }
                                 }
-                            }
-                        },/*
-                        legend: {
-                            data: ['Precompromiso','Compromiso','Devengado','Transacciones']
-                        },*/
-                        grid: {
-                            left: '3%',
-                            right:'15%',
-                            bottom: '3%',
-                            containLabel: true
-                        },
-                        xAxis:  {
-                            type: 'value',
-                            /*min: 0,
-                            max: 810,*/
-                            //interval: 100000,
-                            axisLabel: {
-                                formatter: '{value} HNL',
-                                rotate:45,
-                        showMinLabel:false
+                            },/*
+                            legend: {
+                                data: ['Precompromiso','Compromiso','Devengado','Transacciones']
+                            },*/
+                            grid: {
+                                left: '3%',
+                                right:'15%',
+                                bottom: '3%',
+                                containLabel: true
                             },
-                            axisPointer: {
-                                label: {
-                                    formatter: '{value} HNL'
+                            xAxis:  {
+                                type: 'value',
+                                /*min: 0,
+                                max: 810,*/
+                                //interval: 100000,
+                                axisLabel: {
+                                    formatter: '{value} HNL',
+                                    rotate:45,
+                            showMinLabel:false
+                                },
+                                axisPointer: {
+                                    label: {
+                                        formatter: '{value} HNL'
+                                    }
                                 }
-                            }
-                        },
-                        yAxis: {
-                            type: 'category',
-                            data: datos.resultados.proveedores.reverse()
-                        },
-                        series: [
-                            {
-                                name: 'Monto de Contrato, Pagados en HNL',
-                                type: 'bar',
-                                stack: 'Monto de Contrato',
-                                label: {
-                                    normal: {
-                                        show:true,
-                                        fontFamily:'Poppins',
-                                        fontWeight:700,
-                                        fontSize:15,
-                                        position: 'right',
-                                        formatter: function (e){
-                                            return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                            },
+                            yAxis: {
+                                type: 'category',
+                                data: datos.resultados.proveedores.reverse()
+                            },
+                            series: [
+                                {
+                                    name: 'Monto de Contrato, Pagados en HNL',
+                                    type: 'bar',
+                                    stack: 'Monto de Contrato',
+                                    label: {
+                                        normal: {
+                                            show:true,
+                                            fontFamily:'Poppins',
+                                            fontWeight:700,
+                                            fontSize:15,
+                                            position: 'right',
+                                            formatter: function (e){
+                                                return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                                            }
                                         }
+                                    },
+                                    data: datos.resultados.montos.reverse(),
+                                    itemStyle:{
+                                        color: '#27AEB4'
                                     }
-                                },
-                                data: datos.resultados.montos.reverse(),
-                                itemStyle:{
-                                    color: '#27AEB4'
                                 }
-                            }/*,
+                            ]
+                        }
+                        ,
+                        media:[
                             {
-                                name: 'Monto de Contrato, Pagados en USD',
-                                type: 'bar',
-                                stack: '总量',
-                                label: {
-                                    normal: {
-                                        show: true,
-                                        position: 'insideRight'
-                                    }
+                                query:{
+                                    maxWidth:600
                                 },
-                                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                                itemStyle:{
-                                    color: '#F69A69'
-                                }
-                
-                                
-                            },
-                            {
-                                name: 'Monto de Contrato, Pagados en EUR',
-                                type: 'bar',
-                                stack: '总量',
-                                label: {
-                                    normal: {
-                                        show: true,
-                                        position: 'insideRight'
+                                option:{
+                                    xAxis:  {
+                                        type: 'category',
+                                        data: datos.resultados.proveedores.reverse(),
+                                        axisLabel:{
+                                            rotate:90
+                                        }
+                                    },
+                                    yAxis: {
+                                        type: 'value',
+                                        axisLabel: {
+                                            formatter: '{value} HNL',
+                                            rotate:65,
+                                    showMinLabel:false
+                                        },
+                                        axisPointer: {
+                                            label: {
+                                                formatter: '{value} HNL'
+                                            }
+                                        }
+                                    },
+                                    series: [
+                                        {
+                                            name: 'Monto de Contrato, Pagados en HNL',
+                                            type: 'bar',
+                                            stack: 'Monto de Contrato',
+                                            label: {
+                                                normal: {
+                                                    show:false,
+                                                    fontFamily:'Poppins',
+                                                    fontWeight:700,
+                                                    fontSize:15,
+                                                    position: 'right',
+                                                    formatter: function (e){
+                                                        return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                                                    }
+                                                }
+                                            },
+                                            data: datos.resultados.montos.reverse(),
+                                            itemStyle:{
+                                                color: '#27AEB4'
+                                            }
+                                        }
+                                    ],
+                                    tooltip: {
+                                        position:['0%','50%']
+                                    },
+                                    grid:{
+                                        left:0,
+                                        right:0
                                     }
-                                },
-                                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                                itemStyle:{
-                                    color: '#FFCA7E'
                                 }
-                            }*/
+                            }
                         ]
                     };
                     grafico.setOption(opciones, true);
@@ -1069,6 +1348,9 @@ MostrarEspera('#top10MontosProcesos',true);
                     OcultarEspera('#top10MontosProcesos');
                     var grafico=echarts.init(document.getElementById('top10MontosProcesos'));
                     var opciones ={
+                        baseOption:{
+
+                        
                         tooltip : {
                             trigger: 'axis',
                             axisPointer : {           
@@ -1179,6 +1461,69 @@ MostrarEspera('#top10MontosProcesos',true);
                                     color: '#FFCA7E'
                                 }
                             }*/
+                        ]},
+                        media:[
+                            {
+                                query:{
+                                    maxWidth:600
+                                },
+                                option:{
+                                    xAxis:  
+                                    {
+                                        type: 'category',
+                                        data: datos.resultados.objetosGasto.reverse(),
+                                        axisLabel:{
+                                            rotate:90
+                                        }
+                                    },
+                                    yAxis: {
+                                        type: 'value',
+                                        /*min: 0,
+                                        max: 810,*/
+                                        //interval: 100000,
+                                        axisLabel: {
+                                            formatter: '{value}',
+                                            rotate:65,
+                                    showMinLabel:false
+                                        },
+                                        axisPointer: {
+                                            label: {
+                                                formatter: '{value}'
+                                            }
+                                        }
+                                    },
+                                    series: [
+                                        {
+                                            name: 'Cantidad de Pagos',
+                                            type: 'bar',
+                                            stack: 'Cantidad de Pagos',
+                                            label: {
+                                                normal: {
+                                                    show:false,
+                                                fontFamily:'Poppins',
+                                                fontWeight:700,
+                                                fontSize:11,
+                                                    position: 'right',
+                                                    formatter: function (e){
+                                                        return "{c}".replace('{c}',ValorNumerico(e.value));
+                                                    }
+                                                }
+                                            },
+                                            data: datos.resultados.montos.reverse(),
+                                            itemStyle:{
+                                                color: '#FECB7E'
+                                            }
+                                        }
+                                    ],
+                                    tooltip: {
+                                        position:['0%','50%']
+                                    },
+                                    grid:{
+                                        left:0,
+                                        right:0
+                                    }
+                                }
+                            }
                         ]
                     };
                     grafico.setOption(opciones, true);
