@@ -410,10 +410,10 @@ class Buscador(APIView):
 
 		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
 
-		if metodo == 'pago':
-			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.date', interval='year', format='yyyy')
+		if metodo == 'pago' or metodo == 'contrato':
+			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.date', interval='year', format='yyyy', min_doc_count=1)
 		else:
-			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.datePublished', interval='year', format='yyyy')
+			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.datePublished', interval='year', format='yyyy', min_doc_count=1)
 
 		#resumen
 		s.aggs["contratos"].metric(
@@ -497,7 +497,10 @@ class Buscador(APIView):
 
 		# Este filtro aun falta
 		if year.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
+			if metodo == 'pago' or metodo == 'contrato':
+				s = s.filter('range', doc__compiledRelease__date={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
+			else:
+				s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
 
 		if term: 
 			if metodo == 'proceso':
@@ -2220,8 +2223,8 @@ class FiltrosDashboardSEFIN(APIView):
 		if proveedor.replace(' ', ''):
 			s = s.filter('match_phrase', payee__name__keyword=proveedor)
 
-		if anio.replace(' ', ''):
-			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+		# if anio.replace(' ', ''):
+		# 	s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
 			s = s.filter('match_phrase', value__currency__keyword=moneda)
@@ -3093,10 +3096,10 @@ class FiltrosDashboardONCAE(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 			sss = sss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
-		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			sss = sss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+		# if anio.replace(' ', ''):
+		# 	s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+		# 	ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+		# 	sss = sss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if categoria.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
