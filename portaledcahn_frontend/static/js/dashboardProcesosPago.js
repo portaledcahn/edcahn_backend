@@ -1484,7 +1484,7 @@ MostrarEspera('#top10MontosProcesos',true);
                                         axisLabel: {
                                             formatter: '{value}',
                                             rotate:65,
-                                    showMinLabel:false
+                                            showMinLabel:false
                                         },
                                         axisPointer: {
                                             label: {
