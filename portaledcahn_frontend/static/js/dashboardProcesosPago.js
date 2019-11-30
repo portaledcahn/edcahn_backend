@@ -135,7 +135,7 @@ function InicializarCantidadPagos(){
                         type:'bar',
                         data:datos.resultados.cantidadpagos,
                         itemStyle:{
-                            color: '#58C5CC'
+                            color: ObtenerColores('Pastel3')[0]
                         }
                     },
                     {
@@ -147,13 +147,13 @@ function InicializarCantidadPagos(){
                         symbolSize: 10,
                         lineStyle: {
                             normal: {
-                                color: '#6569CC',
+                                color: ObtenerColores('Pastel3')[9],
                                 width: 4/*,
                                 type: 'dashed'*/
                             }
                         },
                         itemStyle:{
-                            color: '#6569CC'
+                            color: ObtenerColores('Pastel3')[9]
                         },
                         yAxisIndex:1
                     }
@@ -345,7 +345,7 @@ function InicializarMontoPagos(){
                     type:'bar',
                     data:datos.resultados.montopagos,
                     itemStyle:{
-                        color: '#D9527B'
+                        color: ObtenerColores('Pastel3')[1]
                     }
                 },/*
                 {
@@ -353,7 +353,7 @@ function InicializarMontoPagos(){
                     type:'bar',
                     data:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     itemStyle:{
-                        color: '#F69A6B'
+                        color: ObtenerColores('Pastel3')[3]
                     }
                 },*/
                 {
@@ -364,13 +364,13 @@ function InicializarMontoPagos(){
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color: '#6569CC',
+                            color: ObtenerColores('Pastel3')[9],
                             width: 4/*,
                             type: 'dashed'*/
                         }
                     },
                     itemStyle:{
-                        color: '#6569CC'
+                        color: ObtenerColores('Pastel3')[9]
                     },
                     yAxisIndex:1
                 }/*,
@@ -382,12 +382,12 @@ function InicializarMontoPagos(){
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color: '#FECB7E',
+                            color:ObtenerColores('Pastel3')[2],
                             width: 4
                         }
                     },
                     itemStyle:{
-                        color: '#FECB7E'
+                        color: ObtenerColores('Pastel3')[2]
                     }
                 }*/
             ]
@@ -734,7 +734,7 @@ function MontoPagosEtapas(){
                     type:'bar',
                     data:datos.resultados.montos,
                     itemStyle:{
-                        color: '#F79A6A'
+                        color: ObtenerColores('Pastel3')[3]
                     },
                     seriesLayoutBy: 'row',
                     label:{
@@ -804,7 +804,7 @@ function MontoPagosEtapas(){
                             type:'bar',
                             data:datos.resultados.montos,
                             itemStyle:{
-                                color: '#F79A6A'
+                                color: ObtenerColores('Pastel3')[3]
                             },
                             seriesLayoutBy: 'row',
                             label:{
@@ -898,7 +898,7 @@ function TiempoPromedioEtapas(){
                 },
                 data: [320],
                 itemStyle:{
-                    color: '#27AEB4'
+                    color: ObtenerColores('Pastel3')[0]
                 }
             },
             {
@@ -913,7 +913,7 @@ function TiempoPromedioEtapas(){
                 },
                 data: [120],
                 itemStyle:{
-                    color: '#F69A69'
+                    color: ObtenerColores('Pastel3')[3]
                 }
 
                 
@@ -930,7 +930,7 @@ function TiempoPromedioEtapas(){
                 },
                 data: [220],
                 itemStyle:{
-                    color: '#FFCA7E'
+                    color: ObtenerColores('Pastel3')[3]
                 }
             },
             {
@@ -945,7 +945,7 @@ function TiempoPromedioEtapas(){
                 },
                 data: [150],
                 itemStyle:{
-                    color: '#DA527A'
+                    color: ObtenerColores('Pastel3')[2]
                 }
             }
         ],
@@ -1067,7 +1067,7 @@ function Top10Compradores(){
                             type:'bar',
                             data:datos.resultados.montos.reverse(),
                             itemStyle:{
-                                color: '#6569CC'
+                                color: ObtenerColores('Pastel3')[9]
                             },
                             label: {
                                 normal: {
@@ -1085,7 +1085,10 @@ function Top10Compradores(){
                             barCategoryGap:'20%',
                             barGap:'50%'
                         }
-                    ]
+                    ],
+                    label:{
+                        color:'gray'
+                    }
                 }
                 ,
                 media:[
@@ -1130,7 +1133,7 @@ function Top10Compradores(){
                                     type:'bar',
                                     data:datos.resultados.montos.reverse(),
                                     itemStyle:{
-                                        color: '#6569CC'
+                                        color: ObtenerColores('Pastel3')[9]
                                     },
                                     label: {
                                         normal: {
@@ -1260,10 +1263,13 @@ MostrarEspera('#top10Proveedores',true);
                                     },
                                     data: datos.resultados.montos.reverse(),
                                     itemStyle:{
-                                        color: '#27AEB4'
+                                        color: ObtenerColores('Pastel3')[0]
                                     }
                                 }
-                            ]
+                            ],
+                            label:{
+                                color:'gray'
+                            }
                         }
                         ,
                         media:[
@@ -1311,7 +1317,7 @@ MostrarEspera('#top10Proveedores',true);
                                             },
                                             data: datos.resultados.montos.reverse(),
                                             itemStyle:{
-                                                color: '#27AEB4'
+                                                color: ObtenerColores('Pastel3')[0]
                                             }
                                         }
                                     ],
@@ -1407,6 +1413,9 @@ MostrarEspera('#top10MontosProcesos',true);
                             type: 'category',
                             data: datos.resultados.objetosGasto.reverse()
                         },
+                        label:{
+                            color:'gray'
+                        },
                         series: [
                             {
                                 name: 'Cantidad de Pagos',
@@ -1426,7 +1435,7 @@ MostrarEspera('#top10MontosProcesos',true);
                                 },
                                 data: datos.resultados.montos.reverse(),
                                 itemStyle:{
-                                    color: '#FECB7E'
+                                    color: ObtenerColores('Pastel3')[2]
                                 }
                             }/*,
                             {
@@ -1511,7 +1520,7 @@ MostrarEspera('#top10MontosProcesos',true);
                                             },
                                             data: datos.resultados.montos.reverse(),
                                             itemStyle:{
-                                                color: '#FECB7E'
+                                                color: ObtenerColores('Pastel3')[2]
                                             }
                                         }
                                     ],
@@ -1560,7 +1569,7 @@ function SegregacionMontosContratos(){
                     value: 20
                 }],
                 itemStyle:{
-                    color:'#6569CC'
+                    color: ObtenerColores('Pastel3')[9]
                 }
             },
             {
@@ -1577,10 +1586,7 @@ function SegregacionMontosContratos(){
                     value: 20
                 }],
                 itemStyle: {
-                    color: '#F79A6A'/*function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
-                        return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
-                    }*/
+                    color: ObtenerColores('Pastel3')[3]
                 }
             }, 
             {
@@ -1597,7 +1603,7 @@ function SegregacionMontosContratos(){
                     value: 20
                 }],
                 itemStyle: {
-                    color: '#FECB7E'/*function(e){
+                    color: ObtenerColores('Pastel3')[2]/*function(e){
                         var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
                         return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
                     }*/
@@ -1620,7 +1626,7 @@ function SegregacionMontosContratos(){
                     }]
                 }],
                 itemStyle: {
-                    color: '#DA517A'/*function(e){
+                    color: ObtenerColores('Pastel3')[1]/*function(e){
                         var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
                         return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
                     }*/
@@ -1643,7 +1649,7 @@ function SegregacionMontosContratos(){
                     }]
                 }],
                 itemStyle: {
-                    color: '#57C5CB'/*function(e){
+                    color: ObtenerColores('Pastel3')[0]/*function(e){
                         var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
                         return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
                     }*/
@@ -1752,9 +1758,13 @@ $.get(api+"/dashboardsefin/estadisticacantidaddepagos/",parametros).done(functio
     console.dir('cantidad***')
 console.dir(datos);
     $('#CantidadPagosPromedio').attr('data-to',datos.resultados.promedio);
+    $('#CantidadPagosPromedio').parent().css({'color':ObtenerColores('Pastel3')[1]});
     $('#CantidadPagosMenor').attr('data-to',datos.resultados.menor);
+    $('#CantidadPagosMenor').parent().css({'color':ObtenerColores('Pastel3')[1]});
     $('#CantidadPagosMayor').attr('data-to',datos.resultados.mayor);
+    $('#CantidadPagosMayor').parent().css({'color':ObtenerColores('Pastel3')[1]});
     $('#CantidadPagosTotal').attr('data-to',datos.resultados.total);
+    $('#CantidadPagosTotal').parent().css({'color':ObtenerColores('Pastel3')[1]});
 /*
     $('.conteo').not('.moneda').countTo({
         formatter: function (value, options) {

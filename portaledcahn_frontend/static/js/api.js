@@ -14,6 +14,7 @@ var apiJSON=[
         tipo : 'GET',
         descripcionCorta : 'Muestra Todos los Releases en el Sistema',
         url : '/api/v1/release/',
+        urlReal:api+'/v1/release/',
         parametros : [
         ] 
 
@@ -22,10 +23,11 @@ var apiJSON=[
         tipo : 'GET',
         descripcionCorta : 'Muestra los Releases de un Determinado OCID',
         url : '/api/v1/release/{OCID}',
+        urlReal:api+'/v1/release/P2017-801-1-57-2017-12-22T08:53:42Z',
         parametros : [
           {
             nombre : 'OCID',
-            valor: 'XXX-CCC-999',
+            valor: 'ocds-XXX-CCC-999',
             descripcion: 'El ID de Contrataciones Abiertas (ocid) es un identificador único global utilizado para unir los datos en todas las etapas de un proceso de contratación',
             tipoUso : 'path',
             tipoDato : 'string'
@@ -44,6 +46,7 @@ var apiJSON=[
         tipo : 'GET',
         descripcionCorta : 'Muestra Todos los Records en el Sistema',
         url : '/api/v1/record/',
+        urlReal: api+'/v1/record/',
         parametros : [
         ] 
 
@@ -52,10 +55,11 @@ var apiJSON=[
         tipo : 'GET',
         descripcionCorta : 'Muestra el Record de un Determinado OCID',
         url : '/api/v1/record/{OCID}',
+        urlReal:api+'/v1/record/ocds-lcuori-Zr5zxL-LPN-MPC-GAF-01-2015-2/',
         parametros : [
           {
             nombre : 'OCID',
-            valor: 'XXX-CCC-999',
+            valor: 'ocds-XXX-CCC-999',
             descripcion: 'El ID de Contrataciones Abiertas (ocid) es un identificador único global utilizado para unir los datos en todas las etapas de un proceso de contratación',
             tipoUso : 'path',
             tipoDato : 'string'
@@ -122,7 +126,9 @@ function ObtenerMetodos(elemento){
             $('<div>',{class:'row'}).append(
               $('<div>',{class:'col-12 col-sm-6 col-md-6 col-lg-6'}).append(
                 $('<div>',{class:'metodoApiTipo tituloGrueso metodoApiTipoGet textoColorBlanco fondoColorGrisOscuroClaro',text:metodo.tipo}),
-                $('<div>',{class:'enlaceMetodoApi',text:metodo.url})
+                $('<div>',{class:'enlaceMetodoApi'}).append(
+                  $('<a>',{href:metodo.urlReal,text:metodo.url,target:'_blank'})
+                )
               ),
               $('<div>',{class:'col-12 col-sm-6 col-md-6 col-lg-6 textoAlineadoDerecha'}).append(
                 $('<div>',{class:'descripcionMetodoApi  transparencia pr-1',text:metodo.descripcionCorta})

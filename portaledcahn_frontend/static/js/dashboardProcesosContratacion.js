@@ -421,7 +421,7 @@ function InicializarCantidadProcesos(){
                 type:'bar',
                 data:datos.resultados.cantidadprocesos,
                 itemStyle:{
-                    color: '#58C5CC'
+                    color: ObtenerColores('Pastel3')[0]
                 }
             },
             {
@@ -433,13 +433,13 @@ function InicializarCantidadProcesos(){
                 symbolSize: 10,
                 lineStyle: {
                     normal: {
-                        color: '#6569CC',
+                        color: ObtenerColores('Pastel3')[9],
                         width: 4/*,
                         type: 'dashed'*/
                     }
                 },
                 itemStyle:{
-                    color: '#6569CC'
+                    color: ObtenerColores('Pastel3')[9]
                 },
                 yAxisIndex:1
             }
@@ -460,7 +460,7 @@ function InicializarCantidadProcesos(){
                             type:'bar',
                             data:datos.resultados.cantidadprocesos,
                             itemStyle:{
-                                color: '#58C5CC'
+                                color: ObtenerColores('Pastel3')[0]
                             }
                         },
                         {
@@ -472,13 +472,13 @@ function InicializarCantidadProcesos(){
                             symbolSize: 10,
                             lineStyle: {
                                 normal: {
-                                    color: '#6569CC',
+                                    color: ObtenerColores('Pastel3')[9],
                                     width: 4/*,
                                     type: 'dashed'*/
                                 }
                             },
                             itemStyle:{
-                                color: '#6569CC'
+                                color: ObtenerColores('Pastel3')[9]
                             },
                             yAxisIndex:1
                         }
@@ -624,7 +624,7 @@ function InicializarMontoProcesos(){
                     type:'bar',
                     data:datos.resultados.monto_contratos_mes,
                     itemStyle:{
-                        color: '#D9527B'
+                        color: ObtenerColores('Pastel3')[1]
                     }
                 },
                 {
@@ -635,13 +635,13 @@ function InicializarMontoProcesos(){
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color: '#6569CC',
+                            color: ObtenerColores('Pastel3')[9],
                             width: 4/*,
                             type: 'dashed'*/
                         }
                     },
                     itemStyle:{
-                        color: '#6569CC'
+                        color: ObtenerColores('Pastel3')[9]
                     },
                     yAxisIndex:1
                 
@@ -662,7 +662,7 @@ function InicializarMontoProcesos(){
                         type:'bar',
                         data:datos.resultados.monto_contratos_mes,
                         itemStyle:{
-                            color: '#D9527B'
+                            color: ObtenerColores('Pastel3')[1]
                         }
                     },
                     {
@@ -673,13 +673,13 @@ function InicializarMontoProcesos(){
                         symbolSize: 10,
                         lineStyle: {
                             normal: {
-                                color: '#6569CC',
+                                color: ObtenerColores('Pastel3')[9],
                                 width: 4/*,
                                 type: 'dashed'*/
                             }
                         },
                         itemStyle:{
-                            color: '#6569CC'
+                            color: ObtenerColores('Pastel3')[9]
                         },
                         yAxisIndex:1
                     
@@ -786,7 +786,7 @@ function CantidadProcesosEtapas(){
                     type:'bar',
                     data:datos.resultados.procesos,
                     itemStyle:{
-                        color: '#F89A67'
+                        color: ObtenerColores('Pastel3')[3]
                     }
                 }
             ],
@@ -890,7 +890,7 @@ function TiempoPromedioEtapas(){
                     },
                     data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion))],
                     itemStyle:{
-                        color: '#F69A69'
+                        color: ObtenerColores('Pastel3')[3]
                     }
     
                     
@@ -907,7 +907,7 @@ function TiempoPromedioEtapas(){
                     },
                     data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))],
                     itemStyle:{
-                        color: '#DA527A'
+                        color: ObtenerColores('Pastel3')[1]
                     }
                 }
             ],
@@ -941,7 +941,7 @@ function TiempoPromedioEtapas(){
                             },
                             data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion))],
                             itemStyle:{
-                                color: '#F69A69'
+                                color: ObtenerColores('Pastel3')[3]
                             }
             
                             
@@ -958,7 +958,7 @@ function TiempoPromedioEtapas(){
                             },
                             data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))],
                             itemStyle:{
-                                color: '#DA527A'
+                                color: ObtenerColores('Pastel3')[1]
                             }
                         }
                     ],
@@ -1020,7 +1020,10 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
                 position:'bottom'/*,
                 data: ['lengend data 1','lengend data 2','lengend data 3'],
         
-                selected: [false,false,true]*/
+                selected: [false,false,true]*/,
+                textStyle:{
+                    color:'gray'
+                }
             },
             series : [
                 {
@@ -1031,14 +1034,17 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
                     data: datosPastel,//[{name:'Obras',value: 20},{name:'Bienes',value: 40},{name:'Servicios',value: 60}],
                     itemStyle: {
                         color: function(e){
-                            var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
+                            var colores=ObtenerColores('Pastel3');
                             return colores[e.dataIndex];
-                        },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                        },
                         emphasis: {
                             shadowBlur: 10,
                             shadowOffsetX: 0,
                             shadowColor: 'rgba(0, 0, 0, 0.5)'
                         }
+                    },
+                    label:{
+                        color:'gray'
                     }
                 }
             ],
@@ -1106,10 +1112,10 @@ function MontoProcesosCategoriaCompra(){
             },
             legend: {
                 type: 'scroll',
-                orient: 'horizontal'/*,
-                data: ['lengend data 1','lengend data 2','lengend data 3'],
-        
-                selected: [false,false,true]*/
+                orient: 'horizontal',
+                textStyle:{
+                    color:'gray'
+                }
             },
             series : [
                 {
@@ -1120,14 +1126,17 @@ function MontoProcesosCategoriaCompra(){
                     data: datosPastel,
                     itemStyle: {
                         color: function(e){
-                            var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED'];
+                            var colores=ObtenerColores('Pastel3')
                             return colores[e.dataIndex];
-                        },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                        },
                         emphasis: {
                             shadowBlur: 10,
                             shadowOffsetX: 0,
                             shadowColor: 'rgba(0, 0, 0, 0.5)'
                         }
+                    },
+                    label:{
+                        color:'gray'
                     }
                 }
             ],
@@ -1195,10 +1204,10 @@ var opciones = {
         orient: 'vertical',
         right: 10,
         top: 20,
-        bottom: 20/*,
-        data: ['lengend data 1','lengend data 2','lengend data 3'],
-
-        selected: [false,false,true]*/
+        bottom: 20,
+        textStyle:{
+            color:'gray'
+        }
     },
     series : [
         {
@@ -1209,9 +1218,9 @@ var opciones = {
             data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
             itemStyle: {
                 color: function(e){
-                    var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED'];
+                    var colores=ObtenerColores('Pastel3');
                     return colores[e.dataIndex];
-                },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                },
                 emphasis: {
                     shadowBlur: 10,
                     shadowOffsetX: 0,
@@ -1221,7 +1230,10 @@ var opciones = {
             grid:{
                 containLabel:true
             },
-            formatter: '{c}'
+            formatter: '{c}',
+            label:{
+                color:'gray'
+            }
         }
     ],
     grid:{
@@ -1265,9 +1277,9 @@ var opciones = {
                     data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
                     itemStyle: {
                         color: function(e){
-                            var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED'];
+                            var colores=ObtenerColores('Pastel3');
                             return colores[e.dataIndex];
-                        },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                        },
                         emphasis: {
                             shadowBlur: 10,
                             shadowOffsetX: 0,
@@ -1352,7 +1364,10 @@ var datosPastel=[];
             orient: 'vertical',
             right: 10,
             top: 20,
-            bottom: 20
+            bottom: 20,
+            textStyle:{
+                color:'gray'
+            }
             /*,
             data: ['lengend data 1','lengend data 2','lengend data 3'],
     
@@ -1368,9 +1383,9 @@ var datosPastel=[];
                 data:datosPastel,
                 itemStyle: {
                     color: function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED'];
+                        var colores=ObtenerColores('Pastel3');
                         return colores[e.dataIndex];
-                    },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                    },
                     emphasis: {
                         shadowBlur: 10,
                         shadowOffsetX: 0,
@@ -1378,6 +1393,9 @@ var datosPastel=[];
                     }
                 },grid:{
                     containLabel:true
+                },
+                label:{
+                    color:'gray'
                 }
             }
         ],
@@ -1420,9 +1438,9 @@ var datosPastel=[];
                             data:datosPastel,
                             itemStyle: {
                                 color: function(e){
-                                    var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED'];
+                                    var colores=ObtenerColores('Pastel3');
                                     return colores[e.dataIndex];
-                                },//['#57C5CB','#DA517A','#FECB7E','#F79A6A'],
+                                },
                                 emphasis: {
                                     shadowBlur: 10,
                                     shadowOffsetX: 0,
@@ -1531,6 +1549,9 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                         label: {
                             formatter: '{value} HNL'
                         }
+                    },
+                    textStyle:{
+                        color:'gray'
                     }
                 }
             ],
@@ -1557,7 +1578,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                     type:'bar',
                     data:datos.resultados.montoContratado.reverse(),
                     itemStyle:{
-                        color: '#58C5CC'
+                        color: ObtenerColores('Pastel3')[0]
                     },
                     label: {
                         normal: {
@@ -1584,7 +1605,8 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                 show:true,
                 fontFamily:'Poppins',
                 fontWeight:700,
-                fontSize:15
+                fontSize:15,
+                color:'gray'
             }
         },
         media:[
@@ -1634,7 +1656,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                             type:'bar',
                             data:datos.resultados.montoContratado.reverse(),
                             itemStyle:{
-                                color: '#58C5CC'
+                                color: ObtenerColores('Pastel3')[0]
                             },
                             label: {
                                 normal: {
@@ -1762,7 +1784,7 @@ var opciones = {
                 type:'bar',
                 data:datos.resultados.montoContratado.reverse(),
                 itemStyle:{
-                    color: '#FECB7E'
+                    color: ObtenerColores('Pastel3')[2]
                 },
                 label: {
                     normal: {
@@ -1790,7 +1812,8 @@ var opciones = {
             show:true,
             fontFamily:'Poppins',
             fontWeight:700,
-            fontSize:15
+            fontSize:15,
+            color:'gray'
         }
     },
     media:[
@@ -1843,7 +1866,7 @@ var opciones = {
                         type:'bar',
                         data:datos.resultados.montoContratado.reverse(),
                         itemStyle:{
-                            color: '#FECB7E'
+                            color: ObtenerColores('Pastel3')[2]
                         },
                         label: {
                             normal: {
@@ -1943,7 +1966,7 @@ function SegregacionMontosContratos(){
                 }
             ],
             itemStyle: {
-                color: '#FECB7E'/*function(e){
+                color: ObtenerColores('Pastel3')[2]/*function(e){
                     var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
                     return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
                 }*/
@@ -2053,9 +2076,13 @@ $.get(api+"/dashboardoncae/estadisticacantidaddeprocesos/",parametros).done(func
     console.dir('cantidad***')
 console.dir(datos);
     $('#CantidadProcesosPromedio').attr('data-to',datos.resultados.promedio);
+    $('#CantidadProcesosPromedio').parent().css({'color':ObtenerColores('Pastel3')[0]});
     $('#CantidadProcesosMenor').attr('data-to',datos.resultados.menor);
+    $('#CantidadProcesosMenor').parent().css({'color':ObtenerColores('Pastel3')[0]});
     $('#CantidadProcesosMayor').attr('data-to',datos.resultados.mayor);
+    $('#CantidadProcesosMayor').parent().css({'color':ObtenerColores('Pastel3')[0]});
     $('#CantidadProcesosTotal').attr('data-to',datos.resultados.total);
+    $('#CantidadProcesosTotal').parent().css({'color':ObtenerColores('Pastel3')[0]});
 /*
     $('.conteo').not('.moneda').countTo({
         formatter: function (value, options) {
@@ -2087,9 +2114,13 @@ $.get(api+"/dashboardoncae/estadisticacantidaddecontratos/",parametros).done(fun
     console.dir('cantidad***')
 console.dir(datos);
     $('#CantidadContratosPromedio').attr('data-to',datos.resultados.promedio);
+    $('#CantidadContratosPromedio').parent().css({'color':ObtenerColores('Pastel3')[1]});
     $('#CantidadContratosMenor').attr('data-to',datos.resultados.menor);
+    $('#CantidadContratosMenor').parent().css({'color':ObtenerColores('Pastel3')[1]});
     $('#CantidadContratosMayor').attr('data-to',datos.resultados.mayor);
+    $('#CantidadContratosMayor').parent().css({'color':ObtenerColores('Pastel3')[1]});
     $('#CantidadContratosTotal').attr('data-to',datos.resultados.total);
+    $('#CantidadContratosTotal').parent().css({'color':ObtenerColores('Pastel3')[1]});
 /*
     $('.conteo').not('.moneda').countTo({
         formatter: function (value, options) {
@@ -2121,6 +2152,7 @@ $.get(api+"/dashboardoncae/estadisticamontosdecontratos/",parametros).done(funct
     console.dir('cantidad***')
 console.dir(datos);
     $('#MontoContratosPromedio').attr('data-to',datos.resultados.promedio);
+    
     $('#MontoContratosMenor').attr('data-to',datos.resultados.menor);
     $('#MontoContratosMayor').attr('data-to',datos.resultados.mayor);
     $('#MontoContratosTotal').attr('data-to',datos.resultados.total);

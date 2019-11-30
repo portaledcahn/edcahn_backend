@@ -17,6 +17,17 @@ function DebugFecha(){
     console.dir(fecha);
 }
 
+function ObtenerColores(paleta){
+    var Paletas={
+        'Basica':['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED','#6569CC'],
+        'Pastel1':['#17B793','#927FBF','#285189','#04869C','#4F3B78','#9E0B28','#A64942','#F30A49','#523549','#0B3C77'],
+        'Pastel2':['#82CCB5','#DD86B9','#FFF68F','#F9B48A','#F497AA','#B6D884','#6BCADE','#71ABDD','#FDCD7B','#9977B4'],
+        'Pastel3':['#9DDAEC','#F29AC0','#FEDDB4','#FFAAA5','#C1ACD3','#B9DB9F','#B0DDD6','#DCEDC1','#EDEEA2','#FF8B94']
+    }
+
+    return Paletas[paleta?paleta:'Basica'];
+
+}
 function VerificarIntroduccion(variable,veces){
     var introduccion=ObtenerCookie(variable);
     if(introduccion===null){
@@ -431,6 +442,11 @@ function AnadirSubtabla(){
 }
 
 /*Nuevo Codigo */
+/*Obtener partes involucradas*/
+function ConcatenarEnlace(partes){
+    var arregloNombres=partes.map(function(parte){return parte.name;}).reverse();
+    return arregloNombres.join(' - ');
+  }
 function ObtenerEnlaceParte(id,arreglo,fuente){
     var elementos=[];
     if(arreglo){
@@ -455,7 +471,7 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     var elementos=[];
     for(var i=0;i<parte.length;i++){
       elementos.push(
-        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(parte[i].name)})):(parte[i].roles.includes('supplier')?(
+        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(ConcatenarEnlace(ObtenerEnlaceParte(parte[i].id,false,fuente))/* parte[i].name*/)})):(parte[i].roles.includes('supplier')?(
           $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
         ):(
           $('<span>',{text:parte[i].name})

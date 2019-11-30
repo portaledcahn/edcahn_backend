@@ -495,8 +495,7 @@ function AnadirElementosPartes(partes){
     elementos.push(
       $('<div>',{class:'col-md-12'}).append(
         $('<h4>',{class:'titularCajonSombreado'}).append(
-          ObtenerElementosParte( partes[i].id,procesoRecord.compiledRelease)
-          //partes[i].name
+          ObtenerElementosParte( partes[i].id,procesoRecord.compiledRelease,'comprador')
           ),
         $('<div class="contenedorProceso informacionProceso">').append(
           $('<div class="contenedorTablaCaracteristicas">').append(
@@ -517,7 +516,7 @@ function AnadirElementosPartes(partes){
                 : null,
                 partes[i].address&&partes[i].address.streetAddress ? 
                 $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Direccción:',toolTexto:"parties["+i+"].address.streetAddress"}),
+                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Dirección:',toolTexto:"parties["+i+"].address.streetAddress"}),
                   $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.streetAddress})
                 )
                 : null,
