@@ -2248,14 +2248,14 @@ class FiltrosDashboardSEFIN(APIView):
 			'instituciones', 
 			'terms', 
 			field='extra.buyerFullName.keyword', 
-			size=10000
+			size=50
 		)
 
 		s.aggs.metric(
 			'proveedores', 
 			'terms', 
 			field='payee.name.keyword', 
-			size=10000
+			size=50
 		)
 
 		s.aggs.metric(
@@ -2775,6 +2775,9 @@ class TopCompradoresPorMontoPagado(APIView):
 			compradores.append(bucket["key"])
 			montos.append(bucket["total_pagado"]["value"])
 
+		compradores.reverse()
+		montos.reverse()
+
 		resultados = {
 			"compradores": compradores,
 			"montos": montos
@@ -2857,6 +2860,9 @@ class TopProveedoresPorMontoPagado(APIView):
 		for bucket in buckets["buckets"]:
 			proveedores.append(bucket["key"])
 			montos.append(bucket["total_pagado"]["value"])
+
+		proveedores.reverse()
+		montos.reverse()
 
 		resultados = {
 			"proveedores": proveedores,
@@ -2942,6 +2948,9 @@ class TopObjetosDeGastoPorMontoPagado(APIView):
 		for bucket in buckets["buckets"]:
 			objetos.append(bucket["key"])
 			montos.append(bucket["total_pagado"]["value"])
+
+		objetos.reverse()			
+		montos.reverse()
 
 		resultados = {
 			"objetosGasto": objetos,
@@ -3137,28 +3146,28 @@ class FiltrosDashboardONCAE(APIView):
 			'nombre', 
 			'terms', 
 			field='extra.parentTop.name.keyword', 
-			size=10000
+			size=10
 		)
 
 		ss.aggs.metric(
 			'instituciones',
 			'terms',
 			field='extra.parentTop.id.keyword', 
-			size=10000	
+			size=10	
 		)
 
 		ss.aggs["instituciones"].metric(
 			'nombre',
 			'terms',
 			field='extra.parentTop.name.keyword', 
-			size=10000	
+			size=10	
 		)
 
 		sss.aggs.metric(
 			'instituciones',
 			'terms',
 			field='extra.parentTop.id.keyword', 
-			size=10000	
+			size=10	
 		)
 
 		sss.aggs["instituciones"].metric(
@@ -3348,8 +3357,11 @@ class FiltrosDashboardONCAE(APIView):
 				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
 
 		years = []
+		annioActual = int(datetime.datetime.now().year)
+
 		for key, value in anios.items():
-			years.append(value)
+			if int(value["key_as_string"]) <= annioActual and int(value["key_as_string"]) >= 1980:
+				years.append(value)
 
 		years = sorted(years, key=lambda k: k['key_as_string'], reverse=True) 
 
@@ -3398,10 +3410,9 @@ class FiltrosDashboardONCAE(APIView):
 
 			dfInstituciones = dfInstituciones.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
 
-			instituciones = dfInstituciones.to_dict('records')
+			instituciones = dfInstituciones[0:10].to_dict('records')
 
 		#Valores para filtros por moneda del contrato.
-
 		monedas = [] 
 		for valor in monedasContratosPC["buckets"]:
 			monedas.append({
@@ -3413,10 +3424,10 @@ class FiltrosDashboardONCAE(APIView):
 		if anio.replace(' ', ''):
 			for valor in monedasContratosDD["buckets"]:
 				monedas.append({
-				"moneda": valor["key"],
-				"contratos": valor["doc_count"],
-				"procesos": valor["procesos"]["value"]
-			})
+					"moneda": valor["key"],
+					"contratos": valor["doc_count"],
+					"procesos": valor["procesos"]["value"]
+				})
 
 		if monedas:
 			dfMonedas = pd.DataFrame(monedas)
@@ -5004,6 +5015,9 @@ class TopCompradoresPorMontoContratado(APIView):
 				nombreCompradores.append(c["nombre"])
 				totalContratado.append(c["montoContratado"])
 
+		codigoCompradores.reverse()
+		nombreCompradores.reverse()
+		totalContratado.reverse()
 
 		resultados = {
 			"codigoCompradores": codigoCompradores,
@@ -5178,6 +5192,9 @@ class TopProveedoresPorMontoContratado(APIView):
 				nombreProveedores.append(c["nombre"])
 				totalContratado.append(c["montoContratado"])
 
+		codigoProveedores.reverse()
+		nombreProveedores.reverse()
+		totalContratado.reverse()
 
 		resultados = {
 			"codigoProveedores": codigoProveedores,
@@ -5766,6 +5783,11 @@ class IndicadorTopCompradores(APIView):
 				totalContratado.append(c["montoContratado"])
 				cantidadProcesos.append(c["ocids"])
 
+		codigoCompradores.reverse()
+		nombreCompradores.reverse()
+		totalContratado.reverse()
+		cantidadProcesos.reverse()
+
 		resultados = {
 			"codigoCompradores": codigoCompradores,
 			"nombreCompradores": nombreCompradores,
@@ -5888,11 +5910,9 @@ class IndicadorCatalogoElectronico(APIView):
 			totalContratado.append(c["montoContratado"]["value"])
 			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
 
-			# catalogos.append({
-			# 	"key": c["key"],
-			# 	"montoContratado": c["montoContratado"]["value"],
-			# 	"ocids": c["contract"]["contadorOCIDs"]["value"]
-			# })
+		nombreCatalogo.reverse()
+		totalContratado.reverse()
+		cantidadProcesos.reverse()
 
 		resultados = {
 			# "catalogos": catalogos,
