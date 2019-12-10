@@ -402,7 +402,7 @@ class Buscador(APIView):
 		#Filtros
 		s.aggs.metric('contratos', 'nested', path='doc.compiledRelease.contracts')
 
-		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
+		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword', missing='Sin moneda')
 
 		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
 
@@ -483,8 +483,15 @@ class Buscador(APIView):
 			)
 
 		if moneda.replace(' ', ''): 
-			qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
-			s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
+
+			if moneda == 'Sin moneda':
+				qqMoneda = Q('exists', field='doc.compiledRelease.contracts.value.currency') 
+				qqqMoneda = Q('nested', path='doc.compiledRelease.contracts', query=qqMoneda)
+				qMoneda = Q('bool', must_not=qqqMoneda)
+				s = s.query(qMoneda)				
+			else:
+				qMoneda = Q('match', doc__compiledRelease__contracts__value__currency=moneda) 
+				s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
 
 		if metodo_seleccion.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails=metodo_seleccion)
@@ -495,7 +502,6 @@ class Buscador(APIView):
 		if categoria.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory=categoria)
 
-		# Este filtro aun falta
 		if year.replace(' ', ''):
 			if metodo == 'pago' or metodo == 'contrato':
 				s = s.filter('range', doc__compiledRelease__date={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
