@@ -38,46 +38,7 @@ $(function(){
       }
     });
     ObtenerProceso();
-    /*Añadir Titles a las propiedades del proceso de contratacion*/
-    tippy('.botonPropiedadProceso[propiedad="informacion"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Información',
-    placement:'bottom-end'
-    });
-  
-    tippy('.botonPropiedadProceso[propiedad="documentos"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Documentos',
-    placement:'bottom-end'
-    });
-  
-    tippy('.botonPropiedadProceso[propiedad="historial"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Historial',
-    placement:'bottom-end'
-    });
-  
-    tippy('.botonPropiedadProceso[propiedad="invitados"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Invitados',
-    placement:'bottom-end'
-    });
-  
-    tippy('.botonPropiedadProceso[propiedad="solicitados"] ', {
-    arrow: true,
-    arrowType: 'round',
-    content:'Items Solicitados',
-    placement:'bottom-end'
-    });
-    tippy('#informacionTipoDatos', {
-    arrow: true,
-    arrowType: 'round',
-    content:'¿Que son estos tipos de datos?'
-  });
+   
   
     
   });
@@ -95,6 +56,7 @@ function MostrarPrimerProceso(){
     $('.botonPasoProceso').removeClass('activo');
     if(ObtenerValor( 'contrato')){
       pasos=$('.botonPasoProceso[estado="contrato"]').not('.deshabilitado');
+      $('#X'+SanitizarId(decodeURIComponent(ObtenerValor( 'contrato')))+'ContratoTab').tab('show');
     }
     $(pasos[0]).addClass('activo');
 
@@ -119,42 +81,57 @@ function MostrarPrimerProceso(){
 function ObtenerProceso(){
  
 
-  MostrarEspera('body .tamanoMinimo');
-  $.get(api+"/record/"+procesoOcid,function(datos){
-    if(datos&&!datos.detail){
-     // download(JSON.stringify(datos), 'json.txt', 'text/plain');
-      $('#procesoCargaContedor').show();
-      procesoRecord=datos;
-      
-      DefinirElementosPlaneacion();
-      DefinirElementosConvocatoria();
-      AnadirPartes();
-      DeshabilitarItems();
-      MostrarPrimerProceso();
-      AgregarToolTips();
-      AsignarOrdenTabla();
-      VerificarIntroduccion('INTROJS_PROCESO',1);
-      /*DefinirElementosPlaneacion();
-      DefinirElementosConvocatoria();
-      DefinirElementosAdjudicacion();
-      DefinirElementosContrato();
-      //DefinirElementosImplementacion();
-      DeshabilitarItems();
-      MostrarPrimerProceso();*/
-      OcultarEspera('body .tamanoMinimo');
-    }else{
-      OcultarEspera('body .tamanoMinimo');
-      /*No se encontro el proceso de contratacion */
-    }
-    
-    console.dir(datos)
-}).fail(function() {
-  /*Error de Conexion al servidor */
-  console.dir('error get')
-  OcultarEspera('body .tamanoMinimo');
   
-});
+  if(procesoOcid){
+    MostrarEspera('body .tamanoMinimo');
+    $.get(api+"/record/"+procesoOcid/*url+"/static/"+procesoOcid+".json"*/,function(datos){
+      console.dir(datos)
+      if(datos&&!datos.detail){
+       // download(JSON.stringify(datos), 'json.txt', 'text/plain');
+        $('#procesoCargaContedor').show();
+        procesoRecord=datos;
+        
+        DefinirElementosPlaneacion();
+        DefinirElementosConvocatoria();
+        DefinirElementosAdjudicacion();
+        DefinirElementosContrato();
+        AnadirPartes();
+        DeshabilitarItems();
+        
+        MostrarPrimerProceso();
+        AgregarToolTips();
+        AsignarOrdenTabla();
+        VerificarIntroduccion('INTROJS_PROCESO',1);
+        /*DefinirElementosPlaneacion();
+        DefinirElementosConvocatoria();
+        DefinirElementosAdjudicacion();
+        DefinirElementosContrato();
+        //DefinirElementosImplementacion();
+        DeshabilitarItems();
+        MostrarPrimerProceso();*/
+        OcultarEspera('body .tamanoMinimo');
+      }else{
+        OcultarEspera('body .tamanoMinimo');
+        $('#noEncontrado').show();
+        /*No se encontro el proceso de contratacion */
+      }
+      
+      
+  }).fail(function() {
+    /*Error de Conexion al servidor */
+    console.dir('error get')
+    
+    OcultarEspera('body .tamanoMinimo');
+    $('#noEncontrado').show();
+    
+  });
+  }else{
+    $('#noEncontrado').show();
+  }
+  
 }
+
+
 
 
 
@@ -163,6 +140,7 @@ function DeshabilitarItems(){
   for(var i=0;i<pasos.length;i++){
     DeshabilitarPaso(pasos[i]);
   }
+  $('#etapasProceso').show();
 }
 function DeshabilitarPaso(paso){
   if(ContarPropiedades(paso)==0){
@@ -264,7 +242,7 @@ function ObtenerDatosContacto(partes,tipo,nombres){
                     : null,
                     partes[i].address&&partes[i].address.streetAddress ? 
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Direccción:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Dirección:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.streetAddress})
                     )
                     : null,
@@ -276,13 +254,13 @@ function ObtenerDatosContacto(partes,tipo,nombres){
                     : null,
                     partes[i].contactPoint&&partes[i].contactPoint.email ? 
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electronico:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electrónico:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.email})
                     )
                     : null,
                     partes[i].contactPoint&&partes[i].contactPoint.telephone ? 
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Telefono:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Teléfono:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.telephone})
                     )
                     : null,
@@ -327,48 +305,16 @@ function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
             $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
               $('<table>').append(
                 $('<tbody>').append(
-                  
-                  (desglosePresupuesto[i].classifications.fuente?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.fuente})
-                    )
-                    :null),
-                  
-                  (desglosePresupuesto[i].classifications.institucion?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Institución:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.institucion})
-                    )
-                    :null),
-                  (desglosePresupuesto[i].classifications.ue?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Unidad Ejecutora:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ue})
-                    )
-                    :null),
-                  (desglosePresupuesto[i].classifications.ga?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Gerencia Administrativa:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ga})
-                    )
-                    :null),
                   (desglosePresupuesto[i].classifications.gestion?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Periodo de Gestión:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.gestion})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.objeto?
+                  (desglosePresupuesto[i].classifications.institucion?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Objeto:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.objeto})
-                    )
-                    :null),
-                  (desglosePresupuesto[i].classifications.organismo?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Organismo:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.organismo})
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Institución:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.institucion})
                     )
                     :null),
                   (desglosePresupuesto[i].classifications.programa?
@@ -377,27 +323,58 @@ function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.programa})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.proyecto?
-                    $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Proyecto:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.proyecto})
-                    )
-                    :null),
                   (desglosePresupuesto[i].classifications.subPrograma?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Sub Programa:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.subPrograma})
                     )
                     :null),
+                  (desglosePresupuesto[i].classifications.proyecto?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Proyecto:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.proyecto})
+                    )
+                    :null),
+                        
                   (desglosePresupuesto[i].classifications.actividadObra?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Actividad Obra:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.actividadObra})
                     )
                     :null),
+                  (desglosePresupuesto[i].classifications.ga?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Gerencia Administrativa:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ga})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.ue?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Unidad Ejecutora:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.ue})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.fuente?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.fuente})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.organismo?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Organismo Financiador:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.organismo})
+                    )
+                    :null),
+                  (desglosePresupuesto[i].classifications.objeto?
+                    $('<tr>').append(
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Objeto:'}),
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.objeto})
+                    )
+                    :null),
                   (desglosePresupuesto[i].classifications.trfBeneficiario?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Transferencia al Beneficiario:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Beneficiario de Transferencia:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.trfBeneficiario})
                     )
                     :null)
@@ -458,12 +435,12 @@ function ObtenerDocumentos(documentos){
       $('<tr>').append(
         $('<td>',{'data-label':'Nombre',text:documentos[i].title}),
         $('<td>',{'data-label':'Descripción',text:documentos[i].description}),
-        $('<td>',{'data-label':'Tipo',text:TraduceTexto(documentos[i].documentType)}),
+        //$('<td>',{'data-label':'Tipo',text:TraduceTexto(documentos[i].documentType)}),
         $('<td>',{'data-label':'Fecha',text:((documentos[i].datePublished)?ObtenerFecha(documentos[i].datePublished):null)}),
         $('<td>',{class:'textoAlineadoDerecha','data-label':''}).append(
           $('<h4>',{class:'descargaIconos'}).append(
             $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-              $('<a>',{href:documentos[i].url,download:'a',class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
+              $('<a>',{href:documentos[i].url,download:'a',class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',target:'_blank'}).append(
                 $('<i>',{class:'fas fa-file-download'}),
               '&nbsp;'+ObtenerExtension(documentos[i].url)
               )
@@ -477,43 +454,7 @@ function ObtenerDocumentos(documentos){
   }
   return elementos;
 }
-/*Nuevo Codigo */
-function ObtenerEnlaceParte(id,arreglo){
-  var elementos=[];
-  if(arreglo){elementos=arreglo;
-  }
-  var partes=procesoRecord.compiledRelease.parties;
-  for(var i = 0; i < partes.length;i++){
-      if(partes[i].id == id){
-        elementos.push(partes[i]);
-        if(partes[i].memberOf){
-          for(var j = 0; j < partes[i].memberOf.length;j++){
-            ObtenerEnlaceParte(partes[i].memberOf[j].id,elementos);
-          }
 
-        }
-      }
-  }
-  return elementos;
-}
-function ObtenerElementosParte(id){
-  var parte=ObtenerEnlaceParte(id);
-  var elementos=[];
-  for(var i=0;i<parte.length;i++){
-    elementos.push(
-      parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+parte[i].id})):(parte[i].roles.includes('supplier')?(
-        $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
-      ):(
-        $('<span>',{text:parte[i].name})
-        ) 
-      ) 
-    )
-    if(elementos.length>=1&&i+1<parte.length){
-      elementos.push($('<span>',{text:' de '}));
-    }
-  }
-  return elementos;
-}
 //$('<a>',{text:contratos[i].buyer.name,class:'enlaceTablaGeneral',href:'/comprador/'+contratos[i].buyer.id})
 function download(content, fileName, contentType) {
   var a = document.createElement("a");
@@ -541,10 +482,21 @@ function AnadirPartes(){
 }
 function AnadirElementosPartes(partes){
   var elementos=[];
+  elementos.push(
+    $('<div>',{class:'col-md-12'}).append(
+      $('<h4>',{class:'titularCajonSombreado',style:'color:black'}).append(
+        'Comprador'
+        )
+    )
+  )
   for(var i=0;i<partes.length;i++){
+    console.dir('PARTES')
+    console.dir(partes);
     elementos.push(
       $('<div>',{class:'col-md-12'}).append(
-        $('<h4>',{class:'titularCajonSombreado'}).text(partes[i].name),
+        $('<h4>',{class:'titularCajonSombreado'}).append(
+          ObtenerElementosParte( partes[i].id,procesoRecord.compiledRelease,'comprador')
+          ),
         $('<div class="contenedorProceso informacionProceso">').append(
           $('<div class="contenedorTablaCaracteristicas">').append(
             $('<table>').append(
@@ -564,7 +516,7 @@ function AnadirElementosPartes(partes){
                 : null,
                 partes[i].address&&partes[i].address.streetAddress ? 
                 $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Direccción:',toolTexto:"parties["+i+"].address.streetAddress"}),
+                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Dirección:',toolTexto:"parties["+i+"].address.streetAddress"}),
                   $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.streetAddress})
                 )
                 : null,
@@ -576,13 +528,13 @@ function AnadirElementosPartes(partes){
                 : null,
                 partes[i].contactPoint&&partes[i].contactPoint.email ? 
                 $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electronico:',toolTexto:"parties["+i+"].contactPoint.email"}),
+                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electrónico:',toolTexto:"parties["+i+"].contactPoint.email"}),
                   $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.email})
                 )
                 : null,
                 partes[i].contactPoint&&partes[i].contactPoint.telephone ? 
                 $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Telefono:',toolTexto:"parties["+i+"].contactPoint.telephone"}),
+                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Teléfono:',toolTexto:"parties["+i+"].contactPoint.telephone"}),
                   $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.telephone})
                 )
                 : null,

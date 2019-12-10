@@ -1,9 +1,33 @@
 var url=window.location.origin;
 var api=url+"/api";
+var estadosContrato={
+    'pending':{titulo:'Pendiente',descripcion:'Este contrato se propuso pero aún no entra en vigor. Puede estar esperando ser firmado.'},
+    'active':{titulo:'Activo',descripcion:'Este contrato se ha firmado por todas las partes y ahora está legalmente en proceso.'},
+    'cancelled':{titulo:'Cancelado',descripcion:'Este contrato se canceló antes de ser firmado.'},
+    'unsuccessful':{titulo:'Sin Éxito',descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'}
+   };
+var defaultMoneda='HNL';
+
 function MostrarIntroduccion(){
     introJs().setOption("nextLabel", "Siguiente").setOption("prevLabel", "Atras").setOption("skipLabel", "SALTAR").setOption("doneLabel", "LISTO").start();
 }
+function DebugFecha(){
+    let d =new Date();
+    let fecha=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()+':'+d.getMilliseconds();
+    console.dir(fecha);
+}
 
+function ObtenerColores(paleta){
+    var Paletas={
+        'Basica':['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED','#6569CC'],
+        'Pastel1':['#17B793','#927FBF','#285189','#04869C','#4F3B78','#9E0B28','#A64942','#F30A49','#523549','#0B3C77'],
+        'Pastel2':['#82CCB5','#DD86B9','#FFF68F','#F9B48A','#F497AA','#B6D884','#6BCADE','#71ABDD','#FDCD7B','#9977B4'],
+        'Pastel3':['#9DDAEC','#F29AC0','#FEDDB4','#FFAAA5','#C1ACD3','#B9DB9F','#B0DDD6','#DCEDC1','#EDEEA2','#FF8B94']
+    }
+
+    return Paletas[paleta?paleta:'Basica'];
+
+}
 function VerificarIntroduccion(variable,veces){
     var introduccion=ObtenerCookie(variable);
     if(introduccion===null){
@@ -43,12 +67,19 @@ function ObtenerDuracionCookie(dia) {
     return d.toUTCString();
 }
 
-function ObtenerFecha(texto){
+function ObtenerFecha(texto,tipo){
     if(texto){
         try {
             fecha=new Date(texto);
-            return fecha.getFullYear()+'-'+('0' + (fecha.getMonth()+1)).slice(-2)+'-'+('0' +fecha.getDate()).slice(-2)+' '+('0' + fecha.getHours()).slice(-2)+':'+('0' +fecha.getMinutes()).slice(-2)+':'+('0' +fecha.getSeconds()).slice(-2);
-          }
+            switch(tipo){
+                case 'fecha':
+                    return fecha.getFullYear()+'-'+('0' + (fecha.getMonth()+1)).slice(-2)+'-'+('0' +fecha.getDate()).slice(-2);
+                    break;
+                default:
+                    return fecha.getFullYear()+'-'+('0' + (fecha.getMonth()+1)).slice(-2)+'-'+('0' +fecha.getDate()).slice(-2)+' '+('0' + fecha.getHours()).slice(-2)+':'+('0' +fecha.getMinutes()).slice(-2)+':'+('0' +fecha.getSeconds()).slice(-2);
+                    break;
+            }
+            }
           catch(error) {
             return ''
           }
@@ -66,16 +97,43 @@ function ObtenerNumero(texto){
 }
 
 function ObtenerTexto(texto){
-    if(texto){
+    if(Validar(texto)){
         return texto.toString();
     }else{
         return '';
     }
 }
+
+function ContenerCadena(texto,palabra){
+    texto=ObtenerTexto(texto);
+    palabra=ObtenerTexto(palabra);
+    if(texto.trim().toLowerCase().indexOf(palabra.trim().toLowerCase())!=-1){
+    return true;
+    }
+    else{
+    return false;
+    }
+}
+function SanitizarId(texto){
+    texto=ObtenerTexto(texto);
+    return reemplazarValor(reemplazarValor(reemplazarValor(texto,'\\\\',''),'/',''),' ','');
+}
+function reemplazarValor(texto,nombre,reemplazo)
+{   
+    let regular=new RegExp(nombre, "g");;
+    while(regular.test(texto)){
+      texto=texto.replace(nombre,reemplazo);
+    }
+    return texto;
+  }
+
+function VerificarCadenaRTN(texto){
+    return /^HN-RTN-\d{14}$/.test(ObtenerTexto(texto));
+}
 function ReducirTexto(texto,maximo){
     texto=ObtenerTexto(texto);
     if(texto.length>maximo){
-       return texto.substring(0, maximo);
+       return texto.substring(0, maximo)+'...';
     }else{
         return texto;
     }
@@ -94,6 +152,11 @@ function ObtenerExtension(direccion){
 function ValorMoneda(texto){
     var numero=ObtenerNumero(texto);
     numero=numero.toFixed(2);
+    numero=numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return numero;
+}
+function ValorNumerico(texto){
+    var numero=ObtenerNumero(texto);
     numero=numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return numero;
 }
@@ -117,6 +180,20 @@ function TraduceTexto(texto){
     }
 }
 
+function ObtenerObligacionesTransaccion(transaccion,obligaciones){
+    var arregloObligaciones=[];
+    if(transaccion.financialObligationIds && transaccion.financialObligationIds.length && obligaciones && obligaciones.length){
+      for(i=0;i<obligaciones.length;i++){
+        if(transaccion.financialObligationIds.includes(obligaciones[i].id)){
+          arregloObligaciones.push(
+            obligaciones[i]
+          )
+        }
+      }
+    }
+    return arregloObligaciones;
+  }
+
 function DescargarElemento(direccion){
     var enlace=document.createElement('a');
     document.body.appendChild(enlace);
@@ -124,12 +201,12 @@ function DescargarElemento(direccion){
     enlace.click();
 }
 
-function MostrarEspera(selector){
-    if($(selector+' .espera').length){
-        $(selector+' .espera').show();
+function MostrarEspera(selector,elemento){
+    if($(selector+' .espera'+(elemento?'.elemento':'')).length){
+        $(selector+' .espera'+(elemento?'.elemento':'')).show();
     }else{
         $(selector).append(
-            $('<div>',{class:'espera'}).append(
+            $('<div>',{class:'espera'+(elemento?' elemento':'')}).append(
                 $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'})
             )
         )
@@ -148,13 +225,29 @@ function OcultarEspera(selector){
 function cambiarFiltroNumerico(elemento){
 if($(elemento).is(":checked")){
     $(elemento).parent().parent().parent().parent().parent().find('.btnFiltroNumerico').html(
-        $(elemento).attr('opcion')
+        $(elemento).attr('opcion').replace('==','=')
     );
     $(elemento).parent().parent().parent().parent().parent().find('.campoBlancoTextoSeleccion').attr(
-        $(elemento).attr('opcion')
+        'opcion',$(elemento).attr('opcion')
     );
+    $(elemento).parent().parent().parent().parent().parent().find('.campoBlancoTextoSeleccion').trigger('change');
 }
 
+}
+
+function Validar(valor){
+    if(valor!=null&&valor!=undefined){
+        return true;
+    }else{
+        return false;
+    }
+}
+function ValidarCadena(valor){
+    if(valor!=null&&valor!=undefined&&valor!==''){
+        return true;
+    }else{
+        return false;
+    }
 }
 function cambiarOrden(evento){
     var elemento=$(evento.currentTarget);
@@ -182,12 +275,62 @@ function cambiarOrden(evento){
     }  
 }
 
-
+function cambiarOrdenFiltro(evento,funcion){
+    var elemento=$(evento.currentTarget);
+    $('.ordenEncabezado').not($(elemento)).attr('opcion','neutro'); 
+    $('.ordenEncabezado').not($(elemento)).find('.flechaAbajo').show();
+    $('.ordenEncabezado').not($(elemento)).find('.flechaArriba').show();
+    var filtro=elemento.closest('.campoFiltrado');
+    switch($(elemento).attr('opcion')){
+        case 'neutro':
+           $(elemento).find('.flechaArriba').hide();
+           $(elemento).find('.flechaAbajo').show();
+           $(elemento).attr('opcion','descendente');
+           if(funcion){
+             funcion(filtro.attr('filtro'),'descendente')
+           }
+        break;
+        case 'ascendente':
+            $(elemento).find('.flechaArriba').show();
+            $(elemento).find('.flechaAbajo').show();
+            $(elemento).attr('opcion','neutro');
+            if(funcion){
+                funcion(filtro.attr('filtro'),'neutro')
+              } 
+        break;
+        case 'descendente':
+            $(elemento).find('.flechaArriba').show();
+            $(elemento).find('.flechaAbajo').hide();
+            $(elemento).attr('opcion','ascendente'); 
+            if(funcion){
+                funcion(filtro.attr('filtro'),'ascendente')
+              } 
+        break;
+        default:
+            $(elemento).find('.flechaArriba').show();
+            $(elemento).find('.flechaAbajo').show();
+            $(elemento).attr('opcion','neutro'); 
+            if(funcion){
+                funcion(filtro.attr('filtro'),'neutro')
+              }
+        break;
+    }  
+}
 function AsignarOrdenTabla(){
     $('.ordenEncabezado').each(function(llave,elemento){
             $(elemento).on('click',
             function(evento){
                 cambiarOrden(evento);
+            })
+            
+        }
+    )
+}
+function AsignarOrdenTablaFiltros(funcion,selector){
+    $(selector?selector:'.ordenEncabezado').each(function(llave,elemento){
+            $(elemento).on('click',
+            function(evento){
+                cambiarOrdenFiltro(evento,funcion);
             })
             
         }
@@ -206,13 +349,22 @@ function AgregarToolTips(){
             if($(elemento).attr('toolPosicion')){
                 parametros['placement']=$(elemento).attr('toolPosicion');
             }
+            if($(elemento).attr('toolFlecha')&&$(elemento).attr('toolFlecha')=="false"){
+                parametros['arrow']=false;
+            }
+            if($(elemento).attr('toolCursor')&&$(elemento).attr('toolCursor')=="true"){
+                parametros['followCursor']=true;
+            }else if ($(elemento).attr('toolCursor')){
+                parametros['followCursor']=$(elemento).attr('followCursor');
+            }
             tippy($(elemento).get(),parametros);
         }
     )
 }
 
 function ObtenerValor( nombre, url ) {
-    if (!url) url = location.href;
+    if (!url) {url = location.href};
+    nombre=encodeURIComponent(nombre);
     nombre = nombre.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
     var regexS = "[\\?&]"+nombre+"=([^&#]*)";
     var regex = new RegExp( regexS );
@@ -228,7 +380,7 @@ function AnadirSubtabla(){
                 if(!$(e.currentTarget).hasClass('abierta')){
                     $(e.currentTarget).after($('<tr class="subTabla">').append(
                         $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
-                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Procesos de Contratación</h6></div><table class="tablaGeneral"> <thead> <tr> <th toolTexto="buyer.name">Comprador</th> <th toolTexto="contracts[n].title">Título del Contrato</th> <th toolTexto="contracts[n].value.amount">Monto del contrato</th> </tr></thead> <tbody> <tr><td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato" >1,200.00 <span class="textoColorPrimario">HNL</span></td></tr><tr> <td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td></tr></tbody> </table></div>'
+                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Contratos</h6></div><table class="tablaGeneral"> <thead> <tr> <th toolTexto="buyer.name">Comprador</th> <th toolTexto="contracts[n].title">Título del Contrato</th> <th toolTexto="contracts[n].value.amount">Monto del contrato</th> </tr></thead> <tbody> <tr><td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato" >1,200.00 <span class="textoColorPrimario">HNL</span></td></tr><tr> <td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td></tr></tbody> </table></div>'
                         )
                     ));
                     $(e.currentTarget).addClass('abierta');
@@ -287,4 +439,81 @@ function AnadirSubtabla(){
         }
     );
     
+}
+
+/*Nuevo Codigo */
+/*Obtener partes involucradas*/
+function ConcatenarEnlace(partes){
+    var arregloNombres=partes.map(function(parte){return parte.name;}).reverse();
+    return arregloNombres.join(' - ');
+  }
+function ObtenerEnlaceParte(id,arreglo,fuente){
+    var elementos=[];
+    if(arreglo){
+      elementos=arreglo;
+    }
+    var partes=fuente?fuente.parties:procesoRecord.compiledRelease.parties;
+    for(var i = 0; i < partes.length;i++){
+        if(partes[i].id == id){
+          elementos.push(partes[i]);
+          if(partes[i].memberOf){
+            for(var j = 0; j < partes[i].memberOf.length;j++){
+              ObtenerEnlaceParte(partes[i].memberOf[j].id,elementos,fuente);
+            }
+  
+          }
+        }
+    }
+    return elementos;
+  }
+  function ObtenerElementosParte(id,fuente){
+    var parte=ObtenerEnlaceParte(id,false,fuente);
+    var elementos=[];
+    for(var i=0;i<parte.length;i++){
+      elementos.push(
+        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(ConcatenarEnlace(ObtenerEnlaceParte(parte[i].id,false,fuente))/* parte[i].name*/)})):(parte[i].roles.includes('supplier')?(
+          $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
+        ):(
+          $('<span>',{text:parte[i].name})
+          ) 
+        ) 
+      )
+      if(elementos.length>=1&&i+1<parte.length){
+        elementos.push($('<span>',{text:' de '}));
+      }
+    }
+    return elementos;
+  }
+  function ObtenerProveedores(proveedores,fuente){
+    var elementos=[];
+    if(proveedores){
+      for(var i=0;i<proveedores.length;i++){
+        elementos=elementos.concat(ObtenerElementosParte(proveedores[i].id,fuente));
+      }
+    }
+    
+    return elementos;
+  }
+  function ObtenerPaginacion(paginaActual, ultimaPagina) {
+    var paginas=[];
+    var paginasPuntos=[];
+    var espaciado=2;
+    var izquierda=paginaActual - espaciado;
+    var derecha=paginaActual + espaciado;
+    var contador=0;
+    for(var i=1;i<=ultimaPagina;i++){
+        if (i==1||i==ultimaPagina||i>=izquierda&&i<=derecha){
+            paginas.push(i);
+        }
+    }
+    for(var i=0;i<paginas.length;i++){
+        if(contador){
+            if (paginas[i]-contador!=1) {
+                paginasPuntos.push('...');
+            }
+        }
+        paginasPuntos.push(paginas[i]);
+        contador=paginas[i];
+    }
+    return paginasPuntos;
 }

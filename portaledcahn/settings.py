@@ -25,7 +25,7 @@ SECRET_KEY = 'uo251c%zw60+efuwf$7yn7dl=6@0)p12%q(-87*p4r^dy-zbhp'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['35.237.10.60','localhost','127.0.0.1','200.13.162.86','74641fc6.ngrok.io']
 
 
 # Application definition
@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'portaledcahn.wsgi.application'
 DATABASES = {
     'bdkingfisher': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        # 'NAME': 'postgres',
+        # 'USER': 'postgres',
+        # 'PASSWORD': 'postgres',
         # 'HOST': '192.168.1.15',
         'NAME': 'ocdskingfisher',
         'USER': 'ocdskingfisher',
@@ -139,7 +139,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = 'staticfiles'
+STATIC_ROOT = 'static'
 
 STATICFILES_DIRS=(
     os.path.join(BASE_DIR,'portaledcahn_frontend/static'),
@@ -159,7 +159,7 @@ ELASTICSEARCH_DSL = {
     },
 }
 
-
 PAGINATE_BY = 10
 
 SOURCE_SEFIN_ID = 'HN.SIAFI2'
+

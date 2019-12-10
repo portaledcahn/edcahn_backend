@@ -138,7 +138,7 @@ function DefinirElementosImplementacion(){
                 $('<tr>').append(
                   $('<th>',{text:'Nombre'}),
                   $('<th>',{text:'Descripción'}),
-                  $('<th>',{text:'Tipo'}),
+                  //$('<th>',{text:'Tipo'}),
                   $('<th>',{text:'Fecha'}),
                   $('<th>',{text:''})
                 )

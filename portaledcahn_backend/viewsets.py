@@ -483,7 +483,6 @@ class Buscador(APIView):
 			)
 
 		if moneda.replace(' ', ''): 
-
 			if moneda == 'Sin moneda':
 				qqMoneda = Q('exists', field='doc.compiledRelease.contracts.value.currency') 
 				qqqMoneda = Q('nested', path='doc.compiledRelease.contracts', query=qqMoneda)
