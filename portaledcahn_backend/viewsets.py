@@ -5290,6 +5290,7 @@ class TopProveedoresPorMontoContratado(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
 		# Agregados
 		s.aggs.metric(
 			'sumaTotalContratos',
@@ -5547,7 +5548,7 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -5569,16 +5570,31 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if categoria.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			if categoria == 'No Definido':
+				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				s = s.filter('bool', must_not=qqCategoria)
+				ss = ss.filter('bool', must_not=qqCategoria)
+			else:
+				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
-			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			if modalidad == 'No Definido':
+				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+				s = s.filter('bool', must_not=qqModalidad)
+				ss = ss.filter('bool', must_not=qqModalidad)
+			else:
+				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', value__currency__keyword=moneda)
-			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+			if moneda == 'No Definido':
+				qqMoneda = Q('exists', field='value.currency.keyword')
+				s = s.filter('bool', must_not=qqMoneda)
+				ss = ss.filter('bool', must_not=qqMoneda)
+			else:
+				s = s.filter('match_phrase', value__currency__keyword=moneda)
+				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
@@ -5695,7 +5711,7 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -5717,16 +5733,31 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if categoria.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			if categoria == 'No Definido':
+				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				s = s.filter('bool', must_not=qqCategoria)
+				ss = ss.filter('bool', must_not=qqCategoria)
+			else:
+				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
-			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			if modalidad == 'No Definido':
+				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+				s = s.filter('bool', must_not=qqModalidad)
+				ss = ss.filter('bool', must_not=qqModalidad)
+			else:
+				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', value__currency__keyword=moneda)
-			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+			if moneda == 'No Definido':
+				qqMoneda = Q('exists', field='value.currency.keyword')
+				s = s.filter('bool', must_not=qqMoneda)
+				ss = ss.filter('bool', must_not=qqMoneda)
+			else:
+				s = s.filter('match_phrase', value__currency__keyword=moneda)
+				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
@@ -5848,7 +5879,7 @@ class IndicadorTopCompradores(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -5870,17 +5901,32 @@ class IndicadorTopCompradores(APIView):
 			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if categoria.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			if categoria == 'No Definido':
+				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				s = s.filter('bool', must_not=qqCategoria)
+				ss = ss.filter('bool', must_not=qqCategoria)
+			else:
+				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
-			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			if modalidad == 'No Definido':
+				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+				s = s.filter('bool', must_not=qqModalidad)
+				ss = ss.filter('bool', must_not=qqModalidad)
+			else:
+				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', value__currency__keyword=moneda)
-			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
-
+			if moneda == 'No Definido':
+				qqMoneda = Q('exists', field='value.currency.keyword')
+				s = s.filter('bool', must_not=qqMoneda)
+				ss = ss.filter('bool', must_not=qqMoneda)
+			else:
+				s = s.filter('match_phrase', value__currency__keyword=moneda)
+				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+				
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
@@ -6052,7 +6098,7 @@ class IndicadorCatalogoElectronico(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='contract')
 		s = s.filter('match_phrase', extra__sources__id='catalogo-electronico')
@@ -6072,19 +6118,27 @@ class IndicadorCatalogoElectronico(APIView):
 			s = s.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if categoria.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			if categoria == 'No Definido':
+				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				s = s.filter('bool', must_not=qqCategoria)
+			else:
+				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			if modalidad == 'No Definido':
+				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+				s = s.filter('bool', must_not=qqModalidad)
+			else:
+				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', value__currency__keyword=moneda)
-
-		if sistema.replace(' ', ''):
-			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
+			if moneda == 'No Definido':
+				qqMoneda = Q('exists', field='value.currency.keyword')
+				s = s.filter('bool', must_not=qqMoneda)
+			else:
+				s = s.filter('match_phrase', value__currency__keyword=moneda)
 
 		# Agregados
-
 		s.aggs.metric(
 			'items', 
 			'nested', 
@@ -6179,7 +6233,7 @@ class IndicadorContratosPorModalidad(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -6201,16 +6255,31 @@ class IndicadorContratosPorModalidad(APIView):
 			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if categoria.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-			ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+			if categoria == 'No Definido':
+				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				s = s.filter('bool', must_not=qqCategoria)
+				ss = ss.filter('bool', must_not=qqCategoria)
+			else:
+				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
-			s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
-			ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+			if modalidad == 'No Definido':
+				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+				s = s.filter('bool', must_not=qqModalidad)
+				ss = ss.filter('bool', must_not=qqModalidad)
+			else:
+				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
-			s = s.filter('match_phrase', value__currency__keyword=moneda)
-			ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+			if moneda == 'No Definido':
+				qqMoneda = Q('exists', field='value.currency.keyword')
+				s = s.filter('bool', must_not=qqMoneda)
+				ss = ss.filter('bool', must_not=qqMoneda)			
+			else:
+				s = s.filter('match_phrase', value__currency__keyword=moneda)
+				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
