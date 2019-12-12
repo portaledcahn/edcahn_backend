@@ -12,14 +12,18 @@
 
 <div class="container-fluid  busquedaEspaciadoHorizontal elementosDashboard">
    
-   <div class="contenedorFiltrosBusqueda animated">
+   <div class="contenedorFiltrosBusqueda">
       <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
          Filtros <a href="javascript:void(0)" class="botonGeneral fondoColorSecundario" id="quitarFiltros2" style="font-size: 10px;float:right;display: none;" toolTexto="Quitar Todos los Filtros"> Quitar</a>
          <div class="cursorMano cerrarContenedorFiltrosBusqueda" style="display:none"><i class="fas fa-times textoColorGris"></i></div>
       </h4>
+      <div id="extencionFiltrosAplicados" class="mb-1 d-sm-none">
+
+         </div>
       <div class="filtrosContenedoFiltrosBusqueda">
         
-         <div id="elastic-list" style="padding: 5px;">
+         <div id="elastic-list" class="contenedorListaElasticaEspacio">
+            <!--
                <div class="list-container col-md-12 2">
                      <div class="panel panel-default ">
                          <div class="panel-heading cargaEfecto" style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
@@ -116,6 +120,7 @@
                          </ul>
                      </div>
                  </div>
+               -->
          </div>
       </div>
    </div>
@@ -131,7 +136,7 @@
                         <tr>
                            <td>
                                  <span>
-                                       Dashboard de Procesos de Pago
+                                       Tablero de Procesos de Pago
                                  </span>
                            </td>
                            <td style="width: 70px;">
@@ -199,25 +204,25 @@
                         <div class="row">
                               <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                  <div class="p-2">
-                                 <div class="titularColor textoAlineadoDerecha" style="font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosPromedio">0</span></div>
+                                 <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosPromedio">0</span></div>
                                  <div class="titularColor textoAlineadoDerecha textoColorGris" >Promedio</div>
                                  </div>
                               </div>
                               <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                     <div class="p-2">
-                                    <div class="titularColor textoAlineadoDerecha" style="font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosMayor">0</span></div>
+                                    <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosMayor">0</span></div>
                                     <div class="titularColor textoAlineadoDerecha textoColorGris" >Mayor</div>
                                     </div>
                                  </div>
                                  <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                        <div class="p-2">
-                                       <div class="titularColor textoAlineadoDerecha" style="font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosMenor">0</span></div>
+                                       <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosMenor">0</span></div>
                                        <div class="titularColor textoAlineadoDerecha textoColorGris" >Menor</div>
                                        </div>
                                     </div>
                                     <div class="col-md-3 col-lg-3 col-sm-3 col-xs-12">
                                           <div class="p-2">
-                                          <div class="titularColor textoAlineadoDerecha" style="font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosTotal">0</span></div>
+                                          <div class="titularColor textoAlineadoDerecha textoColorGris" style="font-size: 50px;line-height: 40px"><span data-speed="300" data-refresh-interval="20" data-from="0" data-to="0" class="conteo" id="CantidadPagosTotal">0</span></div>
                                           <div class="titularColor textoAlineadoDerecha textoColorGris" >Total</div>
                                           </div>
                                        </div>
@@ -370,9 +375,10 @@
 </div>
 {% endblock %}
 {% block script_content %}
-<script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
+<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+<!--
 <script src="{% static 'plugins/elastic-list/data.js' %}"></script>
-<script src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>
+<script src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>-->
 <script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
-<script src="{% static 'js/dashboardProcesosPago.js' %}"></script>
+<script src="{% static 'js/tableroProcesosPago.js' %}"></script>
 {% endblock %}

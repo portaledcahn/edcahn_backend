@@ -18,6 +18,7 @@ var filtrosAplicables={
     sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
     
   };
+  var ordenFiltros=['años','monedas','proveedores','categorias','modalidades','sistemas'];
   var traducciones={
     'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
@@ -37,14 +38,26 @@ var filtrosAplicables={
   }
 
   $(function(){
-    ObtenerFiltros();
     $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
+        $('.contenedorFiltrosBusqueda').toggle('slide');
+        /*
         if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
           $('.contenedorFiltrosBusqueda').removeClass('cerrado');
+          //$('.contenedorFiltrosBusqueda').show('slide', {direction: 'right'}, 1000);
+          
         }else{
           $('.contenedorFiltrosBusqueda').addClass('cerrado');
-        }
+          //$('.contenedorFiltrosBusqueda').hide('slide', {direction: 'left'}, 1000);
+        }*/
       });
+      $( window ).resize(function() {
+       if($(window).width()>767){
+        $('.contenedorFiltrosBusqueda').show();
+       }
+      });
+    PanelInicialFiltros('#elastic-list');
+    ObtenerFiltros();
+    
     CargarGraficos();
     //CantidadPagosEtapas()
     
@@ -61,6 +74,11 @@ var filtrosAplicables={
     //VerificarIntroduccion('INTROJS_BUSQUEDA',1);
 })
 function CargarGraficos(){
+    $('.contenedorGrafico > .grafico').each(function(i,elemento){
+        if(echarts.getInstanceByDom(elemento)){
+            echarts.getInstanceByDom(elemento).clear();
+        }
+    });
     CargarCajonesCantidadProcesos();
     CargarCajonesCantidadContratos();
     CargarCajonesMontoContratos();
@@ -134,7 +152,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
   }
 
   function AccederUrlPagina(opciones,desUrl){
-    var direccion=('/dashboardProcesosContratacion/?'+
+    var direccion=('/tableroProcesosContratacion/?'+
     (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
     (ValidarCadena(opciones.idinstitucion)? '&idinstitucion='+encodeURIComponent(opciones.idinstitucion): (ValidarCadena(ObtenerValor('idinstitucion'))&&!desUrl?'&idinstitucion='+ObtenerValor('idinstitucion'):''))+
    
@@ -161,9 +179,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
       $('#contenedorFiltros').hide();
       $('#contenedorSinFiltros').show();
     }
-    $('#listaFiltrosAplicados').html('');
+    $('#listaFiltrosAplicados,#extencionFiltrosAplicados').html('');
     $.each(parametros,function(llave,filtro){
-      $('#listaFiltrosAplicados').append(
+      $('#listaFiltrosAplicados,#extencionFiltrosAplicados').append(
         $('<div>',{class:'grupoEtiquetaFiltro col-md-12x mb-1x',style:'display:inline-block'}).append(
           $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
           $('<div>',{class:'filtrosAplicados'}).append(
@@ -177,8 +195,10 @@ function ObtenerJsonFiltrosAplicados(parametros){
                   filtros[filtrosAplicablesR[$(val).attr('llave')]?filtrosAplicablesR[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
                 });*/
                 delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
-
+                
                 PushDireccionGraficos(AccederUrlPagina(filtros,true));
+                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().prev().remove();
+                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().remove();
               })
             )
           )
@@ -287,13 +307,26 @@ function AgregarPropiedadesListaElastica(valor,llave){
             $('li.list-group-item.active').each(function(cla,val){
               filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
             });
+            $('li.list-group-item').not('.active').remove();
+            $( '.list-group' ).not(':has(li)').append(
+                $('<li >',{
+                    class:'list-group-item animated fadeIn noEncima'
+                }
+                ).append(
+                    $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
+                    $('<div>',{
+                    class:'elastic-data cargandoElementoLista',
+                    text:'Cargando'}
+                    )
+                  )
+            );
             PushDireccionGraficos(AccederUrlPagina(filtros,true));
           }
         }}).append(
           $('<div>',{
               class:'badge',
-              toolTexto: ('Procesos: '+propiedades.procesos+'<br>Contratos: '+propiedades.contratos),
-              text:propiedades[ValoresLlaves(llave).cantidad]
+              toolTexto: (propiedades.procesos||propiedades.contratos)?('Procesos: '+ValorNumerico(propiedades.procesos)+'<br>Contratos: '+ValorNumerico(propiedades.contratos)):'OCID',
+              text:(ValoresLlaves(llave).cantidad)=='procesos'?ValorNumerico(propiedades[ValoresLlaves(llave).cantidad]===0?propiedades['contratos']:propiedades[ValoresLlaves(llave).cantidad]):ValorNumerico(propiedades[ValoresLlaves(llave).cantidad]) 
             }),
           $('<div >',{
           class:'elastic-data',
@@ -311,9 +344,9 @@ function AgregarPropiedadesListaElastica(valor,llave){
 function InicializarCantidadProcesos(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#cantidadProcesos',true)
+    MostrarReloj('#cantidadProcesos',true)
     $.get(api+"/dashboardoncae/cantidaddeprocesos/",parametros).done(function( datos ) {
-        OcultarEspera('#cantidadProcesos')
+        OcultarReloj('#cantidadProcesos')
     var grafico=echarts.init(document.getElementById('cantidadProcesos'));
     var opciones = {
         baseOption:{
@@ -509,11 +542,11 @@ function InicializarMontoProcesos(){
     //app.title = '折柱混合';
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#montoProcesos',true);
+    MostrarReloj('#montoProcesos',true);
     $.get(api+"/dashboardoncae/montosdecontratos/",parametros).done(function( datos ) {
         console.dir('Monto Procesos')
         console.dir(datos);
-        OcultarEspera('#montoProcesos')
+        OcultarReloj('#montoProcesos')
     var grafico=echarts.init(document.getElementById('montoProcesos'));
     var opciones = {
         baseOption:{
@@ -709,11 +742,11 @@ function InicializarMontoProcesos(){
 function CantidadProcesosEtapas(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#CantidadProcesosEtapas',true)
+    MostrarReloj('#CantidadProcesosEtapas',true)
     $.get(api+"/dashboardoncae/procesosporetapa/",parametros).done(function( datos ) {
     console.dir('PROCESOS POR ETAPA')
     console.dir(datos)
-    OcultarEspera('#CantidadProcesosEtapas')
+    OcultarReloj('#CantidadProcesosEtapas')
         //app.title = '折柱混合';
         var grafico=echarts.init(document.getElementById('CantidadProcesosEtapas'));
         var opciones = {
@@ -822,9 +855,9 @@ function CantidadProcesosEtapas(){
 function TiempoPromedioEtapas(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#tiempoPromedioEtapas',true);
+    MostrarReloj('#tiempoPromedioEtapas',true);
     $.get(api+"/dashboardoncae/tiemposporetapa/",parametros).done(function( datos ) {
-    OcultarEspera('#tiempoPromedioEtapas');
+    OcultarReloj('#tiempoPromedioEtapas');
     console.dir('TIEMPOS POR ETAPA');
     console.dir(datos);
     var grafico=echarts.init(document.getElementById('tiempoPromedioEtapas'));
@@ -985,11 +1018,11 @@ function TiempoPromedioEtapas(){
 function CantidadProcesosCategoriaCompra(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
-    MostrarEspera('#CantidadProcesosCategoriaCompra',true);
+    MostrarReloj('#CantidadProcesosCategoriaCompra',true);
 $.get(api+"/dashboardoncae/procesosporcategoria/",parametros).done(function( datos ) {
 console.dir('PROCESOS POR CATEGORIA DE COMPRA')
 console.dir(datos)
-OcultarEspera('#CantidadProcesosCategoriaCompra');
+OcultarReloj('#CantidadProcesosCategoriaCompra');
 var datosPastel=[];
 datos.resultados.categorias.forEach(function(valor,indice){
     datosPastel.push(
@@ -1081,11 +1114,11 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
 function MontoProcesosCategoriaCompra(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#MontoProcesosCategoriaCompra',true);
+    MostrarReloj('#MontoProcesosCategoriaCompra',true);
     $.get(api+"/dashboardoncae/contratosporcategoria/",parametros).done(function( datos ) {
     console.dir('CONTRATOS POR CATEGORIA DE COMPRA')
     console.dir(datos)
-    OcultarEspera('#MontoProcesosCategoriaCompra');
+    OcultarReloj('#MontoProcesosCategoriaCompra');
     var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
         datosPastel.push(
@@ -1173,11 +1206,11 @@ function MontoProcesosCategoriaCompra(){
 function CantidadProcesosMetodoContratacion(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
-    MostrarEspera('#CantidadProcesosMetodoContratacion',true);
+    MostrarReloj('#CantidadProcesosMetodoContratacion',true);
 $.get(api+"/dashboardoncae/procesospormodalidad/",parametros).done(function( datos ) {
 console.dir('PROCESOS POR MODALIDAD DE COMPRA')
 console.dir(datos)
-OcultarEspera('#CantidadProcesosMetodoContratacion');
+OcultarReloj('#CantidadProcesosMetodoContratacion');
 var datosPastel=[];
 datos.resultados.modalidades.forEach(function(valor,indice){
     datosPastel.push(
@@ -1253,7 +1286,7 @@ var opciones = {
                     bottom:0,
                     right:'center',
                     formatter: function (e){
-                        return e +'. '+ ValorNumerico(datosPastel.filter(function(data){ if(data.name===e){return true;}})[0].value);
+                        return e +'. '+ ValorNumerico(datosPastel.filter(function(data){ if(data.name===e){return true;}}).length?datosPastel.filter(function(data){ if(data.name===e){return true;}})[0].value:0);
                     }
                 }
                 ,tooltip:{
@@ -1331,11 +1364,11 @@ window.addEventListener("resize", function(){
 function MontoProcesosMetodoContratacion(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#MontoProcesosMetodoContratacion',true);
+    MostrarReloj('#MontoProcesosMetodoContratacion',true);
 $.get(api+"/dashboardoncae/contratospormodalidad/",parametros).done(function( datos ) {
 console.dir('MONTO POR MODALIDAD DE CONTRATACION')
 console.dir(datos);
-OcultarEspera('#MontoProcesosMetodoContratacion');
+OcultarReloj('#MontoProcesosMetodoContratacion');
 var datosPastel=[];
     datos.resultados.modalidades.forEach(function(valor,indice){
         datosPastel.push(
@@ -1417,7 +1450,7 @@ var datosPastel=[];
                         bottom:0,
                         right:'center',
                         formatter: function (e){
-                            return e +'. '+ ValorMoneda(datosPastel.filter(function(data){ if(data.name===e){return true;}})[0].value)+' HNL';
+                            return e +'. '+ ValorMoneda(datosPastel.filter(function(data){ if(data.name===e){return true;}}).length?datosPastel.filter(function(data){ if(data.name===e){return true;}})[0].value:0)+' HNL';
                         }
                     }
                     ,tooltip:{
@@ -1499,11 +1532,11 @@ var datosPastel=[];
 function Top10Compradores(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#top10Compradores',true);
+    MostrarReloj('#top10Compradores',true);
 $.get(api+"/dashboardoncae/topcompradores/",parametros).done(function( datos ) {
 console.dir('TOP COMPRADORES')
 console.dir(datos);
-OcultarEspera('#top10Compradores');
+OcultarReloj('#top10Compradores');
 var grafico=echarts.init(document.getElementById('top10Compradores'));
     var opciones = {
         baseOption:{
@@ -1706,11 +1739,11 @@ function Top10Proveedores(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     
-    MostrarEspera('#top10Proveedores',true);
+    MostrarReloj('#top10Proveedores',true);
 $.get(api+"/dashboardoncae/topproveedores/",parametros).done(function( datos ) {
 console.dir('TOP PROVEEDORES');
 console.dir(datos);
-OcultarEspera('#top10Proveedores');
+OcultarReloj('#top10Proveedores');
 var grafico=echarts.init(document.getElementById('top10Proveedores'));
 var opciones = {
     baseOption:{
@@ -2176,6 +2209,52 @@ console.dir(datos);
           });
       });
   }).fail(function() {
+      
+      
+    });
+}
+
+function PanelInicialFiltros(selector){
+    $(selector).html('')
+  $.each(ordenFiltros,function(indice,elemento){
+
+      $(selector).append(
+        $('<div class="list-container col-md-12 2 animated fadeIn">').append(
+          $('<div class="panel panel-default ">').append(
+            $('<div class="panel-heading">').text(
+              filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento
+            ),
+            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento ,filtro:elemento/*,on:{
+              keyup:function(e){
+                var texto=$(e.currentTarget).val();
+                if (texto.length > 0) {
+                  texto = texto.toLocaleLowerCase();
+                  var regla = " ul#" + 'ul'+elemento.llave + ' li[formato*="' + texto + '"]{display:block;} ';
+                  regla += " ul#" + 'ul'+elemento.llave + ' li:not([formato*="' + texto + '"]){display:none;}';
+                  $('#style'+elemento.llave).html(regla);
+                } else {
+                  $('#style'+elemento.llave).html('');
+                }
+              }
+            }*/}),
+            //$('<style>',{id:'style'+elemento.llave}),
+            $('<ul >',{class:'list-group',id:'ul'+elemento}).append(
+              $('<li >',{
+                  class:'list-group-item animated fadeIn noEncima'
+              }
+              ).append(
+                  $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
+                  $('<div>',{
+                  class:'elastic-data cargandoElementoLista',
+                  text:'Cargando'}
+                  )
+                )
+            )
+              
+            
+          )
+        )
+      );
       
       
     });

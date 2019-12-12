@@ -213,9 +213,32 @@ function MostrarEspera(selector,elemento){
     }
 }
 
+
 function OcultarEspera(selector){
     if($(selector+' .espera').length){
         $(selector+' .espera').hide();
+    }
+}
+
+function MostrarReloj(selector,elemento){
+    if($(selector+' .esperaReloj').length){
+        $(selector+' .esperaReloj').show();
+    }else{
+        $(selector).append(
+            $('<div>',{class:'esperaReloj'}).append(
+                $('<div>',{class:'reloj'}).append(
+                    $('<div>',{class:'flecha hora'}),
+                    $('<div>',{class:'flecha minuto'})
+                ),
+                $('<div>',{text:'Cargando',class:'textoCargando'})
+            )
+        )
+    }
+}
+
+function OcultarReloj(selector){
+    if($(selector+' .esperaReloj').length){
+        $(selector+' .esperaReloj').hide();
     }
 }
 
@@ -517,3 +540,144 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     }
     return paginasPuntos;
 }
+
+function convertirArregloObjetosCSV(args) {
+    var result, ctr, keys, columnDelimiter, lineDelimiter, data;
+
+    data = args.data || null;
+    if (data == null || !data.length) {
+        return null;
+    }
+
+    columnDelimiter = args.columnDelimiter || ',';
+    lineDelimiter = args.lineDelimiter || '\n';
+
+    keys = Object.keys(data[0]);
+
+    result = '';
+    result += keys.join(columnDelimiter);
+    result += lineDelimiter;
+
+    data.forEach(function(item) {
+        ctr = 0;
+        keys.forEach(function(key) {
+            if (ctr > 0) result += columnDelimiter;
+
+            result += item[key];
+            ctr++;
+        });
+        result += lineDelimiter;
+    });
+
+    return result;
+}
+function downloadCSV(args) {
+    var data, filename, link;
+
+    var csv = convertArrayOfObjectsToCSV({
+        data: stockData
+    });
+    if (csv == null) return;
+
+    filename = args.filename || 'export.csv';
+
+    if (!csv.match(/^data:text\/csv/i)) {
+        csv = 'data:text/csv;charset=utf-8,' + csv;
+    }
+    data = encodeURI(csv);
+
+    link = document.createElement('a');
+    link.setAttribute('href', data);
+    link.setAttribute('download', filename);
+    link.click();
+}
+function ArregloJSON(json,resultado,delimitador,path){
+    path=ValidarCadena(path)?path:'';
+    $.each(json,function(indice,valor){
+        if(typeof(valor)==='object'&&typeof(valor.getMonth)!=='function'){
+            ArregloJSON(valor,resultado,delimitador,path+(ValidarCadena(path)?delimitador:'')+indice);
+        }else{
+            
+            //var objeto={};
+            resultado[path+(ValidarCadena(path)?delimitador:'')+indice]=valor;
+            /*resultado.push(
+                objeto
+            );*/
+        }
+    });
+    return resultado;
+}
+function ObtenerMatrizObjeto(arreglo){
+    var encabezados=[];
+    var cuerpo=[];
+    var resultados=[];
+    arreglo.forEach(function(valor,indice){
+        var fila=ArregloJSON(valor,{},'/');
+        resultados.push(fila);
+        encabezados=encabezados.concat(Object.keys(fila));
+        encabezados=encabezados.filter(function(valorFila, indiceFila){ return (encabezados.indexOf(valorFila) === indiceFila);});
+    });
+    cuerpo.push(encabezados);
+    resultados.forEach(function(valorFila,indiceFila){
+        var fila=[]
+        encabezados.forEach(function(valorEncabezado,indiceEncabezado){
+            if(Validar(valorFila[valorEncabezado])){
+                fila.push(valorFila[valorEncabezado]);
+            }else{
+                fila.push('');
+            }
+        });
+        cuerpo.push(fila);
+    });
+    
+    return cuerpo;
+}
+function DescargarCSV(arreglo,nombre){
+if(arreglo.length>1){
+    var cadenaCSV='';
+    arreglo.forEach(function(fila,indice){
+        fila=fila.map(function(e){return reemplazarValor(reemplazarValor(e,'\n',' '),',','.');});
+        cadenaCSV+=fila.join(',')+((indice<arreglo.length-1)?'\n':'');
+    });
+
+    var blob = new Blob(["\uFEFF"+cadenaCSV], { type: "text/csv;charset=utf-8" });
+    saveAs(blob, nombre?('Portal de Contrataciones Abiertas de Honduras - '+nombre+'.csv'):'Portal de Contrataciones Abiertas de Honduras.csv');
+
+}
+}
+function DescargarJSON(objeto,nombre){
+    if(objeto){
+        var blob = new Blob([JSON.stringify(objeto)], { type: "application/json" });
+        saveAs(blob, nombre?('Portal de Contrataciones Abiertas de Honduras - '+nombre+'.json'):'Portal de Contrataciones Abiertas de Honduras.json');
+    }
+}
+function DescargarXLSX(arreglo,nombre){
+    if(arreglo.length>1){
+        var wb = XLSX.utils.book_new();
+    wb.Props = {
+        Title: nombre?nombre:'',
+        Subject: "Portal de Contrataciones Abiertas de Honduras",
+        Author: "Portal de Contrataciones Abiertas de Honduras",
+        CreatedDate: new Date()
+    };
+    wb.SheetNames.push(nombre?nombre:'');
+    var ws_data = arreglo;
+    var ws = XLSX.utils.aoa_to_sheet(ws_data);
+    wb.Sheets[nombre?nombre:''] = ws;
+    var wbout = XLSX.write(wb, {
+        bookType: 'xlsx',
+        type: 'binary'
+    });
+    saveAs(new Blob([s2ab(wbout)], {
+        type: "application/octet-stream"
+    }),nombre?('Portal de Contrataciones Abiertas de Honduras - '+nombre+'.xlsx'):'Portal de Contrataciones Abiertas de Honduras.xlsx');
+    }
+}
+
+function s2ab(s) { 
+    var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+    var view = new Uint8Array(buf);  //create uint8array as viewer
+    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+    return buf;    
+}
+

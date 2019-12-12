@@ -17,6 +17,7 @@ var filtrosAplicables={
     categoria : {titulo:'Categoría de Compra',parametro:'categorias'},
     sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
   };
+  var ordenFiltros=['años','monedas','proveedores','categorias','modalidades','sistemas'];
   var traducciones={
     'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
@@ -35,11 +36,11 @@ function ModalidadMontoCantidad(){
     
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
-    MostrarEspera('#cantidadProcesos',true)
+    MostrarReloj('#cantidadProcesos',true)
     $.get(api+"/indicadoresoncae/contratospormodalidad/",parametros).done(function( datos ) {
     console.dir('PROCESOS POR CATEGORIA DE COMPRA');
     console.dir(datos);
-    OcultarEspera('#cantidadProcesos')
+    OcultarReloj('#cantidadProcesos')
     var grafico=echarts.init(document.getElementById('cantidadProcesos'));
     var opciones = {
         baseOption:{
@@ -324,11 +325,11 @@ function ModalidadMontoCantidad(){
 function CantidadContratosCategoriaCompra(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
-    MostrarEspera('#CantidadContratosCategoriaCompra',true)
+    MostrarReloj('#CantidadContratosCategoriaCompra',true)
 $.get(api+"/indicadoresoncae/cantidadcontratosporcategoria/",parametros).done(function( datos ) {
 console.dir('CONTRATOS POR CATEGORIA');
 console.dir(datos);
-OcultarEspera('#CantidadContratosCategoriaCompra',true)
+OcultarReloj('#CantidadContratosCategoriaCompra',true)
 var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
         datosPastel.push(
@@ -454,11 +455,11 @@ window.addEventListener("resize", function(){
 function MontoContratosCategoriaCompra(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#MontoContratosCategoriaCompra',true);
+    MostrarReloj('#MontoContratosCategoriaCompra',true);
 $.get(api+"/indicadoresoncae/montoporcategoria/",parametros).done(function( datos ) {
 console.dir('MONTOS POR CATEGORIA DE COMPRA');
 console.dir(datos);
-OcultarEspera('#MontoContratosCategoriaCompra',true);
+OcultarReloj('#MontoContratosCategoriaCompra',true);
 var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
         datosPastel.push(
@@ -589,11 +590,11 @@ var datosPastel=[];
 function Top10InstitucionesMontos(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#top10InstitucionesMontos',true);
+    MostrarReloj('#top10InstitucionesMontos',true);
 $.get(api+"/indicadoresoncae/topcompradores/",parametros).done(function( datos ) {
 console.dir('TOP COMPRADORES');
 console.dir(datos);
-OcultarEspera('#top10InstitucionesMontos',true);
+OcultarReloj('#top10InstitucionesMontos',true);
 var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
     var opciones = {
         baseOption:{
@@ -850,11 +851,11 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
 function MontoCatalogoElectronico(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#montoCatalogoElectronico',true);
+    MostrarReloj('#montoCatalogoElectronico',true);
 $.get(api+"/indicadoresoncae/catalogos/",parametros).done(function( datos ) {
 console.dir('MONTO CATALOGO ELECTRONICO');
 console.dir(datos);
-OcultarEspera('#montoCatalogoElectronico',true);
+OcultarReloj('#montoCatalogoElectronico',true);
 var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
     var opciones = {
         baseOption:{
@@ -1103,21 +1104,36 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
 
 
 $(function(){
-
-    ObtenerFiltros();
     $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
+        $('.contenedorFiltrosBusqueda').toggle('slide');
+        /*
         if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
           $('.contenedorFiltrosBusqueda').removeClass('cerrado');
+          //$('.contenedorFiltrosBusqueda').show('slide', {direction: 'right'}, 1000);
+          
         }else{
           $('.contenedorFiltrosBusqueda').addClass('cerrado');
-        }
+          //$('.contenedorFiltrosBusqueda').hide('slide', {direction: 'left'}, 1000);
+        }*/
       });
+      $( window ).resize(function() {
+       if($(window).width()>767){
+        $('.contenedorFiltrosBusqueda').show();
+       }
+      });
+      PanelInicialFiltros('#elastic-list');
+    ObtenerFiltros();
     CargarGraficos();
     $('#quitarFiltros, #quitarFiltros2').on('click',function(e){
         PushDireccionGraficos(AccederUrlPagina({},true));
       });
 })
 function CargarGraficos(){
+    $('.contenedorGrafico > .grafico').each(function(i,elemento){
+        if(echarts.getInstanceByDom(elemento)){
+            echarts.getInstanceByDom(elemento).clear();
+        }
+    });
     ModalidadMontoCantidad();
     CantidadContratosCategoriaCompra();
     MontoContratosCategoriaCompra();
@@ -1223,6 +1239,8 @@ function AccederUrlPagina(opciones,desUrl){
                 delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
 
                 PushDireccionGraficos(AccederUrlPagina(filtros,true));
+                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().prev().remove();
+                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().remove();
               })
             )
           )
@@ -1331,14 +1349,27 @@ function AgregarPropiedadesListaElastica(valor,llave){
             $('li.list-group-item.active').each(function(cla,val){
               filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
             });
+            $('li.list-group-item').not('.active').remove();
+            $( '.list-group' ).not(':has(li)').append(
+                $('<li >',{
+                    class:'list-group-item animated fadeIn noEncima'
+                }
+                ).append(
+                    $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
+                    $('<div>',{
+                    class:'elastic-data cargandoElementoLista',
+                    text:'Cargando'}
+                    )
+                  )
+            );
             PushDireccionGraficos(AccederUrlPagina(filtros,true));
           }
         }}).append(
           $('<div>',{
-              class:'badge',
-              toolTexto: ('Procesos: '+propiedades.procesos+'<br>Contratos: '+propiedades.contratos),
-              text:propiedades[ValoresLlaves(llave).cantidad]
-            }),
+            class:'badge',
+            toolTexto: (propiedades.procesos||propiedades.contratos)?('Procesos: '+ValorNumerico(propiedades.procesos)+'<br>Contratos: '+ValorNumerico(propiedades.contratos)):'OCID',
+            text:(ValoresLlaves(llave).cantidad)=='procesos'?ValorNumerico(propiedades[ValoresLlaves(llave).cantidad]===0?propiedades['contratos']:propiedades[ValoresLlaves(llave).cantidad]):ValorNumerico(propiedades[ValoresLlaves(llave).cantidad]) 
+          }),
           $('<div >',{
           class:'elastic-data',
           toolTexto:(traducciones[propiedades[ValoresLlaves(llave).valor]]?traducciones[propiedades[ValoresLlaves(llave).valor]].titulo:propiedades[ValoresLlaves(llave).valor]),
@@ -1351,3 +1382,37 @@ function AgregarPropiedadesListaElastica(valor,llave){
     });
     return elementos;
   }
+
+  function PanelInicialFiltros(selector){
+    $(selector).html('')
+  $.each(ordenFiltros,function(indice,elemento){
+
+      $(selector).append(
+        $('<div class="list-container col-md-12 2 animated fadeIn">').append(
+          $('<div class="panel panel-default ">').append(
+            $('<div class="panel-heading">').text(
+              filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento
+            ),
+            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento ,filtro:elemento}),
+            //$('<style>',{id:'style'+elemento.llave}),
+            $('<ul >',{class:'list-group',id:'ul'+elemento}).append(
+              $('<li >',{
+                  class:'list-group-item animated fadeIn noEncima'
+              }
+              ).append(
+                  $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
+                  $('<div>',{
+                  class:'elastic-data cargandoElementoLista',
+                  text:'Cargando'}
+                  )
+                )
+            )
+              
+            
+          )
+        )
+      );
+      
+      
+    });
+}

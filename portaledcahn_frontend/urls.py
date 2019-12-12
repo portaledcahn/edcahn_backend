@@ -19,8 +19,8 @@ urlpatterns = [
     path('proveedor/', frontend_views.Proveedor),
     path('proveedores/', frontend_views.Proveedores),
     path('visualizaciones/', frontend_views.Visualizaciones),
-    path('dashboardProcesosContratacion/', frontend_views.DashboardProcesosContratacion),
-    path('dashboardProcesosPago/', frontend_views.DashboardProcesosPago),
+    path('tableroProcesosContratacion/', frontend_views.TableroProcesosContratacion),
+    path('tableroProcesosPago/', frontend_views.TableroProcesosPago),
     path('indicadoresProcesosContratacion/', frontend_views.IndicadoresProcesosContratacion),
     path('indicadoresProcesosPago/', frontend_views.IndicadoresProcesosPago),
 ]
