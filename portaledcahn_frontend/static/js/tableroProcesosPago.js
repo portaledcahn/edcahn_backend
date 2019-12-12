@@ -1906,9 +1906,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
       $('#contenedorFiltros').hide();
       $('#contenedorSinFiltros').show();
     }
-    $('#listaFiltrosAplicados').html('');
+    $('#listaFiltrosAplicados,#extencionFiltrosAplicados').html('');
     $.each(parametros,function(llave,filtro){
-      $('#listaFiltrosAplicados').append(
+      $('#listaFiltrosAplicados,#extencionFiltrosAplicados').append(
         $('<div>',{class:'grupoEtiquetaFiltro col-md-12x mb-1x',style:'display:inline-block'}).append(
           $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
           $('<div>',{class:'filtrosAplicados'}).append(
