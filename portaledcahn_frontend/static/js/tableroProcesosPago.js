@@ -16,6 +16,7 @@ var filtrosAplicables={
     objetosgasto : {titulo:'Objeto de Gasto',parametro:'objetosGasto'}
     
   };
+  var ordenFiltros=['años','monedas','instituciones','proveedores','fuentes'];
   var traducciones={
     'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
@@ -30,11 +31,11 @@ function InicializarCantidadPagos(){
 
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#cantidadPagos',true);
+    MostrarReloj('#cantidadPagos',true);
     $.get(api+"/dashboardsefin/cantidaddepagos/",parametros).done(function( datos ) {
         console.dir('Cantidad de Pagos')
         console.dir(datos);
-        OcultarEspera('#cantidadPagos');
+        OcultarReloj('#cantidadPagos');
         var grafico=echarts.init(document.getElementById('cantidadPagos'));
         var opciones = {
             baseOption:{
@@ -235,11 +236,11 @@ function InicializarMontoPagos(){
 
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEspera('#montoPagos',true);
+    MostrarReloj('#montoPagos',true);
     $.get(api+"/dashboardsefin/montosdepagos/",parametros).done(function( datos ) {
         console.dir('Monto Pagos');
         console.dir(datos);
-        OcultarEspera('#montoPagos');
+        OcultarReloj('#montoPagos');
         var grafico=echarts.init(document.getElementById('montoPagos'));
         var opciones = {
             baseOption:{
@@ -253,7 +254,6 @@ function InicializarMontoPagos(){
                     }
                 },
                 formatter:  function (e){
-                    console.dir(e)
                     return "{b0}<br>{a0} {s0} {c0} HNL <br>{a1} {s1} {c1} %".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);
                 }
             },
@@ -449,6 +449,7 @@ function InicializarMontoPagos(){
             ]
         };
         grafico.setOption(opciones, true);
+        console.dir(grafico)
     
         
         window.addEventListener("resize", function(){
@@ -646,11 +647,11 @@ function MontoPagosEtapas(){
     //app.title = '折柱混合';
     var parametros={}
         parametros=ObtenerJsonFiltrosAplicados(parametros);
-        MostrarEspera('#montoPagosEtapas',true);
+        MostrarReloj('#montoPagosEtapas',true);
         $.get(api+"/dashboardsefin/etapaspago/",parametros).done(function( datos ) {
             console.dir('ETAPAS')
             console.dir(datos);
-            OcultarEspera('#montoPagosEtapas');
+            OcultarReloj('#montoPagosEtapas');
     var grafico=echarts.init(document.getElementById('montoPagosEtapas'));
     var opciones = {
         baseOption:{
@@ -663,7 +664,6 @@ function MontoPagosEtapas(){
                     }
                 },
                 formatter:  function (e){
-                    console.dir(e)
                     return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{p0}',ValorNumerico(datos.resultados.porcentajes[e[0].dataIndex].toFixed(2) ) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{c0}',ValorMoneda( e[0].value));
                     //return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(e[0].value) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',((ObtenerNumero( e[0].value)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
                 }
@@ -956,7 +956,6 @@ function TiempoPromedioEtapas(){
             fontSize:25,
             align:'right',
             formatter:  function (e){
-                console.dir(e)
                 return "{c} Días".replace('{c}',e.value);
             }
             //formatter: '{c} Días'
@@ -991,10 +990,11 @@ function Top10Compradores(){
     //app.title = '折柱混合';
     var parametros={}
         parametros=ObtenerJsonFiltrosAplicados(parametros);
-        MostrarEspera('#top10Compradores',true);
+        MostrarReloj('#top10Compradores',true);
         $.get(api+"/dashboardsefin/topcompradores/",parametros).done(function( datos ) {
+            console.dir('COMPRADORES')
             console.dir(datos);
-            OcultarEspera('#top10Compradores');
+            OcultarReloj('#top10Compradores');
             var grafico=echarts.init(document.getElementById('top10Compradores'));
             var opciones = {
                 baseOption:{
@@ -1181,10 +1181,11 @@ function Top10Proveedores(){
     //app.title = '折柱混合';
     var parametros={}
 parametros=ObtenerJsonFiltrosAplicados(parametros);
-MostrarEspera('#top10Proveedores',true);
+MostrarReloj('#top10Proveedores',true);
                 $.get(api+"/dashboardsefin/topproveedores/",parametros).done(function( datos ) {
+                    console.dir('PROVEEDORES')
                     console.dir(datos);
-                    OcultarEspera('#top10Proveedores');
+                    OcultarReloj('#top10Proveedores');
                     var grafico=echarts.init(document.getElementById('top10Proveedores'));
                     var opciones ={
                         baseOption:{
@@ -1348,10 +1349,11 @@ function Top10MontosProcesos(){
     
     var parametros={}
 parametros=ObtenerJsonFiltrosAplicados(parametros);
-MostrarEspera('#top10MontosProcesos',true);
+MostrarReloj('#top10MontosProcesos',true);
                 $.get(api+"/dashboardsefin/topobjetosgasto/",parametros).done(function( datos ) {
+                    console.dir('OBJETOS')
                     console.dir(datos);
-                    OcultarEspera('#top10MontosProcesos');
+                    OcultarReloj('#top10MontosProcesos');
                     var grafico=echarts.init(document.getElementById('top10MontosProcesos'));
                     var opciones ={
                         baseOption:{
@@ -1682,14 +1684,26 @@ function SegregacionMontosContratos(){
     });
 }
 $(function(){
-    ObtenerFiltros();
     $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
+        $('.contenedorFiltrosBusqueda').toggle('slide');
+        /*
         if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
           $('.contenedorFiltrosBusqueda').removeClass('cerrado');
+          //$('.contenedorFiltrosBusqueda').show('slide', {direction: 'right'}, 1000);
+          
         }else{
           $('.contenedorFiltrosBusqueda').addClass('cerrado');
-        }
+          //$('.contenedorFiltrosBusqueda').hide('slide', {direction: 'left'}, 1000);
+        }*/
       });
+      $( window ).resize(function() {
+       if($(window).width()>767){
+        $('.contenedorFiltrosBusqueda').show();
+       }
+      });
+    PanelInicialFiltros('#elastic-list');
+    ObtenerFiltros();
+    
     CargarGraficos();
     //CantidadPagosEtapas()
     
@@ -1706,6 +1720,15 @@ $(function(){
    // VerificarIntroduccion('INTROJS_BUSQUEDA',1);
 })
 function CargarGraficos(){
+    //$('.contenedorGrafico > .grafico').html('');
+
+    $('.contenedorGrafico > .grafico').each(function(i,elemento){
+        if(echarts.getInstanceByDom(elemento)){
+            echarts.getInstanceByDom(elemento).clear();
+        }
+    });
+
+    
     InicializarCantidadPagos();
     InicializarMontoPagos();
     Top10Proveedores();
@@ -1792,8 +1815,11 @@ console.dir(datos);
 
 
 function ObtenerFiltros(){
+    
     var parametros=ObtenerJsonFiltrosAplicados({});
     $.get(api+"/dashboardsefin/filtros/",parametros).done(function( datos ) {
+        console.dir('FILTROS')
+        console.dir(datos)
 /*
         if(datos.respuesta.pagos){
             datos.respuesta['años']=datos.respuesta.pagos['años'];
@@ -1808,9 +1834,6 @@ function ObtenerFiltros(){
         if(datos.respuesta.objetosGasto){
             delete datos.respuesta.objetosGasto;
         }
-        console.dir('filtros')
-    console.dir(datos);
-    console.dir('hola')
       
        
   
@@ -1857,7 +1880,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
   }
 
   function AccederUrlPagina(opciones,desUrl){
-    var direccion=('/dashboardProcesosPago/?'+
+    var direccion=('/tableroProcesosPago/?'+
     (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
     (ValidarCadena(opciones.institucion)? '&institucion='+encodeURIComponent(opciones.institucion): (ValidarCadena(ObtenerValor('institucion'))&&!desUrl?'&institucion='+ObtenerValor('institucion'):''))+
    
@@ -1883,9 +1906,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
       $('#contenedorFiltros').hide();
       $('#contenedorSinFiltros').show();
     }
-    $('#listaFiltrosAplicados').html('');
+    $('#listaFiltrosAplicados,#extencionFiltrosAplicados').html('');
     $.each(parametros,function(llave,filtro){
-      $('#listaFiltrosAplicados').append(
+      $('#listaFiltrosAplicados,#extencionFiltrosAplicados').append(
         $('<div>',{class:'grupoEtiquetaFiltro col-md-12x mb-1x',style:'display:inline-block'}).append(
           $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
           $('<div>',{class:'filtrosAplicados'}).append(
@@ -1901,6 +1924,8 @@ function ObtenerJsonFiltrosAplicados(parametros){
                 delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
 
                 PushDireccionGraficos(AccederUrlPagina(filtros,true));
+                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().prev().remove();
+                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().remove();
               })
             )
           )
@@ -1931,36 +1956,45 @@ function ObtenerJsonFiltrosAplicados(parametros){
 
   function MostrarListaElastica(datos,selector){
     $(selector).html('');
-    console.dir('vaciando***')
+    var arregloFiltros=[];
     $.each(datos.respuesta,function(llave,valor){
+        arregloFiltros.push({
+            'posicion':ordenFiltros.includes(llave)?ordenFiltros.indexOf(llave):99,
+            'llave':llave,
+            'valor':valor
+        });
+    });
+    arregloFiltros=arregloFiltros.sort(function(a, b){return a.posicion - b.posicion;});
+    $.each(arregloFiltros,function(indice,elemento){
+
       $(selector).append(
         $('<div class="list-container col-md-12 2">').append(
           $('<div class="panel panel-default ">').append(
             $('<div class="panel-heading">').text(
-              filtrosAplicables[llave]?filtrosAplicables[llave].titulo:llave
+              filtrosAplicables[elemento.llave]?filtrosAplicables[elemento.llave].titulo:elemento.llave
             ),
-            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[llave]?filtrosAplicables[llave].titulo:llave ,filtro:llave,on:{
+            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento.llave]?filtrosAplicables[elemento.llave].titulo:elemento.llave ,filtro:elemento.llave,on:{
               keyup:function(e){
                 var texto=$(e.currentTarget).val();
                 if (texto.length > 0) {
                   texto = texto.toLocaleLowerCase();
-                  var regla = " ul#" + 'ul'+llave + ' li[formato*="' + texto + '"]{display:block;} ';
-                  regla += " ul#" + 'ul'+llave + ' li:not([formato*="' + texto + '"]){display:none;}';
-                  $('#style'+llave).html(regla);
+                  var regla = " ul#" + 'ul'+elemento.llave + ' li[formato*="' + texto + '"]{display:block;} ';
+                  regla += " ul#" + 'ul'+elemento.llave + ' li:not([formato*="' + texto + '"]){display:none;}';
+                  $('#style'+elemento.llave).html(regla);
                 } else {
-                  $('#style'+llave).html('');
+                  $('#style'+elemento.llave).html('');
                 }
               }
             }}),
-            $('<style>',{id:'style'+llave}),
-            $('<ul >',{class:'list-group',id:'ul'+llave}).append(
-              AgregarPropiedadesListaElastica(valor,llave)
+            $('<style>',{id:'style'+elemento.llave}),
+            $('<ul >',{class:'list-group',id:'ul'+elemento.llave}).append(
+              AgregarPropiedadesListaElastica(elemento.valor,elemento.llave)
             )
               
             
           )
         )
-      )
+      );
       
       
     });
@@ -1968,6 +2002,8 @@ function ObtenerJsonFiltrosAplicados(parametros){
     
     
   }
+ // ['años','monedas','instituciones','proveedores','fuentes']
+
 
   
 function AgregarPropiedadesListaElastica(valor,llave){
@@ -1993,14 +2029,26 @@ function AgregarPropiedadesListaElastica(valor,llave){
             var filtros={
             };
             $('li.list-group-item.active').each(function(cla,val){
-                console.dir(filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'')
-                console.dir($(val).attr('valor'));
               filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
             });
+            $('li.list-group-item').not('.active').remove();
+            $( '.list-group' ).not(':has(li)').append(
+                $('<li >',{
+                    class:'list-group-item animated fadeIn noEncima'
+                }
+                ).append(
+                    $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
+                    $('<div>',{
+                    class:'elastic-data cargandoElementoLista',
+                    text:'Cargando'}
+                    )
+                  )
+            );
+            //$('.list-group').not('#ul'+$(e.currentTarget).attr('llave')).html('')
             PushDireccionGraficos(AccederUrlPagina(filtros,true));
           }
         }}).append(
-          $('<div class="badge">').text(/*(Validar(propiedades.pagos)&&Validar(propiedades.pagos.doc_count))?propiedades.pagos&&propiedades.pagos.doc_count:*/propiedades.doc_count),
+          $('<div class="badge">').text(/*(Validar(propiedades.pagos)&&Validar(propiedades.pagos.doc_count))?propiedades.pagos&&propiedades.pagos.doc_count:*/ ValorNumerico(propiedades.doc_count)),
           $('<div >',{
           class:'elastic-data',
           
@@ -2012,3 +2060,36 @@ function AgregarPropiedadesListaElastica(valor,llave){
     return elementos;
   }
   
+  function PanelInicialFiltros(selector){
+      $(selector).html('')
+    $.each(ordenFiltros,function(indice,elemento){
+
+        $(selector).append(
+          $('<div class="list-container col-md-12 2 animated fadeIn">').append(
+            $('<div class="panel panel-default ">').append(
+              $('<div class="panel-heading">').text(
+                filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento
+              ),
+              $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento ,filtro:elemento}),
+              //$('<style>',{id:'style'+elemento.llave}),
+              $('<ul >',{class:'list-group',id:'ul'+elemento}).append(
+                $('<li >',{
+                    class:'list-group-item animated fadeIn noEncima'
+                }
+                ).append(
+                    $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
+                    $('<div>',{
+                    class:'elastic-data cargandoElementoLista',
+                    text:'Cargando'}
+                    )
+                  )
+              )
+                
+              
+            )
+          )
+        );
+        
+        
+      });
+  }

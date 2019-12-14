@@ -49,7 +49,6 @@ var resultadosElastic=[];
 
 window.onpopstate = function(e){
   location.reload();
-  console.dir('popiando')
 }
 $('.opcionFiltroBusquedaPagina').on('click',function(e){
   
@@ -59,12 +58,23 @@ $('.opcionFiltroBusquedaPagina').on('click',function(e){
       $(e.currentTarget).addClass('activo');
     }
   });
+ 
   $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
+    $('.contenedorFiltrosBusqueda').toggle('slide');
+    /*
     if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
       $('.contenedorFiltrosBusqueda').removeClass('cerrado');
+      //$('.contenedorFiltrosBusqueda').show('slide', {direction: 'right'}, 1000);
+      
     }else{
       $('.contenedorFiltrosBusqueda').addClass('cerrado');
-    }
+      //$('.contenedorFiltrosBusqueda').hide('slide', {direction: 'left'}, 1000);
+    }*/
+  });
+  $( window ).resize(function() {
+   if($(window).width()>767){
+    $('.contenedorFiltrosBusqueda').show();
+   }
   });
 /*
   $('.metodoBusquedaContenedor input[type="radio"]').on('change',function(e){
@@ -73,7 +83,6 @@ $('.opcionFiltroBusquedaPagina').on('click',function(e){
     }
   });*/
   $('.metodoBusquedaContenedor a[name="metodoBusqueda"]').on('click',function(e){
-    console.dir('click')
       //location.href='/busqueda?term='+$('#campoBusquedaProceso').val()+'&metodo='+$(e.currentTarget).attr('metodo');
       location.href=AccederBusqueda({metodo:$(e.currentTarget).attr('metodo')},true);
   });
@@ -92,6 +101,7 @@ $('#campoBusquedaProceso').on('keydown',function(e){
 
 
 
+var resultadosTotal=[];
 
 function CargarElementosBusqueda(cargaFiltro){
   var parametros={
@@ -114,9 +124,12 @@ function CargarElementosBusqueda(cargaFiltro){
   if(Validar(ObtenerValor('year'))){
     parametros['year']=ObtenerValor('year');
   }
+  CargandoResultados('#listaResultadosBusqueda',3);
+  CargandoResultadosEncabezados(true);
   $.get(api+"/buscador",parametros).done(function( datos ) {
     console.dir(datos);
-
+    CargandoResultadosEncabezados(false);
+    resultadosTotal=datos;
     EliminarFiltrosMetodo(datos);
     MostrarResumen(datos)
     MostrarResultados(datos)
@@ -232,7 +245,7 @@ function AsignarValor(arreglo,propiedad,valor,cantidad){
 }
 CargarElementosBusqueda()
   $(function () {
-    console.dir('inicio')/*
+    /*
     switch( ObtenerValor('metodo') ){
       case 'contrato':
           MostrarResultados(arregloContratos)
@@ -251,6 +264,7 @@ CargarElementosBusqueda()
       window.history.pushState({}, document.title,AccederBusqueda({pagina:1},true) );
       CargarElementosBusqueda(true);
     });
+    InicializarDescargas();
     
   });
 
@@ -286,8 +300,6 @@ function MostrarEtiquetasFiltrosAplicados(parametros){
     $('#contenedorSinFiltros').show();
   }
   $('#listaFiltrosAplicados').html('');
-  console.dir('ETIQUETAS')
-  console.dir(parametros)
   $.each(parametros,function(llave,filtro){
     $('#listaFiltrosAplicados').append(
       $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(
@@ -301,15 +313,12 @@ function MostrarEtiquetasFiltrosAplicados(parametros){
               var filtros={
               };
               filtros=ObtenerJsonFiltrosAplicados(filtros,true);
-              console.dir(JSON.stringify(filtros))
-              console.dir($(e.currentTarget).parent().attr('llave'));
               filtros['pagina']=1;/*
               $('li.list-group-item.active').each(function(cla,val){
                 filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
               });*/
               delete filtros[filtrosAplicables[$(e.currentTarget).parent().attr('llave')]?filtrosAplicables[$(e.currentTarget).parent().attr('llave')].parametro:''];
               //delete filtros[$(e.currentTarget).parent().attr('llave')];
-              console.dir(JSON.stringify(filtros))
               window.history.pushState({}, document.title,AccederBusqueda(filtros,true) );
               CargarElementosBusqueda(true);
             })
@@ -345,7 +354,7 @@ function MostrarListaElasticaAplicados(){
 
 function AgregarResultadoProceso(datos){
   $('#listaResultadosBusqueda').append(
-    $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal'}).append(
+    $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal animated fadeIn'}).append(
       $('<div>',{class:'p-1'}).append(
         $('<div>',{class:'textoTituloResultadoBusqueda'}).append(
           $('<div>',{class:'row'}).append(
@@ -495,9 +504,8 @@ function ObtenerEstadoProceso(datos){
 
 function AgregarResultadoContrato(datos){
   var contrato=datos.contracts[0];
-  console.dir(contrato);
   $('#listaResultadosBusqueda').append(
-    $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal'}).append(
+    $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal  animated fadeIn'}).append(
       $('<div>',{class:'p-1'}).append(
         $('<div>',{class:'textoTituloResultadoBusqueda'}).append(
           $('<div>',{class:'row'}).append(
@@ -584,11 +592,9 @@ function AgregarResultadoContrato(datos){
 
 
 function AgregarResultadoPago(datos){
-  console.dir('resultados de pago')
-  console.dir(TotalTransacciones(datos))
   $('#listaResultadosBusqueda').append(
 
-    $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal'}).append(
+    $('<div>',{class:'resultadoBusquedaProceso  transicion cajonSombreado anchoTotal  animated fadeIn'}).append(
       $('<div>',{class:'p-1'}).append(
         $('<div>',{class:'textoTituloResultadoBusqueda'}).append(
           $('<div>',{class:'row'}).append(
@@ -729,9 +735,9 @@ if(datos.contracts){
         datos.contracts[i].value['currency']=defaultMoneda;
       }
       if(Validar(Montos[datos.contracts[i].value.currency])){
-        Montos[datos.contracts[i].value.currency]+=ObtenerNumero(datos.contracts[i].value.amount);
+        Montos[ObtenerTexto(datos.contracts[i].value.currency).trim()]+=ObtenerNumero(datos.contracts[i].value.amount);
       }else{
-        Montos[datos.contracts[i].value.currency]=ObtenerNumero(datos.contracts[i].value.amount);
+        Montos[ObtenerTexto(datos.contracts[i].value.currency).trim()]=ObtenerNumero(datos.contracts[i].value.amount);
       }
     }
   }
@@ -746,7 +752,6 @@ if(datos.contracts){
 function TotalTransacciones(datos){
   var contratos=[];
   var Montos={};
-  console.dir('entre a transacciones')
   if(datos.contracts){
     for(var i =0; i<datos.contracts.length;i++){
       if(datos.contracts[i].implementation&&datos.contracts[i].implementation.transactions&&datos.contracts[i].implementation.transactions.length){
@@ -756,9 +761,9 @@ function TotalTransacciones(datos){
               transaccion.value['currency']=defaultMoneda;
             }
             if(Validar(Montos[transaccion.value.currency])){
-              Montos[transaccion.value.currency]+=ObtenerNumero(transaccion.value.amount);
+              Montos[ObtenerTexto(transaccion.value.currency).trim()]+=ObtenerNumero(transaccion.value.amount);
             }else{
-              Montos[transaccion.value.currency]=ObtenerNumero(transaccion.value.amount);
+              Montos[ObtenerTexto(transaccion.value.currency).trim()]=ObtenerNumero(transaccion.value.amount);
             }
           }
           
@@ -771,7 +776,6 @@ function TotalTransacciones(datos){
       );
     });
     }
-    console.dir(contratos)
     return contratos;
   }
 function MostrarTotalContratos(datos){
@@ -798,15 +802,6 @@ function MostrarTotalComprometido(datos){
   }
   return elementos;
 }
-/*
-function TotalTransacciones(transacciones){
-  var value={amount:0,currency:'HNL'};
-  for(var i =0; i < transacciones.length; i++){
-    value.amount+=transacciones[i].value&&transacciones[i].value.amount?transacciones[i].value.amount:0;
-    value.currency=transacciones[i].value&&transacciones[i].value.currency?transacciones[i].value.currency:'HNL';
-  }
-  return value;
-}*/
 
 function MostrarListaElastica(datos,selector){
   $(selector).html('');
@@ -888,3 +883,78 @@ function AgregarPropiedadesListaElastica(valor,llave){
   return elementos;
 }
 
+function InicializarDescargas(){
+ /* var parametros={
+    pagina : ObtenerNumero(ObtenerValor('pagina')) ? ObtenerNumero(ObtenerValor('pagina')) : 1,
+    term : decodeURIComponent(ObtenerTexto(ObtenerValor('term'))),
+    metodo : ['proceso','contrato','pago'].includes(ObtenerValor('metodo'))?ObtenerValor('metodo'):'proceso'
+  }
+  if(Validar(ObtenerValor('moneda'))){
+    parametros['moneda']=ObtenerValor('moneda');
+  }
+  if(Validar(ObtenerValor('metodo_seleccion'))){
+    parametros['metodo_seleccion']= decodeURIComponent(ObtenerValor('metodo_seleccion'));
+  }
+  if(Validar(ObtenerValor('institucion'))){
+    parametros['institucion']=decodeURIComponent(ObtenerValor('institucion')) ;
+  }
+  if(Validar(ObtenerValor('categoria'))){
+    parametros['categoria']=decodeURIComponent(ObtenerValor('categoria')) ;
+  }
+  if(Validar(ObtenerValor('year'))){
+    parametros['year']=ObtenerValor('year');
+  }
+  $.get(api+"/buscador",parametros).done(function( datos ) {
+    
+  }).fail(function() {
+      
+    });*/
+  $('#descargaJSON').on('click',function(e){
+    if(resultadosTotal&&resultadosTotal.resultados){
+      var descarga=resultadosTotal.resultados.map(function(e){
+        return e._source.doc.compiledRelease;
+      });
+      DescargarJSON(descarga,'Búsqueda');
+    }
+    
+  });
+  $('#descargaCSV').on('click',function(e){
+    if(resultadosTotal&&resultadosTotal.resultados){
+      var descarga=resultadosTotal.resultados.map(function(e){
+        return e._source.doc.compiledRelease;
+      });
+      DescargarCSV( ObtenerMatrizObjeto(descarga),'Búsqueda');
+    }
+  });
+  $('#descargaXLSX').on('click',function(e){
+    if(resultadosTotal&&resultadosTotal.resultados){
+      var descarga=resultadosTotal.resultados.map(function(e){
+        return e._source.doc.compiledRelease;
+      });
+      DescargarXLSX( ObtenerMatrizObjeto(descarga),'Búsqueda');
+    }
+  });
+}
+
+function CargandoResultados(selector,cantidad){
+  $(selector).html('');
+  for(var i=0;i<cantidad;i++){
+  $(selector).append($('<div class="resultadoBusquedaProceso transicion cajonSombreado anchoTotal"> <div class="p-1"> <div class="textoTituloResultadoBusqueda"> <div class="row"> <div class="col-12 col-sm-8 col-md-8 col-lg-9"><span class="cargaEfecto" style="border-radius: 10px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div><div class="col-12 col-sm-4 col-md-4 col-lg-3"> <div class="textoAlineadoDerecha"><span class="textoColorGris textoAlineadoDerecha toolTip enLinea" class="cargaEfecto" style="border-radius: 10px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></div></div></div></div><div class="contenedorProceso"> <div class="contenedorTablaCaracteristicas"> <table class=""> <tbody class=""> <tr class=""> <td class="tituloTablaCaracteristicas" tabindex="0" style="outline: 0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="contenidoTablaCaracteristicas"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</span></td></tr><tr class=""> <td class="tituloTablaCaracteristicas" tabindex="0" style="outline: 0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="contenidoTablaCaracteristicas"> <span class="cargaEfecto" style="border-radius: 10px"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; </span> </td></tr><tr class=""> <td class="tituloTablaCaracteristicas" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="contenidoTablaCaracteristicas"><span class="cargaEfecto" style="border-radius: 10px"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; </span></td></tr><tr class=""> <td class="tituloTablaCaracteristicas" tabindex="0" style="outline: 0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="contenidoTablaCaracteristicas"> <span class="cargaEfecto" style="border-radius: 10px"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; </span></td></tr></tbody> </table> </div><div class="contenedorTablaCaracteristicas"> <table class="anchoTotal"> <tbody class=""> <tr class=""> <td class="textoAlineadoDerecha"> <div class="montoTotalProceso"> <div class="contenedorMonto"> <div class="textoColorGris"><span class="cargaEfecto" style="border-radius: 10px"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; </span></div><br><div class="valorMonto" style="line-height: unset"><span class="cargaEfecto" style="border-radius: 20px"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="textoColorPrimario">&nbsp;&nbsp;<span class="cargaEfecto" style="border-radius: 20px"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></div></div></div></td></tr></tbody> </table> </div></div></div>'));
+
+  }
+  
+}
+
+function CargandoResultadosEncabezados(mostrar){
+  if(mostrar){
+    $('#totalProcesos').html('&nbsp;&nbsp;&nbsp;&nbsp;').addClass('cargaEfecto');
+    $('#promedioMonto').html('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;').addClass('cargaEfecto');
+    $('#totalCompradores').html('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;').addClass('cargaEfecto');
+    $('#totalProveedores').html('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;').addClass('cargaEfecto');
+  }else{
+    $('#totalProcesos').removeClass('cargaEfecto');
+    $('#promedioMonto').removeClass('cargaEfecto');
+    $('#totalCompradores').removeClass('cargaEfecto');
+    $('#totalProveedores').removeClass('cargaEfecto');
+  }
+}

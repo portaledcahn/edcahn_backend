@@ -12,7 +12,7 @@
   
 {% block container %}
       <div class="container  busquedaEspaciadoHorizontal tamanoMinimo">
-         <div class="contenedorFiltrosBusqueda animated" data-step="3" data-intro="Puedes aplicar un filtro según el método de busqueda que hayas seleccionado.">
+         <div class="contenedorFiltrosBusqueda" data-step="3" data-intro="Puedes aplicar un filtro según el método de busqueda que hayas seleccionado.">
             <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
                Filtros 
                <div class="cursorMano cerrarContenedorFiltrosBusqueda" style="display:none"><i class="fas fa-times textoColorGris"></i></div>
@@ -311,13 +311,13 @@
                                  <tr >
                                     <td class="tituloTablaCaracteristicas pb-1" id="textoTotalBusqueda">Total de </td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       &nbsp;<span class="botonGeneral fondoColorPrimario" id="totalProcesos">0</span>
+                                       &nbsp;<span class="botonGeneral fondoColorPrimario cargaEfecto" id="totalProcesos">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                     </td>
                                  </tr>
                                  <tr>
                                     <td class="tituloTablaCaracteristicas pb-1">Promedio de Monto:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       <span class="botonGeneral fondoColorPrimario" id="promedioMonto">0.00 HNL</span>
+                                       <span class="botonGeneral fondoColorPrimario cargaEfecto" id="promedioMonto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                     </td>
                                  </tr>
                               </tbody>
@@ -329,13 +329,13 @@
                                  <tr >
                                     <td class="tituloTablaCaracteristicas pb-1">Total de Compradores:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       &nbsp;<span class="botonGeneral fondoColorPrimario" id="totalCompradores">0</span>
+                                       &nbsp;<span class="botonGeneral fondoColorPrimario cargaEfecto" id="totalCompradores">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                     </td>
                                  </tr>
                                  <tr>
                                     <td class="tituloTablaCaracteristicas pb-1"> Total de Proveedores:</td>
                                     <td class="contenidoTablaCaracteristicas pb-1"> 
-                                       &nbsp;<span class="botonGeneral fondoColorPrimario " id="totalProveedores">0</span>
+                                       &nbsp;<span class="botonGeneral fondoColorPrimario cargaEfecto" id="totalProveedores">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                     </td>
                                  </tr>
                               </tbody>
@@ -351,7 +351,7 @@
                      <h4 class="textoColorPrimario titularColor">Resultados</h4>
                   </div>
                   <div class="col-12 col-sm-6 col-md-6 textoAlineadoDerecha">
-                     <h4 class="descargaIconos enLinea"><span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.CSV</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"><i class="fas fa-file-download"></i>&nbsp;.XLS</span></h4>
+                     <h4 class="descargaIconos enLinea"><span  class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion" id="descargaJSON"><i class="fas fa-file-download"></i>&nbsp;.JSON</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"  id="descargaCSV"><i class="fas fa-file-download"></i>&nbsp;.CSV</span><span class="textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"  id="descargaXLSX"><i class="fas fa-file-download"></i>&nbsp;.XLSX</span></h4>
                      
                      <h4 class="enLinea mb-0 enLinea alineadoArriba" onclick="location.href='/preguntas'">
                            <div class="textoAlineadoCentrado cursorMano botonAyuda transicion toolTip" id="informacionTipoDatos" toolTexto="¿Que son estos tipos de datos?">
@@ -379,6 +379,7 @@
 {% endblock %}
 
 {% block script_content %}
+<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
 <script src="{% static 'plugins/elastic-list/data.js' %}"></script>
 <script src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>
 <script src="{% static 'js/busqueda.js' %}"></script>

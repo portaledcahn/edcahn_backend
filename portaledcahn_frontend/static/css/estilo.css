@@ -455,6 +455,26 @@ body{
 	font-family: 'poppins';
     font-weight: 500;
 }
+
+.textoCargando{
+	color:#c4c4c4;
+	font-family: 'poppins';
+	text-align: center;
+	font-weight: 700;
+	left: 0;
+right: 0;
+margin: auto;
+margin-top: auto;
+display: block;
+position: relative;
+top: 55%;
+transform: translateY(-55%);
+}
+.cargandoElementoLista{
+	font-family: 'poppins';
+	color:gray;
+	font-weight: 700;	
+}
 .contenedorTablaCaracteristicas table .contenidoTablaCaracteristicas{
 	padding-left: 20px;
 	white-space: normal;
@@ -476,6 +496,15 @@ body{
 	vertical-align: top;
 	font-family: 'poppins';
     font-weight: 700;
+}
+.separadorElementosInicio{
+	background-color:#c4c4c4;
+	border-radius: 4px;
+	height: 7px;
+	width: 50%;
+	max-width: 300px;
+	margin:0 auto;
+
 }
 .montoTotalProceso{
 	display: inline-block;
@@ -999,6 +1028,10 @@ table.tablaGeneral tbody tr:first-child{
 .list-container .list-group-item.active,.list-container .list-group-item:hover{
 	background: #3B53A4;
 }
+.list-container .list-group-item.noEncima:hover{
+	background: transparent;
+	cursor: auto;
+}
 .list-group-item:hover{
 	color:white;
 }
@@ -1035,6 +1068,10 @@ table.tablaGeneral tbody tr:first-child{
 			-webkit-box-shadow:unset;
 			box-shadow:unset;
  }
+}
+
+.list-container ul {
+    max-height: 200px;
 }
 /**CIERRE ELEMENTOS DE ELASTIC LIST*/
 .botonPasoProceso{
@@ -1418,9 +1455,9 @@ ul.navbar-nav .nav-item .nav-link{
 			box-shadow: 5px 15px 15px 0 rgba(39, 55, 112, 0.3);
 			margin-top:0;
 			height: calc(100vh - 66px);
-			top:66px;
+			top:66px;/*
 			-webkit-animation-name: slideInLeft;
-			animation-name: slideInLeft;
+			animation-name: slideInLeft;*/
  }
 	.campoAzulBusquedaPadre {
 			width: calc( 100% - 65px);
@@ -1450,7 +1487,7 @@ ul.navbar-nav .nav-item .nav-link{
 			margin-left: 10px;
  }
 	.contenedorFiltrosBusqueda.cerrado{
-			display: none;
+			/*display: none;*/
  }
 	.cerrarContenedorFiltrosBusqueda{
 			display: block!important;
@@ -1968,6 +2005,25 @@ vertical-align: top;
 }
 .espera.elemento .imagen{
 	width:100px;
+	left:0;
+	right:0;
+	margin:auto;
+	display:block;
+	margin-top:auto;
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+
+}
+.esperaReloj{
+	position: absolute;
+width: 100%;
+height: 100%;
+top: 0;
+left: 0;
+}
+.esperaReloj .reloj{
+	/*width:100px;*/
 	left:0;
 	right:0;
 	margin:auto;
@@ -2520,9 +2576,15 @@ table.tablaGeneral{
 	.minAlto_400{
 		height: 400px!important;
 	}
+	.fondoPrincipalInicio::before {
+		background-image: url(../img/landing/iconosEdcaMovil.svg);
+	}
 
 }
 @media only screen and (min-width:768px){
+	.contenedorListaElasticaEspacio{
+		padding: 5px;
+	}
 	#filtrosAplicadosItems{
 		/*bottom:10px;*/
 		opacity: 0.9;/*
@@ -2604,3 +2666,89 @@ table.tablaGeneral{
     50%{background-position:100% 50%}
     100%{background-position:0% 50%}
 }
+
+
+
+.reloj {
+	height: 2em;
+	width: 2em;
+	font-size: 30px;/*20vmin;*/
+	color: gray;
+  }
+  .reloj:before, .reloj:after {
+	content: '';
+	height: 0.2em;
+	width: 0.2em;
+	border-radius: 50%;
+	position: absolute;
+	color: gray;
+	top: 0;
+	left: 0;
+	box-shadow: -0.2em -0.2em currentcolor, 2em -0.2em currentcolor, -0.2em 2em currentcolor, 2em 2em currentcolor;
+  }
+  .reloj:after {
+	transform: rotate(45deg);
+	transform-origin: 1em 1em;
+	opacity: 0.5;
+  }
+  .flecha {
+	display: block;
+	width: 0.2em;
+	height: 1em;
+	border-radius: 0.2em;
+	background: currentColor;
+	position: absolute;
+	bottom: 50%;
+	left: 50%;
+	margin: 0 -0.1em -0.1em;
+	transform-origin: center calc(100% - .1em);
+	animation-duration: 4s;
+	animation-timing-function: cubic-bezier(0.48, 0.07, 0.5, 1.4);
+	animation-iteration-count: infinite;
+  }
+  .hora {
+	opacity: 0.8;
+	height: 0.6em;
+	animation-name: hora-movimiento;
+  }
+  .minuto {
+	animation-name: minuto-movimiento;
+	animation-duration: 1s;
+  }
+  @keyframes minuto-movimientox {
+	0% {
+	  transform: rotate(0turn);
+	}
+	90%, 100% {
+	  transform: rotate(1turn);
+	}
+  }
+  @keyframes minuto-movimiento {
+	0%, 5% {
+	  transform: rotate(0turn);
+	}
+	90% {
+	  transform: rotate(1.0001turn);
+	  animation-timing-function: cubic-bezier(0.9, 0, 0.1, 1);
+	}
+	100% {
+	  transform: rotate(1turn);
+	}
+  }
+  @keyframes hora-movimiento {
+	0% {
+	  transform: rotate(0turn);
+	}
+	25% {
+	  transform: rotate(0.25turn);
+	}
+	50% {
+	  transform: rotate(0.5turn);
+	}
+	75% {
+	  transform: rotate(0.75turn);
+	}
+	100% {
+	  transform: rotate(1turn);
+	}
+  }

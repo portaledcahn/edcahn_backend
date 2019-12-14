@@ -11,14 +11,17 @@
 {% block container %}
 <div class="container-fluid  busquedaEspaciadoHorizontal elementosDashboard" >
       
-      <div class="contenedorFiltrosBusqueda animated" >
+      <div class="contenedorFiltrosBusqueda" >
          <h4 class="textoColorPrimario tituloFiltrosMenu titularColor">
             Filtros <a href="javascript:void(0)" class="botonGeneral fondoColorSecundario" id="quitarFiltros2" style="font-size: 10px;float:right;display: none;" toolTexto="Quitar Todos los Filtros"> Quitar</a>
             <div class="cursorMano cerrarContenedorFiltrosBusqueda" style="display:none"><i class="fas fa-times textoColorGris"></i></div>
          </h4>
+         <div id="extencionFiltrosAplicados" class="mb-1 d-none d-sm-block d-md-block d-lg-block d-xl-block">
+
+            </div>
          <div class="filtrosContenedoFiltrosBusqueda">
            
-            <div id="elastic-list" style="padding: 5px;">
+            <div id="elastic-list" class="contenedorListaElasticaEspacio">
                   <div class="list-container col-md-12 2">
                         <div class="panel panel-default ">
                             <div class="panel-heading cargaEfecto" style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
@@ -236,6 +239,7 @@
 </div>
 {% endblock %}
 {% block script_content %}
+<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
 <script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
 <script src="{% static 'plugins/elastic-list/data.js' %}"></script>
 <script src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>

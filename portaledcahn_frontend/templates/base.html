@@ -35,7 +35,7 @@
 
        
        
-{% if request.path != '/dashboardProcesosContratacion/' and request.path != '/indicadoresProcesosContratacion/' and request.path != '/dashboardProcesosPago/' %}{% include "footer.html" %}{% endif %}
+{% if request.path != '/tableroProcesosContratacion/' and request.path != '/indicadoresProcesosContratacion/' and request.path != '/tableroProcesosPago/' %}{% include "footer.html" %}{% endif %}
 
       <script type="text/javascript" src="{% static 'plugins/intro.js-2.9.3/intro.min.js' %}"></script>
       <script type="text/javascript" src="{% static 'js/polyfill.js' %}"></script>
@@ -44,6 +44,8 @@
       <script type="text/javascript" src="{% static 'plugins/countto/jquery.countTo.js' %}"></script>
       <script type="text/javascript" src="{% static 'plugins/popper-1.15.0/popper.min.js' %}"></script>
       <script type="text/javascript" src="{% static 'plugins/tippy-4.3.1/index.all.min.js' %}"></script>
+      <script type="text/javascript" src="{% static 'plugins/fileSaver-2.0.2/FileSaver.min.js' %}"></script>
+      <script type="text/javascript" src="{% static 'plugins/sheetJs-0.15.3/xlsx.full.min.js' %}"></script>
       <script type="text/javascript" src="{% static 'js/general.js' %}"></script>
       {% block script_content %}{% endblock %}
     </body>

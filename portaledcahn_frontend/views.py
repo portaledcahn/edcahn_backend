@@ -282,11 +282,11 @@ def Proveedores(request):
 def Visualizaciones(request):
     return render(request,'visualizaciones/visualizaciones.html')
 
-def DashboardProcesosContratacion(request):
-    return render(request,'dashboardProcesosContratacion/dashboardProcesosContratacion.html')
+def TableroProcesosContratacion(request):
+    return render(request,'tableroProcesosContratacion/tableroProcesosContratacion.html')
 
-def DashboardProcesosPago(request):
-    return render(request,'dashboardProcesosPago/dashboardProcesosPago.html')
+def TableroProcesosPago(request):
+    return render(request,'tableroProcesosPago/tableroProcesosPago.html')
 
 def IndicadoresProcesosContratacion(request):
     return render(request,'indicadoresProcesosContratacion/indicadoresProcesosContratacion.html')
