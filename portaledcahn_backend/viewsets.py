@@ -1213,14 +1213,16 @@ class ProductosDelProveedor(APIView):
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 		s = Search(using=cliente, index='contract')
 
-		s.aggs.metric(
-			'productos',
+		s.aggs.metric('productos','nested', path='items')
+
+		s.aggs['productos'].metric(
+			'clasificacion',
 			'terms',
 			field='items.classification.description.keyword',
 			size= 10000
 		)
 
-		s.aggs["productos"].metric(
+		s.aggs["productos"]["clasificacion"].metric(
 			'monto_contratado',
 			'sum',
 			field='items.unit.value.amount'
@@ -1252,10 +1254,10 @@ class ProductosDelProveedor(APIView):
 		s = s.query('bool', filter=filtros)
 
 		search_results = SearchResults(s)
-		results = s[0:0].execute()
+		results = s.execute()
 		paginator = Paginator(search_results, paginarPor)
 
-		productosES = results.aggregations.productos.to_dict()
+		productosES = results.aggregations.productos.clasificacion.to_dict()
 		productos = []
 
 		for n in productosES["buckets"]:
@@ -1326,6 +1328,7 @@ class ProductosDelProveedor(APIView):
 		parametros["monto"] = monto
 
 		context = {
+			"elasticsearch": results.to_dict(), 
 			"parametros": parametros,
 			"paginador": pagination,
 			"resultados": posts.object_list,
