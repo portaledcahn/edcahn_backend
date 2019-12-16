@@ -404,6 +404,8 @@ class Buscador(APIView):
 
 		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword', missing='Sin moneda')
 
+		s.aggs["contratos"]["monedas"].metric("nProcesos", "reverse_nested")
+
 		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
 
 		s.aggs.metric('instituciones', 'terms', field='extra.parentTop.name.keyword', size=10000)
@@ -483,7 +485,7 @@ class Buscador(APIView):
 			)
 
 		if moneda.replace(' ', ''): 
-			if moneda == 'Sin moneda':
+			if urllib.parse.unquote(moneda) == 'Sin moneda':
 				qqMoneda = Q('exists', field='doc.compiledRelease.contracts.value.currency') 
 				qqqMoneda = Q('nested', path='doc.compiledRelease.contracts', query=qqMoneda)
 				qMoneda = Q('bool', must_not=qqqMoneda)
@@ -518,6 +520,19 @@ class Buscador(APIView):
 		search_results = SearchResults(s)
 
 		results = s[start:end].execute()
+
+		monedas = results.aggregations.contratos.monedas.buckets
+
+		if metodo == 'proceso' and results.hits.total > 0:
+			conMoneda = 0
+			for m in monedas:
+				m["doc_count"] = m["nProcesos"]["doc_count"]
+				conMoneda += m["nProcesos"]["doc_count"]
+
+			sinMoneda = results.hits.total - conMoneda
+
+			if sinMoneda > 0:
+				monedas.append({"key":"Sin moneda", "doc_count":sinMoneda})
 
 		paginator = Paginator(search_results, settings.PAGINATE_BY)
 
@@ -970,8 +985,8 @@ class ContratosDelProveedor(APIView):
 			"categoriaCompra": "extra.tenderMainProcurementCategory.keyword",
 			"estado": "status.keyword",
 			"monto": "value.amount",
-			"fechaFirma": "period.startDate",
-			"fechaInicio": "dateSigned",
+			"fechaInicio": "period.startDate",
+			"fechaFirma": "dateSigned",
 		}
 
 		#ordenarPor = 'asc(comprador),desc(monto)
@@ -1018,7 +1033,7 @@ class ContratosDelProveedor(APIView):
 		parametros["estado"] = estado
 		parametros["monto"] = monto
 		parametros["fechaInicio"] = fechaInicio
-		parametros["fechaFirma"] = fechaInicio
+		parametros["fechaFirma"] = fechaFirma
 		parametros["ordenarPor"] = ordenarPor
 		parametros["pagianrPor"] = paginarPor
 		parametros["pagina"] = page

@@ -486,16 +486,16 @@ $('<div>',{class:''})
                 
                 
                 ),
-          
+                
           $('<td>',{'data-label':'Fecha de Firma del Contrato' ,class:'textoAlineadoCentrado'}).append(
-            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
-                resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible'
-            )
-            
-            ),
-          $('<td>',{'data-label':'Fecha de Inicio del Contrato' ,class:'textoAlineadoCentrado'}).append(
             $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?ObtenerFecha(resultados[i]._source.dateSigned,'fecha'):'No Disponible'
+            )
+            
+            ),          
+          $('<td>',{'data-label':'Fecha de Inicio del Contrato' ,class:'textoAlineadoCentrado'}).append(
+            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
+                resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible'
             )
             
             ),
@@ -744,6 +744,8 @@ function AgregarFilaPago(resultados,selector,i){
   }
 
   function AccederUrlPagina(opciones,desUrl){
+    console.log("Opciones", opciones);
+
     var direccion=('/proveedor/'+encodeURIComponent(proveedorId)+'/?'+
   
     'paginaCon='+(opciones.paginaCon?opciones.paginaCon:(ObtenerNumero(ObtenerValor('paginaCon')) ? ObtenerNumero(ObtenerValor('paginaCon')) : 1))+
