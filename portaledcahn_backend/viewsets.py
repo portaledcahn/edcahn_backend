@@ -651,6 +651,7 @@ class Proveedores(APIView):
 		if nombre.replace(' ',''):
 			q_nombre = '*' + nombre + '*'
 			filtro = Q("wildcard", doc__compiledRelease__contracts__suppliers__name=q_nombre)
+			#filtro = Q("match",  doc__compiledRelease__contracts__suppliers__name=nombre)
 			filtros.append(filtro)
 
 		if identificacion.replace(' ',''):

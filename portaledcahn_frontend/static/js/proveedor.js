@@ -744,8 +744,6 @@ function AgregarFilaPago(resultados,selector,i){
   }
 
   function AccederUrlPagina(opciones,desUrl){
-    console.log("Opciones", opciones);
-
     var direccion=('/proveedor/'+encodeURIComponent(proveedorId)+'/?'+
   
     'paginaCon='+(opciones.paginaCon?opciones.paginaCon:(ObtenerNumero(ObtenerValor('paginaCon')) ? ObtenerNumero(ObtenerValor('paginaCon')) : 1))+
@@ -766,7 +764,7 @@ function AgregarFilaPago(resultados,selector,i){
     (ValidarCadena(opciones.compradorPag)? '&compradorPag='+encodeURIComponent(opciones.compradorPag): (ValidarCadena(ObtenerValor('compradorPag'))&&!desUrl?'&compradorPag='+ObtenerValor('compradorPag'):''))+
     (ValidarCadena(opciones.tituloPag)? '&tituloPag='+encodeURIComponent(opciones.tituloPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
     (ValidarCadena(opciones.montoPag) ? '&montoPag='+encodeURIComponent(reemplazarValor(opciones.montoPag,',','')):(ValidarCadena(ObtenerValor('montoPag'))&&!desUrl?'&montoPag='+ObtenerValor('montoPag'):''))+
-    (ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(opciones.pagosPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
+    (ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(reemplazarValor(opciones.pagosPag,',','')): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
     (ValidarCadena(opciones.fechaPag) ? '&fechaPag='+encodeURIComponent(reemplazarValor(opciones.fechaPag,',','')):(ValidarCadena(ObtenerValor('fechaPag'))&&!desUrl?'&fechaPag='+ObtenerValor('fechaPag'):''))+
     (ValidarCadena(opciones.ordenarPorPag) ? '&ordenarPorPag='+encodeURIComponent(opciones.ordenarPorPag):(ValidarCadena(ObtenerValor('ordenarPorPag'))&&!desUrl?'&ordenarPorPag='+ObtenerValor('ordenarPorPag'):''))+
 
