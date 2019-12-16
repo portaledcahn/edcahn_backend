@@ -1251,7 +1251,8 @@ class ProductosDelProveedor(APIView):
 
 		if cantidadContratos.replace(' ', ''):
 			q_cc = 'params.cc' + cantidadContratos
-			s.aggs["productos"].metric(
+
+			s.aggs["productos"]["clasificacion"].metric(
 				'filtro_cantidad', 
 				'bucket_selector', 
 				buckets_path={"cc": "_count"}, 
@@ -1260,7 +1261,7 @@ class ProductosDelProveedor(APIView):
 
 		if monto.replace(' ', ''):
 			q_m = 'params.m' + monto
-			s.aggs["productos"].metric(
+			s.aggs["productos"]["clasificacion"].metric(
 				'filtro_monto', 
 				'bucket_selector', 
 				buckets_path={"m": "monto_contratado"}, 
@@ -1344,7 +1345,7 @@ class ProductosDelProveedor(APIView):
 		parametros["monto"] = monto
 
 		context = {
-			"elasticsearch": results.to_dict(), 
+			#"elasticsearch": results.to_dict(), 
 			"parametros": parametros,
 			"paginador": pagination,
 			"resultados": posts.object_list,
