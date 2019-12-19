@@ -448,8 +448,7 @@ class Buscador(APIView):
 
 			s.aggs.metric(
 				'procesos_total', 
-				'cardinality', 
-				precision_threshold=precision, 
+				'value_count', 
 				field='doc.compiledRelease.ocid.keyword'
 			)
 
@@ -466,7 +465,6 @@ class Buscador(APIView):
 			)
 
 		if metodo == 'pago':
-			filtro_pago = Q('exists', field='doc.compiledRelease.contracts.implementation')
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
 
 			s.aggs.metric(
@@ -498,7 +496,7 @@ class Buscador(APIView):
 			if metodo == 'pago' or metodo == 'contrato':
 				s = s.filter('range', doc__compiledRelease__date={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
 			else:
-				s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
+				s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
 
 		if term: 
 			if metodo == 'proceso':
