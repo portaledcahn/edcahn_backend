@@ -310,9 +310,9 @@ class Index(APIView):
 		)
 
 		sefin.aggs.metric(
-			'contratos', 
-			'nested', 
-			path='doc.compiledRelease.contracts'
+			'procesos_pagos', 
+			'value_count', 
+			field='doc.compiledRelease.ocid.keyword'
 		)
 
 		todos.aggs.metric(
@@ -342,17 +342,9 @@ class Index(APIView):
 			field='doc.compiledRelease.contracts.id.keyword'
 		)
 		
-		sefin.aggs["contratos"].metric(
-			'distinct_transactions', 
-			'cardinality',
-			precision_threshold=precision, 
-			field='doc.compiledRelease.contracts.implementation.transactions.id.keyword'
-		)
-
 		oncae.aggs.metric(
-			'distinct_procesos', 
-			'value_count', 
-			# precision_threshold=precision, 
+			'procesos_contratacion', 
+			'value_count',
 			field='doc.compiledRelease.ocid.keyword'
 		)
 
@@ -362,8 +354,8 @@ class Index(APIView):
 
 		context = {
 			"contratos": resultsONCAE.aggregations.contratos.distinct_contracts.value,
-			"procesos": resultsONCAE.aggregations.distinct_procesos.value,
-			"pagos": resultsSEFIN.aggregations.contratos.distinct_transactions.value,
+			"procesos": resultsONCAE.aggregations.procesos_contratacion.value,
+			"pagos": resultsSEFIN.aggregations.procesos_pagos.value,
 			"compradores": resultsTODOS.aggregations.distinct_buyers.value,
 			"proveedores": resultsTODOS.aggregations.contratos.distinct_suppliers.value
 		}
@@ -475,12 +467,11 @@ class Buscador(APIView):
 
 		if metodo == 'pago':
 			filtro_pago = Q('exists', field='doc.compiledRelease.contracts.implementation')
-			s = s.query('nested', path='doc.compiledRelease.contracts', query=filtro_pago)
+			s = s.filter('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
 
 			s.aggs.metric(
 				'procesos_total', 
-				'cardinality', 
-				precision_threshold=precision, 
+				'value_count', 
 				field='doc.compiledRelease.ocid.keyword'
 			)
 
@@ -523,16 +514,18 @@ class Buscador(APIView):
 
 		monedas = results.aggregations.contratos.monedas.buckets
 
-		if metodo == 'proceso' and results.hits.total > 0:
-			conMoneda = 0
-			for m in monedas:
-				m["doc_count"] = m["nProcesos"]["doc_count"]
-				conMoneda += m["nProcesos"]["doc_count"]
+		if results.hits.total > 0:
 
-			sinMoneda = results.hits.total - conMoneda
+			if metodo == 'proceso' or metodo == 'pago':
+				conMoneda = 0
+				for m in monedas:
+					m["doc_count"] = m["nProcesos"]["doc_count"]
+					conMoneda += m["nProcesos"]["doc_count"]
 
-			if sinMoneda > 0:
-				monedas.append({"key":"Sin moneda", "doc_count":sinMoneda})
+				sinMoneda = results.hits.total - conMoneda
+
+				if sinMoneda > 0:
+					monedas.append({"key":"Sin moneda", "doc_count":sinMoneda})
 
 		paginator = Paginator(search_results, settings.PAGINATE_BY)
 
