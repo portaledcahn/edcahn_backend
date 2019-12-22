@@ -298,12 +298,19 @@ class Index(APIView):
 		oncae = Search(using=cliente, index='edca')
 		sefin = Search(using=cliente, index='edca')
 		todos = Search(using=cliente, index='edca')
+		sp = Search(using=cliente, index='edca')
 
 		oncae = oncae.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
 
 		sefin = sefin.filter('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
 
 		oncae.aggs.metric(
+			'contratos', 
+			'nested', 
+			path='doc.compiledRelease.contracts'
+		)
+
+		sefin.aggs.metric(
 			'contratos', 
 			'nested', 
 			path='doc.compiledRelease.contracts'
@@ -321,12 +328,12 @@ class Index(APIView):
 			path='doc.compiledRelease.contracts'
 		)
 
-		todos.aggs["contratos"].metric(
-			'distinct_suppliers', 
-			'cardinality', 
-			precision_threshold=precision, 
-			field='doc.compiledRelease.contracts.suppliers.id.keyword'
-		)
+		# todos.aggs["contratos"].metric(
+		# 	'distinct_suppliers', 
+		# 	'cardinality', 
+		# 	precision_threshold=precision, 
+		# 	field='doc.compiledRelease.contracts.suppliers.id.keyword'
+		# )
 		
 		todos.aggs.metric(
 			'distinct_buyers', 
@@ -348,16 +355,39 @@ class Index(APIView):
 			field='doc.compiledRelease.ocid.keyword'
 		)
 
+		#Proveedores terms
+		oncae.aggs["contratos"].metric(
+			'proveedores_oncae',
+			'terms',
+			field='doc.compiledRelease.contracts.suppliers.id.keyword',
+			size=100000
+		)
+
+		sefin.aggs["contratos"].metric(
+			'proveedores_sefin',
+			'terms',
+			field='doc.compiledRelease.contracts.implementation.transactions.payee.id.keyword',
+			size=100000
+		)
+
 		resultsONCAE = oncae.execute()
 		resultsSEFIN = sefin.execute()
 		resultsTODOS = todos.execute()
 
+		diccionario_proveedores = []
+		dfProveedores = pd.DataFrame(resultsSEFIN.aggregations.contratos.proveedores_sefin.to_dict()["buckets"])
+		dfProveedores = dfProveedores.append(resultsONCAE.aggregations.contratos.proveedores_oncae.to_dict()["buckets"])
+		cantidad_proveedores = dfProveedores['key'].nunique()
+
+		# dfProveedores.to_csv(r'proveedores.csv', sep='\t', encoding='utf-8')
+
 		context = {
+			# "elasticsearch": cantidad_proveedores,
 			"contratos": resultsONCAE.aggregations.contratos.distinct_contracts.value,
 			"procesos": resultsONCAE.aggregations.procesos_contratacion.value,
 			"pagos": resultsSEFIN.aggregations.procesos_pagos.value,
 			"compradores": resultsTODOS.aggregations.distinct_buyers.value,
-			"proveedores": resultsTODOS.aggregations.contratos.distinct_suppliers.value
+			"proveedores": cantidad_proveedores
 		}
 
 		return Response(context)
