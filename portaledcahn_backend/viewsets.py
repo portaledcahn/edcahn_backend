@@ -2013,6 +2013,8 @@ class ContratosDelComprador(APIView):
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 		s = Search(using=cliente, index='contract')
 
+		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
 		# Filtrando por nombre del comprador
 		partieId = urllib.parse.unquote_plus(partieId)
 
