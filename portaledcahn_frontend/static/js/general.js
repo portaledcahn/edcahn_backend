@@ -202,12 +202,14 @@ function DescargarElemento(direccion){
 }
 
 function MostrarEspera(selector,elemento){
+    elemento=true;
     if($(selector+' .espera'+(elemento?'.elemento':'')).length){
         $(selector+' .espera'+(elemento?'.elemento':'')).show();
     }else{
         $(selector).append(
             $('<div>',{class:'espera'+(elemento?' elemento':'')}).append(
-                $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'})
+                $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'}),
+                $('<div>',{text:'Cargando',class:'textoCargando'})
             )
         )
     }
@@ -681,3 +683,65 @@ function s2ab(s) {
     return buf;    
 }
 
+function AbrirModalDescarga(selector,titulo,creacion){
+    if(!$('body #'+selector).length){
+        $('body').append(
+            $('<div>',{class:'modal fade',id:selector,tabindex:'-1',role:'dialog','aria-hidden':'true','aria-labelledby':'modalDescarga'}).append(
+                $('<div>',{class:'modal-dialog',role:'document'}).append(
+                    $('<div>',{class:'modal-content'}).append(
+                        $('<div>',{class:'modal-header'}).append(
+                            $('<span>',{class:'titularCajonSombreado'}).text(
+                                titulo
+                            )
+                        ),
+                        $('<div>',{class:'modal-body textoAlineadoCentrado'}).append(
+                            $('<div>',{style:'min-height:200px;position:relative',class:'contenedorEspera'}).append(
+                                $('<div>',{class:'espera elemento'}).append(
+                                    $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'}),
+                                    $('<div>',{text:'Obteniendo Datos',class:'textoCargando'})
+                                ),
+                                $('<i>',{class:'fas fa-file-download textoColorPrimario descargaIcono fadeIn animated',style:'display:none;font-size:100px;line-height:200px'})
+                            )
+                            
+                        ),
+                        $('<div>',{class:'modal-footer'}).append(
+                            $('<button>',{class:'botonGeneral fondoColorSecundario','data-dismiss':'modal',type:'button'}).text(
+                                'Cancelar'
+                            ),$('<button>',{class:'botonGeneral fondoColorGris botonDescarga',type:'button'}).text(
+                                'Descargar'
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    }
+    if(!creacion){
+        $('body #'+selector).modal();
+    }
+    
+
+}
+function EliminarEventoModalDescarga(selector){
+    if($('body #'+selector).length){
+        $('body #'+selector+' .descargaIcono').hide();
+        $('body #'+selector+' .botonDescarga').removeClass('fondoColorPrimario').addClass('fondoColorGris');
+        $('body #'+selector+' .botonDescarga').off();
+        $('body #'+selector+' .contenedorEspera .espera').show();
+    }
+    
+}
+function AgregarEventoModalDescarga(selector,funcion){
+    if($('body #'+selector).length){
+        $('body #'+selector+' .botonDescarga').removeClass('fondoColorGris').addClass('fondoColorPrimario');
+        $('body #'+selector+' .botonDescarga').on({
+            click:function(e){
+                funcion();
+            }
+        });
+        OcultarEspera('body #'+selector+' .contenedorEspera');
+        $('body #'+selector+' .descargaIcono').show();
+    }
+    
+    
+}

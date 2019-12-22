@@ -115,6 +115,7 @@
     AsignarEventosFiltro();
     AsignarOrdenTablaFiltros(OrdenFiltro);
     NumeroResultados();
+    InicializarDescargas();
   })
 
 
@@ -134,7 +135,7 @@
       
         AgregarToolTips();
         VerificarIntroduccion('INTROJS_COMPRADORES',1);
-    
+        ObtenerDescargaCompradores(datos);
       
     }).fail(function() {
         /*Error de Conexion al servidor */
@@ -390,3 +391,83 @@
     return parametros;
   }
   
+  function InicializarDescargas(){
+
+    AbrirModalDescarga('descargaJsonCompradores','Descarga JSON',true);/*Crear Modal Descarga */
+    AbrirModalDescarga('descargaCsvCompradores','Descarga CSV',true);/*Crear Modal Descarga */
+    AbrirModalDescarga('descargaXlsxCompradores','Descarga XLSX',true);/*Crear Modal Descarga */
+    $('#descargaJSON').on('click',function(e){
+      AbrirModalDescarga('descargaJsonCompradores','Descarga JSON');
+    });
+    $('#descargaCSV').on('click',function(e){
+      AbrirModalDescarga('descargaCsvCompradores','Descarga CSV');
+    });
+    $('#descargaXLSX').on('click',function(e){
+      AbrirModalDescarga('descargaXlsxCompradores','Descarga XLSX');
+    });
+  }
+  function ObtenerDescargaCompradores(resultados){
+    var parametros=ObtenerFiltros();
+    parametros['pagina']=1;
+    parametros['paginarPor']=resultados.paginador['total.items'];
+    $.get(api+"/compradores",parametros).done(function( datos ) {
+      console.dir('Descargas Compradores')
+      console.dir(datos);
+    
+      AgregarEventoModalDescarga('descargaJsonCompradores',function(){
+        var descarga=datos.resultados.map(function(e){
+          return {
+            'Comprador':e.name,
+            //'Id':e.id,
+            'Procesos':e.procesos,
+            'TotalMontoContratado':e.total_monto_contratado,
+            'PromedioMontoContratado':e.promedio_monto_contratado,
+            'MayorMontoContratado':e.mayor_monto_contratado,
+            'MenorMontoContratado':e.menor_monto_contratado,
+            'FechaUltimoProceso':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
+            'Enlace':url+'/comprador/'+encodeURIComponent(e.uri)
+          };
+        });
+        DescargarJSON(descarga,'Compradores');
+      });
+      AgregarEventoModalDescarga('descargaCsvCompradores',function(){
+        var descarga=datos.resultados.map(function(e){
+          return {
+            'Comprador':e.name,
+            //'Id':e.id,
+            'Procesos':e.procesos,
+            'TotalMontoContratado':e.total_monto_contratado,
+            'PromedioMontoContratado':e.promedio_monto_contratado,
+            'MayorMontoContratado':e.mayor_monto_contratado,
+            'MenorMontoContratado':e.menor_monto_contratado,
+            'FechaUltimoProceso':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
+            'Enlace':url+'/comprador/'+encodeURIComponent(e.uri)
+          };
+        });
+        DescargarCSV(ObtenerMatrizObjeto(descarga) ,'Compradores');
+      });
+      AgregarEventoModalDescarga('descargaXlsxCompradores',function(){
+        var descarga=datos.resultados.map(function(e){
+          return {
+            'Comprador':e.name,
+            //'Id':e.id,
+            'Procesos':e.procesos,
+            'TotalMontoContratado':e.total_monto_contratado,
+            'PromedioMontoContratado':e.promedio_monto_contratado,
+            'MayorMontoContratado':e.mayor_monto_contratado,
+            'MenorMontoContratado':e.menor_monto_contratado,
+            'FechaUltimoProceso':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
+            'Enlace':url+'/comprador/'+encodeURIComponent(e.uri)
+          };
+        });
+        DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Compradores');
+      });
+    
+      
+    }).fail(function() {
+        /*Error de Conexion al servidor */
+        console.dir('error de api descargas');
+        
+      });
+    
+  }

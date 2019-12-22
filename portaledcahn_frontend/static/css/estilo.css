@@ -470,6 +470,12 @@ position: relative;
 top: 55%;
 transform: translateY(-55%);
 }
+
+.espera.elemento .textoCargando{
+	top: 32%;
+	transform: translateY(-32%);
+	font-size: 25px;
+}
 .cargandoElementoLista{
 	font-family: 'poppins';
 	color:gray;
@@ -552,6 +558,10 @@ transform: translateY(-55%);
 	box-sizing: content-box;
 	font-size: 13px;
 	font-family: 'Poppins';
+	-webkit-appearance: none;
+   -moz-appearance:    none;
+   appearance:         none;
+   border: none;
 	
 }
 .botonGeneral.tamanoExtra{
@@ -2482,7 +2492,7 @@ table.alineado {
 }*/
 
 .tablaGeneral .espera .imagen {
-	margin-top: 100px;
+/*	margin-top: 100px;*/
 }
 table.tablaGeneral{
 	overflow: visible;

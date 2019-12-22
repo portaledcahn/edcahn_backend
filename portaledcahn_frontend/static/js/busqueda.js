@@ -124,8 +124,30 @@ function CargarElementosBusqueda(cargaFiltro){
   }
   CargandoResultados('#listaResultadosBusqueda',3);
   CargandoResultadosEncabezados(true);
+  
+  EliminarEventoModalDescarga('descargaJsonBusqueda');
+  EliminarEventoModalDescarga('descargaCsvBusqueda');
+  EliminarEventoModalDescarga('descargaXlsxBusqueda');
   $.get(api+"/buscador",parametros).done(function( datos ) {
     console.dir(datos);
+    AgregarEventoModalDescarga('descargaJsonBusqueda',function(){
+      var descarga=datos.resultados.map(function(e){
+        return e._source.doc.compiledRelease;
+      });
+      DescargarJSON(descarga,'Búsqueda');
+    });
+    AgregarEventoModalDescarga('descargaCsvBusqueda',function(){
+      var descarga=datos.resultados.map(function(e){
+        return e._source.doc.compiledRelease;
+      });
+      DescargarCSV(ObtenerMatrizObjeto(descarga) ,'Búsqueda');
+    });
+    AgregarEventoModalDescarga('descargaXlsxBusqueda',function(){
+      var descarga=datos.resultados.map(function(e){
+        return e._source.doc.compiledRelease;
+      });
+      DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Búsqueda');
+    });
     CargandoResultadosEncabezados(false);
     resultadosTotal=datos;
     EliminarFiltrosMetodo(datos);
@@ -907,30 +929,41 @@ function InicializarDescargas(){
   }).fail(function() {
       
     });*/
+  AbrirModalDescarga('descargaJsonBusqueda','Descarga JSON',true);/*Crear Modal Descarga */
+  AbrirModalDescarga('descargaCsvBusqueda','Descarga CSV',true);/*Crear Modal Descarga */
+  AbrirModalDescarga('descargaXlsxBusqueda','Descarga XLSX',true);/*Crear Modal Descarga */
   $('#descargaJSON').on('click',function(e){
-    if(resultadosTotal&&resultadosTotal.resultados){
+
+
+    AbrirModalDescarga('descargaJsonBusqueda','Descarga JSON');
+
+
+    /*if(resultadosTotal&&resultadosTotal.resultados){
       var descarga=resultadosTotal.resultados.map(function(e){
         return e._source.doc.compiledRelease;
       });
       DescargarJSON(descarga,'Búsqueda');
-    }
+    }*/
     
   });
   $('#descargaCSV').on('click',function(e){
-    if(resultadosTotal&&resultadosTotal.resultados){
+    AbrirModalDescarga('descargaCsvBusqueda','Descarga CSV');
+    /*if(resultadosTotal&&resultadosTotal.resultados){
       var descarga=resultadosTotal.resultados.map(function(e){
         return e._source.doc.compiledRelease;
       });
       DescargarCSV( ObtenerMatrizObjeto(descarga),'Búsqueda');
-    }
+    }*/
   });
   $('#descargaXLSX').on('click',function(e){
+    AbrirModalDescarga('descargaXlsxBusqueda','Descarga XLSX');
+    /*
     if(resultadosTotal&&resultadosTotal.resultados){
       var descarga=resultadosTotal.resultados.map(function(e){
         return e._source.doc.compiledRelease;
       });
       DescargarXLSX( ObtenerMatrizObjeto(descarga),'Búsqueda');
-    }
+    }*/
   });
 }
 
