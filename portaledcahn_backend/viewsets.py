@@ -1351,7 +1351,7 @@ class Compradores(APIView):
 		nombre = request.GET.get('nombre', '') #nombre
 		identificacion = request.GET.get('identificacion', '') # identificacion
 		dependencias = request.GET.get('dependencias', '0')
-		term = request.GET.get('term', '') 
+		term = request.GET.get('term', '') #palabra clave
 		tmc = request.GET.get('tmc', '') # total monto contratado
 		pmc = request.GET.get('pmc', '') # promedio monto contratado
 		mamc = request.GET.get('mamc', '') # mayor monto contratado
@@ -1362,145 +1362,279 @@ class Compradores(APIView):
 		ordenarPor = request.GET.get('ordenarPor', '')
 		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 
+		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
+		
+		if tipoIdentificador not in ['id', 'nombre']:
+			tipoIdentificador = 'nombre'
+
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		
 		s = Search(using=cliente, index='edca')
 
 		filtros = []
 		if nombre.replace(' ',''):
 			if dependencias == '1':
-				# filtro = Q("match", doc__compiledRelease__buyer__name=nombre)
 				filtro = Q("match", extra__buyerFullName=nombre)
 			else:
 				filtro = Q("match", extra__parentTop__name=nombre)
 
 			filtros.append(filtro)
 
+		if identificacion.replace(' ', ''):
+			if dependencias == '1':
+				filtro = Q("match", doc__compiledRelease__buyer__id__keyword=identificacion)
+			else:
+				filtro = Q("match", extra__parentTop__id=identificacion)
+
+			filtros.append(filtro)
+
 		s = s.query('bool', filter=filtros)
 
-		if dependencias == '1':
-			# campoParaAgrupar = 'doc.compiledRelease.buyer.name.keyword'
-			campoParaAgrupar = 'extra.buyerFullName.keyword'
-		else:
-			campoParaAgrupar = 'extra.parentTop.name.keyword'
-
-		s.aggs.metric('compradores', 'terms', field=campoParaAgrupar, size=10000)
-		s.aggs['compradores'].metric('procesos', 'cardinality', field='doc.compiledRelease.ocid.keyword')
-		
-		s.aggs['compradores'].metric('contratos', 'nested', path='doc.compiledRelease.contracts')
-
-		s.aggs['compradores']['contratos'].metric('suma', 'sum', field='doc.compiledRelease.contracts.value.amount')
-		s.aggs['compradores']['contratos'].metric('promedio', 'avg', field='doc.compiledRelease.contracts.value.amount')
-		s.aggs['compradores']['contratos'].metric('maximo', 'max', field='doc.compiledRelease.contracts.value.amount')
-		s.aggs['compradores']['contratos'].metric('minimo', 'min', field='doc.compiledRelease.contracts.value.amount')
-
-		s.aggs['compradores'].metric('fecha_ultimo_proceso', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
-
-		# Filtros
-		if tmc.replace(' ', ''):
-			q_tmc = 'params.tmc' + tmc
-			s.aggs['compradores']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
-
-		if pmc.replace(' ', ''):
-			q_pmc = 'params.pmc' + pmc
-			s.aggs['compradores']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
-
-		if mamc.replace(' ', ''):
-			q_mamc = 'params.mamc' + mamc
-			s.aggs['compradores']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
-
-		if memc.replace(' ', ''):
-			q_memc = 'params.memc' + memc
-			s.aggs['compradores']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
-
-		if cp.replace(' ', ''):
-			q_cp = 'params.memc' + cp
-			s.aggs['compradores']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "procesos"}, script=q_cp)
-
-		search_results = SearchResults(s)
-
-		results = s[start:end].execute()
-
-		compradoresES = results.aggregations.compradores.to_dict()
-		compradores = []
-
-		for n in compradoresES["buckets"]:
-			comprador = {}
-			# comprador["id"] = p["key"]
-			comprador["name"] = n["key"]
-			comprador["procesos"] = n["procesos"]["value"]
-			comprador["total_monto_contratado"] = n["contratos"]["suma"]["value"]
-			comprador["promedio_monto_contratado"] = n["contratos"]["promedio"]["value"]
-			comprador["mayor_monto_contratado"] = n["contratos"]["maximo"]["value"]
-			comprador["menor_monto_contratado"] = n["contratos"]["minimo"]["value"]
-
-			if n["fecha_ultimo_proceso"]["value"] is None:
-				comprador["fecha_ultimo_proceso"] = None
+		if tipoIdentificador == 'nombre':
+			if dependencias == '1':
+				campoParaAgrupar = 'extra.buyerFullName.keyword'
 			else:
-				comprador["fecha_ultimo_proceso"] = n["fecha_ultimo_proceso"]["value_as_string"]
+				campoParaAgrupar = 'extra.parentTop.name.keyword'
 
-			comprador["uri"] = urllib.parse.quote_plus(comprador["name"])
-			compradores.append(copy.deepcopy(comprador))
+			s.aggs.metric('compradores', 'terms', field=campoParaAgrupar, size=10000)
+			s.aggs['compradores'].metric('procesos', 'cardinality', field='doc.compiledRelease.ocid.keyword')
+			
+			s.aggs['compradores'].metric('contratos', 'nested', path='doc.compiledRelease.contracts')
+			s.aggs['compradores']['contratos'].metric('suma', 'sum', field='doc.compiledRelease.contracts.value.amount')
+			s.aggs['compradores']['contratos'].metric('promedio', 'avg', field='doc.compiledRelease.contracts.value.amount')
+			s.aggs['compradores']['contratos'].metric('maximo', 'max', field='doc.compiledRelease.contracts.value.amount')
+			s.aggs['compradores']['contratos'].metric('minimo', 'min', field='doc.compiledRelease.contracts.value.amount')
 
-		dfCompradores = pd.DataFrame(compradores)
-		ordenar = getSortBy(ordenarPor)
+			s.aggs['compradores'].metric('fecha_ultimo_proceso', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
 
-		if 'fecha_ultimo_proceso' in dfCompradores:
-			dfCompradores['fecha_ultimo_proceso'] = pd.to_datetime(dfCompradores['fecha_ultimo_proceso'], errors='coerce')
+			# Filtros
+			if tmc.replace(' ', ''):
+				q_tmc = 'params.tmc' + tmc
+				s.aggs['compradores']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
 
-		# Ejemplo: fup==2018-03-02
-		if fup.replace(' ', ''):
-			if len(fup)>1:
-				if fup[0:2] in ['!=', '>=', '<=', '==']:
-					operador = fup[0:2]
-					fecha = fup[2:len(fup)]
-				elif fup[0:1] in ['>', '<']:
-					operador = fup[0:1]
-					fecha = fup[1:len(fup)]
+			if pmc.replace(' ', ''):
+				q_pmc = 'params.pmc' + pmc
+				s.aggs['compradores']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
+
+			if mamc.replace(' ', ''):
+				q_mamc = 'params.mamc' + mamc
+				s.aggs['compradores']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
+
+			if memc.replace(' ', ''):
+				q_memc = 'params.memc' + memc
+				s.aggs['compradores']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
+
+			if cp.replace(' ', ''):
+				q_cp = 'params.memc' + cp
+				s.aggs['compradores']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "procesos"}, script=q_cp)
+
+			search_results = SearchResults(s)
+
+			results = s[start:end].execute()
+
+			compradoresES = results.aggregations.compradores.to_dict()
+			compradores = []
+
+			for n in compradoresES["buckets"]:
+				comprador = {}
+				# comprador["id"] = p["key"]
+				comprador["name"] = n["key"]
+				comprador["procesos"] = n["procesos"]["value"]
+				comprador["total_monto_contratado"] = n["contratos"]["suma"]["value"]
+				comprador["promedio_monto_contratado"] = n["contratos"]["promedio"]["value"]
+				comprador["mayor_monto_contratado"] = n["contratos"]["maximo"]["value"]
+				comprador["menor_monto_contratado"] = n["contratos"]["minimo"]["value"]
+
+				if n["fecha_ultimo_proceso"]["value"] is None:
+					comprador["fecha_ultimo_proceso"] = None
+				else:
+					comprador["fecha_ultimo_proceso"] = n["fecha_ultimo_proceso"]["value_as_string"]
+
+				comprador["uri"] = urllib.parse.quote_plus(comprador["name"])
+				compradores.append(copy.deepcopy(comprador))
+
+			dfCompradores = pd.DataFrame(compradores)
+			ordenar = getSortBy(ordenarPor)
+
+			if 'fecha_ultimo_proceso' in dfCompradores:
+				dfCompradores['fecha_ultimo_proceso'] = pd.to_datetime(dfCompradores['fecha_ultimo_proceso'], errors='coerce')
+
+			# Ejemplo: fup==2018-03-02
+			if fup.replace(' ', ''):
+				if len(fup)>1:
+					if fup[0:2] in ['!=', '>=', '<=', '==']:
+						operador = fup[0:2]
+						fecha = fup[2:len(fup)]
+					elif fup[0:1] in ['>', '<']:
+						operador = fup[0:1]
+						fecha = fup[1:len(fup)]
+					else:
+						operador = ''
+						fecha = ''	
 				else:
 					operador = ''
-					fecha = ''	
+					fecha = ''
+
+				if operador == "==":
+					mask = (dfCompradores['fecha_ultimo_proceso'].dt.date.astype(str) == fecha) 
+				elif operador == "!=":
+					mask = (dfCompradores['fecha_ultimo_proceso'] != fecha)
+				elif operador == "<":
+					mask = (dfCompradores['fecha_ultimo_proceso'] < fecha)
+				elif operador == "<=":
+					mask = (dfCompradores['fecha_ultimo_proceso'] <= fecha)
+				elif operador == ">":
+					mask = (dfCompradores['fecha_ultimo_proceso'] > fecha)
+				elif operador == ">=":
+					mask = (dfCompradores['fecha_ultimo_proceso'] >= fecha)
+				else:
+					mask = None
+
+				if mask is not None:
+					dfCompradores = dfCompradores.loc[mask]
+
+			for indice, columna in enumerate(ordenar["columnas"]):
+				if not columna in dfCompradores:
+					ordenar["columnas"].pop(indice)
+					ordenar["ascendentes"].pop(indice)
+
+			if ordenar["columnas"]:
+				dfCompradores = dfCompradores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+
+			dfCompradores = dfCompradores.fillna('')
+
+			compradores = dfCompradores.to_dict('records')
+		else:
+			if dependencias == '1':
+				campoParaAgrupar = 'doc.compiledRelease.buyer.id.keyword'
+				nombreCapoAgrupar = 'extra.buyerFullName.keyword'
 			else:
-				operador = ''
-				fecha = ''
+				campoParaAgrupar = 'extra.parentTop.id.keyword'
+				nombreCapoAgrupar = 'extra.parentTop.name.keyword'
 
-			if operador == "==":
-				mask = (dfCompradores['fecha_ultimo_proceso'].dt.date.astype(str) == fecha) 
-			elif operador == "!=":
-				mask = (dfCompradores['fecha_ultimo_proceso'] != fecha)
-			elif operador == "<":
-				mask = (dfCompradores['fecha_ultimo_proceso'] < fecha)
-			elif operador == "<=":
-				mask = (dfCompradores['fecha_ultimo_proceso'] <= fecha)
-			elif operador == ">":
-				mask = (dfCompradores['fecha_ultimo_proceso'] > fecha)
-			elif operador == ">=":
-				mask = (dfCompradores['fecha_ultimo_proceso'] >= fecha)
-			else:
-				mask = None
+			s.aggs.metric('compradores', 'terms', field=campoParaAgrupar, size=10000)
+			s.aggs['compradores'].metric('nombre', 'terms', field=nombreCapoAgrupar, size=10000)
+			s.aggs['compradores']['nombre'].metric('procesos', 'cardinality', field='doc.compiledRelease.ocid.keyword')
+			
+			s.aggs['compradores']['nombre'].metric('contratos', 'nested', path='doc.compiledRelease.contracts')
+			s.aggs['compradores']['nombre']['contratos'].metric('suma', 'sum', field='doc.compiledRelease.contracts.value.amount')
+			s.aggs['compradores']['nombre']['contratos'].metric('promedio', 'avg', field='doc.compiledRelease.contracts.value.amount')
+			s.aggs['compradores']['nombre']['contratos'].metric('maximo', 'max', field='doc.compiledRelease.contracts.value.amount')
+			s.aggs['compradores']['nombre']['contratos'].metric('minimo', 'min', field='doc.compiledRelease.contracts.value.amount')
 
-			if mask is not None:
-				dfCompradores = dfCompradores.loc[mask]
+			s.aggs['compradores']['nombre'].metric('fecha_ultimo_proceso', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
 
-		for indice, columna in enumerate(ordenar["columnas"]):
-			if not columna in dfCompradores:
-				ordenar["columnas"].pop(indice)
-				ordenar["ascendentes"].pop(indice)
+			# Filtros
+			if tmc.replace(' ', ''):
+				q_tmc = 'params.tmc' + tmc
+				s.aggs['compradores']['nombre']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
 
-		if ordenar["columnas"]:
-			dfCompradores = dfCompradores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+			if pmc.replace(' ', ''):
+				q_pmc = 'params.pmc' + pmc
+				s.aggs['compradores']['nombre']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
 
-		dfCompradores = dfCompradores.fillna('')
+			if mamc.replace(' ', ''):
+				q_mamc = 'params.mamc' + mamc
+				s.aggs['compradores']['nombre']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
 
-		compradores = dfCompradores.to_dict('records')
+			if memc.replace(' ', ''):
+				q_memc = 'params.memc' + memc
+				s.aggs['compradores']['nombre']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
+
+			if cp.replace(' ', ''):
+				q_cp = 'params.memc' + cp
+				s.aggs['compradores']['nombre']\
+				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "procesos"}, script=q_cp)
+
+			search_results = SearchResults(s)
+
+			results = s[start:end].execute()
+
+			compradoresES = results.aggregations.compradores.to_dict()
+			compradores = []
+
+			for n in compradoresES["buckets"]:
+				for nombreAgg in n["nombre"]["buckets"]:
+					comprador = {}
+					comprador["id"] = n["key"]
+					comprador["name"] = nombreAgg["key"]
+					comprador["procesos"] = nombreAgg["procesos"]["value"]
+					comprador["total_monto_contratado"] = nombreAgg["contratos"]["suma"]["value"]
+					comprador["promedio_monto_contratado"] = nombreAgg["contratos"]["promedio"]["value"]
+					comprador["mayor_monto_contratado"] = nombreAgg["contratos"]["maximo"]["value"]
+					comprador["menor_monto_contratado"] = nombreAgg["contratos"]["minimo"]["value"]
+
+					if nombreAgg["fecha_ultimo_proceso"]["value"] is None:
+						comprador["fecha_ultimo_proceso"] = None
+					else:
+						comprador["fecha_ultimo_proceso"] = nombreAgg["fecha_ultimo_proceso"]["value_as_string"]
+
+					comprador["uri"] = urllib.parse.quote_plus(comprador["name"])
+					compradores.append(copy.deepcopy(comprador))
+
+			dfCompradores = pd.DataFrame(compradores)
+			ordenar = getSortBy(ordenarPor)
+
+			if 'fecha_ultimo_proceso' in dfCompradores:
+				dfCompradores['fecha_ultimo_proceso'] = pd.to_datetime(dfCompradores['fecha_ultimo_proceso'], errors='coerce')
+
+			# Ejemplo: fup==2018-03-02
+			if fup.replace(' ', ''):
+				if len(fup)>1:
+					if fup[0:2] in ['!=', '>=', '<=', '==']:
+						operador = fup[0:2]
+						fecha = fup[2:len(fup)]
+					elif fup[0:1] in ['>', '<']:
+						operador = fup[0:1]
+						fecha = fup[1:len(fup)]
+					else:
+						operador = ''
+						fecha = ''	
+				else:
+					operador = ''
+					fecha = ''
+
+				if operador == "==":
+					mask = (dfCompradores['fecha_ultimo_proceso'].dt.date.astype(str) == fecha) 
+				elif operador == "!=":
+					mask = (dfCompradores['fecha_ultimo_proceso'] != fecha)
+				elif operador == "<":
+					mask = (dfCompradores['fecha_ultimo_proceso'] < fecha)
+				elif operador == "<=":
+					mask = (dfCompradores['fecha_ultimo_proceso'] <= fecha)
+				elif operador == ">":
+					mask = (dfCompradores['fecha_ultimo_proceso'] > fecha)
+				elif operador == ">=":
+					mask = (dfCompradores['fecha_ultimo_proceso'] >= fecha)
+				else:
+					mask = None
+
+				if mask is not None:
+					dfCompradores = dfCompradores.loc[mask]
+
+			for indice, columna in enumerate(ordenar["columnas"]):
+				if not columna in dfCompradores:
+					ordenar["columnas"].pop(indice)
+					ordenar["ascendentes"].pop(indice)
+
+			if ordenar["columnas"]:
+				dfCompradores = dfCompradores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+
+			dfCompradores = dfCompradores.fillna('')
+
+			compradores = dfCompradores.to_dict('records')
 
 		paginator = Paginator(compradores, paginarPor)
 
@@ -1548,15 +1682,26 @@ class Comprador(APIView):
 
 	def get(self, request, partieId=None, format=None):
 
+		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
+
+		if tipoIdentificador not in ['id', 'nombre']:
+			tipoIdentificador = 'nombre'
+
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 		s = Search(using=cliente, index='edca')
 
 		partieId = urllib.parse.unquote_plus(partieId)
 
-		qPartieId = Q('match_phrase', doc__compiledRelease__parties__name__keyword=partieId)
-		s = s.query('nested', inner_hits={"size":1}, path='doc.compiledRelease.parties', query=qPartieId)
-		s = s.sort({"doc.compiledRelease.date": {"order":"desc"}})
-		s = s.source(False)
+		if tipoIdentificador == 'nombre':
+			qPartieId = Q('match_phrase', doc__compiledRelease__parties__name__keyword=partieId)
+			s = s.query('nested', inner_hits={"size":1}, path='doc.compiledRelease.parties', query=qPartieId)
+			s = s.sort({"doc.compiledRelease.date": {"order":"desc"}})
+			s = s.source(False)
+		else:
+			qPartieId = Q('match_phrase', doc__compiledRelease__parties__id__keyword=partieId)
+			s = s.query('nested', inner_hits={"size":1}, path='doc.compiledRelease.parties', query=qPartieId)
+			s = s.sort({"doc.compiledRelease.date": {"order":"desc"}})
+			s = s.source(False)
 
 		results = s[0:1].execute()
 
@@ -1585,7 +1730,6 @@ class Comprador(APIView):
 			dependencias = 0
 
 		try:
-
 			if dependencias != 1:
 				partie = results["hits"]["hits"][0]["inner_hits"]["doc.compiledRelease.parties"]["hits"]["hits"][0]["_source"].to_dict()
 			else:
@@ -1617,6 +1761,10 @@ class ProcesosDelComprador(APIView):
 
 		ordenarPor = request.GET.get('ordenarPor', '')
 		dependencias = request.GET.get('dependencias', '0')
+		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
+
+		if tipoIdentificador not in ['id', 'nombre']:
+			tipoIdentificador = 'nombre'
 
 		start = (page-1) * paginarPor
 		end = start + paginarPor
@@ -1638,15 +1786,18 @@ class ProcesosDelComprador(APIView):
 		# Filtrando por nombre del comprador
 		partieId = urllib.parse.unquote_plus(partieId)
 
-		if dependencias == '1':
-			s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
+		if tipoIdentificador == 'id':
+			s = s.filter('match_phrase', doc__compiledRelease__buyer__id__keyword=partieId)
 		else:
-			s = s.filter('match_phrase', extra__parentTop__name__keyword=partieId)
+			if dependencias == '1':
+				s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
+			else:
+				s = s.filter('match_phrase', extra__parentTop__name__keyword=partieId)
 
 		# Sección de filtros
 		filtros = []
 
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id__keyword=sourceSEFIN)
 		s = s.filter('exists', field='doc.compiledRelease.tender')
 
 		if comprador.replace(' ',''):
@@ -1654,7 +1805,7 @@ class ProcesosDelComprador(APIView):
 			filtros.append(filtro)
 
 		if ocid.replace(' ',''):
-			filtro = Q("match", doc__ocid=ocid)
+			filtro = Q("match", doc__ocid__keyword=ocid)
 			filtros.append(filtro)
 
 		if titulo.replace(' ',''):
@@ -1662,11 +1813,11 @@ class ProcesosDelComprador(APIView):
 			filtros.append(filtro)
 
 		if categoriaCompra.replace(' ',''):
-			filtro = Q("match", extra__compiledRelease__tender__procurementMethodDetails=categoriaCompra)
+			filtro = Q("match", doc__compiledRelease__tender__procurementMethodDetails__keyword=categoriaCompra)
 			filtros.append(filtro)
 
 		if estado.replace(' ',''):
-			filtro = Q("match", extra__lastSection=estado)
+			filtro = Q("match", extra__lastSection__keyword=estado)
 			filtros.append(filtro)
 
 		if montoContratado.replace(' ',''):
@@ -1700,15 +1851,15 @@ class ProcesosDelComprador(APIView):
 				valor = validarFecha["valor"]
 
 				if operador == "==":
-					filtro = Q('match', doc__compiledRelease__tender__period__startDate=valor)
+					filtro = Q('match', doc__compiledRelease__tender__tenderPeriod__startDate=valor)
 				elif operador == "<":
-					filtro = Q('range', doc__compiledRelease__tender__period__startDate={'lt': valor, "format": "yyyy-MM-dd"})
+					filtro = Q('range', doc__compiledRelease__tender__tenderPeriod__startDate={'lt': valor, "format": "yyyy-MM-dd"})
 				elif operador == "<=":
-					filtro = Q('range', doc__compiledRelease__tender__period__startDate={'lte': valor, "format": "yyyy-MM-dd"})
+					filtro = Q('range', doc__compiledRelease__tender__tenderPeriod__startDate={'lte': valor, "format": "yyyy-MM-dd"})
 				elif operador == ">":
-					filtro = Q('range', doc__compiledRelease__tender__period__startDate={'gt': valor, "format": "yyyy-MM-dd"})
+					filtro = Q('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gt': valor, "format": "yyyy-MM-dd"})
 				elif operador == ">=":
-					filtro = Q('range', doc__compiledRelease__tender__period__startDate={'gte': valor, "format": "yyyy-MM-dd"})
+					filtro = Q('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': valor, "format": "yyyy-MM-dd"})
 				else:
 					filtro = None
 
@@ -1723,15 +1874,15 @@ class ProcesosDelComprador(APIView):
 				valor = validarFecha["valor"]
 
 				if operador == "==":
-					filtro = Q('match', doc__compiledRelease__tender__period__endDate=valor)
+					filtro = Q('match', doc__compiledRelease__tender__tenderPeriod__endDate=valor)
 				elif operador == "<":
-					filtro = Q('range', doc__compiledRelease__tender__period__endDate={'lt': valor, "format": "yyyy-MM-dd"})
+					filtro = Q('range', doc__compiledRelease__tender__tenderPeriod__endDate={'lt': valor, "format": "yyyy-MM-dd"})
 				elif operador == "<=":
-					filtro = Q('range', doc__compiledRelease__tender__period__endDate={'lte': valor, "format": "yyyy-MM-dd"})
+					filtro = Q('range', doc__compiledRelease__tender__tenderPeriod__endDate={'lte': valor, "format": "yyyy-MM-dd"})
 				elif operador == ">":
-					filtro = Q('range', doc__compiledRelease__tender__period__endDate={'gt': valor, "format": "yyyy-MM-dd"})
+					filtro = Q('range', doc__compiledRelease__tender__tenderPeriod__endDate={'gt': valor, "format": "yyyy-MM-dd"})
 				elif operador == ">=":
-					filtro = Q('range', doc__compiledRelease__tender__period__endDate={'gte': valor, "format": "yyyy-MM-dd"})
+					filtro = Q('range', doc__compiledRelease__tender__tenderPeriod__endDate={'gte': valor, "format": "yyyy-MM-dd"})
 				else:
 					filtro = None
 
@@ -1765,14 +1916,14 @@ class ProcesosDelComprador(APIView):
 
 		# Ordenar resultados.
 		mappingSort = {
-			"comprador": "extra.buyerFullName",
-			"ocid": "doc.ocid",
-			"titulo": "doc.compiledRelease.tender.title",
-			"categoriaCompra": "doc.compiledRelease.tender.procurementMethodDetails",
-			"estado": "extra.lastSection",
+			"comprador": "extra.buyerFullName.keyword",
+			"ocid": "doc.ocid.keyword",
+			"titulo": "doc.compiledRelease.tender.title.keyword",
+			"categoriaCompra": "doc.compiledRelease.tender.procurementMethodDetails.keyword",
+			"estado": "extra.lastSection.keyword",
 			"montoContratado": "doc.compiledRelease.tender.extra.sumContracts",
-			"fechaInicio": "doc.compiledRelease.tender.period.startDate",
-			"fechaRecepcion": "doc.compiledRelease.tender.period.endDate",
+			"fechaInicio": "doc.compiledRelease.tender.tenderPeriod.startDate",
+			"fechaRecepcion": "doc.compiledRelease.tender.tenderPeriod.endDate",
 			"fechaPublicacion": "doc.compiledRelease.date",
 		}
 
@@ -1851,6 +2002,10 @@ class ContratosDelComprador(APIView):
 		fechaInicio = request.GET.get('fechaInicio', '')
 		ordenarPor = request.GET.get('ordenarPor', '')
 		dependencias = request.GET.get('dependencias', '0')
+		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
+
+		if tipoIdentificador not in ['id', 'nombre']:
+			tipoIdentificador = 'nombre'
 
 		start = (page-1) * paginarPor
 		end = start + paginarPor
@@ -1861,10 +2016,13 @@ class ContratosDelComprador(APIView):
 		# Filtrando por nombre del comprador
 		partieId = urllib.parse.unquote_plus(partieId)
 
-		if dependencias == '1':
-			s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
+		if tipoIdentificador == 'id':
+			s = s.filter('match_phrase', extra__buyer__id__keyword=partieId)
 		else:
-			s = s.filter('match_phrase', extra__parentTop__name__keyword=partieId)
+			if dependencias == '1':
+				s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
+			else:
+				s = s.filter('match_phrase', extra__parentTop__name__keyword=partieId)
 
 		# Sección de filtros
 		filtros = []
@@ -2051,6 +2209,11 @@ class PagosDelComprador(APIView):
 		ordenarPor = request.GET.get('ordenarPor', '')
 		dependencias = request.GET.get('dependencias', '0')
 
+		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
+
+		if tipoIdentificador not in ['id', 'nombre']:
+			tipoIdentificador = 'nombre'
+
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
@@ -2064,10 +2227,13 @@ class PagosDelComprador(APIView):
 
 		partieId = urllib.parse.unquote_plus(partieId)
 
-		if dependencias == '1':
-			s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
+		if tipoIdentificador == 'id':
+			s = s.filter('match_phrase', extra__buyer__id__keyword=partieId)
 		else:
-			s = s.filter('match_phrase', extra__parentTop__name__keyword=partieId)
+			if dependencias == '1':
+				s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
+			else:
+				s = s.filter('match_phrase', extra__parentTop__name__keyword=partieId)
 
 		if comprador.replace(' ',''):
 			filtro = Q("match", extra__buyerFullName=comprador)
