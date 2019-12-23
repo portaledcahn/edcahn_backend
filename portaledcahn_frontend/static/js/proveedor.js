@@ -488,15 +488,23 @@ $('<div>',{class:''})
                 ),
           
           $('<td>',{'data-label':'Fecha de Firma del Contrato' ,class:'textoAlineadoCentrado'}).append(
+            /*
             $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible'
-            )
+            )*/
+
+            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
+              resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?ObtenerFecha(resultados[i]._source.dateSigned,'fecha'):'No Disponible'
+          )
             
             ),
           $('<td>',{'data-label':'Fecha de Inicio del Contrato' ,class:'textoAlineadoCentrado'}).append(
-            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
+           /* $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?ObtenerFecha(resultados[i]._source.dateSigned,'fecha'):'No Disponible'
-            )
+            )*/
+            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
+              resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible'
+          )
             
             ),
             $('<td>',{'data-label':'Estado' ,class:'textoAlineadoCentrado'}).append(
@@ -764,7 +772,8 @@ function AgregarFilaPago(resultados,selector,i){
     (ValidarCadena(opciones.compradorPag)? '&compradorPag='+encodeURIComponent(opciones.compradorPag): (ValidarCadena(ObtenerValor('compradorPag'))&&!desUrl?'&compradorPag='+ObtenerValor('compradorPag'):''))+
     (ValidarCadena(opciones.tituloPag)? '&tituloPag='+encodeURIComponent(opciones.tituloPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
     (ValidarCadena(opciones.montoPag) ? '&montoPag='+encodeURIComponent(reemplazarValor(opciones.montoPag,',','')):(ValidarCadena(ObtenerValor('montoPag'))&&!desUrl?'&montoPag='+ObtenerValor('montoPag'):''))+
-    (ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(opciones.pagosPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
+    (ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(reemplazarValor(opciones.pagosPag,',','')): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
+    //(ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(opciones.pagosPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
     (ValidarCadena(opciones.fechaPag) ? '&fechaPag='+encodeURIComponent(reemplazarValor(opciones.fechaPag,',','')):(ValidarCadena(ObtenerValor('fechaPag'))&&!desUrl?'&fechaPag='+ObtenerValor('fechaPag'):''))+
     (ValidarCadena(opciones.ordenarPorPag) ? '&ordenarPorPag='+encodeURIComponent(opciones.ordenarPorPag):(ValidarCadena(ObtenerValor('ordenarPorPag'))&&!desUrl?'&ordenarPorPag='+ObtenerValor('ordenarPorPag'):''))+
 
