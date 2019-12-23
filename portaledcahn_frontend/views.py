@@ -233,6 +233,7 @@ def Proveedor(request,id=''):
     parametros = {
       "compradorCon" : request.GET.get('compradorCon',''),
       "tituloCon" : request.GET.get('tituloCon',''),
+      "tituloLicitacionCon" : request.GET.get('tituloLicitacionCon',''),
       "descripcionCon" : request.GET.get('descripcionCon',''),
       "categoriaCompraCon" : request.GET.get('categoriaCompraCon',''),
       "estadoCon" : request.GET.get('estadoCon',''),
@@ -262,6 +263,7 @@ def Proveedor(request,id=''):
 
     parametros['ordencompradorCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'compradorCon')
     parametros['ordentituloCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'tituloCon')
+    parametros['ordentituloLicitacionCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'tituloLicitacionCon')
     parametros['ordendescripcionCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'descripcionCon')
     parametros['ordencategoriaCompraCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'categoriaCompraCon')
     parametros['ordencompradorCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'compradorCon')

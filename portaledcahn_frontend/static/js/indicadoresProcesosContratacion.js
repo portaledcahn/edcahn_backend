@@ -76,6 +76,7 @@ function ModalidadMontoCantidad(){
             },*/
             xAxis: [
                 {
+                    name:'Modalidad de Compra',
                     type: 'category',
                     data:datos.resultados.nombreModalidades,
                     axisPointer: {
@@ -644,14 +645,17 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                                         formatter: '{value} HNL'
                                     }
                                 },
-                    position:'bottom'
+                    position:'bottom',
+
+                    name:'Monto Contratado'
                 },
                 {
                     type: 'value',
                     axisLabel: {
                         formatter: '{value}'
                     },
-                    position:'top'
+                    position:'top',
+                    name:'Cantidad de Procesos'
                 }
             ],
             yAxis: [
@@ -902,14 +906,16 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                                         formatter: '{value} HNL'
                                     }
                                 },
-                    position:'bottom'
+                    position:'bottom',
+                    name:'Monto de Contratos'
                 },
                 {
                     type: 'value',
                     axisLabel: {
                         formatter: '{value}'
                     },
-                    position:'top'
+                    position:'top',
+                    name:'Cantidad de Contratos'
                 }
             ],
             yAxis: [
@@ -1194,7 +1200,7 @@ function ObtenerFiltros(){
 
 
 function AccederUrlPagina(opciones,desUrl){
-    var direccion=('/dashboardProcesosContratacion/?'+
+    var direccion=('/indicadoresProcesosContratacion/?'+
     (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
     (ValidarCadena(opciones.idinstitucion)? '&idinstitucion='+encodeURIComponent(opciones.idinstitucion): (ValidarCadena(ObtenerValor('idinstitucion'))&&!desUrl?'&idinstitucion='+ObtenerValor('idinstitucion'):''))+
    
