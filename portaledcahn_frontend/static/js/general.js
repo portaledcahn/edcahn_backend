@@ -504,7 +504,7 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     var elementos=[];
     for(var i=0;i<parte.length;i++){
       elementos.push(
-        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(ConcatenarEnlace(ObtenerEnlaceParte(parte[i].id,false,fuente))/* parte[i].name*/)})):(parte[i].roles.includes('supplier')?(
+        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent( parte[i].id/*ConcatenarEnlace(ObtenerEnlaceParte(parte[i].id,false,fuente))*//* parte[i].name*/)})):(parte[i].roles.includes('supplier')?(
           $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
         ):(
           $('<span>',{text:parte[i].name})

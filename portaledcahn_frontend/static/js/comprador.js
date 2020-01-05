@@ -258,7 +258,9 @@ function AsignarEventosFiltro(selector, sufijo, funcionFiltros, funcionInput) {
 function ObtenerComprador() {
     DebugFecha();
     MostrarEspera('body .tamanoMinimo',true);
-    $.get(api + "/compradores/" + encodeURIComponent(compradorId) /*url+"/static/"+procesoOcid+".json"*/ , function(datos) {
+    $.get(api + "/compradores/" + encodeURIComponent(compradorId) /*url+"/static/"+procesoOcid+".json"*/ ,{
+        tid:'id'
+    }, function(datos) {
         DebugFecha();
         datosComprador = datos;
         console.dir(datos)
@@ -405,6 +407,7 @@ function CargarContratosComprador() {
     EliminarEventoModalDescarga('descargaJsonCompradorContratos');
     EliminarEventoModalDescarga('descargaCsvCompradorContratos');
     EliminarEventoModalDescarga('descargaXlsxCompradorContratos');
+    parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/contratos', parametros).done(function(datos) {
         console.dir('Contratos')
         console.dir(datos);
@@ -441,6 +444,7 @@ function CargarPagosComprador() {
     EliminarEventoModalDescarga('descargaJsonCompradorPagos');
     EliminarEventoModalDescarga('descargaCsvCompradorPagos');
     EliminarEventoModalDescarga('descargaXlsxCompradorPagos');
+    parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/pagos', parametros).done(function(datos) {
         console.dir('Pagos')
         console.dir(datos);
@@ -477,6 +481,7 @@ function CargarProcesosComprador() {
     EliminarEventoModalDescarga('descargaJsonCompradorProcesos');
     EliminarEventoModalDescarga('descargaCsvCompradorProcesos');
     EliminarEventoModalDescarga('descargaXlsxCompradorProcesos');
+    parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/procesos', parametros).done(function(datos) {
         console.dir('Procesos')
         console.dir(datos);
@@ -649,7 +654,7 @@ function AgregarFilaPago(resultados,selector,i){
             }
         }).append(
             $('<td>', { 'data-label': 'Comprador' }).append(
-                resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.buyerFullName ? $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.extra.buyerFullName) }).text(resultados[i]._source.extra.buyerFullName) : ''
+                resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.buyer&&resultados[i]._source.extra.buyer.id ? $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.extra.buyer.id) }).text(resultados[i]._source.extra.buyerFullName) : ''
             ),
             $('<td>', { 'data-label': 'Proveedor' }).append(
                 resultados[i] && resultados[i]._source && resultados[i]._source.implementation && resultados[i]._source.implementation.transactions&& resultados[i]._source.implementation.transactions.length? ObtenerProveedoresTransacciones(resultados[i]._source.implementation.transactions):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
@@ -757,7 +762,7 @@ function AgregarResultadosProcesosComprador(datos, selector) {
         $(selector).append(
             $('<tr>').append(
                 $('<td>', { 'data-label': 'Comprador' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.buyerFullName ? $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.extra.buyerFullName) }).text(resultados[i]._source.extra.buyerFullName) : ''
+                    resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.buyer && resultados[i]._source.extra.buyer.id ? $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.extra.buyer.id) }).text(resultados[i]._source.extra.buyerFullName) : ''
                 ),
                 $('<td>', { 'data-label': 'Id del Proceso' }).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.ocid ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.doc.ocid) }).text(resultados[i]._source.doc.ocid) : ''
@@ -1232,6 +1237,7 @@ function InicializarDescargas(){
     var parametros = ObtenerFiltrosProcesos();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items'];
+    parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/procesos',parametros).done(function( datos ) {
       console.dir('Descargas Comprador Procesos')
       console.dir(datos);
@@ -1277,6 +1283,7 @@ function InicializarDescargas(){
     var parametros = ObtenerFiltrosContratos();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items'];
+    parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/contratos',parametros).done(function( datos ) {
       console.dir('Descargas Comprador Contratos')
       console.dir(datos);
@@ -1311,6 +1318,7 @@ function InicializarDescargas(){
     var parametros = ObtenerFiltrosPagos();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items'];
+    parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/pagos',parametros).done(function( datos ) {
       console.dir('Descargas Comprador Pagos')
       console.dir(datos);

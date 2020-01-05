@@ -129,6 +129,7 @@
     EliminarEventoModalDescarga('descargaJsonCompradores');
     EliminarEventoModalDescarga('descargaCsvCompradores');
     EliminarEventoModalDescarga('descargaXlsxCompradores');
+    
     $.get(api+"/compradores",parametros).done(function( datos ) {
       console.dir(datos);
     
