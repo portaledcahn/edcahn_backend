@@ -37,6 +37,11 @@ var filtrosAPropiedades={
   "fechaRecepcionPro" : "fechaRecepcion",
   "fechaPublicacionPro" : "fechaPublicacion"
 };
+var categoriaCompra={
+  'goods':{titulo:'Bienes y provisiones',descripcion:'El objeto primario de este proceso de contratación involucra bienes físicos o electrónicos o provisiones'},
+  'works':{titulo:'Obras',descripcion:'El objeto primario de este proceso de contratación involucra construcción, reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
+  'services':{titulo:'Servicios',descripcion:'El objeto primario de este proceso de contratación involucra servicios profesionales de alguna manera, generalmente contratados en la forma de resultados medibles o entregables.'}
+}
 $(function(){
     proveedorId= decodeURIComponent($('#proveedorId').val());
     $.datepicker.regional['es'] = {
@@ -181,7 +186,7 @@ function CantidadResultadosProducto(numero){
   PushDireccionProductos(AccederUrlPagina({paginaPro:1,paginarPorPro:numero}));
 }
 function AsignarEventosFiltro(selector,sufijo,funcionFiltros,funcionInput){
-  $(selector+' .campoFiltrado input[type="text"]').on(
+  $(selector+' .campoFiltrado input[type="text"], '+selector+' .campoFiltrado select.campoBlancoTextoSeleccion').on(
     {'change': function(e){
       var elemento=$(e.currentTarget);
       var elementoPadre=elemento.closest('.campoFiltrado');
@@ -476,7 +481,7 @@ $('<div>',{class:''})
       $(selector).append(
         $('<tr>').append(
           $('<td>',{'data-label':'Comprador'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyerFullName)}).text(resultados[i]._source.extra.buyerFullName):''
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyerFullName)}).text( resultados[i]._source.buyer&&resultados[i]._source.buyer.name?resultados[i]._source.buyer.name:resultados[i]._source.extra.buyerFullName/*resultados[i]._source.extra.buyerFullName*/):''
           ),
           $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoIzquierda'}).append(
             resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id, toolTexto:resultados[i]._source.title}).text( ReducirTexto(resultados[i]._source.title,80)) :''
@@ -489,7 +494,8 @@ $('<div>',{class:''})
             resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderTitle ? resultados[i]._source.extra.tenderTitle : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
         ),
         $('<td>', { 'data-label': 'Categoría de Compras', class: 'textoAlineadoCentrado' }).append(
-            resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderMainProcurementCategory ? resultados[i]._source.extra.tenderMainProcurementCategory : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+
+            resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderMainProcurementCategory ? (categoriaCompra[resultados[i]._source.extra.tenderMainProcurementCategory]?categoriaCompra[resultados[i]._source.extra.tenderMainProcurementCategory].titulo: resultados[i]._source.extra.tenderMainProcurementCategory) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
         ),
                 $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
@@ -519,8 +525,8 @@ $('<div>',{class:''})
             
             ),
             $('<td>',{'data-label':'Estado' ,class:'textoAlineadoCentrado'}).append(
-                resultados[i]&&resultados[i]._source&&resultados[i]._source.status?resultados[i]._source.status:''
-                ),
+                resultados[i]&&resultados[i]._source&&resultados[i]._source.status ?(estadosContrato[resultados[i]._source.status]? estadosContrato[resultados[i]._source.status].titulo:resultados[i]._source.status):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                )
         )
       )
     }

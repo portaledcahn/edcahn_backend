@@ -653,7 +653,7 @@ class Proveedores(APIView):
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=60)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=120)
 
 		s = Search(using=cliente, index='edca')
 

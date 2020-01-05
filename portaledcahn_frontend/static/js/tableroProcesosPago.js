@@ -136,7 +136,7 @@ function InicializarCantidadPagos(){
                         type:'bar',
                         data:datos.resultados.cantidadpagos,
                         itemStyle:{
-                            color: ObtenerColores('Pastel3')[0]
+                            color: ObtenerColores('Pastel1')[0]
                         }
                     },
                     {
@@ -148,13 +148,13 @@ function InicializarCantidadPagos(){
                         symbolSize: 10,
                         lineStyle: {
                             normal: {
-                                color: ObtenerColores('Pastel3')[9],
+                                color: ObtenerColores('Pastel1')[9],
                                 width: 4/*,
                                 type: 'dashed'*/
                             }
                         },
                         itemStyle:{
-                            color: ObtenerColores('Pastel3')[9]
+                            color: ObtenerColores('Pastel1')[9]
                         },
                         yAxisIndex:1
                     }
@@ -345,7 +345,7 @@ function InicializarMontoPagos(){
                     type:'bar',
                     data:datos.resultados.montopagos,
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[1]
+                        color: ObtenerColores('Pastel1')[1]
                     }
                 },/*
                 {
@@ -353,7 +353,7 @@ function InicializarMontoPagos(){
                     type:'bar',
                     data:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[3]
+                        color: ObtenerColores('Pastel1')[3]
                     }
                 },*/
                 {
@@ -364,13 +364,13 @@ function InicializarMontoPagos(){
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color: ObtenerColores('Pastel3')[9],
+                            color: ObtenerColores('Pastel1')[9],
                             width: 4/*,
                             type: 'dashed'*/
                         }
                     },
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[9]
+                        color: ObtenerColores('Pastel1')[9]
                     },
                     yAxisIndex:1
                 }/*,
@@ -382,12 +382,12 @@ function InicializarMontoPagos(){
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color:ObtenerColores('Pastel3')[2],
+                            color:ObtenerColores('Pastel1')[2],
                             width: 4
                         }
                     },
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[2]
+                        color: ObtenerColores('Pastel1')[2]
                     }
                 }*/
             ]
@@ -734,7 +734,7 @@ function MontoPagosEtapas(){
                     type:'bar',
                     data:datos.resultados.montos,
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[3]
+                        color: ObtenerColores('Pastel1')[3]
                     },
                     seriesLayoutBy: 'row',
                     label:{
@@ -804,7 +804,7 @@ function MontoPagosEtapas(){
                             type:'bar',
                             data:datos.resultados.montos,
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[3]
+                                color: ObtenerColores('Pastel1')[3]
                             },
                             seriesLayoutBy: 'row',
                             label:{
@@ -898,7 +898,7 @@ function TiempoPromedioEtapas(){
                 },
                 data: [320],
                 itemStyle:{
-                    color: ObtenerColores('Pastel3')[0]
+                    color: ObtenerColores('Pastel1')[0]
                 }
             },
             {
@@ -913,7 +913,7 @@ function TiempoPromedioEtapas(){
                 },
                 data: [120],
                 itemStyle:{
-                    color: ObtenerColores('Pastel3')[3]
+                    color: ObtenerColores('Pastel1')[3]
                 }
 
                 
@@ -930,7 +930,7 @@ function TiempoPromedioEtapas(){
                 },
                 data: [220],
                 itemStyle:{
-                    color: ObtenerColores('Pastel3')[3]
+                    color: ObtenerColores('Pastel1')[3]
                 }
             },
             {
@@ -945,7 +945,7 @@ function TiempoPromedioEtapas(){
                 },
                 data: [150],
                 itemStyle:{
-                    color: ObtenerColores('Pastel3')[2]
+                    color: ObtenerColores('Pastel1')[2]
                 }
             }
         ],
@@ -1067,7 +1067,7 @@ function Top10Compradores(){
                             type:'bar',
                             data:datos.resultados.montos.reverse(),
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[9]
+                                color: ObtenerColores('Pastel1')[9]
                             },
                             label: {
                                 normal: {
@@ -1133,7 +1133,7 @@ function Top10Compradores(){
                                     type:'bar',
                                     data:datos.resultados.montos.reverse(),
                                     itemStyle:{
-                                        color: ObtenerColores('Pastel3')[9]
+                                        color: ObtenerColores('Pastel1')[9]
                                     },
                                     label: {
                                         normal: {
@@ -1264,7 +1264,7 @@ MostrarReloj('#top10Proveedores',true);
                                     },
                                     data: datos.resultados.montos.reverse(),
                                     itemStyle:{
-                                        color: ObtenerColores('Pastel3')[0]
+                                        color: ObtenerColores('Pastel1')[0]
                                     }
                                 }
                             ],
@@ -1318,7 +1318,7 @@ MostrarReloj('#top10Proveedores',true);
                                             },
                                             data: datos.resultados.montos.reverse(),
                                             itemStyle:{
-                                                color: ObtenerColores('Pastel3')[0]
+                                                color: ObtenerColores('Pastel1')[0]
                                             }
                                         }
                                     ],
@@ -1437,7 +1437,7 @@ MostrarReloj('#top10MontosProcesos',true);
                                 },
                                 data: datos.resultados.montos.reverse(),
                                 itemStyle:{
-                                    color: ObtenerColores('Pastel3')[2]
+                                    color: ObtenerColores('Pastel1')[2]
                                 }
                             }/*,
                             {
@@ -1522,7 +1522,7 @@ MostrarReloj('#top10MontosProcesos',true);
                                             },
                                             data: datos.resultados.montos.reverse(),
                                             itemStyle:{
-                                                color: ObtenerColores('Pastel3')[2]
+                                                color: ObtenerColores('Pastel1')[2]
                                             }
                                         }
                                     ],
@@ -1571,7 +1571,7 @@ function SegregacionMontosContratos(){
                     value: 20
                 }],
                 itemStyle:{
-                    color: ObtenerColores('Pastel3')[9]
+                    color: ObtenerColores('Pastel1')[9]
                 }
             },
             {
@@ -1588,7 +1588,7 @@ function SegregacionMontosContratos(){
                     value: 20
                 }],
                 itemStyle: {
-                    color: ObtenerColores('Pastel3')[3]
+                    color: ObtenerColores('Pastel1')[3]
                 }
             }, 
             {
@@ -1605,7 +1605,7 @@ function SegregacionMontosContratos(){
                     value: 20
                 }],
                 itemStyle: {
-                    color: ObtenerColores('Pastel3')[2]/*function(e){
+                    color: ObtenerColores('Pastel1')[2]/*function(e){
                         var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
                         return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
                     }*/
@@ -1628,7 +1628,7 @@ function SegregacionMontosContratos(){
                     }]
                 }],
                 itemStyle: {
-                    color: ObtenerColores('Pastel3')[1]/*function(e){
+                    color: ObtenerColores('Pastel1')[1]/*function(e){
                         var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
                         return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
                     }*/
@@ -1651,7 +1651,7 @@ function SegregacionMontosContratos(){
                     }]
                 }],
                 itemStyle: {
-                    color: ObtenerColores('Pastel3')[0]/*function(e){
+                    color: ObtenerColores('Pastel1')[0]/*function(e){
                         var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
                         return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
                     }*/
@@ -1781,13 +1781,13 @@ $.get(api+"/dashboardsefin/estadisticacantidaddepagos/",parametros).done(functio
     console.dir('cantidad***')
 console.dir(datos);
     $('#CantidadPagosPromedio').attr('data-to',datos.resultados.promedio);
-    $('#CantidadPagosPromedio').parent().css({'color':ObtenerColores('Pastel3')[1]});
+    $('#CantidadPagosPromedio').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadPagosMenor').attr('data-to',datos.resultados.menor);
-    $('#CantidadPagosMenor').parent().css({'color':ObtenerColores('Pastel3')[1]});
+    $('#CantidadPagosMenor').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadPagosMayor').attr('data-to',datos.resultados.mayor);
-    $('#CantidadPagosMayor').parent().css({'color':ObtenerColores('Pastel3')[1]});
+    $('#CantidadPagosMayor').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadPagosTotal').attr('data-to',datos.resultados.total);
-    $('#CantidadPagosTotal').parent().css({'color':ObtenerColores('Pastel3')[1]});
+    $('#CantidadPagosTotal').parent().css({'color':ObtenerColores('Pastel1')[1]});
 /*
     $('.conteo').not('.moneda').countTo({
         formatter: function (value, options) {

@@ -138,7 +138,7 @@ function ModalidadMontoCantidad(){
                     type:'bar',
                     data:datos.resultados.cantidadContratos,
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[1]
+                        color: ObtenerColores('Pastel1')[1]
                     },
                     barWidth:30,
                     barCategoryGap:'20%',
@@ -164,13 +164,13 @@ function ModalidadMontoCantidad(){
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color: ObtenerColores('Pastel3')[0],
+                            color: ObtenerColores('Pastel1')[0],
                             width: 4/*,
                             type: 'dashed'*/
                         }
                     },
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[0]
+                        color: ObtenerColores('Pastel1')[0]
                     }
     
                     
@@ -253,7 +253,7 @@ function ModalidadMontoCantidad(){
                             type:'bar',
                             data:datos.resultados.cantidadContratos,
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[1]
+                                color: ObtenerColores('Pastel1')[1]
                             },
                             barWidth:20,
                             barCategoryGap:'10%',
@@ -279,13 +279,13 @@ function ModalidadMontoCantidad(){
                             symbolSize: 10,
                             lineStyle: {
                                 normal: {
-                                    color: ObtenerColores('Pastel3')[0],
+                                    color: ObtenerColores('Pastel1')[0],
                                     width: 4/*,
                                     type: 'dashed'*/
                                 }
                             },
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[0]
+                                color: ObtenerColores('Pastel1')[0]
                             }
             
                             
@@ -371,7 +371,7 @@ var opciones = {
             data: datosPastel,
             itemStyle: {
                 color: function(e){
-                    var colores=ObtenerColores('Pastel3');
+                    var colores=ObtenerColores('Pastel1');
                     return colores[e.dataIndex];
                 },
                 emphasis: {
@@ -408,7 +408,7 @@ var opciones = {
                         data: datosPastel,
                         itemStyle: {
                             color: function(e){
-                                var colores=ObtenerColores('Pastel3');
+                                var colores=ObtenerColores('Pastel1');
                                 return colores[e.dataIndex];
                             },
                             emphasis: {
@@ -500,7 +500,7 @@ var datosPastel=[];
                     data: datosPastel,
                     itemStyle: {
                         color: function(e){
-                            var colores=ObtenerColores('Pastel3');
+                            var colores=ObtenerColores('Pastel1');
                             return colores[e.dataIndex];
                         },
                         emphasis: {
@@ -541,7 +541,7 @@ var datosPastel=[];
                             data: datosPastel,
                             itemStyle: {
                                 color: function(e){
-                                    var colores=ObtenerColores('Pastel3');
+                                    var colores=ObtenerColores('Pastel1');
                                     return colores[e.dataIndex];
                                 },
                                 emphasis: {
@@ -680,7 +680,7 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                     type:'bar',
                     data:datos.resultados.montoContratado.reverse(),
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[1]
+                        color: ObtenerColores('Pastel1')[1]
                     },
                     label: {
                         normal: {
@@ -707,13 +707,13 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color: ObtenerColores('Pastel3')[0],
+                            color: ObtenerColores('Pastel1')[0],
                             width: 4/*,
                             type: 'dashed'*/
                         }
                     },
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[0]
+                        color: ObtenerColores('Pastel1')[0]
                     },
                     xAxisIndex: 1
                 }
@@ -784,7 +784,7 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                             type:'bar',
                             data:datos.resultados.montoContratado.reverse(),
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[1]
+                                color: ObtenerColores('Pastel1')[1]
                             },
                             label: {
                                 normal: {
@@ -812,13 +812,13 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                             symbolSize: 10,
                             lineStyle: {
                                 normal: {
-                                    color:ObtenerColores('Pastel3')[0],
+                                    color:ObtenerColores('Pastel1')[0],
                                     width: 4/*,
                                     type: 'dashed'*/
                                 }
                             },
                             itemStyle:{
-                                color:ObtenerColores('Pastel3')[0]
+                                color:ObtenerColores('Pastel1')[0]
                             },
                             xAxisIndex: 0,
                             yAxisIndex: 1
@@ -937,7 +937,7 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                     type:'bar',
                     data:datos.resultados.montoContratado.reverse(),
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[2]
+                        color: ObtenerColores('Pastel1')[2]
                     },
                     label: {
                         normal: {
@@ -964,13 +964,13 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color: ObtenerColores('Pastel3')[0],
+                            color: ObtenerColores('Pastel1')[0],
                             width: 4/*,
                             type: 'dashed'*/
                         }
                     },
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[0]
+                        color: ObtenerColores('Pastel1')[0]
                     },
                     xAxisIndex: 1
                 }
@@ -1040,7 +1040,7 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                             type:'bar',
                             data:datos.resultados.montoContratado.reverse(),
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[2]
+                                color: ObtenerColores('Pastel1')[2]
                             },
                             label: {
                                 normal: {
@@ -1067,13 +1067,13 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                             symbolSize: 10,
                             lineStyle: {
                                 normal: {
-                                    color:ObtenerColores('Pastel3')[0],
+                                    color:ObtenerColores('Pastel1')[0],
                                     width: 4/*,
                                     type: 'dashed'*/
                                 }
                             },
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[0]
+                                color: ObtenerColores('Pastel1')[0]
                             },
                             xAxisIndex: 0,
                             yAxisIndex: 1

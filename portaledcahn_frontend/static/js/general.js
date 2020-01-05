@@ -4,7 +4,11 @@ var estadosContrato={
     'pending':{titulo:'Pendiente',descripcion:'Este contrato se propuso pero aún no entra en vigor. Puede estar esperando ser firmado.'},
     'active':{titulo:'Activo',descripcion:'Este contrato se ha firmado por todas las partes y ahora está legalmente en proceso.'},
     'cancelled':{titulo:'Cancelado',descripcion:'Este contrato se canceló antes de ser firmado.'},
-    'unsuccessful':{titulo:'Sin Éxito',descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'}
+    'unsuccessful':{titulo:'Sin Éxito',descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'},
+    'terminated':{
+        titulo:'Terminado',
+        descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'
+    }
    };
 var defaultMoneda='HNL';
 
@@ -20,7 +24,11 @@ function DebugFecha(){
 function ObtenerColores(paleta){
     var Paletas={
         'Basica':['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED','#6569CC'],
-        'Pastel1':['#17B793','#927FBF','#285189','#04869C','#4F3B78','#9E0B28','#A64942','#F30A49','#523549','#0B3C77'],
+
+
+        'Pastel1':[/*'#17B793','#927FBF',*/'#285189','#04869C','#4F3B78','#9E0B28','#DA517A'/*'#F30A49',*/,'#0B3C77','#DA517A','#DA517A','#DA517A','#DA517A'],
+
+
         'Pastel2':['#82CCB5','#DD86B9','#FFF68F','#F9B48A','#F497AA','#B6D884','#6BCADE','#71ABDD','#FDCD7B','#9977B4'],
         'Pastel3':['#9DDAEC','#F29AC0','#FEDDB4','#FFAAA5','#C1ACD3','#B9DB9F','#B0DDD6','#DCEDC1','#EDEEA2','#FF8B94']
     }
