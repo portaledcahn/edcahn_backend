@@ -333,7 +333,7 @@
         $(selector).append(
           $('<tr>').append(
             $('<td>',{'data-label':'Comprador'}).append(
-              $('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i].uri)}).text(resultados[i].name)
+              $('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i].id/*uri*/)}).text(resultados[i].name)
             ),
             $('<td>',{'data-label':'Procesos' ,class:'textoAlineadoCentrado'}).text(ValorNumerico(resultados[i].procesos)),
             $('<td>',{'data-label':'Total de Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].total_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
@@ -414,6 +414,7 @@
     var parametros=ObtenerFiltros();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items'];
+    //parametros['tid']='id';
     $.get(api+"/compradores",parametros).done(function( datos ) {
       console.dir('Descargas Compradores')
       console.dir(datos);
@@ -429,7 +430,7 @@
             'MayorMontoContratado':e.mayor_monto_contratado,
             'MenorMontoContratado':e.menor_monto_contratado,
             'FechaUltimoProceso':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
-            'Enlace':url+'/comprador/'+encodeURIComponent(e.uri)
+            'Enlace':url+'/comprador/'+encodeURIComponent(e.id/*uri*/)
           };
         });
         DescargarJSON(descarga,'Compradores');
@@ -445,7 +446,7 @@
             'MayorMontoContratado':e.mayor_monto_contratado,
             'MenorMontoContratado':e.menor_monto_contratado,
             'FechaUltimoProceso':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
-            'Enlace':url+'/comprador/'+encodeURIComponent(e.uri)
+            'Enlace':url+'/comprador/'+encodeURIComponent(e.id/*uri*/)
           };
         });
         DescargarCSV(ObtenerMatrizObjeto(descarga) ,'Compradores');
@@ -461,7 +462,7 @@
             'MayorMontoContratado':e.mayor_monto_contratado,
             'MenorMontoContratado':e.menor_monto_contratado,
             'FechaUltimoProceso':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
-            'Enlace':url+'/comprador/'+encodeURIComponent(e.uri)
+            'Enlace':url+'/comprador/'+encodeURIComponent(e.id/*uri*/)
           };
         });
         DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Compradores');
