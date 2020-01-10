@@ -653,7 +653,7 @@ class Proveedores(APIView):
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=120)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=60)
 
 		s = Search(using=cliente, index='edca')
 
@@ -903,7 +903,7 @@ class ContratosDelProveedor(APIView):
 		filtros = []
 
 		if comprador.replace(' ',''):
-			filtro = Q("match", buyer__name=comprador)
+			filtro = Q("match", extra__buyerFullName=comprador)
 			filtros.append(filtro)
 
 		if titulo.replace(' ',''):
@@ -1807,7 +1807,8 @@ class ProcesosDelComprador(APIView):
 			'doc.ocid', 
 			'doc.compiledRelease.date',
 			'doc.compiledRelease.tender',
-			'doc.compiledRelease.contracts', 
+			'doc.compiledRelease.contracts',
+			'doc.compiledRelease.buyer',
 			'extra'
 		]
 
@@ -1817,7 +1818,13 @@ class ProcesosDelComprador(APIView):
 		partieId = urllib.parse.unquote_plus(partieId)
 
 		if tipoIdentificador == 'id':
-			s = s.filter('match_phrase', doc__compiledRelease__buyer__id__keyword=partieId)
+			qPartieId1 = Q('match_phrase', doc__compiledRelease__buyer__id__keyword=partieId)
+			qPartieId2 = Q('match_phrase', extra__parent1__id__keyword=partieId)
+			qPartieId3 = Q('match_phrase', extra__parent2__id__keyword=partieId)
+
+			qPartieId = Q('bool', should=[qPartieId1, qPartieId2, qPartieId3])
+
+			s = s.filter(qPartieId)
 		else:
 			if dependencias == '1':
 				s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
@@ -1843,7 +1850,7 @@ class ProcesosDelComprador(APIView):
 			filtros.append(filtro)
 
 		if categoriaCompra.replace(' ',''):
-			filtro = Q("match", doc__compiledRelease__tender__procurementMethodDetails__keyword=categoriaCompra)
+			filtro = Q("match", doc__compiledRelease__tender__procurementMethodDetails=categoriaCompra)
 			filtros.append(filtro)
 
 		if estado.replace(' ',''):
@@ -2059,10 +2066,9 @@ class ContratosDelComprador(APIView):
 		# Sección de filtros
 		filtros = []
 
-		# s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
-
 		if proveedor.replace(' ',''):
-			filtro = Q("match", supplier__name=proveedor)
+			qProveedor = Q('match', suppliers__name=proveedor) 
+			filtro = Q('nested', path='suppliers', query=qProveedor)
 			filtros.append(filtro)
 
 		if titulo.replace(' ',''):
@@ -2272,7 +2278,7 @@ class PagosDelComprador(APIView):
 			filtros.append(filtro)
 
 		if proveedor.replace(' ',''):
-			qProveedor = Q('match', implementation__transactions__payee__name__keyword=proveedor) 
+			qProveedor = Q('match', implementation__transactions__payee__name=proveedor) 
 			s = s.query('nested', path='implementation.transactions', query=qProveedor)
 
 		if titulo.replace(' ',''):

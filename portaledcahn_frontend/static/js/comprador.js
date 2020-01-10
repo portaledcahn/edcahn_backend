@@ -788,7 +788,7 @@ function AgregarResultadosProcesosComprador(datos, selector) {
                     )
 
                 ),
-                $('<td>', { 'data-label': 'Estado' }).append(
+                $('<td>', { 'data-label': 'Estado' , class: 'textoAlineadoCentrado'}).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.lastSection ? (estadoProceso[resultados[i]._source.extra.lastSection]?estadoProceso[resultados[i]._source.extra.lastSection].titulo: resultados[i]._source.extra.lastSection)
                      : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),

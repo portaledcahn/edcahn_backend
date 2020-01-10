@@ -129,7 +129,7 @@
     EliminarEventoModalDescarga('descargaJsonCompradores');
     EliminarEventoModalDescarga('descargaCsvCompradores');
     EliminarEventoModalDescarga('descargaXlsxCompradores');
-    
+    parametros['tid']='id';
     $.get(api+"/compradores",parametros).done(function( datos ) {
       console.dir(datos);
     
@@ -414,7 +414,7 @@
     var parametros=ObtenerFiltros();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items'];
-    //parametros['tid']='id';
+    parametros['tid']='id';
     $.get(api+"/compradores",parametros).done(function( datos ) {
       console.dir('Descargas Compradores')
       console.dir(datos);
