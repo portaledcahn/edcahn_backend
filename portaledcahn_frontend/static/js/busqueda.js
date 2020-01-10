@@ -175,9 +175,11 @@ function CargarElementosBusqueda(cargaFiltro){
     });
 }
 function MostrarResumen(datos){
-  $('#totalCompradores').html(ObtenerNumero(datos.resumen.compradores_total));
-    $('#totalProcesos').html(ObtenerNumero(datos.resumen.procesos_total));
-    $('#totalProveedores').html(ObtenerNumero(datos.resumen.proveedores_total));
+
+ 
+  $('#totalCompradores').html(ValorNumerico(datos.resumen.compradores_total));
+    $('#totalProcesos').html(ValorNumerico(datos.resumen.procesos_total));
+    $('#totalProveedores').html(ValorNumerico(datos.resumen.proveedores_total));
     $('#promedioMonto').html(ValorMoneda(datos.resumen.monto_promedio)+' HNL');
 }
 function MostrarResultados(datos){
@@ -892,7 +894,7 @@ function AgregarPropiedadesListaElastica(valor,llave){
           CargarElementosBusqueda(true);
         }
       }}).append(
-        $('<div class="badge">').text(propiedades.doc_count),
+        $('<div class="badge">').text(ValorNumerico(propiedades.doc_count)),
         $('<div >',{
         class:'elastic-data',
         
