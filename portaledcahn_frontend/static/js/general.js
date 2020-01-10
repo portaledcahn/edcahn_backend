@@ -485,7 +485,7 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     if(arreglo){
       elementos=arreglo;
     }
-    var partes=fuente?fuente.parties:procesoRecord.compiledRelease.parties;
+    var partes=fuente&&fuente.parties?fuente.parties:((typeof(procesoRecord)!='undefined')&&procesoRecord.compiledRelease&&procesoRecord.compiledRelease.parties?procesoRecord.compiledRelease.parties:[]);
     for(var i = 0; i < partes.length;i++){
         if(partes[i].id == id){
           elementos.push(partes[i]);

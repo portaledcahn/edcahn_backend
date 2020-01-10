@@ -762,7 +762,8 @@ function AgregarResultadosProcesosComprador(datos, selector) {
         $(selector).append(
             $('<tr>').append(
                 $('<td>', { 'data-label': 'Comprador' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.buyer && resultados[i]._source.extra.buyer.id ? $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.extra.buyer.id) }).text(resultados[i]._source.extra.buyerFullName) : ''
+                resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.buyer && resultados[i]._source.doc.compiledRelease.buyer.id ?  /*ObtenerElementosParte(resultados[i]._source.doc.compiledRelease.buyer.id,resultados[i]._source.doc.compiledRelease)*/
+                $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.doc.compiledRelease.buyer.id)}).text(resultados[i]._source.doc.compiledRelease.buyer.name) :  $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
                 $('<td>', { 'data-label': 'Id del Proceso' }).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.ocid ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.doc.ocid) }).text(resultados[i]._source.doc.ocid) : ''
