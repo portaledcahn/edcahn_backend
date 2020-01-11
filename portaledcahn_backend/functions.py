@@ -1,5 +1,7 @@
 #Funciones compartidas. 
 import re 
+import datetime
+import dateutil
 
 def validateSortParam(param):
 	pattern = '^desc\(([^)]+)\)$|^asc\(([^)]+)\)$'
@@ -146,3 +148,55 @@ def NombreDelMes(numero_mes):
 		return respuesta
 	except:
 		return "No definido"
+
+"""
+	Parametros
+		paquetes = lista de models PackageData.
+		md5 = md5 del listado de releases.
+	retorna:
+		diccionario con los metadatos de un paquete. 
+"""
+def generarMetaDatosPaquete(paquetes, md5):
+
+	uri = ''
+	license = ''
+	version = '1.1'
+	publisher = {}
+	extensions = []
+	publishedDate = ''
+	publicationPolicy = ''
+	releases = []
+
+	metaDatosPaquete = {}
+
+	fechaActual = datetime.datetime.now(dateutil.tz.tzoffset('UTC', -6*60*60))
+	publishedDate = fechaActual.isoformat()
+
+	for p in paquetes:
+		print("paquete", p)
+
+		paquete = p.data
+
+		print(paquete)
+
+		# license = paquete['license']
+
+		# print(license)
+
+		# version = paquete['version']
+		# publisher = paquete['publisher']
+		# publicationPolicy = paquete['publicationPolicy']
+
+		# for e in paquete['extensions']:
+		# 	if not e in extensions:
+		# 		extensions.append(e)
+
+	# metaDatosPaquete["uri"] = md5
+	# metaDatosPaquete["version"] = version
+	# metaDatosPaquete["publishedDate"] = publishedDate
+	# metaDatosPaquete["publisher"] = publisher
+	# metaDatosPaquete["extensions"] = extensions
+	# metaDatosPaquete["license"] = license
+	# metaDatosPaquete["publicationPolicy"] = publicationPolicy
+
+	return metaDatosPaquete

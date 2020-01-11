@@ -5,8 +5,14 @@ from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from portaledcahn_backend import documents as articles_documents
 
 class ReleaseSerializer(serializers.BaseSerializer):
+    
     def to_representation(self, obj):
-        return obj.data.data
+        result = {}
+
+        result["package_data_id"] = obj.package_data.id
+        result["data"] = obj.data.data
+
+        return result
 
 class RecordSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
