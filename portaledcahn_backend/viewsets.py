@@ -91,13 +91,45 @@ class Releases(APIView, PaginationHandlerMixin):
 	serializer_class = ReleaseSerializer
 
 	def get(self, request, format=None, *args, **kwargs):
+
+		print("Hii")
+
+		respuesta = {}
+
 		instance = Release.objects.all()
 		page = self.paginate_queryset(instance)
+
 		if page is not None:
 			serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
 		else:
+			# enviar un 502. 
 			serializer = self.serializer_class(instance, many=True)
-		return Response(serializer.data, status=status.HTTP_200_OK)
+
+		print("### Serializador.")
+
+		results = []
+		paquetesIds = {}
+
+		paquetesIds = set()
+
+		for d in serializer.data["results"]:
+			results.append(d["data"])
+
+			paquetesIds.add(d["package_data_id"])
+			paquetesIds.add(545182)
+
+		print("PaquetesId", list(paquetesIds))
+
+		paquetes = PackageData.objects.filter(id__in=list(paquetesIds))
+
+		metadataPaquete = generarMetaDatosPaquete(paquetes, 'asd123')
+
+		respuesta["count"] = serializer.data["count"]
+		respuesta["next"] = serializer.data["next"]
+		respuesta["previous"] = serializer.data["previous"]
+		respuesta["results"] = results
+
+		return Response(respuesta, status=status.HTTP_200_OK)
 
 class GetRelease(APIView):
 
@@ -397,6 +429,8 @@ class Buscador(APIView):
 	def get(self, request, format=None):
 		precision = 40000
 		sourceSEFIN = 'HN.SIAFI2'
+		noMoneda = 'Sin monto de contrato'
+		noMonedaPago = 'Sin monto pagado'
 
 		page = int(request.GET.get('pagina', '1'))
 		metodo = request.GET.get('metodo', 'proceso')
@@ -424,7 +458,7 @@ class Buscador(APIView):
 		#Filtros
 		s.aggs.metric('contratos', 'nested', path='doc.compiledRelease.contracts')
 
-		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword', missing='Sin moneda')
+		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword', missing=noMoneda)
 
 		s.aggs["contratos"]["monedas"].metric("nProcesos", "reverse_nested")
 
@@ -504,7 +538,7 @@ class Buscador(APIView):
 			)
 
 		if moneda.replace(' ', ''): 
-			if urllib.parse.unquote(moneda) == 'Sin moneda':
+			if urllib.parse.unquote(moneda) == noMoneda or urllib.parse.unquote(moneda) == noMonedaPago:
 				qqMoneda = Q('exists', field='doc.compiledRelease.contracts.value.currency') 
 				qqqMoneda = Q('nested', path='doc.compiledRelease.contracts', query=qqMoneda)
 				qMoneda = Q('bool', must_not=qqqMoneda)
@@ -553,7 +587,12 @@ class Buscador(APIView):
 				sinMoneda = results.hits.total - conMoneda
 
 				if sinMoneda > 0:
-					monedas.append({"key":"Sin moneda", "doc_count":sinMoneda})
+					keyMoneda = noMoneda
+					
+					if metodo == 'pago':
+						keyMoneda = noMonedaPago
+
+					monedas.append({"key": keyMoneda, "doc_count":sinMoneda})
 
 		paginator = Paginator(search_results, settings.PAGINATE_BY)
 
@@ -653,7 +692,7 @@ class Proveedores(APIView):
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=60)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=120)
 
 		s = Search(using=cliente, index='edca')
 
@@ -686,11 +725,11 @@ class Proveedores(APIView):
 
 		s.aggs['proveedores'].metric('filtros', 'filter', filter=filtro)
 
-		s.aggs['proveedores']['filtros'].metric('id', 'terms', field='doc.compiledRelease.contracts.suppliers.id.keyword', size=2000, order={"totales>total_monto_contratado": "desc"})
+		s.aggs['proveedores']['filtros'].metric('id', 'terms', field='doc.compiledRelease.contracts.suppliers.id.keyword', size=30000, order={"totales>total_monto_contratado": "desc"})
 		
 		s.aggs['proveedores']['filtros']['id'].metric('totales','reverse_nested', path='doc.compiledRelease.contracts')
 		s.aggs['proveedores']['filtros']['id']['totales'].metric('total_monto_contratado', 'sum', field='doc.compiledRelease.contracts.value.amount')
-		s.aggs['proveedores']['filtros']['id'].metric('name', 'terms', field='doc.compiledRelease.contracts.suppliers.name.keyword', size=2000)
+		s.aggs['proveedores']['filtros']['id'].metric('name', 'terms', field='doc.compiledRelease.contracts.suppliers.name.keyword', size=1000)
 
 		s.aggs['proveedores']['filtros']['id']['name'].metric('totales','reverse_nested', path='doc.compiledRelease.contracts')
 		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('total_monto_contratado', 'sum', field='doc.compiledRelease.contracts.value.amount')
@@ -1364,6 +1403,8 @@ class ProductosDelProveedor(APIView):
 		parametros["clasificacion"] = clasificacion
 		parametros["cantidadContratos"] = cantidadContratos
 		parametros["monto"] = monto
+		parametros["paginarPor"] = paginarPor
+		parametros["pagina"] = page
 
 		context = {
 			#"elasticsearch": results.to_dict(), 
@@ -3490,7 +3531,7 @@ class FiltrosDashboardONCAE(APIView):
 			'monedasContratoFechaFirma', 
 			'terms',
 			field='value.currency.keyword', 
-			missing='No Definido',
+			# missing='No Definido',
 			size=10000
 		)
 
@@ -3505,7 +3546,7 @@ class FiltrosDashboardONCAE(APIView):
 			'monedasContratoFechaInicio', 
 			'terms',
 			field='value.currency.keyword',
-			missing='No Definido', 
+			# missing='No Definido', 
 			size=10000
 		)
 
@@ -3576,6 +3617,8 @@ class FiltrosDashboardONCAE(APIView):
 				else:
 					anios[value["key_as_string"]]["contratos"] = value["doc_count"]
 			else:
+				anios[value["key_as_string"]] = {}
+				anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
 				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
 
 		for value in aniosFechaInicio["buckets"]:

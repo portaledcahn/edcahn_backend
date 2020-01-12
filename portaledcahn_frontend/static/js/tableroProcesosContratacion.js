@@ -126,13 +126,13 @@ function ObtenerFiltros(){
 
 function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('moneda'))){
-        parametros['moneda']=ObtenerValor('moneda');
+        parametros['moneda']=decodeURIComponent(ObtenerValor('moneda'));
     }
     if(Validar(ObtenerValor('idinstitucion'))){
     parametros['idinstitucion']=decodeURIComponent(ObtenerValor('idinstitucion'));
     }
     if(Validar(ObtenerValor('año'))){
-      parametros['año']=ObtenerValor('año');
+      parametros['año']=decodeURIComponent(ObtenerValor('año'));
     }
     if(Validar(ObtenerValor('proveedor'))){
         parametros['proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
@@ -884,8 +884,8 @@ function TiempoPromedioEtapas(){
                 position:'bottom',
                 formatter:function(e){
                     valores={
-                        'Licitación':Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion)),
-                        'Contrato':Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))
+                        'Período de Licitación':Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion)),
+                        'Período de Inicio Contrato':Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))
 
                     }
                     return e+', '+valores[e]+' Días';
@@ -912,7 +912,7 @@ function TiempoPromedioEtapas(){
             },
             series: [
                 {
-                    name: 'Licitación',
+                    name: 'Período de Licitación',
                     type: 'bar',
                     stack: 'Tiempo',
                     label: {
@@ -929,7 +929,7 @@ function TiempoPromedioEtapas(){
                     
                 },
                 {
-                    name: 'Contrato',
+                    name: 'Período de Inicio Contrato',
                     type: 'bar',
                     stack: 'Tiempo',
                     label: {

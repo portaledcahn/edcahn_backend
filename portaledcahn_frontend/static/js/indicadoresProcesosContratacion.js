@@ -1148,13 +1148,13 @@ function CargarGraficos(){
 }
 function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('moneda'))){
-        parametros['moneda']=ObtenerValor('moneda');
+        parametros['moneda']=decodeURIComponent(ObtenerValor('moneda'));
     }
     if(Validar(ObtenerValor('idinstitucion'))){
     parametros['idinstitucion']=decodeURIComponent(ObtenerValor('idinstitucion'));
     }
     if(Validar(ObtenerValor('año'))){
-      parametros['año']=ObtenerValor('año');
+      parametros['año']=decodeURIComponent(ObtenerValor('año'));
     }
     if(Validar(ObtenerValor('proveedor'))){
         parametros['proveedor']=decodeURIComponent(ObtenerValor('proveedor'));

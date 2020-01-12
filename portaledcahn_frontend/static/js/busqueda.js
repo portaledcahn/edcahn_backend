@@ -293,7 +293,7 @@ CargarElementosBusqueda()
 
 function ObtenerJsonFiltrosAplicados(parametros,url){
   if(Validar(ObtenerValor('year'))){
-    parametros[url?'year':'años']=ObtenerValor('year');
+    parametros[url?'year':'años']=decodeURIComponent(ObtenerValor('year'));
   }
   if(Validar(ObtenerValor('categoria'))){
     parametros[url?'categoria':'categorias']=decodeURIComponent(ObtenerValor('categoria'));
@@ -305,10 +305,10 @@ function ObtenerJsonFiltrosAplicados(parametros,url){
     parametros[url?'metodo_seleccion':'metodos_de_seleccion']=decodeURIComponent(ObtenerValor('metodo_seleccion'));
   }
   if(Validar(ObtenerValor('moneda'))){
-    parametros[url?'moneda':'monedas']=ObtenerValor('moneda');
+    parametros[url?'moneda':'monedas']=decodeURIComponent(ObtenerValor('moneda'));
   }
   if(Validar(ObtenerValor('proveedor'))){
-    parametros[url?'proveedor':'proveedor']=ObtenerValor('proveedor');
+    parametros[url?'proveedor':'proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
   }
   return parametros;
 }
@@ -585,7 +585,7 @@ function AgregarResultadoContrato(datos){
             )
           )
         ),
-        contrato.value!=undefined&&contrato.value!=null?
+        Validar(contrato.value)?
         $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
           $('<table>',{class:'anchoTotal'}).append(
             $('<tbody>',{class:''}).append(
@@ -596,7 +596,7 @@ function AgregarResultadoContrato(datos){
                       $('<div>',{class:'textoColorGris',text:'Monto del Contrato'}),
                       $('<div>',{class:'valorMonto'}).append(
                         ValorMoneda(contrato.value.amount),
-                        $('<span>',{class:'textoColorPrimario',text:' '+contrato.value.currency})
+                        $('<span>',{class:'textoColorPrimario',text:' '+contrato.value.currency?contrato.value.currency:''})
                       )
                     )
                   )
@@ -605,7 +605,25 @@ function AgregarResultadoContrato(datos){
             )
           )
         )
-        :null
+        :$('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+          $('<table>',{class:'anchoTotal'}).append(
+            $('<tbody>',{class:''}).append(
+              $('<tr>',{class:''}).append(
+                $('<td>',{class:'textoAlineadoDerecha'}).append(
+                  $('<div>',{class:'montoTotalProceso'}).append(
+                    $('<div>',{class:'contenedorMonto'}).append(
+                      $('<div>',{class:'textoColorGris',text:'Monto del Contrato'}),
+                      $('<div>',{class:'valorMonto'}).append(
+                        $('<span>',{class:'textoColorGris',text:'No Disponible'}),
+                        $('<span>',{class:'textoColorPrimario',text:''})
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
         
       )
     )

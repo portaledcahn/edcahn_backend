@@ -111,7 +111,7 @@
             $('<a>',{class:'enlaceTablaGeneral',href:'/proveedor/'+encodeURIComponent(resultados[i].id)}).text(resultados[i].name)
           ),
           $('<td>',{'data-label':'RTN' ,class:'textoAlineadoDerecha'}).text(resultados[i].id),
-          $('<td>',{'data-label':'Procesos' ,class:'textoAlineadoCentrado'}).text(ValorNumerico(resultados[i].procesos)),
+          $('<td>',{'data-label':'Contratos' ,class:'textoAlineadoCentrado'}).text(ValorNumerico(resultados[i].procesos)),
           $('<td>',{'data-label':'Total de Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].total_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
           $('<td>',{'data-label':'Promedio de Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].promedio_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
           $('<td>',{'data-label':'Mayor Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].mayor_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),

@@ -485,7 +485,7 @@ $('<div>',{class:''})
           ),*/
           /*pilas */
           $('<td>',{'data-label':'Comprador'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyer&&resultados[i]._source.extra.buyer.id?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyer.id)}).text( resultados[i]._source.buyer&&resultados[i]._source.buyer.name?resultados[i]._source.buyer.name:resultados[i]._source.extra.buyerFullName):''
+            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyer&&resultados[i]._source.extra.buyer.id?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyer.id)}).text( resultados[i]._source.extra.buyerFullName):''
           ),
           $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoIzquierda'}).append(
             resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id, toolTexto:resultados[i]._source.title}).text( ReducirTexto(resultados[i]._source.title,80)) :''
