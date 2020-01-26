@@ -467,99 +467,116 @@ function download(content, fileName, contentType) {
 function AnadirPartes(){
   if(procesoRecord.compiledRelease.buyer){
     var partes=ObtenerEnlaceParte(procesoRecord.compiledRelease.buyer.id);
-    $('.contenedorElementosProceso').append(
-      $('<div class="col-12 col-sm-12 col-md-12 col-lg-12 mt-3" >').append(
-        $('<div class="cajonSombreado" data-step="3" data-intro="En esta sección puedes visualizar los datos de contacto del comprador.">').append(
-          $('<div class="row mb-1 mt-1">').append(
-            AnadirElementosPartes(partes)
+    if(VerificarAgregarPartes(partes).length){
+      $('.contenedorElementosProceso').append(
+        $('<div class="col-12 col-sm-12 col-md-12 col-lg-12 mt-3" >').append(
+          $('<div class="cajonSombreado" data-step="3" data-intro="En esta sección puedes visualizar los datos de contacto del comprador.">').append(
+            $('<div class="row mb-1 mt-1">').append(
+              AnadirElementosPartes(partes)
+            )
           )
         )
-      )
-    );
+      );
+    }
+    
     
     
   }
 }
 function AnadirElementosPartes(partes){
   var elementos=[];
-  elementos.push(
-    $('<div>',{class:'col-md-12'}).append(
-      $('<h4>',{class:'titularCajonSombreado',style:'color:black'}).append(
-        'Comprador'
-        )
-    )
-  )
-  for(var i=0;i<partes.length;i++){
-    console.dir('PARTES')
-    console.dir(partes);
+
+  
     elementos.push(
       $('<div>',{class:'col-md-12'}).append(
-        $('<h4>',{class:'titularCajonSombreado'}).append(
-          ObtenerElementosParte( partes[i].id,procesoRecord.compiledRelease,'comprador')
-          ),
-        $('<div class="contenedorProceso informacionProceso">').append(
-          $('<div class="contenedorTablaCaracteristicas">').append(
-            $('<table>').append(
-              $('<tbody>').append(
-                    
-                partes[i].address&&partes[i].address.region ? 
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Departamento:',toolTexto:"parties["+i+"].address.region"}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.region})
-                )
-                : null,
-                partes[i].address&&partes[i].address.locality ? 
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Municipio:',toolTexto:"parties["+i+"].address.locality"}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.locality})
-                )
-                : null,
-                partes[i].address&&partes[i].address.streetAddress ? 
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Dirección:',toolTexto:"parties["+i+"].address.streetAddress"}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.streetAddress})
-                )
-                : null,
-                partes[i].contactPoint&&partes[i].contactPoint.name ? 
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Encargado:',toolTexto:"parties["+i+"].contactPoint.name"}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.name})
-                )
-                : null,
-                partes[i].contactPoint&&partes[i].contactPoint.email ? 
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electrónico:',toolTexto:"parties["+i+"].contactPoint.email"}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.email})
-                )
-                : null,
-                partes[i].contactPoint&&partes[i].contactPoint.telephone ? 
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Teléfono:',toolTexto:"parties["+i+"].contactPoint.telephone"}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.telephone})
-                )
-                : null,
-                partes[i].contactPoint&&partes[i].contactPoint.faxNumber ? 
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Fax:',toolTexto:"parties["+i+"].contactPoint.faxNumber"}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.faxNumber})
-                )
-                : null,
-                partes[i].contactPoint&&partes[i].contactPoint.url ? 
-                $('<tr>').append(
-                  $('<td>',{class:'tituloTablaCaracteristicas',text:'Sitio:',toolTexto:"parties["+i+"].contactPoint.url"}),
-                  $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                    $('<a>',{text:partes[i].contactPoint.url,class:'enlaceTablaGeneral',href:partes[i].contactPoint.url})
+        $('<h4>',{class:'titularCajonSombreado',style:'color:black'}).append(
+          'Comprador'
+          )
+      )
+    )
+    for(var i=0;i<partes.length;i++){
+      console.dir('PARTES');
+      console.dir(partes);
+      elementos.push(
+        $('<div>',{class:'col-md-12'}).append(
+          $('<h4>',{class:'titularCajonSombreado'}).append(
+            ObtenerElementosParte( partes[i].id,procesoRecord.compiledRelease,'comprador')
+            ),
+          $('<div class="contenedorProceso informacionProceso">').append(
+            $('<div class="contenedorTablaCaracteristicas">').append(
+              $('<table>').append(
+                $('<tbody>').append(
+                      
+                  partes[i].address&&partes[i].address.region ? 
+                  $('<tr>').append(
+                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Departamento:',toolTexto:"parties["+i+"].address.region"}),
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.region})
                   )
+                  : null,
+                  partes[i].address&&partes[i].address.locality ? 
+                  $('<tr>').append(
+                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Municipio:',toolTexto:"parties["+i+"].address.locality"}),
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.locality})
+                  )
+                  : null,
+                  partes[i].address&&partes[i].address.streetAddress ? 
+                  $('<tr>').append(
+                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Dirección:',toolTexto:"parties["+i+"].address.streetAddress"}),
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].address.streetAddress})
+                  )
+                  : null,
+                  partes[i].contactPoint&&partes[i].contactPoint.name ? 
+                  $('<tr>').append(
+                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Encargado:',toolTexto:"parties["+i+"].contactPoint.name"}),
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.name})
+                  )
+                  : null,
+                  partes[i].contactPoint&&partes[i].contactPoint.email ? 
+                  $('<tr>').append(
+                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Correo Electrónico:',toolTexto:"parties["+i+"].contactPoint.email"}),
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.email})
+                  )
+                  : null,
+                  partes[i].contactPoint&&partes[i].contactPoint.telephone ? 
+                  $('<tr>').append(
+                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Teléfono:',toolTexto:"parties["+i+"].contactPoint.telephone"}),
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.telephone})
+                  )
+                  : null,
+                  partes[i].contactPoint&&partes[i].contactPoint.faxNumber ? 
+                  $('<tr>').append(
+                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Fax:',toolTexto:"parties["+i+"].contactPoint.faxNumber"}),
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:partes[i].contactPoint.faxNumber})
+                  )
+                  : null,
+                  partes[i].contactPoint&&partes[i].contactPoint.url ? 
+                  $('<tr>').append(
+                    $('<td>',{class:'tituloTablaCaracteristicas',text:'Sitio:',toolTexto:"parties["+i+"].contactPoint.url"}),
+                    $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
+                      $('<a>',{text:partes[i].contactPoint.url,class:'enlaceTablaGeneral',href:partes[i].contactPoint.url})
+                    )
+                  )
+                  : null
                 )
-                : null
               )
             )
           )
+  
         )
-
       )
-    )
-  }
+    }
+  
+  
   return elementos;
 
+}
+
+function VerificarAgregarPartes(partes){
+  var partesDatos=[];
+  for(var i=0;i<partes.length;i++){
+    if((partes[i].contactPoint&&!$.isEmptyObject(partes[i].contactPoint))||(partes[i].address&&!$.isEmptyObject(partes[i].address))){
+      partesDatos.push(partes[i]);
+    }
+  }
+  return partesDatos; 
 }

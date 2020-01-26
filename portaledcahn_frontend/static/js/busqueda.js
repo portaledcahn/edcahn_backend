@@ -126,8 +126,30 @@ function CargarElementosBusqueda(cargaFiltro){
   }
   CargandoResultados('#listaResultadosBusqueda',3);
   CargandoResultadosEncabezados(true);
+  
+  EliminarEventoModalDescarga('descargaJsonBusqueda');
+  EliminarEventoModalDescarga('descargaCsvBusqueda');
+  EliminarEventoModalDescarga('descargaXlsxBusqueda');
   $.get(api+"/buscador",parametros).done(function( datos ) {
     console.dir(datos);
+    AgregarEventoModalDescarga('descargaJsonBusqueda',function(){
+      var descarga=datos.resultados.map(function(e){
+        return e._source.doc.compiledRelease;
+      });
+      DescargarJSON(descarga,'Búsqueda');
+    });
+    AgregarEventoModalDescarga('descargaCsvBusqueda',function(){
+      var descarga=datos.resultados.map(function(e){
+        return e._source.doc.compiledRelease;
+      });
+      DescargarCSV(ObtenerMatrizObjeto(descarga) ,'Búsqueda');
+    });
+    AgregarEventoModalDescarga('descargaXlsxBusqueda',function(){
+      var descarga=datos.resultados.map(function(e){
+        return e._source.doc.compiledRelease;
+      });
+      DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Búsqueda');
+    });
     CargandoResultadosEncabezados(false);
     resultadosTotal=datos;
     EliminarFiltrosMetodo(datos);
@@ -155,9 +177,11 @@ function CargarElementosBusqueda(cargaFiltro){
     });
 }
 function MostrarResumen(datos){
-  $('#totalCompradores').html(ObtenerNumero(datos.resumen.compradores_total));
-    $('#totalProcesos').html(ObtenerNumero(datos.resumen.procesos_total));
-    $('#totalProveedores').html(ObtenerNumero(datos.resumen.proveedores_total));
+
+ 
+  $('#totalCompradores').html(ValorNumerico(datos.resumen.compradores_total));
+    $('#totalProcesos').html(ValorNumerico(datos.resumen.procesos_total));
+    $('#totalProveedores').html(ValorNumerico(datos.resumen.proveedores_total));
     $('#promedioMonto').html(ValorMoneda(datos.resumen.monto_promedio)+' HNL');
 }
 function MostrarResultados(datos){
@@ -271,7 +295,7 @@ CargarElementosBusqueda()
 
 function ObtenerJsonFiltrosAplicados(parametros,url){
   if(Validar(ObtenerValor('year'))){
-    parametros[url?'year':'años']=ObtenerValor('year');
+    parametros[url?'year':'años']=decodeURIComponent(ObtenerValor('year'));
   }
   if(Validar(ObtenerValor('categoria'))){
     parametros[url?'categoria':'categorias']=decodeURIComponent(ObtenerValor('categoria'));
@@ -283,10 +307,10 @@ function ObtenerJsonFiltrosAplicados(parametros,url){
     parametros[url?'metodo_seleccion':'metodos_de_seleccion']=decodeURIComponent(ObtenerValor('metodo_seleccion'));
   }
   if(Validar(ObtenerValor('moneda'))){
-    parametros[url?'moneda':'monedas']=ObtenerValor('moneda');
+    parametros[url?'moneda':'monedas']=decodeURIComponent(ObtenerValor('moneda'));
   }
   if(Validar(ObtenerValor('proveedor'))){
-    parametros[url?'proveedor':'proveedor']=ObtenerValor('proveedor');
+    parametros[url?'proveedor':'proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
   }
   return parametros;
 }
@@ -563,7 +587,7 @@ function AgregarResultadoContrato(datos){
             )
           )
         ),
-        contrato.value!=undefined&&contrato.value!=null?
+        Validar(contrato.value)?
         $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
           $('<table>',{class:'anchoTotal'}).append(
             $('<tbody>',{class:''}).append(
@@ -574,7 +598,7 @@ function AgregarResultadoContrato(datos){
                       $('<div>',{class:'textoColorGris',text:'Monto del Contrato'}),
                       $('<div>',{class:'valorMonto'}).append(
                         ValorMoneda(contrato.value.amount),
-                        $('<span>',{class:'textoColorPrimario',text:' '+contrato.value.currency})
+                        $('<span>',{class:'textoColorPrimario',text:' '+contrato.value.currency?contrato.value.currency:''})
                       )
                     )
                   )
@@ -583,7 +607,25 @@ function AgregarResultadoContrato(datos){
             )
           )
         )
-        :null
+        :$('<div>',{class:'contenedorTablaCaracteristicas'}).append(
+          $('<table>',{class:'anchoTotal'}).append(
+            $('<tbody>',{class:''}).append(
+              $('<tr>',{class:''}).append(
+                $('<td>',{class:'textoAlineadoDerecha'}).append(
+                  $('<div>',{class:'montoTotalProceso'}).append(
+                    $('<div>',{class:'contenedorMonto'}).append(
+                      $('<div>',{class:'textoColorGris',text:'Monto del Contrato'}),
+                      $('<div>',{class:'valorMonto'}).append(
+                        $('<span>',{class:'textoColorGris',text:'No Disponible'}),
+                        $('<span>',{class:'textoColorPrimario',text:''})
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
         
       )
     )
@@ -872,7 +914,7 @@ function AgregarPropiedadesListaElastica(valor,llave){
           CargarElementosBusqueda(true);
         }
       }}).append(
-        $('<div class="badge">').text(propiedades.doc_count),
+        $('<div class="badge">').text(ValorNumerico(propiedades.doc_count)),
         $('<div >',{
         class:'elastic-data',
         
@@ -909,30 +951,41 @@ function InicializarDescargas(){
   }).fail(function() {
       
     });*/
+  AbrirModalDescarga('descargaJsonBusqueda','Descarga JSON',true);/*Crear Modal Descarga */
+  AbrirModalDescarga('descargaCsvBusqueda','Descarga CSV',true);/*Crear Modal Descarga */
+  AbrirModalDescarga('descargaXlsxBusqueda','Descarga XLSX',true);/*Crear Modal Descarga */
   $('#descargaJSON').on('click',function(e){
-    if(resultadosTotal&&resultadosTotal.resultados){
+
+
+    AbrirModalDescarga('descargaJsonBusqueda','Descarga JSON');
+
+
+    /*if(resultadosTotal&&resultadosTotal.resultados){
       var descarga=resultadosTotal.resultados.map(function(e){
         return e._source.doc.compiledRelease;
       });
       DescargarJSON(descarga,'Búsqueda');
-    }
+    }*/
     
   });
   $('#descargaCSV').on('click',function(e){
-    if(resultadosTotal&&resultadosTotal.resultados){
+    AbrirModalDescarga('descargaCsvBusqueda','Descarga CSV');
+    /*if(resultadosTotal&&resultadosTotal.resultados){
       var descarga=resultadosTotal.resultados.map(function(e){
         return e._source.doc.compiledRelease;
       });
       DescargarCSV( ObtenerMatrizObjeto(descarga),'Búsqueda');
-    }
+    }*/
   });
   $('#descargaXLSX').on('click',function(e){
+    AbrirModalDescarga('descargaXlsxBusqueda','Descarga XLSX');
+    /*
     if(resultadosTotal&&resultadosTotal.resultados){
       var descarga=resultadosTotal.resultados.map(function(e){
         return e._source.doc.compiledRelease;
       });
       DescargarXLSX( ObtenerMatrizObjeto(descarga),'Búsqueda');
-    }
+    }*/
   });
 }
 

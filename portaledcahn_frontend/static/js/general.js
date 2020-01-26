@@ -4,7 +4,11 @@ var estadosContrato={
     'pending':{titulo:'Pendiente',descripcion:'Este contrato se propuso pero aún no entra en vigor. Puede estar esperando ser firmado.'},
     'active':{titulo:'Activo',descripcion:'Este contrato se ha firmado por todas las partes y ahora está legalmente en proceso.'},
     'cancelled':{titulo:'Cancelado',descripcion:'Este contrato se canceló antes de ser firmado.'},
-    'unsuccessful':{titulo:'Sin Éxito',descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'}
+    'unsuccessful':{titulo:'Sin Éxito',descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'},
+    'terminated':{
+        titulo:'Terminado',
+        descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'
+    }
    };
 var defaultMoneda='HNL';
 
@@ -20,7 +24,11 @@ function DebugFecha(){
 function ObtenerColores(paleta){
     var Paletas={
         'Basica':['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED','#6569CC'],
-        'Pastel1':['#17B793','#927FBF','#285189','#04869C','#4F3B78','#9E0B28','#A64942','#F30A49','#523549','#0B3C77'],
+
+
+        'Pastel1':[/*'#17B793','#927FBF',*/'#285189','#04869C','#4F3B78','#9E0B28','#DA517A'/*'#F30A49',*/,'#0B3C77','#DA517A','#DA517A','#DA517A','#DA517A'],
+
+
         'Pastel2':['#82CCB5','#DD86B9','#FFF68F','#F9B48A','#F497AA','#B6D884','#6BCADE','#71ABDD','#FDCD7B','#9977B4'],
         'Pastel3':['#9DDAEC','#F29AC0','#FEDDB4','#FFAAA5','#C1ACD3','#B9DB9F','#B0DDD6','#DCEDC1','#EDEEA2','#FF8B94']
     }
@@ -202,12 +210,14 @@ function DescargarElemento(direccion){
 }
 
 function MostrarEspera(selector,elemento){
+    elemento=true;
     if($(selector+' .espera'+(elemento?'.elemento':'')).length){
         $(selector+' .espera'+(elemento?'.elemento':'')).show();
     }else{
         $(selector).append(
             $('<div>',{class:'espera'+(elemento?' elemento':'')}).append(
-                $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'})
+                $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'}),
+                $('<div>',{text:'Cargando',class:'textoCargando'})
             )
         )
     }
@@ -475,7 +485,7 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     if(arreglo){
       elementos=arreglo;
     }
-    var partes=fuente?fuente.parties:procesoRecord.compiledRelease.parties;
+    var partes=fuente&&fuente.parties?fuente.parties:((typeof(procesoRecord)!='undefined')&&procesoRecord.compiledRelease&&procesoRecord.compiledRelease.parties?procesoRecord.compiledRelease.parties:[]);
     for(var i = 0; i < partes.length;i++){
         if(partes[i].id == id){
           elementos.push(partes[i]);
@@ -494,7 +504,7 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     var elementos=[];
     for(var i=0;i<parte.length;i++){
       elementos.push(
-        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(ConcatenarEnlace(ObtenerEnlaceParte(parte[i].id,false,fuente))/* parte[i].name*/)})):(parte[i].roles.includes('supplier')?(
+        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent( parte[i].id/*ConcatenarEnlace(ObtenerEnlaceParte(parte[i].id,false,fuente))*//* parte[i].name*/)})):(parte[i].roles.includes('supplier')?(
           $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
         ):(
           $('<span>',{text:parte[i].name})
@@ -681,3 +691,65 @@ function s2ab(s) {
     return buf;    
 }
 
+function AbrirModalDescarga(selector,titulo,creacion){
+    if(!$('body #'+selector).length){
+        $('body').append(
+            $('<div>',{class:'modal fade',id:selector,tabindex:'-1',role:'dialog','aria-hidden':'true','aria-labelledby':'modalDescarga'}).append(
+                $('<div>',{class:'modal-dialog',role:'document'}).append(
+                    $('<div>',{class:'modal-content'}).append(
+                        $('<div>',{class:'modal-header'}).append(
+                            $('<span>',{class:'titularCajonSombreado'}).text(
+                                titulo
+                            )
+                        ),
+                        $('<div>',{class:'modal-body textoAlineadoCentrado'}).append(
+                            $('<div>',{style:'min-height:200px;position:relative',class:'contenedorEspera'}).append(
+                                $('<div>',{class:'espera elemento'}).append(
+                                    $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'}),
+                                    $('<div>',{text:'Obteniendo Datos',class:'textoCargando'})
+                                ),
+                                $('<i>',{class:'fas fa-file-download textoColorPrimario descargaIcono fadeIn animated',style:'display:none;font-size:100px;line-height:200px'})
+                            )
+                            
+                        ),
+                        $('<div>',{class:'modal-footer'}).append(
+                            $('<button>',{class:'botonGeneral fondoColorSecundario','data-dismiss':'modal',type:'button'}).text(
+                                'Cancelar'
+                            ),$('<button>',{class:'botonGeneral fondoColorGris botonDescarga',type:'button'}).text(
+                                'Descargar'
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    }
+    if(!creacion){
+        $('body #'+selector).modal();
+    }
+    
+
+}
+function EliminarEventoModalDescarga(selector){
+    if($('body #'+selector).length){
+        $('body #'+selector+' .descargaIcono').hide();
+        $('body #'+selector+' .botonDescarga').removeClass('fondoColorPrimario').addClass('fondoColorGris');
+        $('body #'+selector+' .botonDescarga').off();
+        $('body #'+selector+' .contenedorEspera .espera').show();
+    }
+    
+}
+function AgregarEventoModalDescarga(selector,funcion){
+    if($('body #'+selector).length){
+        $('body #'+selector+' .botonDescarga').removeClass('fondoColorGris').addClass('fondoColorPrimario');
+        $('body #'+selector+' .botonDescarga').on({
+            click:function(e){
+                funcion();
+            }
+        });
+        OcultarEspera('body #'+selector+' .contenedorEspera');
+        $('body #'+selector+' .descargaIcono').show();
+    }
+    
+    
+}

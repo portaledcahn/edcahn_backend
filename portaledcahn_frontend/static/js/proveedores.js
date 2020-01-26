@@ -74,6 +74,7 @@
     AsignarEventosFiltro();
     AsignarOrdenTablaFiltros(OrdenFiltro);
     NumeroResultados();
+    InicializarDescargas();
 
 
   });
@@ -110,7 +111,7 @@
             $('<a>',{class:'enlaceTablaGeneral',href:'/proveedor/'+encodeURIComponent(resultados[i].id)}).text(resultados[i].name)
           ),
           $('<td>',{'data-label':'RTN' ,class:'textoAlineadoDerecha'}).text(resultados[i].id),
-          $('<td>',{'data-label':'Procesos' ,class:'textoAlineadoCentrado'}).text(ValorNumerico(resultados[i].procesos)),
+          $('<td>',{'data-label':'Contratos' ,class:'textoAlineadoCentrado'}).text(ValorNumerico(resultados[i].procesos)),
           $('<td>',{'data-label':'Total de Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].total_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
           $('<td>',{'data-label':'Promedio de Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].promedio_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
           $('<td>',{'data-label':'Mayor Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].mayor_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
@@ -289,6 +290,9 @@ var parametros=ObtenerFiltros();
 if(ValidarCadena(parametros['fua'])){
 //  parametros['fua']='"'+parametros['fua']+'"';
 }
+EliminarEventoModalDescarga('descargaJsonProveedores');
+EliminarEventoModalDescarga('descargaCsvProveedores');
+EliminarEventoModalDescarga('descargaXlsxProveedores');
 $.get(api+"/proveedores",parametros).done(function( datos ) {
   console.dir(datos);
 
@@ -298,16 +302,86 @@ $.get(api+"/proveedores",parametros).done(function( datos ) {
   
     AgregarToolTips();
     VerificarIntroduccion('INTROJS_PROVEEDORES',1);
+    ObtenerDescargaProveedores(datos);
 
   
 }).fail(function() {
     /*Error de Conexion al servidor */
     console.dir('error de api');
+
+
     AgregarResultados({resultados:[]},'#resultadosProveedores');
     AgregarToolTips();
     VerificarIntroduccion('INTROJS_PROVEEDORES',1);
+
+    
     
   });
+}
+function ObtenerDescargaProveedores(resultados){
+  var parametros=ObtenerFiltros();
+  parametros['pagina']=1;
+  parametros['paginarPor']=resultados.paginador['total.items'];
+  $.get(api+"/proveedores",parametros).done(function( datos ) {
+    console.dir('Descargas Proveedores')
+    console.dir(datos);
+  
+    AgregarEventoModalDescarga('descargaJsonProveedores',function(){
+      var descarga=datos.resultados.map(function(e){
+        return {
+          'Proveedor':e.name,
+          'Id':e.id,
+          'Procesos':e.procesos,
+          'TotalMontoContratado':e.total_monto_contratado,
+          'PromedioMontoContratado':e.promedio_monto_contratado,
+          'MayorMontoContratado':e.mayor_monto_contratado,
+          'MenorMontoContratado':e.menor_monto_contratado,
+          'FechaUltimaAdjudicacion':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
+          'Enlace':url+'/proveedor/'+encodeURIComponent(e.id)
+        };
+      });
+      DescargarJSON(descarga,'Proveedores');
+    });
+    AgregarEventoModalDescarga('descargaCsvProveedores',function(){
+      var descarga=datos.resultados.map(function(e){
+        return {
+          'Proveedor':e.name,
+          'Id':e.id,
+          'Procesos':e.procesos,
+          'TotalMontoContratado':e.total_monto_contratado,
+          'PromedioMontoContratado':e.promedio_monto_contratado,
+          'MayorMontoContratado':e.mayor_monto_contratado,
+          'MenorMontoContratado':e.menor_monto_contratado,
+          'FechaUltimaAdjudicacion':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
+          'Enlace':url+'/proveedor/'+encodeURIComponent(e.id)
+        };
+      });
+      DescargarCSV(ObtenerMatrizObjeto(descarga) ,'Proveedores');
+    });
+    AgregarEventoModalDescarga('descargaXlsxProveedores',function(){
+      var descarga=datos.resultados.map(function(e){
+        return {
+          'Proveedor':e.name,
+          'Id':e.id,
+          'Procesos':e.procesos,
+          'TotalMontoContratado':e.total_monto_contratado,
+          'PromedioMontoContratado':e.promedio_monto_contratado,
+          'MayorMontoContratado':e.mayor_monto_contratado,
+          'MenorMontoContratado':e.menor_monto_contratado,
+          'FechaUltimaAdjudicacion':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
+          'Enlace':url+'/proveedor/'+encodeURIComponent(e.id)
+        };
+      });
+      DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Proveedores');
+    });
+  
+    
+  }).fail(function() {
+      /*Error de Conexion al servidor */
+      console.dir('error de api descargas');
+      
+    });
+  
 }
 
 function AsignarEventosFiltro(){
@@ -347,3 +421,20 @@ function AsignarEventosFiltro(){
     }}
   )
 }
+
+
+function InicializarDescargas(){
+
+   AbrirModalDescarga('descargaJsonProveedores','Descarga JSON',true);/*Crear Modal Descarga */
+   AbrirModalDescarga('descargaCsvProveedores','Descarga CSV',true);/*Crear Modal Descarga */
+   AbrirModalDescarga('descargaXlsxProveedores','Descarga XLSX',true);/*Crear Modal Descarga */
+   $('#descargaJSON').on('click',function(e){
+     AbrirModalDescarga('descargaJsonProveedores','Descarga JSON');
+   });
+   $('#descargaCSV').on('click',function(e){
+     AbrirModalDescarga('descargaCsvProveedores','Descarga CSV');
+   });
+   $('#descargaXLSX').on('click',function(e){
+     AbrirModalDescarga('descargaXlsxProveedores','Descarga XLSX');
+   });
+ }

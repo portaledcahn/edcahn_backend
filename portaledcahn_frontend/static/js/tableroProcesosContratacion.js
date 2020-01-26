@@ -126,13 +126,13 @@ function ObtenerFiltros(){
 
 function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('moneda'))){
-        parametros['moneda']=ObtenerValor('moneda');
+        parametros['moneda']=decodeURIComponent(ObtenerValor('moneda'));
     }
     if(Validar(ObtenerValor('idinstitucion'))){
     parametros['idinstitucion']=decodeURIComponent(ObtenerValor('idinstitucion'));
     }
     if(Validar(ObtenerValor('año'))){
-      parametros['año']=ObtenerValor('año');
+      parametros['año']=decodeURIComponent(ObtenerValor('año'));
     }
     if(Validar(ObtenerValor('proveedor'))){
         parametros['proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
@@ -454,7 +454,7 @@ function InicializarCantidadProcesos(){
                 type:'bar',
                 data:datos.resultados.cantidadprocesos,
                 itemStyle:{
-                    color: ObtenerColores('Pastel3')[0]
+                    color: ObtenerColores('Pastel1')[0]
                 }
             },
             {
@@ -466,13 +466,13 @@ function InicializarCantidadProcesos(){
                 symbolSize: 10,
                 lineStyle: {
                     normal: {
-                        color: ObtenerColores('Pastel3')[9],
+                        color: ObtenerColores('Pastel1')[9],
                         width: 4/*,
                         type: 'dashed'*/
                     }
                 },
                 itemStyle:{
-                    color: ObtenerColores('Pastel3')[9]
+                    color: ObtenerColores('Pastel1')[9]
                 },
                 yAxisIndex:1
             }
@@ -493,7 +493,7 @@ function InicializarCantidadProcesos(){
                             type:'bar',
                             data:datos.resultados.cantidadprocesos,
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[0]
+                                color: ObtenerColores('Pastel1')[0]
                             }
                         },
                         {
@@ -505,13 +505,13 @@ function InicializarCantidadProcesos(){
                             symbolSize: 10,
                             lineStyle: {
                                 normal: {
-                                    color: ObtenerColores('Pastel3')[9],
+                                    color: ObtenerColores('Pastel1')[9],
                                     width: 4/*,
                                     type: 'dashed'*/
                                 }
                             },
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[9]
+                                color: ObtenerColores('Pastel1')[9]
                             },
                             yAxisIndex:1
                         }
@@ -657,7 +657,7 @@ function InicializarMontoProcesos(){
                     type:'bar',
                     data:datos.resultados.monto_contratos_mes,
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[1]
+                        color: ObtenerColores('Pastel1')[1]
                     }
                 },
                 {
@@ -668,13 +668,13 @@ function InicializarMontoProcesos(){
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color: ObtenerColores('Pastel3')[9],
+                            color: ObtenerColores('Pastel1')[9],
                             width: 4/*,
                             type: 'dashed'*/
                         }
                     },
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[9]
+                        color: ObtenerColores('Pastel1')[9]
                     },
                     yAxisIndex:1
                 
@@ -695,7 +695,7 @@ function InicializarMontoProcesos(){
                         type:'bar',
                         data:datos.resultados.monto_contratos_mes,
                         itemStyle:{
-                            color: ObtenerColores('Pastel3')[1]
+                            color: ObtenerColores('Pastel1')[1]
                         }
                     },
                     {
@@ -706,13 +706,13 @@ function InicializarMontoProcesos(){
                         symbolSize: 10,
                         lineStyle: {
                             normal: {
-                                color: ObtenerColores('Pastel3')[9],
+                                color: ObtenerColores('Pastel1')[9],
                                 width: 4/*,
                                 type: 'dashed'*/
                             }
                         },
                         itemStyle:{
-                            color: ObtenerColores('Pastel3')[9]
+                            color: ObtenerColores('Pastel1')[9]
                         },
                         yAxisIndex:1
                     
@@ -819,7 +819,7 @@ function CantidadProcesosEtapas(){
                     type:'bar',
                     data:datos.resultados.procesos,
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[3]
+                        color: ObtenerColores('Pastel1')[3]
                     }
                 }
             ],
@@ -884,8 +884,8 @@ function TiempoPromedioEtapas(){
                 position:'bottom',
                 formatter:function(e){
                     valores={
-                        'Licitación':Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion)),
-                        'Contrato':Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))
+                        'Período de Licitación':Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion)),
+                        'Período de Inicio Contrato':Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))
 
                     }
                     return e+', '+valores[e]+' Días';
@@ -912,7 +912,7 @@ function TiempoPromedioEtapas(){
             },
             series: [
                 {
-                    name: 'Licitación',
+                    name: 'Período de Licitación',
                     type: 'bar',
                     stack: 'Tiempo',
                     label: {
@@ -923,13 +923,13 @@ function TiempoPromedioEtapas(){
                     },
                     data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion))],
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[3]
+                        color: ObtenerColores('Pastel1')[3]
                     }
     
                     
                 },
                 {
-                    name: 'Contrato',
+                    name: 'Período de Inicio Contrato',
                     type: 'bar',
                     stack: 'Tiempo',
                     label: {
@@ -940,7 +940,7 @@ function TiempoPromedioEtapas(){
                     },
                     data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))],
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[1]
+                        color: ObtenerColores('Pastel1')[1]
                     }
                 }
             ],
@@ -974,7 +974,7 @@ function TiempoPromedioEtapas(){
                             },
                             data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion))],
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[3]
+                                color: ObtenerColores('Pastel1')[3]
                             }
             
                             
@@ -991,7 +991,7 @@ function TiempoPromedioEtapas(){
                             },
                             data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))],
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[1]
+                                color: ObtenerColores('Pastel1')[1]
                             }
                         }
                     ],
@@ -1067,7 +1067,7 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
                     data: datosPastel,//[{name:'Obras',value: 20},{name:'Bienes',value: 40},{name:'Servicios',value: 60}],
                     itemStyle: {
                         color: function(e){
-                            var colores=ObtenerColores('Pastel3');
+                            var colores=ObtenerColores('Pastel1');
                             return colores[e.dataIndex];
                         },
                         emphasis: {
@@ -1159,7 +1159,7 @@ function MontoProcesosCategoriaCompra(){
                     data: datosPastel,
                     itemStyle: {
                         color: function(e){
-                            var colores=ObtenerColores('Pastel3')
+                            var colores=ObtenerColores('Pastel1')
                             return colores[e.dataIndex];
                         },
                         emphasis: {
@@ -1251,7 +1251,7 @@ var opciones = {
             data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
             itemStyle: {
                 color: function(e){
-                    var colores=ObtenerColores('Pastel3');
+                    var colores=ObtenerColores('Pastel1');
                     return colores[e.dataIndex];
                 },
                 emphasis: {
@@ -1310,7 +1310,7 @@ var opciones = {
                     data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
                     itemStyle: {
                         color: function(e){
-                            var colores=ObtenerColores('Pastel3');
+                            var colores=ObtenerColores('Pastel1');
                             return colores[e.dataIndex];
                         },
                         emphasis: {
@@ -1416,7 +1416,7 @@ var datosPastel=[];
                 data:datosPastel,
                 itemStyle: {
                     color: function(e){
-                        var colores=ObtenerColores('Pastel3');
+                        var colores=ObtenerColores('Pastel1');
                         return colores[e.dataIndex];
                     },
                     emphasis: {
@@ -1471,7 +1471,7 @@ var datosPastel=[];
                             data:datosPastel,
                             itemStyle: {
                                 color: function(e){
-                                    var colores=ObtenerColores('Pastel3');
+                                    var colores=ObtenerColores('Pastel1');
                                     return colores[e.dataIndex];
                                 },
                                 emphasis: {
@@ -1611,7 +1611,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                     type:'bar',
                     data:datos.resultados.montoContratado.reverse(),
                     itemStyle:{
-                        color: ObtenerColores('Pastel3')[0]
+                        color: ObtenerColores('Pastel1')[0]
                     },
                     label: {
                         normal: {
@@ -1689,7 +1689,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                             type:'bar',
                             data:datos.resultados.montoContratado.reverse(),
                             itemStyle:{
-                                color: ObtenerColores('Pastel3')[0]
+                                color: ObtenerColores('Pastel1')[0]
                             },
                             label: {
                                 normal: {
@@ -1817,7 +1817,7 @@ var opciones = {
                 type:'bar',
                 data:datos.resultados.montoContratado.reverse(),
                 itemStyle:{
-                    color: ObtenerColores('Pastel3')[2]
+                    color: ObtenerColores('Pastel1')[2]
                 },
                 label: {
                     normal: {
@@ -1899,7 +1899,7 @@ var opciones = {
                         type:'bar',
                         data:datos.resultados.montoContratado.reverse(),
                         itemStyle:{
-                            color: ObtenerColores('Pastel3')[2]
+                            color: ObtenerColores('Pastel1')[2]
                         },
                         label: {
                             normal: {
@@ -1999,7 +1999,7 @@ function SegregacionMontosContratos(){
                 }
             ],
             itemStyle: {
-                color: ObtenerColores('Pastel3')[2]/*function(e){
+                color: ObtenerColores('Pastel1')[2]/*function(e){
                     var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
                     return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
                 }*/
@@ -2109,13 +2109,13 @@ $.get(api+"/dashboardoncae/estadisticacantidaddeprocesos/",parametros).done(func
     console.dir('cantidad***')
 console.dir(datos);
     $('#CantidadProcesosPromedio').attr('data-to',datos.resultados.promedio);
-    $('#CantidadProcesosPromedio').parent().css({'color':ObtenerColores('Pastel3')[0]});
+    $('#CantidadProcesosPromedio').parent().css({'color':ObtenerColores('Pastel1')[0]});
     $('#CantidadProcesosMenor').attr('data-to',datos.resultados.menor);
-    $('#CantidadProcesosMenor').parent().css({'color':ObtenerColores('Pastel3')[0]});
+    $('#CantidadProcesosMenor').parent().css({'color':ObtenerColores('Pastel1')[0]});
     $('#CantidadProcesosMayor').attr('data-to',datos.resultados.mayor);
-    $('#CantidadProcesosMayor').parent().css({'color':ObtenerColores('Pastel3')[0]});
+    $('#CantidadProcesosMayor').parent().css({'color':ObtenerColores('Pastel1')[0]});
     $('#CantidadProcesosTotal').attr('data-to',datos.resultados.total);
-    $('#CantidadProcesosTotal').parent().css({'color':ObtenerColores('Pastel3')[0]});
+    $('#CantidadProcesosTotal').parent().css({'color':ObtenerColores('Pastel1')[0]});
 /*
     $('.conteo').not('.moneda').countTo({
         formatter: function (value, options) {
@@ -2147,13 +2147,13 @@ $.get(api+"/dashboardoncae/estadisticacantidaddecontratos/",parametros).done(fun
     console.dir('cantidad***')
 console.dir(datos);
     $('#CantidadContratosPromedio').attr('data-to',datos.resultados.promedio);
-    $('#CantidadContratosPromedio').parent().css({'color':ObtenerColores('Pastel3')[1]});
+    $('#CantidadContratosPromedio').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadContratosMenor').attr('data-to',datos.resultados.menor);
-    $('#CantidadContratosMenor').parent().css({'color':ObtenerColores('Pastel3')[1]});
+    $('#CantidadContratosMenor').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadContratosMayor').attr('data-to',datos.resultados.mayor);
-    $('#CantidadContratosMayor').parent().css({'color':ObtenerColores('Pastel3')[1]});
+    $('#CantidadContratosMayor').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadContratosTotal').attr('data-to',datos.resultados.total);
-    $('#CantidadContratosTotal').parent().css({'color':ObtenerColores('Pastel3')[1]});
+    $('#CantidadContratosTotal').parent().css({'color':ObtenerColores('Pastel1')[1]});
 /*
     $('.conteo').not('.moneda').countTo({
         formatter: function (value, options) {

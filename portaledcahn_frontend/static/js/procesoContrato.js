@@ -227,12 +227,21 @@ function ObtenerTransacciones(transacciones,implementacion){
               (transacciones[i].payer&&transacciones[i].payer.name) ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas',text:'Proveedor de Fondos',toolTexto:"contracts[n].transactions["+i+"].payer.name"}),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(ObtenerElementosParte(transacciones[i].payer.id))
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
+                  transacciones[i].payer.name
+                  /*'/comprador/'+encodeURIComponent(resultados[i].id)}).text(resultados[i].name)$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(transacciones[i].payer.id)}).text(transacciones[i].payer.name)*/
+                  
+                  /*ObtenerElementosParte(transacciones[i].payer.id)*/
+
+
+                  
+                )
               ) : null,
               (transacciones[i].payee&&transacciones[i].payee.name) ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas',text:'Receptor de Fondos',toolTexto:"contracts[n].transactions["+i+"].payee.name"}),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
+                  /*$('<a>',{class:'enlaceTablaGeneral',href:'/proveedor/'+encodeURIComponent(transacciones[i].payee.id)}).text(transacciones[i].payee.name)*/
                   ObtenerElementosParte(transacciones[i].payee.id)
                 )
               ) : null,
