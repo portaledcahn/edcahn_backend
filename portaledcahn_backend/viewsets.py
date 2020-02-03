@@ -14,7 +14,7 @@ from .serializers import *
 from .functions import *
 from .pagination import PaginationHandlerMixin
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
-import json, copy, urllib.parse, datetime, operator, statistics
+import json, copy, urllib.parse, datetime, operator, statistics, csv
 import pandas as pd 
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
@@ -23,30 +23,9 @@ from portaledcahn_backend import serializers as articles_serializers
 
 from django.utils.functional import LazyObject
 from django.conf import settings
-from django.http import Http404
-
-tasas_de_cambio = {
-	2000: {"HNL": 15.0143, "USD": 1},
-	2001: {"HNL": 15.6513, "USD": 1},
-	2002: {"HNL": 16.6129, "USD": 1},
-	2003: {"HNL": 17.5446, "USD": 1},
-	2004: {"HNL": 18.4114, "USD": 1},
-	2005: {"HNL": 18.9978, "USD": 1},
-	2006: {"HNL": 19.0272, "USD": 1},
-	2007: {"HNL": 19.0271, "USD": 1},
-	2008: {"HNL": 19.0299, "USD": 1},
-	2009: {"HNL": 19.0273, "USD": 1},
-	2010: {"HNL": 19.0269, "USD": 1},
-	2011: {"HNL": 19.0486, "USD": 1},
-	2012: {"HNL": 19.6379, "USD": 1},
-	2013: {"HNL": 20.4951, "USD": 1},
-	2014: {"HNL": 21.1347, "USD": 1},
-	2015: {"HNL": 22.0988, "USD": 1},
-	2016: {"HNL": 22.9949, "USD": 1},
-	2017: {"HNL": 23.6515, "USD": 1},
-	2018: {"HNL": 24.0701, "USD": 1},
-	2019: {"HNL": 24.5777, "USD": 1},
-}
+from django.http import Http404, StreamingHttpResponse
+from itertools import chain
+from flatten_json import flatten
 
 class BasicPagination(pagination.PageNumberPagination):
     page_size_query_param = 'limit'
@@ -3328,7 +3307,192 @@ class EtapasPagoProcesoDeCompra(APIView):
 
 		return Response(context)
 
-# Dashboard de ONCAE
+# Dashboard ONCAE
+
+proceso_csv = dict([
+		("OCID", "doc.compiledRelease.ocid"),
+		("Código Entidad","extra.parentTop.id"),
+		("Entidad","extra.parentTop.name"),
+		("Código Unidad Ejecutora","doc.compiledRelease.buyer.id"),
+		("Unidad Ejecutora","doc.compiledRelease.buyer.name"),
+		("Expediente", "doc.compiledRelease.tender.title"),
+		("Tipo Adquisición", "doc.compiledRelease.tender.mainProcurementCategory"),
+		("Tipo Adquisición adicional", "doc.compiledRelease.tender.additionalProcurementCategories.0"),
+		("Modalidad", "doc.compiledRelease.tender.procurementMethodDetails"),
+		("Fecha de Inicio", "doc.compiledRelease.tender.tenderPeriod.startDate"),
+		("Fecha Recepción Ofertas", "doc.compiledRelease.tender.tenderPeriod.endDate"),
+		("Fecha de publicación", "doc.compiledRelease.tender.datePublished"),
+		("Fuente de datos", "doc.compiledRelease.sources.0.name"),
+	])
+
+contrato_csv = dict([
+		("OCID","extra.ocid"),
+		("Número Gestion","id"),
+		("Código institución","extra.parentTop.id"),
+		("Institución de Compra","extra.parentTop.name"),
+		("Código GA","extra.parent1.id"),
+		("Gerencia Administrativa","extra.parent1.name"),
+		("Código unidad de compra","extra.buyer.id"),
+		("Unidad de Compra","extra.buyer.name"),
+		("Número de Contrato","title"),
+		("Estado","status"),
+		("RTN","suppliers.0.id"),
+		("Proveedor","suppliers.0.name"),
+		("Monto", "value.amount"),
+		("Moneda", "value.currency"),
+		("Monto HNL","extra.LocalCurrency.amount"),
+		("Moneda local","extra.LocalCurrency.currency"),
+		("Fecha de Ingreso","period.startDate"),
+		("Fecha de Inicio", "dateSigned"),
+		("Fuente de datos","extra.sources.0.name"),
+		("Número de Expediente", "extra.tenderTitle"),
+		("Tipo Adquisición", "extra.tenderMainProcurementCategory"),
+		("Tipo Adquisición adicional", "extra.tenderAdditionalProcurementCategories"),
+		("Modalidad", "extra.tenderProcurementMethodDetails"),
+	])
+
+producto_csv = dict([
+		("OCID","extra.ocid"),
+		("Número Gestion","extra.contratoId"),
+		("producto Id","id"),
+		("Producto","description"),
+		("Cantidad solicitada","quantity"),
+		("Monto por unidad","unit.value.amount"),
+		("Total","extra.total"),
+		("Moneda","unit.value.currency"),
+		("UNSPSC código","classification.id"),
+		("UNSPSC nombre","classification.description"),
+		("Código del covenio marco","attributes.0.id"),
+		("Nombre del convenio marco","attributes.0.value"),
+		("Fuente de datos","extra.sources.0.name"),
+	])
+
+proceso_csv_titulos = list(proceso_csv.keys())
+proceso_csv_paths = list(proceso_csv.values())
+
+contrato_csv_titulos = list(contrato_csv.keys())
+contrato_csv_paths = list(contrato_csv.values())
+
+producto_csv_titulos = list(producto_csv.keys())
+producto_csv_paths = list(producto_csv.values())
+
+class Echo(object):
+	def write(self, value):
+		return value
+
+def get_data_from_path(path, data):
+	current_pos = data
+
+	for part in path.split("."):
+		try:
+			part = int(part)
+		except ValueError:
+			pass
+		try:
+			current_pos = current_pos[part]
+		except (KeyError, IndexError, TypeError):
+			return ""
+	return current_pos
+
+def generador_proceso_csv(search):
+	yield proceso_csv_titulos
+
+	# Todos los procesos
+	for result in search.scan():
+		line = []
+		for path in proceso_csv_paths:
+			line.append(get_data_from_path(path, result))
+		yield line
+
+	# results = search[0:500].execute()
+
+	# for result in results:
+	# 	line = []
+	# 	for path in proceso_csv_paths:
+	# 		line.append(get_data_from_path(path, result))
+	# 	yield line
+
+def generador_contrato_csv(search):
+	yield contrato_csv_titulos
+
+	# Todos los contratos
+	for result in search.scan():
+		line = []
+		for path in contrato_csv_paths:
+			line.append(get_data_from_path(path, result))
+		yield line
+
+	# results = search[0:10].execute()
+
+	# for result in results:
+	# 	# print(result)
+	# 	line = []
+	# 	for path in contrato_csv_paths:
+	# 		line.append(get_data_from_path(path, result))
+	# 	yield line
+
+	# print("")
+
+def generador_producto_csv(search):
+	yield producto_csv_titulos
+
+	# Todos los contratos
+	for result in search.scan():
+		if 'items' in result:
+			for item in result["items"]:
+				if 'extra' in item:
+					item["extra"]["sources"] = result["extra"]["sources"]
+					item["extra"]["ocid"] = result["extra"]["ocid"]
+					item["extra"]["contratoId"] = result["id"]
+				else:
+					item["extra"] = result["extra"]
+
+				line = []
+				for path in producto_csv_paths:
+					line.append(get_data_from_path(path, item))
+				yield line
+
+	# results = search[0:10].execute()
+
+	# for result in results:
+	# 	for item in result["items"]:
+	# 		if 'extra' in item:
+	# 			item["extra"]["sources"] = result["extra"]["sources"]
+	# 			item["extra"]["ocid"] = result["extra"]["ocid"]
+	# 			item["extra"]["contratoId"] = result["id"]
+	# 		else:
+	# 			item["extra"] = result["extra"]
+
+	# 		line = []
+	# 		for path in producto_csv_paths:
+	# 			line.append(get_data_from_path(path, item))
+	# 		yield line
+
+	# print("")
+
+def descargar_procesos_csv(request, search):
+	nombreArchivo = 'portaledcahn-procesos-'
+	pseudo_buffer = Echo()
+	writer = csv.writer(pseudo_buffer)
+	response = StreamingHttpResponse((writer.writerow(row) for row in generador_proceso_csv(search)), content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'-{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+	return response
+
+def descargar_contratos_csv(request, search):
+	nombreArchivo = 'portaledcahn-contratos-'
+	pseudo_buffer = Echo()
+	writer = csv.writer(pseudo_buffer)
+	response = StreamingHttpResponse((writer.writerow(row) for row in generador_contrato_csv(search)), content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+	return response
+
+def descargar_productos_csv(request, search):
+	nombreArchivo = 'portaledcahn-productos-'
+	pseudo_buffer = Echo()
+	writer = csv.writer(pseudo_buffer)
+	response = StreamingHttpResponse((writer.writerow(row) for row in generador_producto_csv(search)), content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+	return response
 
 class FiltrosDashboardONCAE(APIView):
 
@@ -3890,7 +4054,10 @@ class GraficarProcesosPorCategorias(APIView):
 			missing='No Definido',
 			field='doc.compiledRelease.tender.mainProcurementCategory.keyword' 
 		)
-		
+		#Borrar estas lineas
+		print("Resultados")
+		return descargar_procesos_csv(request, s)
+
 		results = s.execute()
 
 		totalProcesos = results.aggregations.totalProcesos["value"]
@@ -3912,7 +4079,7 @@ class GraficarProcesosPorCategorias(APIView):
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
-		parametros["`modalidad"] = modalidad
+		parametros["modalidad"] = modalidad
 
 		context = {
 			"resultados": resultados,
@@ -4690,7 +4857,10 @@ class EstadisticaCantidadDeContratos(APIView):
 			'sum',
 			field='value.amount'
 		)
-		
+
+		#Borrar esta linea. 
+		return descargar_contratos_csv(request, ss)
+
 		contratosPC = s.execute()
 		contratosDD = ss.execute()
 
@@ -6363,7 +6533,7 @@ class IndicadorCatalogoElectronico(APIView):
 
 		# Source 
 		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
-		s = s.source(campos)
+		# s = s.source(campos)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -6435,6 +6605,11 @@ class IndicadorCatalogoElectronico(APIView):
 			precision_threshold=10000,
 			field='extra.ocid.keyword'
 		)
+
+		#Borrar estas lineas
+		print("Resultados")
+		# return descargar_contratos_csv(request, s)
+		# return descargar_productos_csv(request, s)
 
 		contratosCE = s.execute()
 

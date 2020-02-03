@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from portaledcahn_backend import documents
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
+import os
+from django.http import HttpResponse, Http404
+from django.conf import settings
 
 class DSEPaginator(Paginator):
     """
@@ -168,6 +171,17 @@ def Compradores(request):
 
 def Descargas(request):
     return render(request,'descargas/descargas.html')
+
+def DescargarArchivo(request, file):
+  path_to_file = "C:\\Users\\Isaias Zelaya\\Desktop/"
+
+  file_path = os.path.join(settings.MEDIA_ROOT, path_to_file + file)
+  if os.path.exists(file_path):
+    with open(file_path, 'rb') as fh:
+      response = HttpResponse(fh.read(), content_type="application/force-download")
+      response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+      return response
+  raise Http404
 
 def Preguntas(request):
     return render(request,'preguntas/preguntas.html')
