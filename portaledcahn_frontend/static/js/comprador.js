@@ -817,8 +817,8 @@ function AgregarResultadosProcesosComprador(datos, selector) {
 
 
 function MostrarPaginacion(datos, selector, funcion) {
-    var paginarPor = datos.parametros.paginarPor ? datos.parametros.paginarPor : datos.parametros.pagianrPor ? datos.parametros.pagianrPor : 5;
-    var pagina = datos.parametros.pagina ? datos.parametros.pagina : 1
+    var paginarPor = datos.parametros.paginarPor ? datos.parametros.paginarPor : (datos.parametros.pagianrPor ? datos.parametros.pagianrPor : 5);
+    var pagina = datos.parametros.pagina ? datos.parametros.pagina : 1;
     var paginacion = ObtenerPaginacion(datos.paginador.page, Math.ceil(ObtenerNumero(datos.paginador['total.items']) / ObtenerNumero(paginarPor)) /* datos.paginador.num_pages*/ )
     $('.navegacionTablaGeneral' + selector).html('');
     if (datos.paginador.has_previous) {

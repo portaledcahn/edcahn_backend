@@ -3,7 +3,7 @@ var filtrosAplicables={
     instituciones: {titulo:'Institución Compradora',parametro:'idinstitucion'},
     años: {titulo:'Año',parametro:'año'},
     proveedores: {titulo:'Proveedor',parametro:'proveedor'},
-    categorias: {titulo:'Categoría de Compra',parametro:'categoria'},
+    categorias: {titulo:/*'Categoría de Compra'*/'Tipo de Contrato',parametro:'categoria'},
     modalidades : {titulo:'Modalidad de Compra',parametro:'modalidad'},
     sistemas :{titulo:'Sistema de Origen', parametro: 'sistema'}
     
@@ -14,14 +14,14 @@ var filtrosAplicables={
     año: {titulo:'Año',parametro:'años'},
     proveedor: {titulo:'Proveedor',parametro:'proveedores'},
     modalidad: {titulo:'Modalidad de Compra',parametro:'modalidades'},
-    categoria : {titulo:'Categoría de Compra',parametro:'categorias'},
+    categoria : {titulo:/*'Categoría de Compra'*/'Tipo de Contrato',parametro:'categorias'},
     sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
   };
   var ordenFiltros=['años','monedas','proveedores','categorias','modalidades','sistemas'];
   var traducciones={
-    'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
+    'goods':{titulo: 'Suministro de Bienes y/o Servicios'/*'Bienes y provisiones'*/,descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
-    'services':{titulo:'Servicios',descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
+    'services':{titulo:'Consultorías'/*'Servicios'*/,descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
     'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'},
     'tender':{titulo:'Licitación',descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'},
     'awards':{titulo:'Adjudicación',descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'},
@@ -379,6 +379,12 @@ var opciones = {
                     shadowOffsetX: 0,
                     shadowColor: 'rgba(0, 0, 0, 0.5)'
                 }
+            },
+            label:{
+                color:'gray',
+                formatter:function (e){
+                    return ''+e.name+' \n'+ValorNumerico(e.value) +' ('+ ValorMoneda(e.percent) +'%)'
+                }
             }
         }
     ],
@@ -507,6 +513,12 @@ var datosPastel=[];
                             shadowBlur: 10,
                             shadowOffsetX: 0,
                             shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    label:{
+                        color:'gray',
+                        formatter:function (e){
+                            return ''+e.name+' \n'+ValorMoneda(e.value) +' HNL ('+ ValorMoneda(e.percent) +'%)'
                         }
                     }
                 }
@@ -964,13 +976,13 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                     symbolSize: 10,
                     lineStyle: {
                         normal: {
-                            color: ObtenerColores('Pastel1')[0],
+                            color: ObtenerColores('Pastel1')[9],
                             width: 4/*,
                             type: 'dashed'*/
                         }
                     },
                     itemStyle:{
-                        color: ObtenerColores('Pastel1')[0]
+                        color: ObtenerColores('Pastel1')[9]
                     },
                     xAxisIndex: 1
                 }
@@ -1067,13 +1079,13 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                             symbolSize: 10,
                             lineStyle: {
                                 normal: {
-                                    color:ObtenerColores('Pastel1')[0],
+                                    color:ObtenerColores('Pastel1')[9],
                                     width: 4/*,
                                     type: 'dashed'*/
                                 }
                             },
                             itemStyle:{
-                                color: ObtenerColores('Pastel1')[0]
+                                color: ObtenerColores('Pastel1')[9]
                             },
                             xAxisIndex: 0,
                             yAxisIndex: 1

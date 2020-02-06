@@ -34,11 +34,13 @@ function CargarEstadisticas(){
         $('.contenedorEstadisticaInicial').show();
         EfectoEstadisticas();
         AgregarToolTips();
-    }).fail(function() {
+    }).fail(function(a,b,c) {
         /*Error de Conexion al servidor */
         $('.contenedorEstadisticaInicial').show();
         EfectoEstadisticas();
-        
+        console.dir(a);
+        console.dir(b);
+        console.dir(c);
       });
 }
 

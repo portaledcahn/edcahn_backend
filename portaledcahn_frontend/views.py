@@ -346,6 +346,8 @@ def IndicadoresProcesosContratacion(request):
 
 def IndicadoresProcesosPago(request):
     return render(request,'indicadoresProcesosPago/indicadoresProcesosPago.html')
+def pesosContratos(request):
+    return render(request,'pesosContratos/pesosContratos.html')
 
 
 def verificarOperador(filtro):

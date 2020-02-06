@@ -3,7 +3,7 @@ var filtrosAplicables={
     instituciones: {titulo:'Institución Compradora',parametro:'idinstitucion'},
     años: {titulo:'Año',parametro:'año'},
     proveedores: {titulo:'Proveedor',parametro:'proveedor'},
-    categorias: {titulo:'Categoría de Compra',parametro:'categoria'},
+    categorias: {titulo:/*'Categoría de Compra'*/'Tipo de Contrato',parametro:'categoria'},
     modalidades : {titulo:'Modalidad de Compra',parametro:'modalidad'},
     sistemas :{titulo:'Sistema de Origen', parametro: 'sistema'}
     
@@ -14,18 +14,18 @@ var filtrosAplicables={
     año: {titulo:'Año',parametro:'años'},
     proveedor: {titulo:'Proveedor',parametro:'proveedores'},
     modalidad: {titulo:'Modalidad de Compra',parametro:'modalidades'},
-    categoria : {titulo:'Categoría de Compra',parametro:'categorias'},
+    categoria : {titulo:/*'Categoría de Compra'*/'Tipo de Contrato',parametro:'categorias'},
     sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
     
   };
   var ordenFiltros=['años','monedas','proveedores','categorias','modalidades','sistemas'];
   var traducciones={
-    'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
+    'goods':{titulo: 'Suministro de Bienes y/o Servicios'/*'Bienes y provisiones'*/,descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
-    'services':{titulo:'Servicios',descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
+    'services':{titulo: 'Consultorías'/*'Servicios'*/,descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
     'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'},
-    'tender':{titulo:'Licitación',descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'},
-    'awards':{titulo:'Adjudicación',descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'},
+    'tender':{titulo:/*'Licitación' */'Desde Elaboración hasta Evaluación',descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'},
+    'awards':{titulo:'Adjudicado'/*'Licitación'*/ ,descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'},
     'contracts':{titulo:'Contrato',descripcion:'Da información sobre los detalles de un contrato que ha entrado, o entrará, en vigencia. La sección de licitación puede ser poblada con detalles del proceso que lleva al contrato, y la sección de adjudicación puede tener detalles sobre la adjudicación sobre la '},
     'planning':{
         titulo:'Planeación',
@@ -404,7 +404,8 @@ function InicializarCantidadProcesos(){
                     interval:0,
                     rotate:45,
                     showMinLabel:false
-                }
+                },
+                name:'Meses'
             }
         ],
         grid:{
@@ -423,7 +424,7 @@ function InicializarCantidadProcesos(){
                 position:'left',
                 axisPointer: {
                     label: {
-                        formatter: '{value} Pagos'
+                        formatter: '{value} Procesos'
                     }
                 }
             },
@@ -455,6 +456,13 @@ function InicializarCantidadProcesos(){
                 data:datos.resultados.cantidadprocesos,
                 itemStyle:{
                     color: ObtenerColores('Pastel1')[0]
+                },
+                
+                label:{
+                    show:true,
+                    formatter:function (e){
+                        return ValorNumerico(e.value)  +''
+                    }
                 }
             },
             {
@@ -474,7 +482,15 @@ function InicializarCantidadProcesos(){
                 itemStyle:{
                     color: ObtenerColores('Pastel1')[9]
                 },
-                yAxisIndex:1
+                yAxisIndex:1,
+                
+                label:{
+                    show:true,
+                    color:'grey',
+                    formatter:function (e){
+                        return ValorMoneda(e.value)  +' %'
+                    }
+                }
             }
         ],
         grid:{
@@ -610,7 +626,8 @@ function InicializarMontoProcesos(){
                         interval:0,
                         rotate:45,
                         showMinLabel:false
-                    }
+                    },
+                    name :'Meses'
                 }
             ],
             yAxis: [
@@ -658,7 +675,14 @@ function InicializarMontoProcesos(){
                     data:datos.resultados.monto_contratos_mes,
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[1]
+                    },
+                    
+                label:{
+                    show:true,
+                    formatter:function (e){
+                        return ValorMoneda(e.value)  +' HNL'
                     }
+                }
                 },
                 {
                     name:'Porcentaje del Monto Contratado en Relación a los Demás Meses',
@@ -676,7 +700,15 @@ function InicializarMontoProcesos(){
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[9]
                     },
-                    yAxisIndex:1
+                    yAxisIndex:1,
+                    
+                label:{
+                    show:true,
+                    color:'grey',
+                    formatter:function (e){
+                        return ValorMoneda(e.value)  +' %'
+                    }
+                }
                 
                 }
             ],
@@ -788,7 +820,8 @@ function CantidadProcesosEtapas(){
                     axisPointer: {
                         type: 'shadow',
                         showMinLabel:false
-                    }
+                    },
+                    name :'Etapas'
                 }
             ],
             yAxis: [
@@ -1062,7 +1095,7 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
                 {
                     name: 'Cantidad de Procesos por Categoría de Compra',
                     type: 'pie',
-                    radius : '55%',
+                    radius : '45%',
                     //center: ['40%', '50%'],
                     data: datosPastel,//[{name:'Obras',value: 20},{name:'Bienes',value: 40},{name:'Servicios',value: 60}],
                     itemStyle: {
@@ -1077,7 +1110,10 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
                         }
                     },
                     label:{
-                        color:'gray'
+                        color:'gray',
+                        formatter:function (e){
+                            return ''+e.name+' \n'+ValorNumerico(e.value) +' ('+ ValorMoneda(e.percent) +'%)'
+                        }
                     }
                 }
             ],
@@ -1154,7 +1190,7 @@ function MontoProcesosCategoriaCompra(){
                 {
                     name: 'Monto de Contratos por Categoría de Compra',
                     type: 'pie',
-                    radius : '55%',
+                    radius : '45%',
                     center: ['50%', '50%'],
                     data: datosPastel,
                     itemStyle: {
@@ -1169,7 +1205,10 @@ function MontoProcesosCategoriaCompra(){
                         }
                     },
                     label:{
-                        color:'gray'
+                        color:'gray',
+                        formatter:function (e){
+                            return ''+e.name+' \n'+ValorMoneda(e.value) +' HNL ('+ ValorMoneda(e.percent) +'%)'
+                        }
                     }
                 }
             ],
@@ -1246,7 +1285,7 @@ var opciones = {
         {
             name: 'Cantidad de Procesos por Modalidad de Contratación',
             type: 'pie',
-            radius : '55%',
+            radius : '40%',
             center: ['50%', '50%'],
             data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
             itemStyle: {
@@ -1265,7 +1304,10 @@ var opciones = {
             },
             formatter: '{c}',
             label:{
-                color:'gray'
+                color:'gray',
+                formatter:function (e){
+                    return ''+e.name+' \n'+ValorNumerico(e.value) +' ('+ ValorMoneda(e.percent) +'%)'
+                }
             }
         }
     ],
@@ -1305,7 +1347,7 @@ var opciones = {
                 {
                     name: 'Cantidad de Procesos por\nModalidad de Contratación',
                     type: 'pie',
-                    radius : '60%',
+                    radius : '40%',
                     center: ['50%', '30%'],
                     data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
                     itemStyle: {
@@ -1409,9 +1451,9 @@ var datosPastel=[];
         calculable:true,
         series : [
             {
-                name: 'Monto de Contratos por \n Método de Contratación',
+                name: 'Monto de Contratos por \n Modalidad de Contratación',
                 type: 'pie',
-                radius : '50%',
+                radius : '40%',
                 center: ['50%', '50%'],
                 data:datosPastel,
                 itemStyle: {
@@ -1428,7 +1470,10 @@ var datosPastel=[];
                     containLabel:true
                 },
                 label:{
-                    color:'gray'
+                    color:'gray',
+                    formatter:function (e){
+                        return ''+e.name+' \n'+ValorMoneda(e.value) +' HNL ('+ ValorMoneda(e.percent) +'%)'
+                    }
                 }
             }
         ],
@@ -1464,9 +1509,9 @@ var datosPastel=[];
                 option:{
                     series : [
                         {
-                            name: 'Monto de Contratos por \nMétodo de Contratación',
+                            name: 'Monto de Contratos por \nModalidad de Contratación',
                             type: 'pie',
-                            radius : '60%',
+                            radius : '40%',
                             center: ['50%', '30%'],
                             data:datosPastel,
                             itemStyle: {
@@ -1585,7 +1630,8 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                     },
                     textStyle:{
                         color:'gray'
-                    }
+                    },
+                    name:'Monto\nContratado'
                 }
             ],
             yAxis: [
@@ -1602,7 +1648,8 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                         rotate:45,
                         showMinLabel:false,
                         padding:[0,0,0,0]
-                    }
+                    },
+                    name:'Compradores'
                 }
             ],
             series: [
@@ -1792,12 +1839,13 @@ var opciones = {
                                     label: {
                                         formatter: '{value} HNL'
                                     }
-                                }
+                                },
+                                name:'Monto\nContratado'
             }
         ],
         yAxis: [
             {
-                name:'Monto Contratado',
+                name:'Proveedores',
                 type: 'category',
                 data: datos.resultados.nombreProveedores.reverse(),
                 axisPointer: {

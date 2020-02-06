@@ -1,5 +1,7 @@
 var url=window.location.origin;
+
 var api=url+"/api";
+//api='http://200.13.162.86'+"/api";
 var estadosContrato={
     'pending':{titulo:'Pendiente',descripcion:'Este contrato se propuso pero aún no entra en vigor. Puede estar esperando ser firmado.'},
     'active':{titulo:'Activo',descripcion:'Este contrato se ha firmado por todas las partes y ahora está legalmente en proceso.'},
