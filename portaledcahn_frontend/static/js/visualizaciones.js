@@ -18,6 +18,7 @@ function AccederVisualizacion(direccion){
     location.href=direccion+'?año='+ObtenerAnoVisualizacionesDefecto();
 }
 function ObtenerAnoVisualizacionesDefecto(){
+    return 2019;
     if((new Date()).getMonth()==0){
         return (new Date()).getFullYear() - 1;
     }else{

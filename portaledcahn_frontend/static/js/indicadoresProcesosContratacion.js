@@ -147,6 +147,19 @@ function ModalidadMontoCantidad(){
                     barGap:'0%',
                     barCategoryGap: '0%',
                     padding:0*/
+                    ,
+                            label: {
+                                normal: {
+                                    show:true,
+                                    fontFamily:'Poppins',
+                                    fontWeight:700,
+                                    fontSize:15,
+                                    position: 'right',
+                                    formatter: function (e){
+                                        return ValorNumerico(e.value);
+                                    }
+                                }
+                            }
                 },
                 {
                     name:'Monto de Contratos',
@@ -171,7 +184,19 @@ function ModalidadMontoCantidad(){
                     },
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[0]
-                    }
+                    }/*,
+                    label: {
+                        normal: {
+                            show:true,
+                            fontFamily:'Poppins',
+                            fontWeight:700,
+                            fontSize:15,
+                            position: 'right',
+                            formatter: function (e){
+                                return ValorMoneda(e.value)+' HNL';
+                            }
+                        }
+                    }*/
     
                     
                 }
@@ -366,7 +391,7 @@ var opciones = {
         {
             name: 'Cantidad de Contratos por Categoría de Compra',
             type: 'pie',
-            radius : '55%',
+            radius : '40%',
             center: ['50%', '50%'],
             data: datosPastel,
             itemStyle: {
@@ -381,6 +406,7 @@ var opciones = {
                 }
             },
             label:{
+                show:true,
                 color:'gray',
                 formatter:function (e){
                     return ''+e.name+' \n'+ValorNumerico(e.value) +' ('+ ValorMoneda(e.percent) +'%)'
@@ -409,7 +435,7 @@ var opciones = {
                     {
                         name: 'Cantidad de Contratos por Categoría de Compra',
                         type: 'pie',
-                        radius : '55%',
+                        radius : '40%',
                         center: ['50%', '30%'],
                         data: datosPastel,
                         itemStyle: {
@@ -423,9 +449,12 @@ var opciones = {
                                 shadowColor: 'rgba(0, 0, 0, 0.5)'
                             }
                         },
-                    
                         label:{
-                            show :false
+                            show:true,
+                            color:'gray',
+                            formatter:function (e){
+                                return ''+e.name+' \n'+ValorNumerico(e.value) +' ('+ ValorMoneda(e.percent) +'%)'
+                            }
                         },
                         labelLine:{
                             show:false
@@ -501,7 +530,7 @@ var datosPastel=[];
                 {
                     name: 'Monto de Contratos por Categoría de Compra',
                     type: 'pie',
-                    radius : '55%',
+                    radius : '40%',
                     center: ['50%', '50%'],
                     data: datosPastel,
                     itemStyle: {
@@ -516,6 +545,7 @@ var datosPastel=[];
                         }
                     },
                     label:{
+                        show:true,
                         color:'gray',
                         formatter:function (e){
                             return ''+e.name+' \n'+ValorMoneda(e.value) +' HNL ('+ ValorMoneda(e.percent) +'%)'
@@ -548,7 +578,7 @@ var datosPastel=[];
                         {
                             name: 'Cantidad de Contratos por Categoría de Compra',
                             type: 'pie',
-                            radius : '55%',
+                            radius : '40%',
                             center: ['50%', '30%'],
                             data: datosPastel,
                             itemStyle: {
@@ -563,7 +593,11 @@ var datosPastel=[];
                                 }
                             },
                             label:{
-                                show :false
+                                show:true,
+                                color:'gray',
+                                formatter:function (e){
+                                    return ''+e.name+' \n'+ValorMoneda(e.value) +' HNL ('+ ValorMoneda(e.percent) +'%)'
+                                }
                             },
                             labelLine:{
                                 show:false
@@ -1328,19 +1362,19 @@ function AccederUrlPagina(opciones,desUrl){
 function ValoresLlaves(llave){
     switch(llave){
         case 'años':
-            return {valor:'key_as_string',cantidad:'procesos',codigo:'key_as_string'};
+            return {valor:'key_as_string',cantidad:'contratos',codigo:'key_as_string'};
         case 'categorias':
-            return {valor:'categoria',cantidad:'procesos',codigo:'categoria'};
+            return {valor:'categoria',cantidad:'contratos',codigo:'categoria'};
         case 'instituciones':
-            return {valor:'nombre',cantidad:'procesos',codigo:'codigo'};
+            return {valor:'nombre',cantidad:'contratos',codigo:'codigo'};
         case 'modalidades':
-            return {valor:'modalidad',cantidad:'procesos',codigo:'modalidad'};
+            return {valor:'modalidad',cantidad:'contratos',codigo:'modalidad'};
         case 'monedas':
-            return {valor:'moneda',cantidad:'procesos',codigo:'moneda'};
+            return {valor:'moneda',cantidad:'contratos',codigo:'moneda'};
         case 'sistemas':
             return {valor:'id',cantidad:'ocids',codigo:'id'};
         default:
-            return {valor:'key_as_string',cantidad:'procesos',codigo:'key_as_string'};
+            return {valor:'key_as_string',cantidad:'contratos',codigo:'key_as_string'};
     }
 }
 function AgregarPropiedadesListaElastica(valor,llave){

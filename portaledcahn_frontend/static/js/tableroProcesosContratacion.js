@@ -669,21 +669,7 @@ function InicializarMontoProcesos(){
                 }
             ],
             series: [
-                {
-                    name:'Monto de Procesos de Contratación',
-                    type:'bar',
-                    data:datos.resultados.monto_contratos_mes,
-                    itemStyle:{
-                        color: ObtenerColores('Pastel1')[1]
-                    },
-                    
-                label:{
-                    show:true,
-                    formatter:function (e){
-                        return ValorMoneda(e.value)  +' HNL'
-                    }
-                }
-                },
+                
                 {
                     name:'Porcentaje del Monto Contratado en Relación a los Demás Meses',
                     type:'line',
@@ -700,7 +686,8 @@ function InicializarMontoProcesos(){
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[9]
                     },
-                    yAxisIndex:1,
+                    yAxisIndex:1
+                    /*,
                     
                 label:{
                     show:true,
@@ -708,8 +695,22 @@ function InicializarMontoProcesos(){
                     formatter:function (e){
                         return ValorMoneda(e.value)  +' %'
                     }
-                }
+                }*/
                 
+                },{
+                    name:'Monto de Procesos de Contratación',
+                    type:'bar',
+                    data:datos.resultados.monto_contratos_mes,
+                    itemStyle:{
+                        color: ObtenerColores('Pastel1')[1]
+                    },
+                    
+                label:{
+                    show:true,
+                    formatter:function (e){
+                        return ValorMoneda(e.value)  +' HNL'
+                    }
+                }
                 }
             ],
             grid:{
@@ -853,6 +854,16 @@ function CantidadProcesosEtapas(){
                     data:datos.resultados.procesos,
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[3]
+                    },
+                    
+                    label:{
+                        show:true,
+                        formatter:function (e){
+                            return ValorNumerico(e.value)  +''
+                        },
+                        fontFamily:'Poppins',
+                        fontWeight:700,
+                        fontSize:25
                     }
                 }
             ],
