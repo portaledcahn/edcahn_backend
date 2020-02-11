@@ -1362,6 +1362,9 @@ class ProductosDelProveedor(APIView):
 		paginator = Paginator(productos, paginarPor)
 
 		try:
+			if page < 1:
+				page = settings.PAGINATE_BY
+
 			posts = paginator.page(page)
 		except PageNotAnInteger:
 			posts = paginator.page(1)
@@ -2059,7 +2062,7 @@ class ContratosDelComprador(APIView):
 		fechaInicio = request.GET.get('fechaInicio', '')
 		ordenarPor = request.GET.get('ordenarPor', '')
 		dependencias = request.GET.get('dependencias', '0')
-		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
+		tipoIdentificador = request.GET.get('tid', 'id') #por id, nombre
 
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
@@ -2214,6 +2217,9 @@ class ContratosDelComprador(APIView):
 		paginator = Paginator(search_results, paginarPor)
 
 		try:
+			if page < 1:
+				page = settings.PAGINATE_BY
+
 			posts = paginator.page(page)
 		except PageNotAnInteger:
 			posts = paginator.page(1)
@@ -2402,6 +2408,9 @@ class PagosDelComprador(APIView):
 		paginator = Paginator(search_results, paginarPor)
 
 		try:
+			if page < 1:
+				page = settings.PAGINATE_BY
+
 			posts = paginator.page(page)
 		except PageNotAnInteger:
 			posts = paginator.page(1)
@@ -3513,11 +3522,19 @@ class FiltrosDashboardONCAE(APIView):
 		sss = Search(using=cliente, index='contract')
 		ssss = Search(using=cliente, index='edca')
 
+		sFecha = Search(using=cliente, index='edca')
+		ssFecha = Search(using=cliente, index='contract')
+		sssFecha = Search(using=cliente, index='contract')
+
 		# Excluyendo procesos de SEFIN
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 		sss = sss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 		ssss = ssss.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+
+		sFecha = sFecha.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		ssFecha = ssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		sssFecha = sssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
 		# Filtros
 		if institucion.replace(' ', ''):
@@ -3525,15 +3542,23 @@ class FiltrosDashboardONCAE(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 			sss = sss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 
+			sFecha = sFecha.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ssFecha = ssFecha.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
 		if idinstitucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 			sss = sss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
-		# if anio.replace(' ', ''):
-		# 	s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-		# 	ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-		# 	sss = sss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			sFecha = sFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ssFecha = ssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			sss = sss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':			
@@ -3542,10 +3567,19 @@ class FiltrosDashboardONCAE(APIView):
 				s = s.filter('bool', must_not=qCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 				sss = sss.filter('bool', must_not=qqCategoria)
+
+				sFecha = sFecha.filter('bool', must_not=qCategoria)
+				ssFecha = ssFecha.filter('bool', must_not=qqCategoria)
+				sssFecha = sssFecha.filter('bool', must_not=qqCategoria)
+			
 			else:
 				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
 				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
 				sss = sss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+
+				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				ssFecha = ssFecha.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				sssFecha = sssFecha.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':			
@@ -3554,19 +3588,35 @@ class FiltrosDashboardONCAE(APIView):
 				s = s.filter('bool', must_not=qModalidad)
 				ss = ss.filter('bool', must_not=qqModalidad)
 				sss = sss.filter('bool', must_not=qqModalidad)
+
+				sFecha = sFecha.filter('bool', must_not=qModalidad)
+				ssFecha = ssFecha.filter('bool', must_not=qqModalidad)
+				sssFecha = sssFecha.filter('bool', must_not=qqModalidad)
+
 			else:			
 				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
 				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 				sss = sss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+				ssFecha = ssFecha.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				sssFecha = sssFecha.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
 				qMoneda = Q('exists', field='value.currency.keyword') 
 				ss = ss.filter('bool', must_not=qMoneda)
 				sss = sss.filter('bool', must_not=qMoneda)
+
+				ssFecha = ssFecha.filter('bool', must_not=qMoneda)
+				sssFecha = sssFecha.filter('bool', must_not=qMoneda)
+			
 			else:
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 				sss = sss.filter('match_phrase', value__currency__keyword=moneda)
+
+				ssFecha = ssFecha.filter('match_phrase', value__currency__keyword=moneda)
+				sssFecha = sssFecha.filter('match_phrase', value__currency__keyword=moneda)
 
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
@@ -3616,32 +3666,32 @@ class FiltrosDashboardONCAE(APIView):
 			size=10000	
 		)
 
-		s.aggs.metric(
-			'aniosProcesos', 
-			'date_histogram', 
-			field='doc.compiledRelease.tender.datePublished', 
-			interval='year', 
-			format='yyyy',
-			min_doc_count=1
-		)
+		# s.aggs.metric(
+		# 	'aniosProcesos', 
+		# 	'date_histogram', 
+		# 	field='doc.compiledRelease.tender.datePublished', 
+		# 	interval='year', 
+		# 	format='yyyy',
+		# 	min_doc_count=1
+		# )
 
-		ss.aggs.metric(
-			'aniosContratoFechaFirma', 
-			'date_histogram', 
-			field='dateSigned', 
-			interval='year', 
-			format='yyyy',
-			min_doc_count=1
-		)
+		# ss.aggs.metric(
+		# 	'aniosContratoFechaFirma', 
+		# 	'date_histogram', 
+		# 	field='dateSigned', 
+		# 	interval='year', 
+		# 	format='yyyy',
+		# 	min_doc_count=1
+		# )
 
-		sss.aggs.metric(
-			'aniosContratoFechaInicio', 
-			'date_histogram', 
-			field='period.startDate', 
-			interval='year', 
-			format='yyyy',
-			min_doc_count=1
-		)
+		# sss.aggs.metric(
+		# 	'aniosContratoFechaInicio', 
+		# 	'date_histogram', 
+		# 	field='period.startDate', 
+		# 	interval='year', 
+		# 	format='yyyy',
+		# 	min_doc_count=1
+		# )
 
 		s.aggs.metric(
 			'categoriasProcesos', 
@@ -3737,10 +3787,41 @@ class FiltrosDashboardONCAE(APIView):
 			size=10000
 		)
 
+		sFecha.aggs.metric(
+			'aniosProcesos', 
+			'date_histogram', 
+			field='doc.compiledRelease.tender.datePublished', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
+		)
+
+		ssFecha.aggs.metric(
+			'aniosContratoFechaFirma', 
+			'date_histogram', 
+			field='dateSigned', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
+		)
+
+		sssFecha.aggs.metric(
+			'aniosContratoFechaInicio', 
+			'date_histogram', 
+			field='period.startDate', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
+		)
+
 		procesos = s.execute()
 		contratosPC = ss.execute()
 		contratosDD = sss.execute()
 		filtroSource = ssss.execute()
+		
+		sFechaResultados = sFecha.execute()
+		ssFechaResultados = ssFecha.execute()
+		sssFechaResultados = sssFecha.execute()
 
 		categoriasProcesos = procesos.aggregations.categoriasProcesos.to_dict()
 		categoriasContratosPC = contratosPC.aggregations.categoriasContratosFechaFirma.to_dict()
@@ -3750,9 +3831,9 @@ class FiltrosDashboardONCAE(APIView):
 		modalidadesContratosPC = contratosPC.aggregations.modalidadesContratosFechaFirma.to_dict()
 		modalidadesContratosDD = contratosDD.aggregations.modalidadesContratosFechaInicio.to_dict()
 
-		aniosProcesos = procesos.aggregations.aniosProcesos.to_dict()
-		aniosFechaFirma = contratosPC.aggregations.aniosContratoFechaFirma.to_dict()
-		aniosFechaInicio = contratosDD.aggregations.aniosContratoFechaInicio.to_dict()
+		aniosProcesos = sFechaResultados.aggregations.aniosProcesos.to_dict()
+		aniosFechaFirma = ssFechaResultados.aggregations.aniosContratoFechaFirma.to_dict()
+		aniosFechaInicio = sssFechaResultados.aggregations.aniosContratoFechaInicio.to_dict()
 
 		institucionesProcesos = procesos.aggregations.instituciones.to_dict()
 		institucionesContratosPC = contratosPC.aggregations.instituciones.to_dict()
@@ -4055,8 +4136,8 @@ class GraficarProcesosPorCategorias(APIView):
 			field='doc.compiledRelease.tender.mainProcurementCategory.keyword' 
 		)
 		#Borrar estas lineas
-		print("Resultados")
-		return descargar_procesos_csv(request, s)
+		# print("Resultados")
+		# return descargar_procesos_csv(request, s)
 
 		results = s.execute()
 
@@ -4858,8 +4939,8 @@ class EstadisticaCantidadDeContratos(APIView):
 			field='value.amount'
 		)
 
-		#Borrar esta linea. 
-		return descargar_contratos_csv(request, ss)
+		# #Borrar esta linea. 
+		# return descargar_contratos_csv(request, ss)
 
 		contratosPC = s.execute()
 		contratosDD = ss.execute()
@@ -6249,14 +6330,16 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 		for valor in montosContratosPC["buckets"]:
 			categorias.append({
 				"name": valor["key"],
-				"value": valor["conteoOCID"]["value"]
+				"value": valor["doc_count"],
+				# "value": valor["conteoOCID"]["value"]
 			})
 
 		if anio.replace(' ', ''):
 			for valor in montosContratosDD["buckets"]:
 				categorias.append({
 					"name": valor["key"],
-					"value": valor["conteoOCID"]["value"],
+					"value": valor["doc_count"],
+					# "value": valor["conteoOCID"]["value"],
 				})
 
 		if categorias:
@@ -6607,7 +6690,7 @@ class IndicadorCatalogoElectronico(APIView):
 		)
 
 		#Borrar estas lineas
-		print("Resultados")
+		# print("Resultados")
 		# return descargar_contratos_csv(request, s)
 		# return descargar_productos_csv(request, s)
 
