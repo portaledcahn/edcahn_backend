@@ -575,7 +575,7 @@ function InicializarMontoProcesos(){
                     }
                 },
                 formatter:  function (e){
-                    return "{b0}<br>{a0} {s0} {c0} HNL <br>{a1} {s1} {c1} %".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);
+                    return "{b0}<br>{a0} {s0} {c0} % <br>{a1} {s1} {c1} HNL".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);
                 }
             },
             legend: {
@@ -631,22 +631,7 @@ function InicializarMontoProcesos(){
                 }
             ],
             yAxis: [
-                {
-                    type: 'value',
-                    name: 'Monto',
-                    min: 0,
-                   /* max: 250,*/
-                  //  interval: 10000000,
-                    axisLabel: {
-                        formatter: '{value} HNL'
-                    },
-                    name:'Lempiras',
-                    axisPointer: {
-                        label: {
-                            formatter: '{value} HNL'
-                        }
-                    }
-                },
+                
                 {
                     type: 'value',
                     //name: '',
@@ -664,6 +649,22 @@ function InicializarMontoProcesos(){
                     axisPointer: {
                         label: {
                             formatter: '{value} %'
+                        }
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Monto',
+                    min: 0,
+                   /* max: 250,*/
+                  //  interval: 10000000,
+                    axisLabel: {
+                        formatter: '{value} HNL'
+                    },
+                    name:'Lempiras',
+                    axisPointer: {
+                        label: {
+                            formatter: '{value} HNL'
                         }
                     }
                 }
@@ -685,8 +686,7 @@ function InicializarMontoProcesos(){
                     },
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[9]
-                    },
-                    yAxisIndex:1
+                    }
                     /*,
                     
                 label:{
@@ -707,10 +707,15 @@ function InicializarMontoProcesos(){
                     
                 label:{
                     show:true,
+                    color:'#c4c4c4',
                     formatter:function (e){
                         return ValorMoneda(e.value)  +' HNL'
-                    }
-                }
+                    },
+                    fontFamily:'Poppins',
+                    fontWeight:700,
+                    fontSize:15
+                },
+                yAxisIndex:1
                 }
             ],
             grid:{
@@ -729,7 +734,8 @@ function InicializarMontoProcesos(){
                         data:datos.resultados.monto_contratos_mes,
                         itemStyle:{
                             color: ObtenerColores('Pastel1')[1]
-                        }
+                        },
+                        yAxisIndex:1
                     },
                     {
                         name:'Porcentaje del Monto Contratado en \nRelación a los Demás Meses',
@@ -746,8 +752,7 @@ function InicializarMontoProcesos(){
                         },
                         itemStyle:{
                             color: ObtenerColores('Pastel1')[9]
-                        },
-                        yAxisIndex:1
+                        }
                     
                     }
                 ]
@@ -820,9 +825,12 @@ function CantidadProcesosEtapas(){
                     data: datos.resultados.etapas.map(function(e){return (traducciones[e]?traducciones[e].titulo:e);}),
                     axisPointer: {
                         type: 'shadow',
-                        showMinLabel:false
+                        showMinLabel:true
                     },
-                    name :'Etapas'
+                    name :'Etapas',
+                    axisLabel:{
+                        showMinLabel:true
+                    }
                 }
             ],
             yAxis: [

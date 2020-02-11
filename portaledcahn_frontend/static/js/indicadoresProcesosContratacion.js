@@ -973,7 +973,8 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                         type: 'shadow'
                     },axisLabel: {
                         rotate:45
-                    }
+                    },
+                    name:'Catálogo Electrónico'
                     
                 }
             ],
@@ -1049,8 +1050,13 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                             },
                             axisLabel: {
                                 rotate:90
-                            }
+                            },
+                            name:'Catálogo\nElectrónico'
                             
+                        },
+                        {
+                           
+                            name:''
                         }
                     ],
                     yAxis: [
