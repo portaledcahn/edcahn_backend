@@ -2463,6 +2463,8 @@ class FiltrosDashboardSEFIN(APIView):
 
 		s = Search(using=cliente, index='transaction')
 
+		ss = Search(using=cliente, index='transaction')
+
 		# Filtros
 
 		if institucion.replace(' ', ''):
@@ -2472,8 +2474,8 @@ class FiltrosDashboardSEFIN(APIView):
 		if proveedor.replace(' ', ''):
 			s = s.filter('match_phrase', payee__name__keyword=proveedor)
 
-		# if anio.replace(' ', ''):
-		# 	s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+		if anio.replace(' ', ''):
+			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
 			s = s.filter('match_phrase', value__currency__keyword=moneda)
@@ -2510,6 +2512,14 @@ class FiltrosDashboardSEFIN(APIView):
 			format='yyyy'
 		)
 
+		ss.aggs.metric(
+			'años', 
+			'date_histogram', 
+			field='date', 
+			interval='year', 
+			format='yyyy'
+		)
+
 		s.aggs.metric(
 			'monedas', 
 			'terms', 
@@ -2532,6 +2542,7 @@ class FiltrosDashboardSEFIN(APIView):
 		)
 
 		results = s.execute()
+		resultsYears = ss.execute()
 
 		parametros = {}
 		parametros["institucion"] = institucion
@@ -2542,6 +2553,11 @@ class FiltrosDashboardSEFIN(APIView):
 		parametros["proveedor"] = proveedor
 
 		resultados = results.aggregations.to_dict()
+
+		years = resultsYears.aggregations.to_dict()
+
+		if "años" in resultados:
+			resultados["años"] = years["años"]
 
 		context = {
 			"parametros": parametros,
@@ -2628,7 +2644,12 @@ class GraficarCantidadDePagosMes(APIView):
 			if bucket["key_as_string"] in meses:
 
 				total = results.aggregations.total_pagos["value"]
-				count = bucket["doc_count"]
+				
+				if 'cantidad_pagos' in meses[bucket["key_as_string"]]:
+					count = meses[bucket["key_as_string"]]["cantidad_pagos"] + bucket["doc_count"]
+				else:
+					count = bucket["doc_count"]
+
 				if total != 0:
 					promedio = count / total
 				else:
@@ -2744,7 +2765,12 @@ class GraficarMontosDePagosMes(APIView):
 			if bucket["key_as_string"] in meses:
 
 				total = results.aggregations.montos_pagos["value"]
-				count = bucket["suma_montos"]["value"]
+
+				if 'montos_pagos' in meses[bucket["key_as_string"]]:
+					count = meses[bucket["key_as_string"]]["montos_pagos"] + bucket["suma_montos"]["value"]
+				else:
+					count = bucket["suma_montos"]["value"]
+
 				if total != 0:
 					promedio = count / total
 				else:
