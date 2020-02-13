@@ -34,9 +34,7 @@ function ObtenerColores(paleta){
         'Pastel2':['#82CCB5','#DD86B9','#FFF68F','#F9B48A','#F497AA','#B6D884','#6BCADE','#71ABDD','#FDCD7B','#9977B4'],
         'Pastel3':['#9DDAEC','#F29AC0','#FEDDB4','#FFAAA5','#C1ACD3','#B9DB9F','#B0DDD6','#DCEDC1','#EDEEA2','#FF8B94']
     }
-
     return Paletas[paleta?paleta:'Basica'];
-
 }
 function VerificarIntroduccion(variable,veces){
     var introduccion=ObtenerCookie(variable);
