@@ -25,7 +25,7 @@ SECRET_KEY = 'uo251c%zw60+efuwf$7yn7dl=6@0)p12%q(-87*p4r^dy-zbhp'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['35.237.10.60','localhost','127.0.0.1','200.13.162.86','74641fc6.ngrok.io','ddf33ef3.ngrok.io', 'http://www.contratacionesabiertas.gob.hn','www.contratacionesabiertas.gob.hn', 'contratacionesabiertas.gob.hn']
 
 
 # Application definition
@@ -39,6 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'portaledcahn_backend',
     'rest_framework',
+    'portaledcahn_frontend',
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +60,9 @@ ROOT_URLCONF = 'portaledcahn.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR,'portaledcahn_frontend/templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,10 +83,14 @@ WSGI_APPLICATION = 'portaledcahn.wsgi.application'
 DATABASES = {
     'bdkingfisher': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        # 'NAME': 'postgres',
+        # 'USER': 'postgres',
+        # 'PASSWORD': 'postgres',
+        # 'HOST': '192.168.1.15',
         'NAME': 'ocdskingfisher',
         'USER': 'ocdskingfisher',
-        'PASSWORD': 'ocdskingfisher',
-        'HOST': '34.74.53.102',
+        'PASSWORD': 'ocdskingfisher',        
+        'HOST': '200.13.162.87',
         'PORT': '5432',
     },
     'default': {
@@ -129,7 +139,28 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = 'static'
+
+STATICFILES_DIRS=(
+    os.path.join(BASE_DIR,'portaledcahn_frontend/static'),
+)
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5
+    'PAGE_SIZE': 10
 }
+
+# ELASTICSEARCH_DSL_HOST = '192.168.1.50:9200/'
+# ELASTICSEARCH_DSL_HOST = '192.168.104.94:9200/'
+ELASTICSEARCH_DSL_HOST = 'http://200.13.162.87:9200/'
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': ELASTICSEARCH_DSL_HOST
+    },
+}
+
+PAGINATE_BY = 10
+
+SOURCE_SEFIN_ID = 'HN.SIAFI2'
+
+TIMEOUT_ES = 120

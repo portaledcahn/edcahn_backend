@@ -81,6 +81,7 @@ class CompiledRelease(models.Model):
 class Data(models.Model):
     hash_md5 = models.TextField(unique=True)
     data = JSONField()  # This field type is a guess.
+    # data = models.TextField()
 
     class Meta:
         managed = False
@@ -106,6 +107,7 @@ class Record(models.Model):
         managed = False
         db_table = 'record'
         app_label = 'kingfisher'
+        ordering = ['-id']
 
 class RecordCheck(models.Model):
     record = models.ForeignKey(Record, models.DO_NOTHING)
@@ -140,6 +142,7 @@ class Release(models.Model):
         managed = False
         db_table = 'release'
         app_label = 'kingfisher'
+        ordering = ['-id']
 
 class ReleaseCheck(models.Model):
     release = models.ForeignKey(Release, models.DO_NOTHING)
@@ -228,3 +231,12 @@ class Buyer(models.Model):
         app_label = 'kingfisher'
 
 
+class Contrato(models.Model):
+    id = models.TextField()
+    ocid = models.TextField(blank=True, null=True)
+    data = JSONField()
+
+    class Meta:
+        managed = False
+        db_table = 'contratos'
+        app_label = 'kingfisher'
