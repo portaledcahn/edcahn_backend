@@ -4,7 +4,8 @@ var filtrosAplicables={
   instituciones: {titulo:'Institución Compradora',parametro:'institucion'},
   metodos_de_seleccion: {titulo:'Método de Selección',parametro:'metodo_seleccion'},
   años: {titulo:'Año',parametro:'year'},
-  proveedor: {titulo:'Proveedor',parametro:'proveedor'}
+  proveedor: {titulo:'Proveedor',parametro:'proveedor'},
+  organismosFinanciadores:{titulo:'Organismos Financiadores',parametro:'organismo'}
 };
 $('#textoTotalBusqueda').html(
   $('#textoTotalBusqueda').html()+
@@ -120,7 +121,11 @@ function CargarElementosBusqueda(cargaFiltro){
     parametros['categoria']=decodeURIComponent(ObtenerValor('categoria')) ;
   }
   if(Validar(ObtenerValor('year'))){
-    parametros['year']=ObtenerValor('year');
+    parametros['year']=decodeURIComponent(ObtenerValor('year'));
+  }
+
+  if(Validar(ObtenerValor('organismo'))){
+    parametros['organismo']=decodeURIComponent(ObtenerValor('organismo')) ;
   }
   CargandoResultados('#listaResultadosBusqueda',3);
   CargandoResultadosEncabezados(true);
@@ -129,6 +134,7 @@ function CargarElementosBusqueda(cargaFiltro){
   EliminarEventoModalDescarga('descargaCsvBusqueda');
   EliminarEventoModalDescarga('descargaXlsxBusqueda');
   $.get(api+"/buscador",parametros).done(function( datos ) {
+  
     console.dir(datos);
     AgregarEventoModalDescarga('descargaJsonBusqueda',function(){
       var descarga=datos.resultados.map(function(e){
@@ -246,7 +252,9 @@ function AccederBusqueda(opciones,desUrl){
 
   (Validar(opciones.categoria) ? '&categoria='+opciones.categoria:(Validar(ObtenerValor('categoria'))&&!desUrl?'&categoria='+ObtenerValor('categoria'):''))+
 
-  (Validar(opciones.year) ? '&year='+opciones.year:(Validar(ObtenerValor('year'))&&!desUrl?'&year='+ObtenerValor('year'):''))
+  (Validar(opciones.year) ? '&year='+opciones.year:(Validar(ObtenerValor('year'))&&!desUrl?'&year='+ObtenerValor('year'):''))+
+
+  (Validar(opciones.organismo) ? '&organismo='+opciones.organismo:(Validar(ObtenerValor('organismo'))&&!desUrl?'&organismo='+ObtenerValor('organismo'):''))
 
   );
   return direccion;
@@ -310,6 +318,9 @@ function ObtenerJsonFiltrosAplicados(parametros,url){
   if(Validar(ObtenerValor('proveedor'))){
     parametros[url?'proveedor':'proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
   }
+  if(Validar(ObtenerValor('organismo'))){
+    parametros[url?'organismo':'organismosFinanciadores']=decodeURIComponent(ObtenerValor('organismo'));
+  }
   return parametros;
 }
 
@@ -322,6 +333,8 @@ function MostrarEtiquetasFiltrosAplicados(parametros){
     $('#contenedorSinFiltros').show();
   }
   $('#listaFiltrosAplicados').html('');
+  console.dir('HOLA')
+  console.dir(parametros);
   $.each(parametros,function(llave,filtro){
     $('#listaFiltrosAplicados').append(
       $('<div>',{class:'grupoEtiquetaFiltro col-md-12 mb-1'}).append(

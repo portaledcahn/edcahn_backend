@@ -379,7 +379,7 @@ function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
                     :null),
                   (desglosePresupuesto[i].classifications.fuente?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente de Financiamiento:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.fuente})
                     )
                     :null),
@@ -391,7 +391,7 @@ function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
                     :null),
                   (desglosePresupuesto[i].classifications.objeto?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Objeto:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Objeto del Gasto:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.objeto})
                     )
                     :null),

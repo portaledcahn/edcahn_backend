@@ -418,6 +418,7 @@ class Buscador(APIView):
 		institucion = request.GET.get('institucion', '')
 		categoria = request.GET.get('categoria', '')
 		year = request.GET.get('year', '')
+		organismo = request.GET.get('organismo', '')
 
 		term = request.GET.get('term', '')
 		start = (page-1) * settings.PAGINATE_BY
@@ -446,6 +447,8 @@ class Buscador(APIView):
 		s.aggs.metric('instituciones', 'terms', field='extra.parentTop.name.keyword', size=10000)
 
 		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+
+		s.aggs.metric('organismosFinanciadores', 'terms', field='doc.compiledRelease.planning.budget.budgetBreakdown.classifications.organismo.keyword', size=2000)
 
 		if metodo == 'pago' or metodo == 'contrato':
 			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.date', interval='year', format='yyyy', min_doc_count=1)
@@ -549,6 +552,9 @@ class Buscador(APIView):
 				qDescripcion = Q("wildcard", doc__compiledRelease__contracts__description='*'+term+'*')
 				s = s.query('nested', path='doc.compiledRelease.contracts', query=qDescripcion)
 
+		if organismo.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__classifications__organismo=organismo)
+
 		search_results = SearchResults(s)
 
 		results = s[start:end].execute()
@@ -598,6 +604,7 @@ class Buscador(APIView):
 		filtros["categorias"] = results.aggregations.categorias.to_dict()
 		filtros["instituciones"] = results.aggregations.instituciones.to_dict()
 		filtros["metodos_de_seleccion"] = results.aggregations.metodos_de_seleccion.to_dict()
+		filtros["organismosFinanciadores"] = results.aggregations.organismosFinanciadores.to_dict()
 
 		total_compradores = results.aggregations.compradores_total.value
 
@@ -633,6 +640,7 @@ class Buscador(APIView):
 		parametros["institucion"] = institucion
 		parametros["categoria"] = categoria
 		parametros["year"] = year
+		parametros["organismo"] = organismo
 
 		context = {
 			"paginador": pagination,
@@ -788,10 +796,16 @@ class Proveedores(APIView):
 
 		#Ordenamiento
 		#Ejemplo: /proveedores?ordenarPor=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
+	
+		if not ordenarPor:
+			ordenarPor = 'asc(name)'
+
 		dfProveedores = pd.DataFrame(proveedores)
 		ordenar = getSortBy(ordenarPor)
 
 		dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'], errors='coerce')
+
+		dfProveedores['name'] = dfProveedores['name'].apply(lambda x : x.strip().replace('"', ''))
 
 		for indice, columna in enumerate(ordenar["columnas"]):
 			if not columna in dfProveedores:
@@ -2004,6 +2018,10 @@ class ProcesosDelComprador(APIView):
 
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
+
+		if paginarPor < 1:
+			paginarPor = settings.PAGINATE_BY
+
 		paginator = Paginator(search_results, paginarPor)
 
 		try:
@@ -2079,7 +2097,13 @@ class ContratosDelComprador(APIView):
 		partieId = urllib.parse.unquote_plus(partieId)
 
 		if tipoIdentificador == 'id':
-			s = s.filter('match_phrase', extra__buyer__id__keyword=partieId)
+			qPartieId1 = Q('match_phrase', extra__buyer__id__keyword=partieId)
+			qPartieId2 = Q('match_phrase', extra__parent1__id__keyword=partieId)
+			qPartieId3 = Q('match_phrase', extra__parent2__id__keyword=partieId)
+
+			qPartieId = Q('bool', should=[qPartieId1, qPartieId2, qPartieId3])
+
+			s = s.filter(qPartieId)
 		else:
 			if dependencias == '1':
 				s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
@@ -2214,6 +2238,10 @@ class ContratosDelComprador(APIView):
 
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
+
+		if paginarPor < 1:
+			paginarPor = settings.PAGINATE_BY
+
 		paginator = Paginator(search_results, paginarPor)
 
 		try:
@@ -2405,6 +2433,10 @@ class PagosDelComprador(APIView):
 
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
+
+		if paginarPor < 1:
+			 paginarPor = settings.PAGINATE_BY
+
 		paginator = Paginator(search_results, paginarPor)
 
 		try:
@@ -2851,8 +2883,6 @@ class EstadisticaMontoDePagos(APIView):
 			ss = ss.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
 			# planning.budget.budgetBreakdown.n.classifications.fuente
 		
-			ss = ss.filter('range', value__amount={'gte': 0})
-
 		# Agregados
 		s.aggs.metric(
 			'total_pagado',
@@ -2872,7 +2902,14 @@ class EstadisticaMontoDePagos(APIView):
 			field='value.amount'
 		)
 
-		ss.aggs.bucket('mayor_cero', 'filter', filter=Q('range', value__amount={'gte': 0})).metric('minimo_pagado', 'min', field='value.amount')
+		# Filtrando montos de transacciones > 0
+		ss = ss.filter('range', value__amount={'gt': 0})
+		
+		ss.aggs.metric(
+			'minimo_pagado', 
+			'min', 
+			field='value.amount'
+		)
 
 		results = s.execute()
 		results2 = ss.execute()
@@ -2880,7 +2917,7 @@ class EstadisticaMontoDePagos(APIView):
 		resultados = {
 			"promedio": results.aggregations.promedio_pagado["value"],
 			"mayor": results.aggregations.maximo_pagado["value"],
-			"menor": results2.aggregations.mayor_cero.minimo_pagado["value"],
+			"menor": results2.aggregations.minimo_pagado["value"],
 			"total": results.aggregations.total_pagado["value"],
 		}
 
@@ -2961,9 +2998,9 @@ class EstadisticaCantidadDePagos(APIView):
 			cantidad_por_meses.append(bucket["doc_count"])
 
 		resultados = {
-			"promedio": statistics.mean(cantidad_por_meses),
-			"mayor": max(cantidad_por_meses),
-			"menor": min(cantidad_por_meses),
+			"promedio": statistics.mean(cantidad_por_meses) if len(cantidad_por_meses) > 0 else 0,
+			"mayor": max(cantidad_por_meses) if len(cantidad_por_meses) > 0 else 0,
+			"menor": min(cantidad_por_meses) if len(cantidad_por_meses) > 0 else 0,
 			"total": results.aggregations.total_pagos.value,
 		}
 
