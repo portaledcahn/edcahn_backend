@@ -2021,7 +2021,7 @@ class ProcesosDelComprador(APIView):
 
 		if paginarPor < 1:
 			paginarPor = settings.PAGINATE_BY
-		
+
 		paginator = Paginator(search_results, paginarPor)
 
 		try:
@@ -2883,8 +2883,6 @@ class EstadisticaMontoDePagos(APIView):
 			ss = ss.filter('match_phrase', extra__fuentes=fuentefinanciamiento)
 			# planning.budget.budgetBreakdown.n.classifications.fuente
 		
-			ss = ss.filter('range', value__amount={'gte': 0})
-
 		# Agregados
 		s.aggs.metric(
 			'total_pagado',
@@ -2904,7 +2902,14 @@ class EstadisticaMontoDePagos(APIView):
 			field='value.amount'
 		)
 
-		ss.aggs.bucket('mayor_cero', 'filter', filter=Q('range', value__amount={'gte': 0})).metric('minimo_pagado', 'min', field='value.amount')
+		# Filtrando montos de transacciones > 0
+		ss = ss.filter('range', value__amount={'gt': 0})
+		
+		ss.aggs.metric(
+			'minimo_pagado', 
+			'min', 
+			field='value.amount'
+		)
 
 		results = s.execute()
 		results2 = ss.execute()
@@ -2912,7 +2917,7 @@ class EstadisticaMontoDePagos(APIView):
 		resultados = {
 			"promedio": results.aggregations.promedio_pagado["value"],
 			"mayor": results.aggregations.maximo_pagado["value"],
-			"menor": results2.aggregations.mayor_cero.minimo_pagado["value"],
+			"menor": results2.aggregations.minimo_pagado["value"],
 			"total": results.aggregations.total_pagado["value"],
 		}
 
@@ -2993,9 +2998,9 @@ class EstadisticaCantidadDePagos(APIView):
 			cantidad_por_meses.append(bucket["doc_count"])
 
 		resultados = {
-			"promedio": statistics.mean(cantidad_por_meses),
-			"mayor": max(cantidad_por_meses),
-			"menor": min(cantidad_por_meses),
+			"promedio": statistics.mean(cantidad_por_meses) if len(cantidad_por_meses) > 0 else 0,
+			"mayor": max(cantidad_por_meses) if len(cantidad_por_meses) > 0 else 0,
+			"menor": min(cantidad_por_meses) if len(cantidad_por_meses) > 0 else 0,
 			"total": results.aggregations.total_pagos.value,
 		}
 
