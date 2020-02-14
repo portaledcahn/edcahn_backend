@@ -2018,6 +2018,10 @@ class ProcesosDelComprador(APIView):
 
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
+
+		if paginarPor < 1:
+			paginarPor = settings.PAGINATE_BY
+		
 		paginator = Paginator(search_results, paginarPor)
 
 		try:
@@ -2234,6 +2238,10 @@ class ContratosDelComprador(APIView):
 
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
+
+		if paginarPor < 1:
+			paginarPor = settings.PAGINATE_BY
+
 		paginator = Paginator(search_results, paginarPor)
 
 		try:
@@ -2425,6 +2433,10 @@ class PagosDelComprador(APIView):
 
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
+
+		if paginarPor < 1:
+			 paginarPor = settings.PAGINATE_BY
+
 		paginator = Paginator(search_results, paginarPor)
 
 		try:
