@@ -418,6 +418,7 @@ class Buscador(APIView):
 		institucion = request.GET.get('institucion', '')
 		categoria = request.GET.get('categoria', '')
 		year = request.GET.get('year', '')
+		organismo = request.GET.get('organismo', '')
 
 		term = request.GET.get('term', '')
 		start = (page-1) * settings.PAGINATE_BY
@@ -446,6 +447,8 @@ class Buscador(APIView):
 		s.aggs.metric('instituciones', 'terms', field='extra.parentTop.name.keyword', size=10000)
 
 		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+
+		s.aggs.metric('organismosFinanciadores', 'terms', field='doc.compiledRelease.planning.budget.budgetBreakdown.classifications.organismo.keyword', size=2000)
 
 		if metodo == 'pago' or metodo == 'contrato':
 			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.date', interval='year', format='yyyy', min_doc_count=1)
@@ -549,6 +552,9 @@ class Buscador(APIView):
 				qDescripcion = Q("wildcard", doc__compiledRelease__contracts__description='*'+term+'*')
 				s = s.query('nested', path='doc.compiledRelease.contracts', query=qDescripcion)
 
+		if organismo.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__classifications__organismo=organismo)
+
 		search_results = SearchResults(s)
 
 		results = s[start:end].execute()
@@ -598,6 +604,7 @@ class Buscador(APIView):
 		filtros["categorias"] = results.aggregations.categorias.to_dict()
 		filtros["instituciones"] = results.aggregations.instituciones.to_dict()
 		filtros["metodos_de_seleccion"] = results.aggregations.metodos_de_seleccion.to_dict()
+		filtros["organismosFinanciadores"] = results.aggregations.organismosFinanciadores.to_dict()
 
 		total_compradores = results.aggregations.compradores_total.value
 
@@ -633,6 +640,7 @@ class Buscador(APIView):
 		parametros["institucion"] = institucion
 		parametros["categoria"] = categoria
 		parametros["year"] = year
+		parametros["organismo"] = organismo
 
 		context = {
 			"paginador": pagination,
