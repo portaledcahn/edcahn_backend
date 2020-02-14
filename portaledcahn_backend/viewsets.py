@@ -796,10 +796,16 @@ class Proveedores(APIView):
 
 		#Ordenamiento
 		#Ejemplo: /proveedores?ordenarPor=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
+	
+		if not ordenarPor:
+			ordenarPor = 'asc(name)'
+
 		dfProveedores = pd.DataFrame(proveedores)
 		ordenar = getSortBy(ordenarPor)
 
 		dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'], errors='coerce')
+
+		dfProveedores['name'] = dfProveedores['name'].apply(lambda x : x.strip().replace('"', ''))
 
 		for indice, columna in enumerate(ordenar["columnas"]):
 			if not columna in dfProveedores:
@@ -2087,7 +2093,13 @@ class ContratosDelComprador(APIView):
 		partieId = urllib.parse.unquote_plus(partieId)
 
 		if tipoIdentificador == 'id':
-			s = s.filter('match_phrase', extra__buyer__id__keyword=partieId)
+			qPartieId1 = Q('match_phrase', extra__buyer__id__keyword=partieId)
+			qPartieId2 = Q('match_phrase', extra__parent1__id__keyword=partieId)
+			qPartieId3 = Q('match_phrase', extra__parent2__id__keyword=partieId)
+
+			qPartieId = Q('bool', should=[qPartieId1, qPartieId2, qPartieId3])
+
+			s = s.filter(qPartieId)
 		else:
 			if dependencias == '1':
 				s = s.filter('match_phrase', extra__buyerFullName__keyword=partieId)
