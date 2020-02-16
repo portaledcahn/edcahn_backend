@@ -420,6 +420,8 @@ class Buscador(APIView):
 		year = request.GET.get('year', '')
 		organismo = request.GET.get('organismo', '')
 
+		ordenarPor = request.GET.get('ordenarPor','')
+
 		term = request.GET.get('term', '')
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
@@ -556,6 +558,38 @@ class Buscador(APIView):
 			s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__classifications__organismo=organismo)
 
 		search_results = SearchResults(s)
+
+		#ordenarPor = 'asc(comprador),desc(monto)
+		ordenarES = {}
+		mappingSort = {
+			"year":"doc.compiledRelease.date",
+			"institucion":"doc.compiledRelease.buyer.name.keyword",
+			"categoria": "doc.compiledRelease.tender.mainProcurementCategory.keyword",
+			"modalidad": "doc.compiledRelease.tender.procurementMethodDetails.keyword",
+			"proveedor": "doc.compiledRelease.contracts.implementation.transactions.payee.name.keyword" if metodo == 'pago' else 'doc.compiledRelease.contracts.suppliers.name.keyword',
+			"monto": "doc.compiledRelease.contracts.extra.sumTransactions" if metodo == 'pago' else 'doc.compiledRelease.contracts.value.amount',
+			"organismo":"doc.compiledRelease.planning.budget.budgetBreakdown.classifications.organismo.keyword",
+		}
+
+		if ordenarPor.replace(' ',''):
+			ordenar = getSortES(ordenarPor)
+
+			for parametro in ordenar:
+				columna = parametro["valor"]
+				orden = parametro["orden"]
+
+				if columna in mappingSort:
+					if columna in ('proveedor', 'monto'):
+						ordenarES[mappingSort[columna]] = {
+							"order": orden, 
+							'nested':{
+								'path':'doc.compiledRelease.contracts'
+							}
+						}
+					else:
+						ordenarES[mappingSort[columna]] = {"order": orden}
+
+		s = s.sort(ordenarES)
 
 		results = s[start:end].execute()
 
