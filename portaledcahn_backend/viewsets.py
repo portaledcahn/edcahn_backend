@@ -675,6 +675,7 @@ class Buscador(APIView):
 		parametros["categoria"] = categoria
 		parametros["year"] = year
 		parametros["organismo"] = organismo
+		parametros["ordenarPor"] = ordenarPor
 
 		context = {
 			"paginador": pagination,
@@ -2524,12 +2525,23 @@ class FiltrosDashboardSEFIN(APIView):
 		objetogasto = request.GET.get('objetogasto', '')
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
+		masinstituciones = request.GET.get('masinstituciones', '')
+		masproveedores = request.GET.get('masproveedores', '')
 
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
 
 		s = Search(using=cliente, index='transaction')
 
 		ss = Search(using=cliente, index='transaction')
+
+		cantidadInstituciones = 50
+		cantidadProveedores = 50
+
+		if masinstituciones.replace(' ', '') == '1':
+			cantidadInstituciones = 5000
+
+		if masproveedores.replace(' ', '') == '1':
+			cantidadProveedores = 30000
 
 		# Filtros
 
@@ -2560,14 +2572,14 @@ class FiltrosDashboardSEFIN(APIView):
 			'instituciones', 
 			'terms', 
 			field='extra.buyerFullName.keyword', 
-			size=50
+			size=cantidadInstituciones
 		)
 
 		s.aggs.metric(
 			'proveedores', 
 			'terms', 
 			field='payee.name.keyword', 
-			size=50
+			size=cantidadProveedores
 		)
 
 		s.aggs.metric(
@@ -2617,6 +2629,8 @@ class FiltrosDashboardSEFIN(APIView):
 		parametros["objetogasto"] = objetogasto
 		parametros["fuentefinanciamiento"] = fuentefinanciamiento
 		parametros["proveedor"] = proveedor
+		parametros["masinstituciones"] = masinstituciones
+		parametros["masproveedores"] = masproveedores
 
 		resultados = results.aggregations.to_dict()
 
@@ -3611,6 +3625,7 @@ class FiltrosDashboardONCAE(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		masinstituciones = request.GET.get('masinstituciones', '')
 
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
@@ -3720,47 +3735,52 @@ class FiltrosDashboardONCAE(APIView):
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 			sss = sss.filter('match_phrase', extra__sources__id__keyword=sistema)
 
+		cantidadInstituciones = 50
+
+		if masinstituciones.replace(' ', '') == '1':
+			cantidadInstituciones = 5000
+
 		# Resumen
 		s.aggs.metric(
 			'instituciones', 
 			'terms', 
 			field='extra.parentTop.id.keyword', 
-			size=10000
+			size=cantidadInstituciones
 		)
 
 		s.aggs["instituciones"].metric(
 			'nombre', 
 			'terms', 
 			field='extra.parentTop.name.keyword', 
-			size=10
+			size=cantidadInstituciones
 		)
 
 		ss.aggs.metric(
 			'instituciones',
 			'terms',
 			field='extra.parentTop.id.keyword', 
-			size=10	
+			size=cantidadInstituciones
 		)
 
 		ss.aggs["instituciones"].metric(
 			'nombre',
 			'terms',
 			field='extra.parentTop.name.keyword', 
-			size=10	
+			size=cantidadInstituciones
 		)
 
 		sss.aggs.metric(
 			'instituciones',
 			'terms',
 			field='extra.parentTop.id.keyword', 
-			size=10	
+			size=cantidadInstituciones
 		)
 
 		sss.aggs["instituciones"].metric(
 			'nombre',
 			'terms',
 			field='extra.parentTop.name.keyword', 
-			size=10000	
+			size=cantidadInstituciones
 		)
 
 		# s.aggs.metric(
@@ -4029,7 +4049,7 @@ class FiltrosDashboardONCAE(APIView):
 
 			dfInstituciones = dfInstituciones.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
 
-			instituciones = dfInstituciones[0:10].to_dict('records')
+			instituciones = dfInstituciones.to_dict('records')
 
 		#Valores para filtros por moneda del contrato.
 		monedas = [] 
@@ -4156,6 +4176,7 @@ class FiltrosDashboardONCAE(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["masinstituciones"] = masinstituciones
 
 		context = {
 			"parametros": parametros,
