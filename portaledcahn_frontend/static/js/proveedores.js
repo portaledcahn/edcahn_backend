@@ -233,7 +233,7 @@ function MostrarPaginacion(datos){
     );
   }
 
-  $('#totalResultado').html(datos.paginador['total.items']);
+  $('#totalResultado').html(ValorNumerico(datos.paginador['total.items']) );
   $('#inicioResultado').html((ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina)))-ObtenerNumero(datos.parametros.paginarPor));
   $('#finResultado').html(((ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina))>ObtenerNumero(datos.paginador['total.items'])) ? ObtenerNumero(datos.paginador['total.items']): (ObtenerNumero(datos.parametros.paginarPor)*(ObtenerNumero(datos.parametros.pagina))) ));
   

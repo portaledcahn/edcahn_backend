@@ -584,6 +584,9 @@ transform: translateY(-55%);
 }
 .tituloFiltrosAplicados{
 	font-size: 20px;
+	font-family: 'Poppins';
+	color:gray;
+	font-weight: 900;
 }
 .informacionResultadosBusqueda .contenedorTablaCaracteristicas{
 	display: inline-block;
@@ -2662,6 +2665,12 @@ table.tablaGeneral{
 .elementosDashboard .contenedorFiltrosBusqueda{
 	padding-right: 0;
 }
+
+.estiloResaltar{
+	font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
 @-webkit-keyframes cargaEfectoAnimacion {
     0%{background-position:0% 50%}
     50%{background-position:100% 50%}
@@ -2783,4 +2792,39 @@ table.tablaGeneral{
 	margin-right: 2rem;
 	padding: 1rem;*/
 	padding-right: 2rem;
+  }
+
+  select.seleccionCampoBlanco{
+	background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%,
+    transparent 50%);
+    background-position: calc(100% - 20px) calc( 14px), calc(100% - 15px) calc(14px), calc(100% - 2.5em) 0.5em;
+    background-size: 5px 5px, 5px 5px, 1px 1.5em;
+    background-repeat: no-repeat;
+
+	border: none;
+	border-radius: 15px;
+	-webkit-transition: all .3s ease;
+	-moz-transition: all .3s ease;
+	-o-transition: all .3s ease;
+	transition: all .3s ease;
+	height: 30px;
+	padding: 5px 10px;
+	/*color:	#3B53A4;*/
+	outline: 0;
+	width: 100%;
+	/*background-color:
+	#e2e7f6;
+	line-height: 20px;*/
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-size: 16px;/*
+	background:white;*/
+	border: 1px solid#ededed;
+	box-shadow: 0px 0px 10px 0px rgba(148, 146, 146,0.3);
+  }
+
+  select.seleccionCampoBlanco:hover,select.seleccionCampoBlanco:focus{
+	border: 1px solid white;
+	box-shadow: 0px 0 10px 0 rgba(39, 55, 112, 0.3);
   }

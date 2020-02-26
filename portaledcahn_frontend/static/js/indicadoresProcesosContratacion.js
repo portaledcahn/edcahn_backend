@@ -17,7 +17,7 @@ var filtrosAplicables={
     categoria : {titulo:/*'Categoría de Compra'*/'Tipo de Contrato',parametro:'categorias'},
     sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
   };
-  var ordenFiltros=['años','monedas','proveedores','categorias','modalidades','sistemas'];
+  var ordenFiltros=['años','monedas','instituciones','categorias','modalidades','sistemas'];
   var traducciones={
     'goods':{titulo: 'Suministro de Bienes y/o Servicios'/*'Bienes y provisiones'*/,descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
@@ -1220,6 +1220,12 @@ function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('sistema'))){
         parametros['sistema']=decodeURIComponent(ObtenerValor('sistema'));
     }
+    if(Validar(ObtenerValor('masinstituciones'))){
+        parametros['masinstituciones']=decodeURIComponent(ObtenerValor('masinstituciones'));
+    }
+    if(Validar(ObtenerValor('masproveedores'))){
+        parametros['masproveedores']=decodeURIComponent(ObtenerValor('masproveedores'));
+    }
     
 
     return parametros;
@@ -1260,7 +1266,10 @@ function AccederUrlPagina(opciones,desUrl){
     (ValidarCadena(opciones.proveedor)? '&proveedor='+encodeURIComponent(opciones.proveedor): (ValidarCadena(ObtenerValor('proveedor'))&&!desUrl?'&proveedor='+ObtenerValor('proveedor'):''))+
     (ValidarCadena(opciones.categoria)? '&categoria='+encodeURIComponent(opciones.categoria): (ValidarCadena(ObtenerValor('categoria'))&&!desUrl?'&categoria='+ObtenerValor('categoria'):''))+
     (ValidarCadena(opciones.modalidad) ? '&modalidad='+encodeURIComponent(opciones.modalidad):(ValidarCadena(ObtenerValor('modalidad'))&&!desUrl?'&modalidad='+ObtenerValor('modalidad'):''))+
-    (ValidarCadena(opciones.sistema) ? '&sistema='+encodeURIComponent(opciones.sistema):(ValidarCadena(ObtenerValor('sistema'))&&!desUrl?'&sistema='+ObtenerValor('sistema'):''))
+    (ValidarCadena(opciones.sistema) ? '&sistema='+encodeURIComponent(opciones.sistema):(ValidarCadena(ObtenerValor('sistema'))&&!desUrl?'&sistema='+ObtenerValor('sistema'):''))+
+    (ValidarCadena(opciones.masproveedores) ? '&masproveedores='+encodeURIComponent(opciones.masproveedores):(ValidarCadena(ObtenerValor('masproveedores'))&&!desUrl?'&masproveedores='+ObtenerValor('masproveedores'):''))+
+    (ValidarCadena(opciones.masinstituciones) ? '&masinstituciones='+encodeURIComponent(opciones.masinstituciones):(ValidarCadena(ObtenerValor('masinstituciones'))&&!desUrl?'&masinstituciones='+ObtenerValor('masinstituciones'):''))
+  
   
     );
     return direccion;
@@ -1272,6 +1281,8 @@ function AccederUrlPagina(opciones,desUrl){
   }
   
   function MostrarEtiquetasFiltrosAplicados(parametros){
+    delete parametros.masinstituciones;
+    delete parametros.masproveedores;
     if(!$.isEmptyObject(parametros)){
       $('#contenedorSinFiltros').hide();
       $('#contenedorFiltros').show();
@@ -1305,6 +1316,9 @@ function AccederUrlPagina(opciones,desUrl){
         )
       )
     });
+
+    $('.filtrosContenedoFiltrosBusqueda').attr('style','height:calc(100vh - '+($('#extencionFiltrosAplicados').height()?123:110)+'px - '+($('#extencionFiltrosAplicados').height() + ($('#extencionFiltrosAplicados').height()?4:0))+'px)')
+
   }
 
   function MostrarEtiquetaListaElasticaAplicada(){
@@ -1351,7 +1365,21 @@ function AccederUrlPagina(opciones,desUrl){
             $('<style>',{id:'style'+llave}),
             $('<ul >',{class:'list-group',id:'ul'+llave}).append(
               AgregarPropiedadesListaElastica(valor,llave)
-            )
+            ),
+            ['instituciones','proveedores'].includes(llave)&&valor&&valor.length>=50?
+              $('<a>',{
+                class:'enlaceTablaGeneral ptextoColorPrimario pcursorMano',
+                href:'javascript:void(0)',
+                style:'width:150px;padding:5px 15px',
+                text: valor.length==50? 'Mostrar Todos...':'Mostrar Menos...',
+                toolTexto:valor.length==50?'Mostrar más resultados':'Mostrar menos resultados',
+                toolCursor:'true',
+                llave:llave,
+                on:{
+                  click:MostrarMasResultados
+                }
+              })
+            :null
               
             
           )
@@ -1365,6 +1393,31 @@ function AccederUrlPagina(opciones,desUrl){
     
   }
 
+  function MostrarMasResultados(e){
+    switch($(e.currentTarget).attr('llave')){
+        case 'instituciones':
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                if(filtros.masinstituciones){
+                    delete filtros.masinstituciones;
+                }else{
+                    filtros['masinstituciones']=1;
+                }
+                PushDireccionGraficos(AccederUrlPagina(filtros,true));
+
+            break;
+        case 'proveedores':
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                if(filtros.masproveedores){
+                    delete filtros.masproveedores;
+                }else{
+                    filtros['masproveedores']=1;
+                }
+                PushDireccionGraficos(AccederUrlPagina(filtros,true));
+            break;
+        default:
+            break;
+    }
+}
 function ValoresLlaves(llave){
     switch(llave){
         case 'años':
@@ -1402,11 +1455,11 @@ function AgregarPropiedadesListaElastica(valor,llave){
               filtro.parent().find('.list-group-item.active').removeClass('active');
               filtro.addClass('active');
             }
-            var filtros={
+            /*var filtros={
             };
             $('li.list-group-item.active').each(function(cla,val){
               filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-            });
+            });*/
             $('li.list-group-item').not('.active').remove();
             $( '.list-group' ).not(':has(li)').append(
                 $('<li >',{
@@ -1420,6 +1473,14 @@ function AgregarPropiedadesListaElastica(valor,llave){
                     )
                   )
             );
+
+
+            var filtros=ObtenerJsonFiltrosAplicados({});
+            if(filtro.hasClass('active')){
+                filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:'']=$(e.currentTarget).attr('valor');
+              }else{
+                delete filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:''];
+              }
             PushDireccionGraficos(AccederUrlPagina(filtros,true));
           }
         }}).append(
