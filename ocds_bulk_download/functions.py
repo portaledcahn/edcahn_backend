@@ -133,7 +133,7 @@ def aplanarArchivo(ubicacionArchivo, directorio):
             zipfile.write(os.path.join(directorio, filename), filename)
     shutil.rmtree(directorio)
 
-    print('flatten ok')
+    # print('flatten ok')
 
 def generarMetaDatosPaquete(paquetes, md5):
 
@@ -220,11 +220,11 @@ def generarArchivosEstaticos(file):
     contador = 0
     archivos = {}
     archivosProcesar = []
-    nombreArchivo = 'salida.csv'
     directorioReleases = carpetaArchivos + 'releases/' 
     directorioHashReleases = directorioReleases + 'hash/'
     directorioTxtReleases = directorioReleases + 'txt/'
     directorioPaquetes = directorioReleases + 'paquetes/'
+    directorioDescargas = directorioReleases + 'descargas/'
 
     numeroColumnaReleaseId = 0
     numeroColumnaOCID = 1
@@ -237,6 +237,7 @@ def generarArchivosEstaticos(file):
     crearDirectorio(directorioHashReleases)
     crearDirectorio(directorioTxtReleases)
     crearDirectorio(directorioPaquetes)
+    crearDirectorio(directorioDescargas)
 
     limpiarArchivos(directorioHashReleases)
     limpiarArchivos(directorioTxtReleases)
@@ -248,8 +249,12 @@ def generarArchivosEstaticos(file):
 
         reader = csv.reader(fp, delimiter='|')
 
+        #Recorriendo el archivos csv.
         for row in reader:
             llave = ''
+            source = ''
+            publisher = ''
+
             contador += 1
 
             dataRelease = json.loads(row[numeroColumnaRelease])
@@ -259,15 +264,22 @@ def generarArchivosEstaticos(file):
 
             if 'name' in dataPaquete["publisher"]:
                 llave = llave + dataPaquete["publisher"]["name"].replace('/', '').replace(' ', '_')[0:17].lower()
+                publisher = dataPaquete["publisher"]["name"]
 
             if 'sources' in dataRelease:
                 if 'id' in dataRelease["sources"][0]:
                     llave = llave + '_' + dataRelease["sources"][0]["id"]
 
+                if 'name' in dataRelease["sources"][0]:
+                    source = dataRelease["sources"][0]["name"]
+
             llave = llave + '_' + year
 
             if not llave in archivos:
                 archivos[llave] = {}
+                archivos[llave]["fecha"] = year
+                archivos[llave]["sistema"] = source
+                archivos[llave]["publicador"] = publisher
                 archivos[llave]["paquetesId"] = []
                 archivos[llave]["paquetesData"] = []
                 archivos[llave]["archivo_hash"] = directorioHashReleases + llave + '_hash.txt'
@@ -281,46 +293,47 @@ def generarArchivosEstaticos(file):
             escribirArchivo(directorioHashReleases, llave + '_hash.txt', row[numeroColumnaHASH])
             escribirArchivo(directorioTxtReleases, llave + '_releases.txt', row[numeroColumnaRelease] + ',')
 
-        print('ya: contador->', contador)
+        print('Cantidad de releases ->', contador)
 
         for llave in archivos:
             archivo = archivos[llave]
+            archivo["urls"] = {}
             archivo["md5_hash"] = md5(archivo["archivo_hash"])
             archivosProcesar.append(llave)
-            # print(archivos[year])
 
         #Comparar archivos MD5
 
         #Generar release package
         for llave in archivos:
             if llave in archivosProcesar:
+                #Generando metadatos del paquete                
                 metaDataPaquete = generarMetaDatosPaquete(archivos[llave]['paquetesData'], archivos[llave]['md5_hash'])
                 escribirArchivo(directorioPaquetes, llave + '_paquete.json', json.dumps(metaDataPaquete, indent=4, ensure_ascii=False), 'w')
-                generarReleasePackage(archivos[llave]["archivo_paquete"], archivos[llave]["archivo_text"], directorioReleases, llave + '.json')
-                archivos[llave]["json"] = directorioReleases + llave + '.json'
-                archivos[llave]["md5"] = md5(archivos[llave]["json"])
-                escribirArchivo(directorioReleases, llave + '.md5', archivos[llave]["md5"], 'w')
+                
+                #Generando Json 
+                generarReleasePackage(archivos[llave]["archivo_paquete"], archivos[llave]["archivo_text"], directorioDescargas, llave + '.json')
+               
+                archivos[llave]["urls"]["json"] = directorioDescargas + llave + '.json'
+                archivos[llave]["urls"]["md5"] = directorioDescargas + llave + '.md5'
+                
+                md5_json = md5(archivos[llave]["urls"]["json"])
+                archivos[llave]["md5_json"] = md5_json
 
-        escribirArchivo(carpetaArchivos, 'archivos.json', json.dumps(archivos, ensure_ascii=False), 'w')
+                #Generando MD5
+                escribirArchivo(directorioDescargas, llave + '.md5', md5_json, 'w')
 
         for llave in archivos:
             if llave in archivosProcesar:
-                aplanarArchivo(archivos[llave]['json'], directorioReleases + llave)
-                archivos[llave]["excel"] = directorioReleases + llave + '.xlsx'
-                archivos[llave]["csv"] = directorioReleases + llave + '.zip'
 
-
-        # for row in reader:
-        #   data = json.loads(row[numeroColumnaRelease])
-        #   year = data["date"][0:4]
-
-        #   if year in archivosProcesar:
+                #Generando CSV, EXCEL
+                aplanarArchivo(archivos[llave]["urls"]['json'], directorioDescargas + llave)
                 
-    # for a in archivos:
-    #   f = open('archivos_estaticos/releases/' + a, "a")
-    #   f.write(']')
-    #   f.close()       
+                archivos[llave]["urls"]["xlsx"] = directorioDescargas + llave + '.xlsx'
+                archivos[llave]["urls"]["csv"] = directorioDescargas + llave + '.zip'
+                archivos[llave]["urls"]["ods"] = directorioDescargas + llave + '.ods'
 
+        escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
+                
 def main():
     archivoReleases = "releases.csv"
     path = getPath()
