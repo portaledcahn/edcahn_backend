@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_elasticsearch_dsl',
     'django_elasticsearch_dsl_drf',
     'django.contrib.humanize',
+    'ocds_bulk_download',
 ]
 
 MIDDLEWARE = [
