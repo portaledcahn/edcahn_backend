@@ -9,6 +9,7 @@ urlpatterns = [
 	path('v1/release/', viewsets.Releases.as_view()),
 	path('v1/record/<path:pk>/', viewsets.GetRecord.as_view()),
 	path('v1/record/', viewsets.Records.as_view()),
+	path('v1/descargas/', viewsets.Descargas.as_view()),
 	path('v1/', viewsets.PublicAPI.as_view()),
 
 	path('record/<path:pk>/', viewsets.RecordDetail.as_view()),

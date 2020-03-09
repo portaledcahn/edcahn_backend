@@ -97,6 +97,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'mydatabase',
+    },
+    'portaledcahn_admin': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'portaledcahn_admin',
+        'USER': 'postgres',
+        'PASSWORD': '123456',        
+        'HOST': '192.168.1.50',
+        'PORT': '5432',
     }
 }
 

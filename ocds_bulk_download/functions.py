@@ -1,9 +1,15 @@
-import psycopg2, datetime, sys, os.path, csv, json, codecs, hashlib, shutil
+import psycopg2, datetime, sys, os.path, csv, json, codecs, hashlib, shutil, uuid
 import dateutil.parser, dateutil.tz
 import flattentool
 from zipfile import ZipFile, ZIP_DEFLATED
 
 carpetaArchivos = "archivos_estaticos/"
+
+dbHost="192.168.1.50" 
+dbDatabaseAdmin="portaledcahn_admin"
+dbDatabase="postgres"
+dbUser="postgres"
+dbPassword="123456"
 
 def getPath():
     raiz = os.path.dirname(os.path.realpath(__file__))
@@ -42,7 +48,7 @@ def generarRelasesCSV():
             inner join package_data pd on r.package_data_id = pd.id
         order by
             d.id
-        limit 10
+        limit 10000
     """
     try:
         raiz = os.path.dirname(os.path.realpath(__file__))
@@ -53,10 +59,10 @@ def generarRelasesCSV():
         print(archivoSalida)
 
         con = psycopg2.connect(
-            host='192.168.1.50', 
-            database='postgres', 
-            user='postgres', 
-            password='123456'
+            host=dbHost, 
+            database=dbDatabase, 
+            user=dbUser, 
+            password=dbPassword
         )
 
         cur = con.cursor()
@@ -77,6 +83,43 @@ def generarRelasesCSV():
     finally:
         if con:
             con.close()
+
+"""
+    Guarda el archivo metada de la descarga masiva de archivos en postgres. 
+"""
+def guardarDataJSON(json):
+    conn = None
+
+    id = str(uuid.uuid1())
+    createdby = "Portal de Contrataciones Abiertas de Honduras"
+    active = True
+
+    query = '''
+        INSERT INTO descargas(id, file, createdby, active)
+        VALUES (%s, %s, %s, %s)
+    '''
+
+    values = (id, json, createdby, active)
+
+    try:
+        conn = psycopg2.connect(
+            host=dbHost, 
+            database=dbDatabaseAdmin, 
+            user=dbUser, 
+            password=dbPassword
+        )
+
+        cur = conn.cursor()
+        cur.execute(query, values)
+        conn.commit()
+        cur.close()
+        
+    except (Exception, psycopg2.DatabaseError) as error:
+        print('Error en el insert')
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
 
 def md5(fname):
     fname = getRootPath(fname)
@@ -197,12 +240,12 @@ def generarReleasePackage(paquete, releases, directorio, nombre):
     #cargando la data de releases 
     releases = getRootPath(releases)
 
-    with open(releases) as infile:
+    with open(releases, encoding="utf-8") as infile:
         for linea in infile:
             contador1 += 1 
 
-    # Quitando la ultima ,
-    with open(releases) as infile:
+    # Quitando la ultima coma ,
+    with open(releases, encoding="utf-8") as infile:
         for linea in infile:
             if contador2 == contador1 - 1:
                 f.write(linea[:-2])
@@ -262,6 +305,8 @@ def generarArchivosEstaticos(file):
 
             year = dataRelease["date"][0:4]
 
+            month = dataRelease["date"][5:7]
+
             if 'name' in dataPaquete["publisher"]:
                 llave = llave + dataPaquete["publisher"]["name"].replace('/', '').replace(' ', '_')[0:17].lower()
                 publisher = dataPaquete["publisher"]["name"]
@@ -273,11 +318,12 @@ def generarArchivosEstaticos(file):
                 if 'name' in dataRelease["sources"][0]:
                     source = dataRelease["sources"][0]["name"]
 
-            llave = llave + '_' + year
+            llave = llave + '_' + year + '_'+ month
 
             if not llave in archivos:
                 archivos[llave] = {}
-                archivos[llave]["fecha"] = year
+                archivos[llave]["year"] = year
+                archivos[llave]["month"] = month
                 archivos[llave]["sistema"] = source
                 archivos[llave]["publicador"] = publisher
                 archivos[llave]["paquetesId"] = []
@@ -302,6 +348,9 @@ def generarArchivosEstaticos(file):
             archivosProcesar.append(llave)
 
         #Comparar archivos MD5
+            #Cargar el ultimo metadatos_releases. 
+            #Comprar con el archivo actual. 
+            #Agregar a aniosProcesar cunado los hash de releases no sean iguales. 
 
         #Generar release package
         for llave in archivos:
@@ -315,6 +364,8 @@ def generarArchivosEstaticos(file):
                
                 archivos[llave]["urls"]["json"] = directorioDescargas + llave + '.json'
                 archivos[llave]["urls"]["md5"] = directorioDescargas + llave + '.md5'
+                archivos[llave]["urls"]["xlsx"] = directorioDescargas + llave + '.xlsx'
+                archivos[llave]["urls"]["csv"] = directorioDescargas + llave + '.zip'
                 
                 md5_json = md5(archivos[llave]["urls"]["json"])
                 archivos[llave]["md5_json"] = md5_json
@@ -322,18 +373,35 @@ def generarArchivosEstaticos(file):
                 #Generando MD5
                 escribirArchivo(directorioDescargas, llave + '.md5', md5_json, 'w')
 
+                #Eliminando variables no necesarias para almacenar
+                del archivos[llave]["paquetesData"]
+                del archivos[llave]["paquetesId"]
+                del archivos[llave]["archivo_hash"]
+                del archivos[llave]["archivo_text"]
+                del archivos[llave]["archivo_paquete"]
+
+        escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
+        guardarDataJSON(json.dumps(archivos, ensure_ascii=False))
+
         for llave in archivos:
             if llave in archivosProcesar:
-
                 #Generando CSV, EXCEL
                 aplanarArchivo(archivos[llave]["urls"]['json'], directorioDescargas + llave)
                 
-                archivos[llave]["urls"]["xlsx"] = directorioDescargas + llave + '.xlsx'
-                archivos[llave]["urls"]["csv"] = directorioDescargas + llave + '.zip'
-                archivos[llave]["urls"]["ods"] = directorioDescargas + llave + '.ods'
 
-        escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
-                
+        # escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
+
+def pruebas():
+    data = {}
+    metadatos = getRootPath('archivos_estaticos/releases/' + 'metadata_releases.json')
+
+    print(metadatos)
+
+    with open(metadatos) as json_file:
+        data = json.load(json_file)
+
+    guardarDataJSON(json.dumps(data, indent=4, ensure_ascii=False))
+
 def main():
     archivoReleases = "releases.csv"
     path = getPath()
@@ -345,8 +413,9 @@ def main():
     startDate = datetime.datetime.now()
     print(datetime.datetime.now())
 
-    # generarRelasesCSV()
+    generarRelasesCSV()
     generarArchivosEstaticos(file)
+    # pruebas()
 
     endDate = datetime.datetime.now()
     print(datetime.datetime.now())

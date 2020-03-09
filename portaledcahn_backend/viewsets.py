@@ -7028,3 +7028,16 @@ class IndicadorContratosPorModalidad(APIView):
 		}
 
 		return Response(context)
+
+class Descargas(APIView):
+
+	def get(self, request, format=None):
+
+		with connections['portaledcahn_admin'].cursor() as cursor:
+			cursor.execute("SELECT file FROM descargas ORDER BY createddate limit 1")
+			row = cursor.fetchone()
+			
+		if row:
+			return Response(row[0])
+		else:
+			return Response({})
