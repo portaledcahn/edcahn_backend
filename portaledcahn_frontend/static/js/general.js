@@ -1,5 +1,7 @@
 var url=window.location.origin;
+
 var api=url+"/api";
+//api='http://200.13.162.86'+"/api";
 var estadosContrato={
     'pending':{titulo:'Pendiente',descripcion:'Este contrato se propuso pero aún no entra en vigor. Puede estar esperando ser firmado.'},
     'active':{titulo:'Activo',descripcion:'Este contrato se ha firmado por todas las partes y ahora está legalmente en proceso.'},
@@ -32,9 +34,7 @@ function ObtenerColores(paleta){
         'Pastel2':['#82CCB5','#DD86B9','#FFF68F','#F9B48A','#F497AA','#B6D884','#6BCADE','#71ABDD','#FDCD7B','#9977B4'],
         'Pastel3':['#9DDAEC','#F29AC0','#FEDDB4','#FFAAA5','#C1ACD3','#B9DB9F','#B0DDD6','#DCEDC1','#EDEEA2','#FF8B94']
     }
-
     return Paletas[paleta?paleta:'Basica'];
-
 }
 function VerificarIntroduccion(variable,veces){
     var introduccion=ObtenerCookie(variable);

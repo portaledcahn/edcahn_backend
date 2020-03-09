@@ -7,17 +7,17 @@ function DefinirElementosContrato(){
             $('<h4>',{class:'col-6 col-sm-6 col-md-6 titularCajonSombreado',text:'Datos del Contrato'}),
             $('<div>',{class:'col-6 col-sm-6 col-md-6 textoAlineadoDerecha'}).append(
               $('<h4>',{class:'descargaIconos enLinea'}).append(
-                $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
+                $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',id:'descargaJSONContrato'}).append(
                   $('<i>',{class:'fas fa-file-download'}),
                   '&nbsp;.JSON'
                 ),
-                $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
+                $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',id:'descargaCSVContrato'}).append(
                   $('<i>',{class:'fas fa-file-download'}),
                   '&nbsp;.CSV'
                 ),
-                $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
+                $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',id:'descargaXLSXContrato'}).append(
                   $('<i>',{class:'fas fa-file-download'}),
-                  '&nbsp;.XLS'
+                  '&nbsp;.XLSX'
                 )
               ),
               $('<h4>',{class:'enLinea mb-0 enLinea alineadoArriba'}).append(

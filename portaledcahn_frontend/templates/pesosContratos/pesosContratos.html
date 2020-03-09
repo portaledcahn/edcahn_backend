@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block head_content %}
+<title>Portal de Contrataciones Abiertas de Honduras - Visualización Contratos</title>
+{% endblock %}
+
+{% load static %}
+{% block head_style %}
+<link rel="stylesheet" href="{% static 'plugins/elastic-list/style.css' %}" >
+{% endblock %}
+{% block container %}
+<div class="container-fluid  busquedaEspaciadoHorizontal elementosDashboard" >
+      
+      <div class="contenedorFiltrosBusquedax" >
+        
+        
+      </div>
+      <div class="contenedorResultadosBusquedax" style="padding-right:0">
+   
+       
+         <div class="container-fluid contenedorBusqueda mb-5 removerEspacio mt-2" >
+            <div class="row">
+               <div class="col-12">
+                  <h4 class="textoColorPrimario titularColor">
+                     
+                     <table class="" style="table-layout: fixed;width: 100%;border-collapse: collapse;border:none">
+                           <tr>
+                              <td>
+                                    <span>
+                                          Contratos por Institución
+                                    </span>
+                              </td>
+                              <!--<td style="width: 70px;">
+                                    <div class="contenedorBotonAzulFiltroBusqueda"  style="display:none;margin-right: 10px;">
+                                          <button class="botonAzulFiltroBusqueda" title="Filtros">
+                                          <i class="fas fa-filter"></i> 
+                                          </button>
+                                       </div>
+                              </td>-->
+                           </tr>
+                        </table>
+                  </h4>
+                  <div class="cajonFiltrosAplicadosDashboard  cajonSombreado " id="filtrosAplicadosItems" style="position: fixed;right: 28px;z-index: 1; min-width: 280px;">
+
+                   
+                  </div>
+               </div>
+   
+            </div>
+            <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-4 ">
+                        <div class="cajonSombreado">
+                              <div class="tituloGrafico">
+                              <h4 class="titularCajonSombreado textoAlineadoCentrado">Instituciones Compradoras</h4>
+                              </div>
+                              <div class="contenedorGrafico">
+                              <div class="grafico minAlto_400" id="CantidadContratosCategoriaCompra"  style="height: 300px"></div>
+                              </div>
+                        </div>
+                        </div>
+            
+              
+            
+            </div>
+         </div>
+        
+      </div>
+   </div>
+<div class="container" style="display: none">
+      <img src="{% static 'img/oncae.jpg' %}" style="width:100%"  alt="">
+</div>
+{% endblock %}
+{% block script_content %}
+<script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+<script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
+<script src="{% static 'js/pesosContratos.js' %}"></script>
+{% endblock %}

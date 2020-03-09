@@ -38,6 +38,7 @@ $(function(){
       }
     });
     ObtenerProceso();
+    
    
   
     
@@ -84,6 +85,9 @@ function ObtenerProceso(){
   
   if(procesoOcid){
     MostrarEspera('body .tamanoMinimo');
+    EliminarEventoModalDescarga('descargaJsonProceso');
+    EliminarEventoModalDescarga('descargaCsvProceso');
+    EliminarEventoModalDescarga('descargaXlsxProceso');
     $.get(api+"/record/"+procesoOcid/*url+"/static/"+procesoOcid+".json"*/,function(datos){
       console.dir(datos)
       if(datos&&!datos.detail){
@@ -110,6 +114,25 @@ function ObtenerProceso(){
         DeshabilitarItems();
         MostrarPrimerProceso();*/
         OcultarEspera('body .tamanoMinimo');
+        console.dir(datos)
+        InicializarDescargas();
+        AgregarEventoModalDescarga('descargaJsonProceso',function(){
+          console.dir('EVENTO DE DESCARGA')
+          var descarga=datos.compiledRelease;
+          DescargarJSON(descarga,'Proceso');
+        });
+        AgregarEventoModalDescarga('descargaCsvProceso',function(){
+          var descarga=datos.compiledRelease;
+          DescargarCSV(ObtenerMatrizObjeto(descarga) ,'Proceso');
+        });
+        AgregarEventoModalDescarga('descargaXlsxProceso',function(){
+          var descarga=datos.compiledRelease;
+          DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Proceso');
+        });
+
+        
+
+
       }else{
         OcultarEspera('body .tamanoMinimo');
         $('#noEncontrado').show();
@@ -356,7 +379,7 @@ function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
                     :null),
                   (desglosePresupuesto[i].classifications.fuente?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente de Financiamiento:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.fuente})
                     )
                     :null),
@@ -368,7 +391,7 @@ function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
                     :null),
                   (desglosePresupuesto[i].classifications.objeto?
                     $('<tr>').append(
-                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Objeto:'}),
+                      $('<td>',{class:'tituloTablaCaracteristicas',text:'Objeto del Gasto:'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:desglosePresupuesto[i].classifications.objeto})
                     )
                     :null),
@@ -580,3 +603,18 @@ function VerificarAgregarPartes(partes){
   }
   return partesDatos; 
 }
+
+function InicializarDescargas(){
+   AbrirModalDescarga('descargaJsonProceso','Descarga JSON',true);/*Crear Modal Descarga */
+   AbrirModalDescarga('descargaCsvProceso','Descarga CSV',true);/*Crear Modal Descarga */
+   AbrirModalDescarga('descargaXlsxPRoceso','Descarga XLSX',true);/*Crear Modal Descarga */
+   $('#descargaJSONContrato,#descargaJSONPlaneacion,#descargaJSONAdjudicacion,#descargaJSONConvocatoria').on('click',function(e){
+     AbrirModalDescarga('descargaJsonProceso','Descarga JSON');
+   });
+   $('#descargaCSVContrato,#descargaCSVPlaneacion,#descargaCSVAdjudicacion,#descargaCSVConvocatoria').on('click',function(e){
+     AbrirModalDescarga('descargaCsvProceso','Descarga CSV');
+   });
+   $('#descargaXLSXContrato,#descargaXLSXPlaneacion,#descargaXLSXAdjudicacion,#descargaXLSXConvocatoria').on('click',function(e){
+     AbrirModalDescarga('descargaXlsxProceso','Descarga XLSX');
+   });
+ }
