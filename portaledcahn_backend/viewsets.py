@@ -16,6 +16,7 @@ from .pagination import PaginationHandlerMixin
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 import json, copy, urllib.parse, datetime, operator, statistics, csv
 import pandas as pd 
+import mimetypes
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
@@ -7034,10 +7035,17 @@ class Descargas(APIView):
 	def get(self, request, format=None):
 
 		with connections['portaledcahn_admin'].cursor() as cursor:
-			cursor.execute("SELECT file FROM descargas ORDER BY createddate limit 1")
+			cursor.execute("SELECT file FROM descargas ORDER BY createddate DESC LIMIT 1")
 			row = cursor.fetchone()
-			
+		
+		list_values = [ v for v in row[0].values() ]
+
 		if row:
-			return Response(row[0])
+			return Response(list_values)
 		else:
-			return Response({})
+			return Response([])
+
+class Descargar(APIView):
+
+	def get(self, request, format=None):
+		pass
