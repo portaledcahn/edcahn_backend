@@ -91,7 +91,7 @@ DATABASES = {
         'NAME': 'ocdskingfisher',
         'USER': 'ocdskingfisher',
         'PASSWORD': 'ocdskingfisher',        
-        'HOST': '200.13.162.87',
+        'HOST': '192.168.0.198',
         'PORT': '5432',
     },
     'default': {
@@ -103,7 +103,7 @@ DATABASES = {
         'NAME': 'portaledcahn_admin',
         'USER': 'postgres',
         'PASSWORD': '123456',        
-        'HOST': '192.168.22.63',
+        'HOST': '192.168.0.198',
         'PORT': '5432',
     }
 }
@@ -158,7 +158,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-ELASTICSEARCH_DSL_HOST = '192.168.22.63:9200/'
+ELASTICSEARCH_DSL_HOST = '192.168.0.198:9200/'
 # ELASTICSEARCH_DSL_HOST = '192.168.104.94:9200/'
 # ELASTICSEARCH_DSL_HOST = 'http://200.13.162.87:9200/'
 

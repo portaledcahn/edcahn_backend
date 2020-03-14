@@ -5,7 +5,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 carpetaArchivos = "archivos_estaticos/"
 
-dbHost="192.168.1.50" 
+dbHost="192.168.43.163" 
 dbDatabaseAdmin="portaledcahn_admin"
 dbDatabase="postgres"
 dbUser="postgres"

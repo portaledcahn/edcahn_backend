@@ -16,7 +16,7 @@ from .pagination import PaginationHandlerMixin
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 import json, copy, urllib.parse, datetime, operator, statistics, csv
 import pandas as pd 
-import mimetypes
+import mimetypes, os.path
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
@@ -24,9 +24,11 @@ from portaledcahn_backend import serializers as articles_serializers
 
 from django.utils.functional import LazyObject
 from django.conf import settings
-from django.http import Http404, StreamingHttpResponse
+from django.http import Http404, StreamingHttpResponse, HttpResponse
 from itertools import chain
 from flatten_json import flatten
+
+import ocds_bulk_download
 
 class BasicPagination(pagination.PageNumberPagination):
     page_size_query_param = 'limit'
@@ -7047,5 +7049,10 @@ class Descargas(APIView):
 
 class Descargar(APIView):
 
-	def get(self, request, format=None):
-		pass
+	def get(self, request, pk=None, format=None):
+		file_name = pk
+		response = HttpResponse()
+		response['Content-Type'] = ''
+		response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
+		response['X-Accel-Redirect'] = '/protectedMedia/' + file_name
+		return response
