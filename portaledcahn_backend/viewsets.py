@@ -14,6 +14,7 @@ from .serializers import *
 from .functions import *
 from .pagination import PaginationHandlerMixin
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
+from urllib.request import urlretrieve
 import json, copy, urllib.parse, datetime, operator, statistics, csv
 import pandas as pd 
 import mimetypes, os.path
@@ -7036,14 +7037,21 @@ class Descargas(APIView):
 
 	def get(self, request, format=None):
 
+		listaArchivos = []
+		urlDescargas = '/api/v1/descargas/'
+
 		with connections['portaledcahn_admin'].cursor() as cursor:
 			cursor.execute("SELECT file FROM descargas ORDER BY createddate DESC LIMIT 1")
 			row = cursor.fetchone()
 		
-		list_values = [ v for v in row[0].values() ]
+		for value in row[0].values():
+			for extension in value["urls"]:
+				value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
+				
+			listaArchivos.append(value)
 
 		if row:
-			return Response(list_values)
+			return Response(listaArchivos)
 		else:
 			return Response([])
 

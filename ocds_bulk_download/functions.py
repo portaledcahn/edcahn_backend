@@ -1,20 +1,17 @@
-import psycopg2, datetime, sys, os.path, csv, json, codecs, hashlib, shutil, uuid
+import psycopg2, datetime, sys, os, csv, json, codecs, hashlib, shutil, uuid
 import dateutil.parser, dateutil.tz
 import flattentool
 from zipfile import ZipFile, ZIP_DEFLATED
 
+path = os.path.abspath(os.path.join(os.path.dirname(__file__),"..", "portaledcahn"))
+sys.path.append(path)
+
+import settings
+
 carpetaArchivos = "archivos_estaticos/"
 
-dbHost="192.168.43.163" 
-dbDatabaseAdmin="portaledcahn_admin"
-dbDatabase="postgres"
-dbUser="postgres"
-dbPassword="123456"
-
-def getPath():
-    raiz = os.path.dirname(os.path.realpath(__file__))
-    archivoSalida = os.path.join(raiz, carpetaArchivos)
-    return archivoSalida
+dbAdminConnection = settings.DATABASES["portaledcahn_admin"]
+dbKingfisherConnection = settings.DATABASES["bdkingfisher"]
 
 """
     Funcion que obtiene la ruta raiz del proyecto y anexa al directorio. 
@@ -30,7 +27,7 @@ def getRootPath(directorio):
     Funcion que se conecta a PostgreSQL (Kingfisher)
     Extrae los releases en un archivo .csv
 """
-def generarRelasesCSV():
+def obtenerRelasesCSV():
     con = None
     nombreArchivo = "releases.csv"
     carpetaArchivos = "archivos_estaticos"
@@ -50,19 +47,18 @@ def generarRelasesCSV():
             d.id
         limit 10000
     """
+
     try:
         raiz = os.path.dirname(os.path.realpath(__file__))
         archivoSalida = os.path.join(raiz, carpetaArchivos, nombreArchivo)
-        # archivoSalida1 = "{0}\\{1}/{2}".format(raiz, carpetaArchivos, nombreArchivo)
         query = "copy ({0}) To STDOUT With CSV DELIMITER '|';".format(select)
 
-        print(archivoSalida)
-
         con = psycopg2.connect(
-            host=dbHost, 
-            database=dbDatabase, 
-            user=dbUser, 
-            password=dbPassword
+            host=dbKingfisherConnection["HOST"], 
+            database=dbKingfisherConnection["NAME"], 
+            user=dbKingfisherConnection["USER"], 
+            password=dbKingfisherConnection["PASSWORD"],
+            port=dbKingfisherConnection["PORT"]
         )
 
         cur = con.cursor()
@@ -103,10 +99,11 @@ def guardarDataJSON(json):
 
     try:
         conn = psycopg2.connect(
-            host=dbHost, 
-            database=dbDatabaseAdmin, 
-            user=dbUser, 
-            password=dbPassword
+            host=dbAdminConnection["HOST"], 
+            database=dbAdminConnection["NAME"],
+            user=dbAdminConnection["USER"], 
+            password=dbAdminConnection["PASSWORD"],
+            port=dbAdminConnection["PORT"]
         )
 
         cur = conn.cursor()
@@ -207,7 +204,7 @@ def generarMetaDatosPaquete(paquetes, md5):
             if not e in extensions:
                 extensions.append(e)
 
-    metaDatosPaquete["uri"] = 'http://200.13.162.86/descargas/' + md5 + '.json'
+    metaDatosPaquete["uri"] = 'http://contratacionesabiertas.gob.hn/descargas/' + md5 + '.json'
     metaDatosPaquete["version"] = version
     metaDatosPaquete["publishedDate"] = publishedDate
     metaDatosPaquete["publisher"] = publisher
@@ -362,12 +359,14 @@ def generarArchivosEstaticos(file):
                 #Generando Json 
                 generarReleasePackage(archivos[llave]["archivo_paquete"], archivos[llave]["archivo_text"], directorioDescargas, llave + '.json')
                
-                archivos[llave]["urls"]["json"] = directorioDescargas + llave + '.json'
-                archivos[llave]["urls"]["md5"] = directorioDescargas + llave + '.md5'
-                archivos[llave]["urls"]["xlsx"] = directorioDescargas + llave + '.xlsx'
-                archivos[llave]["urls"]["csv"] = directorioDescargas + llave + '.zip'
+                # archivos[llave]["archivo_json"] = directorioDescargas + llave + '.json'
+
+                archivos[llave]["urls"]["json"] = llave + '.json'
+                archivos[llave]["urls"]["md5"]  = llave + '.md5'
+                archivos[llave]["urls"]["xlsx"] = llave + '.xlsx'
+                archivos[llave]["urls"]["csv"]  = llave + '.zip'
                 
-                md5_json = md5(archivos[llave]["urls"]["json"])
+                md5_json = md5(directorioDescargas + archivos[llave]["urls"]["json"])
                 archivos[llave]["md5_json"] = md5_json
 
                 #Generando MD5
@@ -386,9 +385,8 @@ def generarArchivosEstaticos(file):
         for llave in archivos:
             if llave in archivosProcesar:
                 #Generando CSV, EXCEL
-                aplanarArchivo(archivos[llave]["urls"]['json'], directorioDescargas + llave)
+                aplanarArchivo(directorioDescargas + archivos[llave]["urls"]["json"], directorioDescargas + llave)
                 
-
         # escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
 
 def pruebas():
@@ -404,16 +402,13 @@ def pruebas():
 
 def main():
     archivoReleases = "releases.csv"
-    path = getPath()
-
+    path = getRootPath(carpetaArchivos)
     file = path + archivoReleases
-
-    print(file)
 
     startDate = datetime.datetime.now()
     print(datetime.datetime.now())
 
-    generarRelasesCSV()
+    obtenerRelasesCSV()
     generarArchivosEstaticos(file)
     # pruebas()
 
