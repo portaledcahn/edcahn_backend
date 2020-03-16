@@ -45,7 +45,7 @@ def obtenerRelasesCSV():
             inner join package_data pd on r.package_data_id = pd.id
         order by
             d.id
-        limit 10000
+        limit 10200
     """
 
     try:
@@ -338,16 +338,41 @@ def generarArchivosEstaticos(file):
 
         print('Cantidad de releases ->', contador)
 
+        #Cargar el ultimo metadatos_releases.
+        ultimoArchivo = directorioReleases + 'metadata_releases.json'
+
+        try:
+            with open(getRootPath(ultimoArchivo), encoding="utf-8") as json_file:
+                archivosProcesados = json.load(json_file)
+        except Exception as e:
+            print(e)
+            archivosProcesados = {}
+
+        #Comparar archivos MD5
         for llave in archivos:
             archivo = archivos[llave]
             archivo["urls"] = {}
+            archivo["finalizo"] = False
             archivo["md5_hash"] = md5(archivo["archivo_hash"])
-            archivosProcesar.append(llave)
 
-        #Comparar archivos MD5
-            #Cargar el ultimo metadatos_releases. 
-            #Comprar con el archivo actual. 
-            #Agregar a aniosProcesar cunado los hash de releases no sean iguales. 
+            # Preguntar si el archivo ya ha sido procesado
+            if llave in archivosProcesados:
+                archivo["finalizo"] = archivosProcesados[llave]["finalizo"]
+
+                # Si los hash son diferentes entonces se procesa.
+                if archivo["md5_hash"] != archivosProcesados[llave]["md5_hash"]:
+                    archivosProcesar.append(llave)
+                else:
+                    # Si no se termino de procesar completo, entonces se procesa de nuevo.
+                    if archivosProcesados[llave]['finalizo'] == False:
+                        aniosPorProcesar.append(llave)
+                    else: 
+                        archivo = archivosProcesados[llave]
+            else:
+                # Si el archivo nunca habia sido procesado, entonces se procesa. 
+                archivosProcesar.append(llave)
+
+        print("Archivos por procesar: ", archivosProcesar)
 
         #Generar release package
         for llave in archivos:
@@ -359,8 +384,6 @@ def generarArchivosEstaticos(file):
                 #Generando Json 
                 generarReleasePackage(archivos[llave]["archivo_paquete"], archivos[llave]["archivo_text"], directorioDescargas, llave + '.json')
                
-                # archivos[llave]["archivo_json"] = directorioDescargas + llave + '.json'
-
                 archivos[llave]["urls"]["json"] = llave + '.json'
                 archivos[llave]["urls"]["md5"]  = llave + '.md5'
                 archivos[llave]["urls"]["xlsx"] = llave + '.xlsx'
@@ -379,15 +402,18 @@ def generarArchivosEstaticos(file):
                 del archivos[llave]["archivo_text"]
                 del archivos[llave]["archivo_paquete"]
 
-        escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
-        guardarDataJSON(json.dumps(archivos, ensure_ascii=False))
+        # escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
+        # guardarDataJSON(json.dumps(archivos, ensure_ascii=False))
 
+        #Aplanando archivos .json
         for llave in archivos:
             if llave in archivosProcesar:
                 #Generando CSV, EXCEL
                 aplanarArchivo(directorioDescargas + archivos[llave]["urls"]["json"], directorioDescargas + llave)
-                
-        # escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
+                archivos[llave]["finalizo"] = True
+
+        escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
+        guardarDataJSON(json.dumps(archivos, ensure_ascii=False))
 
 def pruebas():
     data = {}
