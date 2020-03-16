@@ -1,4 +1,4 @@
-import psycopg2, datetime, sys, os, csv, json, codecs, hashlib, shutil, uuid
+import psycopg2, datetime, sys, os, csv, json, codecs, hashlib, shutil, uuid, copy
 import dateutil.parser, dateutil.tz
 import flattentool
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -45,7 +45,7 @@ def obtenerRelasesCSV():
             inner join package_data pd on r.package_data_id = pd.id
         order by
             d.id
-        limit 10200
+        limit 10000
     """
 
     try:
@@ -367,7 +367,7 @@ def generarArchivosEstaticos(file):
                     if archivosProcesados[llave]['finalizo'] == False:
                         aniosPorProcesar.append(llave)
                     else: 
-                        archivo = archivosProcesados[llave]
+                        archivos[llave] = copy.deepcopy(archivosProcesados[llave])
             else:
                 # Si el archivo nunca habia sido procesado, entonces se procesa. 
                 archivosProcesar.append(llave)
@@ -395,12 +395,12 @@ def generarArchivosEstaticos(file):
                 #Generando MD5
                 escribirArchivo(directorioDescargas, llave + '.md5', md5_json, 'w')
 
-                #Eliminando variables no necesarias para almacenar
+                # Eliminando variables no necesarias para almacenar
                 del archivos[llave]["paquetesData"]
                 del archivos[llave]["paquetesId"]
                 del archivos[llave]["archivo_hash"]
                 del archivos[llave]["archivo_text"]
-                del archivos[llave]["archivo_paquete"]
+                del archivos[llave]["archivo_paquete"]                
 
         # escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
         # guardarDataJSON(json.dumps(archivos, ensure_ascii=False))
