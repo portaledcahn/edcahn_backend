@@ -1176,6 +1176,7 @@ function Top10Compradores(){
 }
 
 
+
 function Top10Proveedores(){
     //app.title = '折柱混合';
     var parametros={}

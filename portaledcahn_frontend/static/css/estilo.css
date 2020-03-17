@@ -9,12 +9,12 @@ body{
 	padding-top:66px;
 	position:relative;
 }
-.busquedaEspaciadoHorizontal{
-	white-space: nowrap;
-}
-.busquedaEspaciadoHorizontal *{
-	white-space:normal;
-}
+
+/*
+*******************************
+COLOR BASE FONDOS Y FUENTES
+*******************************
+*/
 .fondoColorPrimario{
 	background: #3B53A4;
 }
@@ -72,8 +72,20 @@ body{
 .fondoColorRojo{
 	background-color: #dc3545;
 }
-.fondoColorCobaltp{
+.fondoColorCobalto{
 	background-color: #17a2b8;
+}
+/*
+///////////////////////////////////
+COLOR BASE FONDOS Y FUENTES
+///////////////////////////////////
+*/
+
+.busquedaEspaciadoHorizontal{
+	white-space: nowrap;
+}
+.busquedaEspaciadoHorizontal *{
+	white-space:normal;
 }
 .campoAzulBusqueda{
 	background: white;
