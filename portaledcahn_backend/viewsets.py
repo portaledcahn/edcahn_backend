@@ -17,7 +17,7 @@ from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 from urllib.request import urlretrieve
 import json, copy, urllib.parse, datetime, operator, statistics, csv
 import pandas as pd 
-import mimetypes, os.path
+import mimetypes, os.path, math
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
@@ -25,7 +25,7 @@ from portaledcahn_backend import serializers as articles_serializers
 
 from django.utils.functional import LazyObject
 from django.conf import settings
-from django.http import Http404, StreamingHttpResponse, HttpResponse
+from django.http import Http404, StreamingHttpResponse, HttpResponse, HttpResponseServerError
 from itertools import chain
 from flatten_json import flatten
 
@@ -47,16 +47,16 @@ class SearchResults(LazyObject):
             search_results = list(search_results)
         return search_results
 
-class ReleaseViewSet(viewsets.ModelViewSet):
-	queryset = Release.objects.all()
-	serializer_class = ReleaseSerializer
-	http_method_names = ['get']
+# class ReleaseViewSet(viewsets.ModelViewSet):
+# 	queryset = Release.objects.all()
+# 	serializer_class = ReleaseSerializer
+# 	http_method_names = ['get']
 
-	def retrieve(self, request, pk=None):
-		queryset = Release.objects.all()
-		release = get_object_or_404(queryset, release_id=pk)
-		serializer = ReleaseSerializer(release)
-		return Response(serializer.data)
+# 	def retrieve(self, request, pk=None):
+# 		queryset = Release.objects.all()
+# 		release = get_object_or_404(queryset, release_id=pk)
+# 		serializer = ReleaseSerializer(release)
+# 		return Response(serializer.data)
 
 class PublicAPI(APIView, PaginationHandlerMixin):
 
@@ -69,15 +69,17 @@ class PublicAPI(APIView, PaginationHandlerMixin):
 
 		return Response(endpoints)
 
+"""
+	Retorna un paquete de releases
+"""
 class Releases(APIView, PaginationHandlerMixin):
 	pagination_class = BasicPagination
 	serializer_class = ReleaseSerializer
 
 	def get(self, request, format=None, *args, **kwargs):
 
-		print("Hii")
-
 		respuesta = {}
+		currentPage = request.GET.get('page', "1")
 
 		instance = Release.objects.all()
 		page = self.paginate_queryset(instance)
@@ -85,10 +87,8 @@ class Releases(APIView, PaginationHandlerMixin):
 		if page is not None:
 			serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
 		else:
-			# enviar un 502. 
-			serializer = self.serializer_class(instance, many=True)
-
-		print("### Serializador.")
+			content = {'error': 'Internal Server Error'}
+			return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 		results = []
 		paquetesIds = {}
@@ -98,29 +98,43 @@ class Releases(APIView, PaginationHandlerMixin):
 		for d in serializer.data["results"]:
 			results.append(d["data"])
 
-			paquetesIds.add(d["package_data_id"])
-			paquetesIds.add(545182)
-
-		print("PaquetesId", list(paquetesIds))
+			if d["package_data_id"] not in paquetesIds:
+				paquetesIds.add(d["package_data_id"])
 
 		paquetes = PackageData.objects.filter(id__in=list(paquetesIds))
 
-		metadataPaquete = generarMetaDatosPaquete(paquetes, 'asd123')
+		metadataPaquete = generarMetaDatosPaquete(paquetes, request)
 
-		respuesta["count"] = serializer.data["count"]
+		respuesta["releases"] = serializer.data["count"]
+		respuesta["pages"] = math.ceil(serializer.data["count"] / 10)
+		respuesta["page"] = currentPage
 		respuesta["next"] = serializer.data["next"]
 		respuesta["previous"] = serializer.data["previous"]
-		respuesta["results"] = results
+		respuesta["releasePackage"] = metadataPaquete
+		respuesta["releasePackage"]["releases"] = results
 
 		return Response(respuesta, status=status.HTTP_200_OK)
 
+"""
+	Retorna un release en incluido en su paquete.
+"""
 class GetRelease(APIView):
-
 	def get(self, request, pk=None, format=None):
-		queryset = Release.objects.all()
-		release = get_object_or_404(queryset, release_id=pk)
-		serializer = ReleaseSerializer(release)
-		return Response(serializer.data)
+		queryset = Release.objects.filter(release_id=pk)
+
+		if queryset.exists():
+			release = queryset[0]
+			serializer = ReleaseSerializer(release)
+
+			data = serializer.data
+			paquetes = PackageData.objects.filter(id__in=[data["package_data_id"],])
+			releasePackage = generarMetaDatosPaquete(paquetes, request)
+			
+			releasePackage["releases"] = [data["data"],]
+
+			return Response(releasePackage)
+		else:
+			raise Http404
 
 class Records(APIView, PaginationHandlerMixin):
 	pagination_class = BasicPagination
@@ -143,133 +157,133 @@ class GetRecord(APIView):
 		serializer = RecordSerializer(record)
 		return Response(serializer.data)
 
-class RecordViewSet(viewsets.ModelViewSet):
-	queryset = Record.objects.all()
-	serializer_class = RecordSerializer
-	http_method_names = ['get']
+# class RecordViewSet(viewsets.ModelViewSet):
+# 	queryset = Record.objects.all()
+# 	serializer_class = RecordSerializer
+# 	http_method_names = ['get']
 
-	def retrieve(self, request, pk=None):
-		queryset = Record.objects.all()
-		record = get_object_or_404(queryset, ocid=pk)
-		serializer = RecordSerializer(record)
-		return Response(serializer.data)
+# 	def retrieve(self, request, pk=None):
+# 		queryset = Record.objects.all()
+# 		record = get_object_or_404(queryset, ocid=pk)
+# 		serializer = RecordSerializer(record)
+# 		return Response(serializer.data)
 
-class BuyerList(APIView):
+# class BuyerList(APIView):
 
-	def get(self, request, format=None):
+# 	def get(self, request, format=None):
 
-		contador = 0
+# 		contador = 0
 
-		data = articles_documents.DataDocument.search()
+# 		data = articles_documents.DataDocument.search()
 
-		results = data.aggs\
-					.metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
-					.aggs\
-					.metric('distinct_buyers', 'cardinality', field='data.compiledRelease.contracts.buyer.id.keyword')\
-					.aggs\
-					.metric('distinct_contracts', 'cardinality', field='data.compiledRelease.contracts.id.keyword')\
-					.execute()
+# 		results = data.aggs\
+# 					.metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
+# 					.aggs\
+# 					.metric('distinct_buyers', 'cardinality', field='data.compiledRelease.contracts.buyer.id.keyword')\
+# 					.aggs\
+# 					.metric('distinct_contracts', 'cardinality', field='data.compiledRelease.contracts.id.keyword')\
+# 					.execute()
 
-		# for r in results.aggregations:
-		# 	print(r)
+# 		# for r in results.aggregations:
+# 		# 	print(r)
 
-		context = {
-			"distinct_contracts": results.aggregations.distinct_contracts.value,
-			"distinct_buyers": results.aggregations.distinct_buyers.value,
-			"distinct_suppliers": results.aggregations.distinct_suppliers.value
-		}
+# 		context = {
+# 			"distinct_contracts": results.aggregations.distinct_contracts.value,
+# 			"distinct_buyers": results.aggregations.distinct_buyers.value,
+# 			"distinct_suppliers": results.aggregations.distinct_suppliers.value
+# 		}
 
-		# contador = data.count()
+# 		# contador = data.count()
 
-		# for r in results:
-			# contador += 1
+# 		# for r in results:
+# 			# contador += 1
 
-		# for d in data: 
-			# contador += 1
+# 		# for d in data: 
+# 			# contador += 1
 
-		# serializer = articles_serializers.DataDocumentSerializer(data, many=True)		
+# 		# serializer = articles_serializers.DataDocumentSerializer(data, many=True)		
 
-		# contratos = Contrato.objects.all()
-		# data = Data.objects.all()
+# 		# contratos = Contrato.objects.all()
+# 		# data = Data.objects.all()
 
-		# serializer = DataSerializer(data, many=True)
-		# for d in data.iterator(chunk_size=10):
+# 		# serializer = DataSerializer(data, many=True)
+# 		# for d in data.iterator(chunk_size=10):
 
-		# for d in data:
-		# 	if contador%10 == 0:
-		# 		print("ok", contador)
+# 		# for d in data:
+# 		# 	if contador%10 == 0:
+# 		# 		print("ok", contador)
 
-		# 	contador += 1 
+# 		# 	contador += 1 
 
-		# return Response(contador)
-		return Response(context)
+# 		# return Response(contador)
+# 		return Response(context)
 
-class ContractsViewSet(viewsets.ModelViewSet):
-	sql = '''
-		SELECT
-			concat(d.data->'compiledRelease'->>'ocid', '-', contract->>'id') as "id"
-			,contract->'value'->>'amount' as "amount"
-			,contract->'value'->>'currency' as "currency"
-			,case
-				when 
-					contract->>'dateSigned' is not null 
-					and contract->'period'->>'startDate' is not null 
-					then contract->>'dateSigned'
-				when 
-					contract->>'dateSigned' is not null 
-					then contract->>'dateSigned'
-				when 
-					contract->'period'->>'startDate' is not null 
-					then contract->'period'->>'startDate'
-				else
-					d.data->'compiledRelease'->>'date' 		
-			end as "date"
-			,contract->'buyer'->>'id' as "buyerId"
-			,contract->'buyer'->>'name' as "buyerName"
-			,partie->'memberOf' as "buyerMemberOf"
-		FROM 
-			"data" d 
-			,jsonb_array_elements(d.data->'compiledRelease'->'contracts') as contract
-			,jsonb_array_elements(d.data->'compiledRelease'->'parties') as partie
-		WHERE 
-			exists (select * from record where data_id= d.id)
-			and partie->'id' = contract->'buyer'->'id'
-			and contract->'value'->'amount' is not null
-	'''
+# class ContractsViewSet(viewsets.ModelViewSet):
+# 	sql = '''
+# 		SELECT
+# 			concat(d.data->'compiledRelease'->>'ocid', '-', contract->>'id') as "id"
+# 			,contract->'value'->>'amount' as "amount"
+# 			,contract->'value'->>'currency' as "currency"
+# 			,case
+# 				when 
+# 					contract->>'dateSigned' is not null 
+# 					and contract->'period'->>'startDate' is not null 
+# 					then contract->>'dateSigned'
+# 				when 
+# 					contract->>'dateSigned' is not null 
+# 					then contract->>'dateSigned'
+# 				when 
+# 					contract->'period'->>'startDate' is not null 
+# 					then contract->'period'->>'startDate'
+# 				else
+# 					d.data->'compiledRelease'->>'date' 		
+# 			end as "date"
+# 			,contract->'buyer'->>'id' as "buyerId"
+# 			,contract->'buyer'->>'name' as "buyerName"
+# 			,partie->'memberOf' as "buyerMemberOf"
+# 		FROM 
+# 			"data" d 
+# 			,jsonb_array_elements(d.data->'compiledRelease'->'contracts') as contract
+# 			,jsonb_array_elements(d.data->'compiledRelease'->'parties') as partie
+# 		WHERE 
+# 			exists (select * from record where data_id= d.id)
+# 			and partie->'id' = contract->'buyer'->'id'
+# 			and contract->'value'->'amount' is not null
+# 	'''
 
-	queryset = Contract.objects.raw(sql)
-	serializer_class = ContractSerializer
-	http_method_names = ['get']
+# 	queryset = Contract.objects.raw(sql)
+# 	serializer_class = ContractSerializer
+# 	http_method_names = ['get']
 
-	def list(self, request):
+# 	def list(self, request):
 
-		localCurrency = "HNL" #Definir en config
+# 		localCurrency = "HNL" #Definir en config
 
-		queryset = Contract.objects.filter(currency="USD")
+# 		queryset = Contract.objects.filter(currency="USD")
 
-		tasasDeCambio = TasasDeCambio.objects.all()
+# 		tasasDeCambio = TasasDeCambio.objects.all()
 
-		serializer = ContractSerializer(queryset, many=True)
+# 		serializer = ContractSerializer(queryset, many=True)
 
-		return Response(serializer.data)
+# 		return Response(serializer.data)
 
-class BuyerViewSet(viewsets.ModelViewSet):
-	queryset = Buyer.objects.all()
-	serializer_class = BuyerSerializer
-	http_method_names = ['get']
+# class BuyerViewSet(viewsets.ModelViewSet):
+# 	queryset = Buyer.objects.all()
+# 	serializer_class = BuyerSerializer
+# 	http_method_names = ['get']
 
-class ContratoViewSet(viewsets.ModelViewSet):
-	queryset = Contrato.objects.all()
-	serializer_class = ContratoSerializer
-	http_method_names = ['get']
+# class ContratoViewSet(viewsets.ModelViewSet):
+# 	queryset = Contrato.objects.all()
+# 	serializer_class = ContratoSerializer
+# 	http_method_names = ['get']
 
-class DataViewSet(DocumentViewSet):
-	document = articles_documents.DataDocument
-	serializer_class = articles_serializers.DataDocumentSerializer
+# class DataViewSet(DocumentViewSet):
+# 	document = articles_documents.DataDocument
+# 	serializer_class = articles_serializers.DataDocumentSerializer
 
-class DataRecordViewSet(DocumentViewSet):
-    document = articles_documents.RecordDocument
-    serializer_class = articles_serializers.RecordDocumentSerializer
+# class DataRecordViewSet(DocumentViewSet):
+#     document = articles_documents.RecordDocument
+#     serializer_class = articles_serializers.RecordDocumentSerializer
 
 class RecordAPIView(APIView):
 
