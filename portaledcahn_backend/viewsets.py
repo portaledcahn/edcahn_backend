@@ -78,11 +78,20 @@ class Releases(APIView, PaginationHandlerMixin):
 	serializer_class = ReleaseSerializer
 
 	def get(self, request, format=None, *args, **kwargs):
-
+		
 		respuesta = {}
 		currentPage = request.GET.get('page', "1")
+		publisher = request.GET.get('publisher', "")
+		oncae = 'Oficina Normativa de Contratación y Adquisiciones del Estado (ONCAE) / Honduras'
+		sefin = 'Secretaria de Finanzas de Honduras'
 
-		instance = Release.objects.all()
+		if publisher == 'oncae':
+			instance = Release.objects.filter(package_data__data__publisher__name=oncae)
+		elif publisher == 'sefin':
+			instance = Release.objects.filter(package_data__data__publisher__name=sefin)	
+		else:
+			instance = Release.objects.all()
+
 		page = self.paginate_queryset(instance)
 
 		if page is not None:
@@ -111,8 +120,12 @@ class Releases(APIView, PaginationHandlerMixin):
 		respuesta["page"] = currentPage
 		respuesta["next"] = serializer.data["next"]
 		respuesta["previous"] = serializer.data["previous"]
-		respuesta["releasePackage"] = metadataPaquete
-		respuesta["releasePackage"]["releases"] = results
+		if serializer.data["count"] > 0:
+			respuesta["releasePackage"] = metadataPaquete
+			respuesta["releasePackage"]["releases"] = results
+		else:
+			respuesta["releasePackage"] = {}
+
 
 		return Response(respuesta, status=status.HTTP_200_OK)
 
