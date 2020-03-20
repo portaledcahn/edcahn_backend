@@ -281,7 +281,7 @@ var descargasOncae=[
 function ObtenerDescargas(){
   DebugFecha();
   MostrarEspera('#descargas');
-  $.get(/* url+"/static/js/descargas.json"*/ api+"/v1/descargas/",function(datos){
+  $.get(url+"/static/js/descargas.json"/* api+"/v1/descargas/"*/,function(datos){
       DebugFecha();
       console.dir(datos)
       OcultarEspera('#descargas');
