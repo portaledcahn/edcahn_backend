@@ -472,7 +472,7 @@ class Buscador(APIView):
 		#Filtros
 		s.aggs.metric('contratos', 'nested', path='doc.compiledRelease.contracts')
 
-		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword', missing=noMoneda)
+		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
 
 		s.aggs["contratos"]["monedas"].metric("nProcesos", "reverse_nested")
 
@@ -480,7 +480,7 @@ class Buscador(APIView):
 
 		s.aggs.metric('instituciones', 'terms', field='extra.parentTop.name.keyword', size=10000)
 
-		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 
 		s.aggs.metric('organismosFinanciadores', 'terms', field='doc.compiledRelease.planning.budget.budgetBreakdown.classifications.organismo.keyword', size=2000)
 
@@ -570,7 +570,7 @@ class Buscador(APIView):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 
 		if categoria.replace(' ', ''):
-			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory=categoria)
+			s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory=categoria)
 
 		if year.replace(' ', ''):
 			if metodo == 'pago' or metodo == 'contrato':
@@ -596,7 +596,7 @@ class Buscador(APIView):
 		mappingSort = {
 			"year":"doc.compiledRelease.date",
 			"institucion":"doc.compiledRelease.buyer.name.keyword",
-			"categoria": "doc.compiledRelease.tender.mainProcurementCategory.keyword",
+			"categoria": "doc.compiledRelease.tender.localProcurementCategory.keyword",
 			"modalidad": "doc.compiledRelease.tender.procurementMethodDetails.keyword",
 			"proveedor": "doc.compiledRelease.contracts.implementation.transactions.payee.name.keyword" if metodo == 'pago' else 'doc.compiledRelease.contracts.suppliers.name.keyword',
 			"monto": "doc.compiledRelease.contracts.extra.sumTransactions" if metodo == 'pago' else 'doc.compiledRelease.contracts.value.amount',
@@ -1199,7 +1199,6 @@ class ProveedoresSEFIN(APIView):
 
 		return Response(context)
 
-
 class Proveedor(APIView):
 
 	def get(self, request, partieId=None, format=None):
@@ -1267,7 +1266,7 @@ class ContratosDelProveedor(APIView):
 			filtros.append(filtro)
 
 		if categoriaCompra.replace(' ',''):
-			filtro = Q("match_phrase", extra__tenderMainProcurementCategory=categoriaCompra)
+			filtro = Q("match_phrase", localProcurementCategory=categoriaCompra)
 			filtros.append(filtro)
 
 		if estado.replace(' ',''):
@@ -1352,7 +1351,7 @@ class ContratosDelProveedor(APIView):
 			"comprador": "buyer.name.keyword",
 			"titulo": "title.keyword",
 			"tituloLicitacion": "extra.tenderTitle.keyword",
-			"categoriaCompra": "extra.tenderMainProcurementCategory.keyword",
+			"categoriaCompra": "localProcurementCategory.keyword",
 			"estado": "status.keyword",
 			"monto": "value.amount",
 			"fechaInicio": "period.startDate",
@@ -2447,7 +2446,7 @@ class ContratosDelComprador(APIView):
 			filtros.append(filtro)
 
 		if categoriaCompra.replace(' ',''):
-			filtro = Q("match_phrase", extra__tenderMainProcurementCategory=categoriaCompra)
+			filtro = Q("match_phrase", localProcurementCategory=categoriaCompra)
 			filtros.append(filtro)
 
 		if estado.replace(' ',''):
@@ -2530,7 +2529,7 @@ class ContratosDelComprador(APIView):
 			"comprador": "extra.buyerFullName.keyword",
 			"titulo": "title.keyword",
 			"tituloLicitacion": "extra.tenderTitle.keyword",
-			"categoriaCompra": "extra.tenderMainProcurementCategory.keyword",
+			"categoriaCompra": "localProcurementCategory.keyword",
 			"estado": "status.keyword",
 			"monto": "value.amount",
 			"fechaFirma": "period.startDate",
@@ -3717,7 +3716,7 @@ proceso_csv = dict([
 		("Código Unidad Ejecutora","doc.compiledRelease.buyer.id"),
 		("Unidad Ejecutora","doc.compiledRelease.buyer.name"),
 		("Expediente", "doc.compiledRelease.tender.title"),
-		("Tipo Adquisición", "doc.compiledRelease.tender.mainProcurementCategory"),
+		("Tipo Adquisición", "doc.compiledRelease.tender.localProcurementCategory"),
 		("Tipo Adquisición adicional", "doc.compiledRelease.tender.additionalProcurementCategories.0"),
 		("Modalidad", "doc.compiledRelease.tender.procurementMethodDetails"),
 		("Fecha de Inicio", "doc.compiledRelease.tender.tenderPeriod.startDate"),
@@ -3747,7 +3746,7 @@ contrato_csv = dict([
 		("Fecha de Inicio", "dateSigned"),
 		("Fuente de datos","extra.sources.0.name"),
 		("Número de Expediente", "extra.tenderTitle"),
-		("Tipo Adquisición", "extra.tenderMainProcurementCategory"),
+		("Tipo Adquisición", "localProcurementCategory"),
 		("Tipo Adquisición adicional", "extra.tenderAdditionalProcurementCategories"),
 		("Modalidad", "extra.tenderProcurementMethodDetails"),
 	])
@@ -3955,8 +3954,8 @@ class FiltrosDashboardONCAE(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':			
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword') 
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword') 
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 				sss = sss.filter('bool', must_not=qqCategoria)
@@ -3966,13 +3965,13 @@ class FiltrosDashboardONCAE(APIView):
 				sssFecha = sssFecha.filter('bool', must_not=qqCategoria)
 			
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				sss = sss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				sss = sss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
-				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
-				ssFecha = ssFecha.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				sssFecha = sssFecha.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
+				ssFecha = ssFecha.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				sssFecha = sssFecha.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':			
@@ -4095,7 +4094,7 @@ class FiltrosDashboardONCAE(APIView):
 			'categoriasProcesos', 
 			'terms', 
 			missing='No Definido',
-			field='doc.compiledRelease.tender.mainProcurementCategory.keyword', 
+			field='doc.compiledRelease.tender.localProcurementCategory.keyword', 
 			size=10000
 		)
 
@@ -4103,7 +4102,7 @@ class FiltrosDashboardONCAE(APIView):
 			'categoriasContratosFechaFirma', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword', 
+			field='localProcurementCategory.keyword', 
 			size=10000
 		)
 
@@ -4111,7 +4110,7 @@ class FiltrosDashboardONCAE(APIView):
 			'categoriasContratosFechaInicio', 
 			'terms',
 			missing='No Definido', 
-			field='extra.tenderMainProcurementCategory.keyword', 
+			field='localProcurementCategory.keyword', 
 			size=10000
 		)
 
@@ -4509,10 +4508,10 @@ class GraficarProcesosPorCategorias(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -4532,7 +4531,7 @@ class GraficarProcesosPorCategorias(APIView):
 			'procesosPorEtapa', 
 			'terms', 
 			missing='No Definido',
-			field='doc.compiledRelease.tender.mainProcurementCategory.keyword' 
+			field='doc.compiledRelease.tender.localProcurementCategory.keyword' 
 		)
 		#Borrar estas lineas
 		# print("Resultados")
@@ -4611,10 +4610,10 @@ class GraficarProcesosPorModalidad(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -4719,10 +4718,10 @@ class GraficarCantidadDeProcesosMes(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -4839,10 +4838,10 @@ class EstadisticaCantidadDeProcesos(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -4939,10 +4938,10 @@ class GraficarProcesosPorEtapa(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -5042,12 +5041,12 @@ class GraficarMontosDeContratosMes(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -5258,12 +5257,12 @@ class EstadisticaCantidadDeContratos(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -5471,12 +5470,12 @@ class EstadisticaMontosDeContratos(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='extra.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -5671,12 +5670,12 @@ class GraficarContratosPorCategorias(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -5712,14 +5711,14 @@ class GraficarContratosPorCategorias(APIView):
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		ss.aggs.metric(
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		s.aggs["contratosPorCategorias"].metric(
@@ -5824,12 +5823,12 @@ class GraficarContratosPorModalidad(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -5983,16 +5982,16 @@ class TopCompradoresPorMontoContratado(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
-				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+				qqModalidad = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqModalidad)
 				ss = ss.filter('bool', must_not=qqModalidad)
 			else:
@@ -6174,12 +6173,12 @@ class TopProveedoresPorMontoContratado(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -6380,14 +6379,14 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -6479,12 +6478,12 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -6525,14 +6524,14 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		ss.aggs.metric(
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		s.aggs["contratosPorCategorias"].metric(
@@ -6642,12 +6641,12 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -6688,7 +6687,7 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		s.aggs["contratosPorCategorias"].metric(		
@@ -6703,7 +6702,7 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		ss.aggs["contratosPorCategorias"].metric(		
@@ -6812,12 +6811,12 @@ class IndicadorTopCompradores(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -7029,10 +7028,10 @@ class IndicadorCatalogoElectronico(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -7064,7 +7063,7 @@ class IndicadorCatalogoElectronico(APIView):
 		s.aggs["items"].metric(
 			'porCatalogo', 
 			'terms', 
-			missing='No Definido',
+			missing='CONVENIO MARCO',
 			field='items.attributes.value.keyword',
 			order={'montoContratado': 'desc'},
 			size=10000
@@ -7100,7 +7099,7 @@ class IndicadorCatalogoElectronico(APIView):
 		# catalogos = []
 		for c in itemsCE["buckets"]:
 
-			nombreCatalogo.append(c["key"])
+			nombreCatalogo.append(c["key"].upper())
 			totalContratado.append(c["montoContratado"]["value"])
 			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
 
@@ -7171,12 +7170,12 @@ class IndicadorContratosPorModalidad(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
