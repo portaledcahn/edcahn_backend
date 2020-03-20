@@ -126,6 +126,10 @@ def getDateParam(dateString):
 
 	return respuesta
 
+"""
+	Paramtero nuero de mes = 01, 02, 03, 04, .... , 11, 12
+	Retorna el nombre del mes.
+"""
 def NombreDelMes(numero_mes):
 	
 	m = {
@@ -195,3 +199,22 @@ def generarMetaDatosPaquete(paquetes, request):
 
 	return metaDatosPaquete
 
+"""
+	retorna un valor para filtrar en bucket selector. 
+	val: signo valor ej. >500
+"""
+def validateNumberParam(val):
+
+	validador = '^(>=|<=|<|>|==)([-+]?[0-9]*\.?[0-9]+)$'
+
+	if re.match(validador, val):
+		validado = re.search(validador, val)
+		operador = validado.group(1)
+		numero = validado.group(2)
+		decimal = float(numero)
+
+		value = operador + str(decimal)
+	else:
+		value = None
+
+	return value

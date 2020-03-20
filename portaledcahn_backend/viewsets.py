@@ -951,6 +951,255 @@ class Proveedores(APIView):
 
 		return Response(context)
 
+class ProveedoresSEFIN(APIView):
+
+	def get(self, request, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		metodo = request.GET.get('metodo', None)
+		nombre = request.GET.get('nombre', '')
+		identificacion = request.GET.get('identificacion', '')
+		procesos = request.GET.get('procesos', None)
+		total = request.GET.get('total', None)
+		promedio = request.GET.get('promedio', None)
+		maximo = request.GET.get('maximo', None)
+		minino = request.GET.get('minimo', None)
+		term = request.GET.get('term', '')
+		tmc = request.GET.get('tmc', '')
+		pmc = request.GET.get('pmc', '')
+		mamc = request.GET.get('mamc', '')
+		memc = request.GET.get('memc', '')
+		fua = request.GET.get('fua', '')
+		cp = request.GET.get('cp', '')
+		ordenarPor = request.GET.get('ordenarPor', '')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
+
+		start = (page-1) * settings.PAGINATE_BY
+		end = start + settings.PAGINATE_BY
+
+		size = 30000
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+
+		s = Search(using=cliente, index='transaction')
+
+		filtro = Q()
+		filtros = []
+
+		if nombre.replace(' ',''):
+			q_nombre = '*' + nombre + '*'
+			filtro = Q("wildcard", payee__name__keyword=q_nombre)
+			filtros.append(filtro)
+
+		if identificacion.replace(' ',''):
+			q_id = '*' + identificacion + '*'
+			filtro = Q("wildcard", payee__id__keyword=q_id)
+			filtros.append(filtro)
+
+		filtro = Q('bool', must=filtros)
+
+		s.aggs.metric('proveedores', 'filter', filter=filtro)
+		s.aggs['proveedores'].metric('id', 'terms', field='payee.id.keyword', size=size, order={"total_monto_contratado": "desc"})
+		s.aggs['proveedores']['id'].metric('name', 'terms', field='payee.name.keyword', size=size)
+		s.aggs['proveedores']['id'].metric('total_monto_contratado', 'sum', field='value.amount')
+		s.aggs['proveedores']['id'].metric('promedio_monto_contratado', 'avg', field='value.amount')
+		s.aggs['proveedores']['id'].metric('mayor_monto_contratado', 'avg', field='value.amount')
+		s.aggs['proveedores']['id'].metric('menor_monto_contratado', 'avg', field='value.amount')
+		s.aggs['proveedores']['id'].metric('fecha_ultimo_proceso', 'max', field='date')
+		s.aggs['proveedores']['id'].metric('procesos','cardinality', field='extra.ocid.keyword')
+
+		if tmc.replace(' ', ''):
+
+			val = validateNumberParam(tmc)
+
+			if val is not None:
+				q_tmc = 'params.tmc' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"tmc": "total_monto_contratado"}, 
+					script=q_tmc
+				)
+
+		if pmc.replace(' ', ''):
+
+			val = validateNumberParam(pmc)
+
+			if val is not None:
+				q_pmc = 'params.pmc' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"pmc": "promedio_monto_contratado"}, 
+					script=q_pmc
+				)
+
+		if mamc.replace(' ', ''):
+
+			val = validateNumberParam(mamc)
+
+			if val is not None:
+				q_mamc = 'params.mamc' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"mamc": "mayor_monto_contratado"}, 
+					script=q_mamc
+				)
+
+		if memc.replace(' ', ''):
+
+			val = validateNumberParam(memc)
+
+			if val is not None:
+				q_memc = 'params.memc' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"memc": "menor_monto_contratado"}, 
+					script=q_memc
+				)
+
+		if cp.replace(' ', ''):
+
+			val = validateNumberParam(cp)
+
+			if val is not None:
+				q_cp = 'params.cp' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"cp": "procesos"}, 
+					script=q_cp
+				)
+
+		search_results = SearchResults(s)
+
+		results = s[start:end].execute()
+
+		proveedores = []
+
+		ProveedoresSEFIN = results.aggregations.proveedores.id.to_dict()["buckets"]
+
+		for p in ProveedoresSEFIN:
+			proveedor = {}
+			proveedor["id"] = p["key"]
+			proveedor["name"] = p["name"]["buckets"][0]["key"]
+	
+			proveedor["procesos"] = p["procesos"]["value"]
+			proveedor["total_monto_pagado"] = p["total_monto_contratado"]["value"]
+			proveedor["promedio_monto_pagado"] = p["promedio_monto_contratado"]["value"]
+			proveedor["mayor_monto_pagado"] = p["mayor_monto_contratado"]["value"]
+			proveedor["menor_monto_pagado"] = p["menor_monto_contratado"]["value"]
+			proveedor["fecha_ultimo_proceso"] = p["fecha_ultimo_proceso"]["value_as_string"]
+
+			proveedores.append(copy.deepcopy(proveedor))
+
+		parametros = {}
+		parametros["pagina"] = page
+		parametros["nombre"] = nombre
+		parametros["identificacion"] = identificacion
+		parametros["tmc"] = tmc 
+		parametros["pmc"] = pmc 
+		parametros["mamc"] = mamc 
+		parametros["memc"] = memc 
+		parametros["fua"] = fua 
+		parametros["cp"] = cp
+		parametros["orderBy"] = ordenarPor
+		parametros["paginarPor"] = paginarPor
+
+		#Ordenamiento
+		#Ejemplo: /proveedores?ordenarPor=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
+	
+		if not ordenarPor:
+			ordenarPor = 'asc(name)'
+
+		dfProveedores = pd.DataFrame(proveedores)
+		ordenar = getSortBy(ordenarPor)
+
+		if not dfProveedores.empty:
+			dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'], errors='coerce')
+			# dfProveedores['name'] = dfProveedores['name'].apply(lambda x : x.strip().replace('"', ''))
+
+		for indice, columna in enumerate(ordenar["columnas"]):
+			if not columna in dfProveedores:
+				ordenar["columnas"].pop(indice)
+				ordenar["ascendentes"].pop(indice)
+
+		if ordenar["columnas"]:
+			dfProveedores = dfProveedores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+
+		# # Ejemplo: fua==2018-03-02
+		if fua.replace(' ', ''):
+			if len(fua)>1:
+				if fua[0:2] in ['!=', '>=', '<=', '==']:
+					operador = fua[0:2]
+					fecha = fua[2:len(fua)]
+				elif fua[0:1] in ['>', '<']:
+					operador = fua[0:1]
+					fecha = fua[1:len(fua)]
+				else:
+					operador = ''
+					fecha = ''	
+			else:
+				operador = ''
+				fecha = ''
+
+			if operador == "==":
+				mask = (dfProveedores['fecha_ultimo_proceso'].dt.date.astype(str) == fecha) 
+			elif operador == "!=":
+				mask = (dfProveedores['fecha_ultimo_proceso'] != fecha)
+			elif operador == "<":
+				mask = (dfProveedores['fecha_ultimo_proceso'] < fecha)
+			elif operador == "<=":
+				mask = (dfProveedores['fecha_ultimo_proceso'] <= fecha)
+			elif operador == ">":
+				mask = (dfProveedores['fecha_ultimo_proceso'] > fecha)
+			elif operador == ">=":
+				mask = (dfProveedores['fecha_ultimo_proceso'] >= fecha)
+			else:
+				mask = None
+
+			if mask is not None:
+				dfProveedores = dfProveedores.loc[mask]
+
+
+		proveedores = dfProveedores.to_dict('records')
+
+		paginator = Paginator(proveedores, paginarPor)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": len(proveedores)
+		}
+
+		context = {
+			# "response": ProveedoresSEFIN
+			"paginador": pagination,
+			"parametros": parametros,
+			"resultados": posts.object_list,
+			# "elastic": results.aggregations.proveedores.to_dict(),
+		}
+
+		return Response(context)
+
+
 class Proveedor(APIView):
 
 	def get(self, request, partieId=None, format=None):
