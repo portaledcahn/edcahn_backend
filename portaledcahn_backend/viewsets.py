@@ -7016,6 +7016,154 @@ class IndicadorCatalogoElectronico(APIView):
 		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
 		# s = s.source(campos)
 
+		# Excluir compra conjunta asd
+		qTerm = Q('match', items__attributes__value='compra conjunta')
+		s = s.exclude('nested', path='items', query=qTerm)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			if categoria == 'No Definido':
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
+				s = s.filter('bool', must_not=qqCategoria)
+			else:
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			if modalidad == 'No Definido':
+				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+				s = s.filter('bool', must_not=qqModalidad)
+			else:
+				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			if moneda == 'No Definido':
+				qqMoneda = Q('exists', field='value.currency.keyword')
+				s = s.filter('bool', must_not=qqMoneda)
+			else:
+				s = s.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+		s.aggs.metric(
+			'items', 
+			'nested', 
+			path='items'
+		)
+
+		s.aggs["items"].metric(
+			'sumaTotalMontos',
+			'sum',
+			field='items.extra.total'
+		)
+		
+		s.aggs["items"].metric(
+			'porCatalogo', 
+			'terms', 
+			missing='CONVENIO MARCO',
+			field='items.attributes.value.keyword',
+			order={'montoContratado': 'desc'},
+			size=10000
+		)
+
+		s.aggs["items"]["porCatalogo"].metric(
+			'montoContratado', 
+			'sum', 
+			field='items.extra.total'
+		)
+
+		s.aggs["items"]["porCatalogo"].metric(
+			'contract', 
+			'reverse_nested'
+		)
+
+		s.aggs["items"]["porCatalogo"]["contract"].metric(
+			'contadorOCIDs',
+			'cardinality',
+			precision_threshold=10000,
+			field='extra.ocid.keyword'
+		)
+
+		#Borrar estas lineas
+		# print("Resultados")
+		# return descargar_contratos_csv(request, s)
+		# return descargar_productos_csv(request, s)
+
+		contratosCE = s.execute()
+
+		itemsCE = contratosCE.aggregations.items.porCatalogo.to_dict()
+
+		# catalogos = []
+		for c in itemsCE["buckets"]:
+
+			nombreCatalogo.append(c["key"].upper())
+			totalContratado.append(c["montoContratado"]["value"])
+			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
+
+		nombreCatalogo.reverse()
+		totalContratado.reverse()
+		cantidadProcesos.reverse()
+
+		resultados = {
+			# "catalogos": catalogos,
+			"nombreCatalogos": nombreCatalogo,
+			"montoContratado": totalContratado,
+			"cantidadProcesos": cantidadProcesos
+			# "elasticsearch": itemsCE,
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+		parametros["sistema"] = sistema
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class IndicadorCompraConjunta(APIView):
+
+	def get(self, request, format=None):
+
+		nombreCatalogo = []
+		totalContratado = []
+		cantidadProcesos = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+
+		s = Search(using=cliente, index='contract')
+		s = s.filter('match_phrase', extra__sources__id='catalogo-electronico')
+
+		# Source 
+		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
+		# s = s.source(campos)
+
+		# Solo compras conjuntas
+		qTerm = Q('match', items__attributes__value='compra conjunta')
+		s = s.query('nested', path='items', query=qTerm)
+
 		# # Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
