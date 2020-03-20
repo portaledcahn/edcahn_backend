@@ -62,6 +62,9 @@ function EliminarFiltrosOrden(){
     if(datos.categorias){
       delete datos.categorias;
     }
+    if(datos.monedas){
+      delete datos.monedas;
+    }
     /*
     if(datos.filtros.años){
       delete datos.filtros.años
@@ -71,10 +74,16 @@ function EliminarFiltrosOrden(){
       if(datos.organismosFinanciadores){
         delete datos.organismosFinanciadores;
       }
+      if(datos.monedas){
+        delete datos.monedas;
+      }
     break;
     default://case proceso
       if(datos.organismosFinanciadores){
         delete datos.organismosFinanciadores;
+      }
+      if(datos.monedas){
+        delete datos.monedas;
       }
     break;
   }
