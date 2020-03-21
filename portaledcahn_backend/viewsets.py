@@ -2389,6 +2389,7 @@ class ContratosDelComprador(APIView):
 		descripcion = request.GET.get('descripcion', '')
 		tituloLicitacion = request.GET.get('tituloLicitacion', '')
 		categoriaCompra = request.GET.get('categoriaCompra', '')
+		modalidad = request.GET.get('modalidad', '')
 		estado = request.GET.get('estado', '')
 		monto = request.GET.get('monto', '')
 		fechaFirma = request.GET.get('fechaFirma', '')
@@ -2396,6 +2397,7 @@ class ContratosDelComprador(APIView):
 		ordenarPor = request.GET.get('ordenarPor', '')
 		dependencias = request.GET.get('dependencias', '0')
 		tipoIdentificador = request.GET.get('tid', 'id') #por id, nombre
+		anio = request.GET.get('year', '')
 
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
@@ -2447,6 +2449,10 @@ class ContratosDelComprador(APIView):
 
 		if categoriaCompra.replace(' ',''):
 			filtro = Q("match_phrase", localProcurementCategory=categoriaCompra)
+			filtros.append(filtro)
+
+		if modalidad.replace(' ',''):
+			filtro = Q("match_phrase", extra__tenderProcurementMethodDetails__keyword=modalidad)
 			filtros.append(filtro)
 
 		if estado.replace(' ',''):
@@ -2522,6 +2528,14 @@ class ContratosDelComprador(APIView):
 			if filtro is not None:
 				filtros.append(filtro)
 
+		if anio.replace(' ', ''):
+			# Or Statement 
+			dateFilter = {'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)}
+			filtroFechaFirma = Q('range', dateSigned=dateFilter)
+			filtroFechaInicio =  Q('range', period__startDate=dateFilter)
+			filtrFecha = Q(filtroFechaFirma | filtroFechaInicio)
+			filtros.append(filtrFecha)
+
 		s = s.query('bool', filter=filtros)
 
 		# Ordenar resultados.
@@ -2585,11 +2599,13 @@ class ContratosDelComprador(APIView):
 		parametros["descripcion"] = descripcion
 		parametros["tituloLicitacion"] = tituloLicitacion
 		parametros["categoriaCompra"] = categoriaCompra
+		parametros["modalidad"] = modalidad
 		parametros["estado"] = estado
 		parametros["monto"] = monto
 		parametros["fechaInicio"] = fechaInicio
 		parametros["fechaFirma"] = fechaInicio
 		parametros["dependencias"] = dependencias
+		parametros["year"] = anio
 		parametros["ordenarPor"] = ordenarPor
 		parametros["pagianrPor"] = paginarPor
 		parametros["pagina"] = page
