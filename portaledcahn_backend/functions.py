@@ -218,3 +218,41 @@ def validateNumberParam(val):
 		value = None
 
 	return value
+
+def paqueteRegistros(paquetes, request):
+
+	uri = ''
+	version = '1.1'
+	extensions = []
+	publisher = {}
+	license = ''
+	publicationPolicy = ''
+	publishedDate = ''
+	records = []
+
+	metaDatosPaquete = {}
+
+	fechaActual = datetime.datetime.now(dateutil.tz.tzoffset('UTC', -6*60*60))
+	publishedDate = fechaActual.isoformat()
+
+	for p in paquetes:
+		paquete = p.data
+
+		license = paquete['license']
+		version = paquete['version']
+		publisher = paquete['publisher']
+		publicationPolicy = paquete['publicationPolicy']
+
+		for e in paquete['extensions']:
+			if not e in extensions:
+				extensions.append(e)
+
+	metaDatosPaquete["uri"] = request.build_absolute_uri()
+	metaDatosPaquete["version"] = version
+	metaDatosPaquete["publishedDate"] = publishedDate
+	metaDatosPaquete["publisher"] = publisher
+	metaDatosPaquete["extensions"] = extensions
+	metaDatosPaquete["license"] = license
+	metaDatosPaquete["publicationPolicy"] = publicationPolicy
+
+	return metaDatosPaquete

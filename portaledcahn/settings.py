@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': '192.168.1.7',
+        'HOST': '192.168.1.8',
         'PORT': '5432',
         # 'NAME': 'ocdskingfisher',
         # 'USER': 'ocdskingfisher',
@@ -104,7 +104,7 @@ DATABASES = {
         'NAME': 'portaledcahn_admin',
         'USER': 'postgres',
         'PASSWORD': '123456',        
-        'HOST': '192.168.1.7',
+        'HOST': '192.168.1.8',
         'PORT': '5432',
     }
 }

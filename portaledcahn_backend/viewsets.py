@@ -155,21 +155,75 @@ class Records(APIView, PaginationHandlerMixin):
 	serializer_class = RecordSerializer
 
 	def get(self, request, format=None, *args, **kwargs):
+		
+		respuesta = {}
+		currentPage = request.GET.get('page', "1")
+		publisher = request.GET.get('publisher', "")
+
 		instance = Record.objects.all()
+
 		page = self.paginate_queryset(instance)
+
 		if page is not None:
 			serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
 		else:
-			serializer = self.serializer_class(instance, many=True)
-		return Response(serializer.data, status=status.HTTP_200_OK)
+			content = {'error': 'Internal Server Error'}
+			return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+		results = []
+		paquetes = []
+
+		results = serializer.data["results"]
+
+		for d in results:
+			print(d)
+
+			for r in d["releases"]:
+				release = Release.objects.filter(release_id=r["id"])
+				paquete = release[0].package_data
+				paquetes.append(paquete)
+
+		metadataPaquete = paqueteRegistros(paquetes, request)
+
+		respuesta["releases"] = serializer.data["count"]
+		respuesta["pages"] = math.ceil(serializer.data["count"] / 10)
+		respuesta["page"] = currentPage
+		respuesta["next"] = serializer.data["next"]
+		respuesta["previous"] = serializer.data["previous"]
+		if serializer.data["count"] > 0:
+			respuesta["recordPackage"] = metadataPaquete
+			respuesta["recordPackage"]["records"] = results
+		else:
+			respuesta["recordPackage"] = {}
+
+
+		return Response(respuesta, status=status.HTTP_200_OK)
 
 class GetRecord(APIView):
 
 	def get(self, request, pk=None, format=None):
-		queryset = Record.objects.all()
-		record = get_object_or_404(queryset, ocid=pk)
-		serializer = RecordSerializer(record)
-		return Response(serializer.data)
+		queryset = Record.objects.filter(ocid=pk)
+
+		if queryset.exists():
+			record = queryset[0]
+			serializer = RecordSerializer(record)
+
+			data = serializer.data
+
+			paquetes = []
+
+			for r in data["releases"]:
+				release = Release.objects.filter(release_id=r["id"])
+				paquete = release[0].package_data
+				paquetes.append(paquete)
+
+			recordPackage = paqueteRegistros(paquetes, request)
+			
+			recordPackage["records"] = [data,]
+
+			return Response(recordPackage)
+		else:
+			raise Http404
 
 # class RecordViewSet(viewsets.ModelViewSet):
 # 	queryset = Record.objects.all()
