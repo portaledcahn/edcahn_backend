@@ -7684,3 +7684,134 @@ class CompradoresPorCantidadDeContratos(APIView):
 		}
 
 		return Response(context)
+
+class FiltrosVisualizacionesONCAE(APIView):
+
+	def get(self, request, format=None):
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+
+		ssFecha = Search(using=cliente, index='contract')
+		sssFecha = Search(using=cliente, index='contract')
+
+		# Excluyendo procesos de SEFIN
+		ssFecha = ssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		sssFecha = sssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
+		# Filtros
+		if institucion.replace(' ', ''):
+			ssFecha = ssFecha.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			ssFecha = ssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if categoria.replace(' ', ''):
+			if categoria == 'No Definido':			
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
+				ssFecha = ssFecha.filter('bool', must_not=qqCategoria)
+				sssFecha = sssFecha.filter('bool', must_not=qqCategoria)
+			else:
+				ssFecha = ssFecha.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				sssFecha = sssFecha.filter('match_phrase', localProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			if modalidad == 'No Definido':			
+				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+
+				ssFecha = ssFecha.filter('bool', must_not=qqModalidad)
+				sssFecha = sssFecha.filter('bool', must_not=qqModalidad)
+			else:
+				ssFecha = ssFecha.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				sssFecha = sssFecha.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			if moneda == 'No Definido':
+				qMoneda = Q('exists', field='value.currency.keyword') 
+
+				ssFecha = ssFecha.filter('bool', must_not=qMoneda)
+				sssFecha = sssFecha.filter('bool', must_not=qMoneda)
+			else:
+				ssFecha = ssFecha.filter('match_phrase', value__currency__keyword=moneda)
+				sssFecha = sssFecha.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Resumen
+		ssFecha.aggs.metric(
+			'aniosContratoFechaFirma', 
+			'date_histogram', 
+			field='dateSigned', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
+		)
+
+		sssFecha.aggs.metric(
+			'aniosContratoFechaInicio', 
+			'date_histogram', 
+			field='period.startDate', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
+		)
+		
+		ssFechaResultados = ssFecha.execute()
+		sssFechaResultados = sssFecha.execute()
+
+		aniosFechaFirma = ssFechaResultados.aggregations.aniosContratoFechaFirma.to_dict()
+		aniosFechaInicio = sssFechaResultados.aggregations.aniosContratoFechaInicio.to_dict()
+
+		#Valores para filtros por anio
+		anios = {}
+
+		for value in aniosFechaFirma["buckets"]:
+			if value["key_as_string"] in anios:
+				if "contratos" in anios[value["key_as_string"]]:
+					anios[value["key_as_string"]]["contratos"] += value["doc_count"]
+				else:
+					anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+			else:
+				anios[value["key_as_string"]] = {}
+				anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+
+		for value in aniosFechaInicio["buckets"]:
+			if value["key_as_string"] in anios:
+				if "contratos" in anios[value["key_as_string"]]:
+					anios[value["key_as_string"]]["contratos"] += value["doc_count"]
+				else:
+					anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+			else:
+				anios[value["key_as_string"]] = {}
+				anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+
+		years = []
+		annioActual = int(datetime.datetime.now().year)
+
+		for key, value in anios.items():
+			if int(value["key_as_string"]) <= annioActual and int(value["key_as_string"]) >= 1980:
+				years.append(value)
+
+		years = sorted(years, key=lambda k: k['key_as_string'], reverse=True) 
+
+		resultados = years
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = idinstitucion
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+
+		context = {
+			"parametros": parametros,
+			"respuesta": resultados
+		}
+
+		return Response(context)
