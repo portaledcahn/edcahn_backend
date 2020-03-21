@@ -66,4 +66,6 @@ urlpatterns = [
 	path('indicadoresoncae/comprasconjuntas/', viewsets.IndicadorCompraConjunta.as_view()),
 	path('indicadoresoncae/contratospormodalidad/', viewsets.IndicadorContratosPorModalidad.as_view()),
 
+	path('visualizacionesoncae/instituciones/', viewsets.CompradoresPorCantidadDeContratos.as_view()),
+	
 ]
