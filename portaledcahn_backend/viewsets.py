@@ -6408,8 +6408,8 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		idinstitucion = request.GET.get('idinstitucion', '')
 		anio = request.GET.get('año', '')
 		moneda = request.GET.get('moneda', '')
-		categoria = request.GET.get('categoria', '')
-		modalidad = request.GET.get('modalidad', '')
+		pcategoria = request.GET.get('categoria', '')
+		pmodalidad = request.GET.get('modalidad', '')
 
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
@@ -6447,36 +6447,61 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 				s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 
-		if categoria.replace(' ', ''):
-			if categoria == 'No Definido':
+		if pcategoria.replace(' ', ''):
+			if pcategoria == 'No Definido':
 				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 
 				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=pcategoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=pcategoria)
 
-		if modalidad.replace(' ', ''):
-			if modalidad == 'No Definido':
+		if pmodalidad.replace(' ', ''):
+			if pmodalidad == 'No Definido':
 				qModalidad = Q('exists', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
 				s = s.filter('bool', must_not=qModalidad)	
 
 				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
 				ss = ss.filter('bool', must_not=qqModalidad)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
-				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=pmodalidad)
+				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=pmodalidad)
 
 		# Agregados
+
 		s.aggs.metric(
+			'categorias',
+			'terms',
+			field='doc.compiledRelease.tender.localProcurementCategory.keyword'
+		)
+
+		ss.aggs.metric(
+			'categorias',
+			'terms',
+			field='localProcurementCategory.keyword'
+		)
+
+		s.aggs['categorias'].metric(
+			'modalidades',
+			'terms',
+			field='doc.compiledRelease.tender.procurementMethodDetails.keyword'
+		)
+
+		ss.aggs['categorias'].metric(
+			'modalidades',
+			'terms',
+			field='extra.tenderProcurementMethodDetails.keyword'
+		)
+
+		s.aggs['categorias']['modalidades'].metric(
 			'promedioDiasLicitacion',
 			'avg',
 			field='extra.daysTenderPeriod'
 		)
 
-		ss.aggs.metric(
+		ss.aggs['categorias']['modalidades'].metric(
 			'promedioDiasIniciarContrato',
 			'avg',
 			field='extra.tiempoContrato'
@@ -6485,21 +6510,52 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		results = s.execute()
 		results2 = ss.execute()
 
-		diasLicitacion = results.aggregations.promedioDiasLicitacion["value"]
-		diasIniciarContrato = results2.aggregations.promedioDiasIniciarContrato["value"]
+		diasLicitacion = results.aggregations.categorias.to_dict()
+		diasContrato = results2.aggregations.categorias.to_dict()
 
-		resultados = {
-			"promedioDiasLicitacion": diasLicitacion,
-			"promedioDiasIniciarContrato": diasIniciarContrato
-		}
+		tiempos = {}
+
+		for categoria in diasLicitacion["buckets"]:
+			tiempos[categoria["key"]] = {}
+
+			for modalidad in categoria["modalidades"]["buckets"]:
+				tiempos[categoria["key"]][modalidad["key"]] = {}
+
+				if "promedioDiasLicitacion" in modalidad:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasLicitacion"] = modalidad["promedioDiasLicitacion"]["value"]
+				else:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasLicitacion"] = None
+
+				tiempos[categoria["key"]][modalidad["key"]]["promedioDiasIniciarContrato"] = None
+
+
+		for categoria in diasContrato["buckets"]:
+			
+			if not categoria["key"] in tiempos:
+				tiempos[categoria["key"]] = {}
+
+			for modalidad in categoria["modalidades"]["buckets"]:
+				
+				if not modalidad["key"] in tiempos[categoria["key"]]:
+					tiempos[categoria["key"]][modalidad["key"]] = {}
+
+				if "promedioDiasIniciarContrato" in modalidad:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasIniciarContrato"] = modalidad["promedioDiasIniciarContrato"]["value"]
+				else:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasIniciarContrato"] = None
+
+				if not "promedioDiasIniciarContrato" in tiempos[categoria["key"]][modalidad["key"]]:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasLicitacion"] = None
+
+		resultados = tiempos
 
 		parametros = {}
 		parametros["institucion"] = institucion
 		parametros["idinstitucion"] = institucion
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
-		parametros["categoria"] = categoria
-		parametros["modalidad"] = modalidad
+		parametros["categoria"] = pcategoria
+		parametros["modalidad"] = pmodalidad
 
 		context = {
 			"resultados": resultados,
