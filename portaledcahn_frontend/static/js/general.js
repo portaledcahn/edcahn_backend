@@ -104,6 +104,20 @@ function ObtenerFecha(texto,tipo){
     }
 }
 
+function ObtenerMes(texto){
+    if(texto){
+        try {
+            fecha=new Date(texto);
+            return meses[fecha.getMonth()];
+            }
+          catch(error) {
+            return ''
+          }
+    }else{
+        return '';
+    }
+}
+
 function ObtenerNumero(texto){
     if(Number(texto)){
         return Number(texto);

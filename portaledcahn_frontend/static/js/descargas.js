@@ -281,7 +281,7 @@ var descargasOncae=[
 function ObtenerDescargas(){
   DebugFecha();
   MostrarEspera('#descargas');
-  $.get( /*url+"/static/js/descargas.json"*/ api+"/v1/descargas/",function(datos){
+  $.get(url+"/static/js/descargas.json"/* api+"/v1/descargas/"*/,function(datos){
       DebugFecha();
       console.dir(datos)
       OcultarEspera('#descargas');
@@ -315,8 +315,10 @@ function ObtenerDescargas(){
 }
 function ObtenerResultadosFiltrados(){
   return descargasGenerales.filter(function(elemento){
-    if(ValidarCadena($('#'+selector+'Buscar').val().trim())){
-      return (ContenerCadena(elemento.fuente,$('#'+selector+'Buscar').val().trim())||ContenerCadena(elemento.fecha,$('#'+selector+'Buscar').val().trim())||ContenerCadena(elemento.publicador,$('#'+selector+'Buscar').val().trim())||ContenerCadena(ObtenerMes(elemento.mes),$('#'+selector+'Buscar').val().trim()));
+    var termino=$('#'+selector+'Buscar').val().trim().replace(/ +/g,' ');
+    if(ValidarCadena(termino)){
+      return (ContenerCadena(elemento.fuente,termino)||ContenerCadena(elemento.fecha,termino)||ContenerCadena(elemento.publicador,termino)||ContenerCadena(ObtenerMes(elemento.mes),termino));
+
     }else{
       return true;
     }
@@ -360,7 +362,7 @@ function AgregarResultados(pagina){
                     ' .CSV'
                   )
                 ):null,
-                descarga.xlsx?$('<a>',{href:descarga.xls,target:'_blank'}).append(
+                descarga.xlsx?$('<a>',{href:descarga.xlsx,target:'_blank'}).append(
                   $('<span>',{class:'textoColorSecundario textoAlineadoDerecha p-1 cursorMano transparencia enlaceArchivoDescarga transicion titularColor'}).append(
                     $('<i>',{class:'fas fa-file-download'}),
                     ' .XLSX'
@@ -377,8 +379,22 @@ function AgregarResultados(pagina){
           )
         )
       )
-    )
-  })
+    );
+  });
+  if(filtrados.length==0){
+    $('#'+selector).append(
+      $('<div>',{class:'cajonDescarga posicionRelativa textoColorBlanco fondoColorClaro transicion'}).append(
+        $('<div>',{class:'contenedorPropiedadesDescarga'}).append(
+          $('<div>',{class:'row'}).append(
+            $('<div>',{class:'col-12 col-sm-6 col-md-6 col-lg-6'}).append(
+              $('<span>',{class:'tituloDescarga textoColorSecundario',text:'No se encontraron resultados',style:'font-size:20px;letter-spacing:unset'})
+            )
+          )
+        )
+      )
+    );
+  }
+
   MostrarPaginacion(pagina);
 
 }
