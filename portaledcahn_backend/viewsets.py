@@ -390,7 +390,7 @@ class Index(APIView):
 		precision = 40000
 		sourceSEFIN = 'HN.SIAFI2'
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=120)
 
 		oncae = Search(using=cliente, index='edca')
 		sefin = Search(using=cliente, index='edca')

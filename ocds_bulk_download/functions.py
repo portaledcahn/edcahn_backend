@@ -33,19 +33,26 @@ def obtenerRelasesCSV():
     carpetaArchivos = "archivos_estaticos"
 
     select = """
-        select
+        SELECT
             r.release_id,
             r.ocid,
             d.hash_md5,
             r.package_data_id,
             d."data" as "release",
             pd."data" as "package" 
-        from release r
-            inner join data d on r.data_id = d.id 
-            inner join package_data pd on r.package_data_id = pd.id
-        order by
-            d.id
-        limit 10000
+        FROM release r
+            INNER JOIN data d on r.data_id = d.id 
+            INNER JOIN package_data pd on r.package_data_id = pd.id
+        GROUP BY 
+            r.release_id, 
+            r.ocid, 
+            d.hash_md5, 
+            r.package_data_id, 
+            d.data, 
+            pd.data
+        ORDER BY
+            r.release_id
+        --LIMIT 2
     """
 
     try:
@@ -283,7 +290,6 @@ def generarArchivosEstaticos(file):
     limpiarArchivos(directorioTxtReleases)
     limpiarArchivos(directorioPaquetes)
 
-    # Generando archivos md5
     csv.field_size_limit(sys.maxsize)
     with open(file) as fp:
 
@@ -371,6 +377,7 @@ def generarArchivosEstaticos(file):
             else:
                 # Si el archivo nunca habia sido procesado, entonces se procesa. 
                 archivosProcesar.append(llave)
+                archivosProcesados[llave] = archivos[llave]
 
         print("Archivos por procesar: ", archivosProcesar)
 
@@ -400,10 +407,9 @@ def generarArchivosEstaticos(file):
                 del archivos[llave]["paquetesId"]
                 del archivos[llave]["archivo_hash"]
                 del archivos[llave]["archivo_text"]
-                del archivos[llave]["archivo_paquete"]                
+                del archivos[llave]["archivo_paquete"]
 
-        # escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
-        # guardarDataJSON(json.dumps(archivos, ensure_ascii=False))
+                archivosProcesados[llave] = archivos[llave]
 
         #Aplanando archivos .json
         for llave in archivos:
@@ -411,9 +417,10 @@ def generarArchivosEstaticos(file):
                 #Generando CSV, EXCEL
                 aplanarArchivo(directorioDescargas + archivos[llave]["urls"]["json"], directorioDescargas + llave)
                 archivos[llave]["finalizo"] = True
+                archivosProcesados[llave]["finalizo"] = True
 
-        escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivos, ensure_ascii=False), 'w')
-        guardarDataJSON(json.dumps(archivos, ensure_ascii=False))
+        escribirArchivo(directorioReleases, 'metadata_releases.json', json.dumps(archivosProcesados, ensure_ascii=False), 'w')
+        guardarDataJSON(json.dumps(archivosProcesados, ensure_ascii=False))
 
 def pruebas():
     data = {}
