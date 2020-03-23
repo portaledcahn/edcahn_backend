@@ -294,7 +294,37 @@ def Proveedores(request):
     parametros['ordenmemc'] = verificarOrden(request.GET.get('ordenarPor',''),'memc')
     
     return render(request,'proveedores/proveedores.html',parametros)
-    
+def ProveedoresSefin(request):
+  parametros = {
+    "nombre" : request.GET.get('nombre',''),
+    "identificacion" : request.GET.get('identificacion',''),
+    "tmc" : request.GET.get('tmc','').replace(">", "").replace("<", "").replace("==", ""),
+    "cp" : request.GET.get('cp','').replace(">", "").replace("<", "").replace("==", ""),
+    "pmc" : request.GET.get('pmc','').replace(">", "").replace("<", "").replace("==", ""),
+    "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("==", ""),
+    "fua" : request.GET.get('fua','').replace(">", "").replace("<", "").replace("==", ""),
+    "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("==", ""),
+    "paginarPor" : int(request.GET.get('paginarPor','5')),
+    "ordenarPor" : request.GET.get('ordenarPor','')
+  }
+  parametros['operadortmc'] = verificarOperador(request.GET.get('tmc',''))
+  parametros['operadorpmc'] = verificarOperador(request.GET.get('pmc',''))
+  parametros['operadormamc'] = verificarOperador(request.GET.get('mamc',''))
+  parametros['operadormemc'] = verificarOperador(request.GET.get('memc',''))
+  parametros['operadorfua'] = verificarOperador(request.GET.get('fua',''))
+  parametros['operadorcp'] = verificarOperador(request.GET.get('cp',''))
+
+  parametros['ordennombre'] = verificarOrden(request.GET.get('ordenarPor',''),'nombre')
+  parametros['ordenidentificacion'] = verificarOrden(request.GET.get('ordenarPor',''),'identificacion')
+  parametros['ordentmc'] = verificarOrden(request.GET.get('ordenarPor',''),'tmc')
+  parametros['ordenpmc'] = verificarOrden(request.GET.get('ordenarPor',''),'pmc')
+  parametros['ordenmamc'] = verificarOrden(request.GET.get('ordenarPor',''),'mamc')
+  parametros['ordencp'] = verificarOrden(request.GET.get('ordenarPor',''),'cp')
+  parametros['ordenfua'] = verificarOrden(request.GET.get('ordenarPor',''),'fua')
+  parametros['ordenmemc'] = verificarOrden(request.GET.get('ordenarPor',''),'memc')
+  
+  return render(request,'proveedoresSefin/proveedoresSefin.html',parametros)
+  
 def Visualizaciones(request):
     return render(request,'visualizaciones/visualizaciones.html')
 

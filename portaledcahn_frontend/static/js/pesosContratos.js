@@ -1,30 +1,49 @@
 $(function(){
-    //ObtenerFiltros();
-    MostrarEspera('#PesosContratos')
+    MostrarEspera('#VisualizacionGeneral')
     MostrarSeleccionFecha();
 });
 window.onpopstate = function(e){
   location.reload();
 }
+var traducciones={
+  goodsOrServices:{titulo:'Bienes y/o Servicios'},
+  works:{titulo:'Obras'},
+  consultingServices:{titulo:'Consultorías'},
+  services:{titulo:'Servicios'},
+  ND:{titulo:'Sin Categoría'}
+}
+var colores={
+  /*goodsOrServices:ObtenerColores('Pastel1')[0],
+  works:ObtenerColores('Pastel1')[1],
+  consultingServices:ObtenerColores('Pastel1')[2],
+  services:ObtenerColores('Pastel1')[4],
+  ND:ObtenerColores('Pastel1')[5],*/
+  'Bienes y/o Servicios':ObtenerColores('Pastel1')[0],
+  'Obras':ObtenerColores('Pastel1')[1],
+  'Consultorías':ObtenerColores('Pastel1')[2],
+  'Servicios':ObtenerColores('Pastel1')[4],
+  'Sin Categoría':ObtenerColores('Pastel1')[5]
+
+}
+
 
 function ObtenerFiltros(selector){
     DebugFecha();
-    var parametros={masinstituciones:1};//ObtenerJsonFiltrosAplicados({});
-    $.get(api+"/dashboardoncae/filtros/",parametros).done(function( datos ) {
-      OcultarEspera('#PesosContratos')
+    $.get(api+"/visualizacionesoncae/filtros/",{}).done(function( datos ) {
+      OcultarEspera('#VisualizacionGeneral')
         console.dir('filtros')
         DebugFecha()
     console.dir(datos);
 
-        if(datos&&datos.respuesta&&datos.respuesta.años&&datos.respuesta.años.length){
+        if(datos&&datos.respuesta&&datos.respuesta.length){
           $('#'+selector).html('').append(
             $('<div>',{class:'contenedorFechas'}).append(
               $('<h4>',{class:'titularCajonSombreado textoAlineadoCentrado',text:'Fechas de Contratos'})
             )
           )
-          datos.respuesta.años.forEach(function(elemento) {
+          datos.respuesta.forEach(function(elemento) {
             $('#'+selector+' .contenedorFechas').append(
-              $('<div>',{class:'botonGeneral fondoColorPrimario cursorMano'+((decodeURIComponent(ObtenerValor('año'))==elemento.key_as_string)?' fondoColorSecundario':''),href:'javascript:void(0)',text:elemento.key_as_string, style:'color:white;margin:5px;display:inline-block;', fecha:elemento.key_as_string,
+              $('<div>',{class:'botonGeneral fondoColorPrimario cursorMano'+((decodeURIComponent(ObtenerValor('año'))==elemento.key_as_string)?' fondoColorSecundario':''),href:'javascript:void(0)',text:elemento.key_as_string, style:'color:white;margin:3px;display:inline-block;', fecha:elemento.key_as_string,
             on:{
               click:function(e){
                 //$(e.currentTarget).attr('fecha')
@@ -32,9 +51,19 @@ function ObtenerFiltros(selector){
                   $(e.currentTarget).addClass('fondoColorSecundario');
                 var parametros=ObtenerJsonFiltrosAplicados({});
                   parametros['año']=$(e.currentTarget).attr('fecha');
+                  if(parametros.institucion){
+                    delete parametros.institucion;
+                  }
+
+                  if($('#PesosContratosGrafico').length){
+                    $('#PesosContratosGrafico').empty();
+                  }
+                  $('#PesosContratos').html('');
+                  $('#PesosContratos').hide();
+
                   AccederUrlPagina(parametros);
-                  PushDireccion(AccederUrlPagina(parametros));
-                  ObtenerContratos();
+                  PushDireccion(AccederUrlPagina(parametros,true));
+                  MostrarContratosGenerales();
               }
             }})
             )
@@ -43,7 +72,7 @@ function ObtenerFiltros(selector){
         }
 
 
-        if(datos&&datos.respuesta&&datos.respuesta.instituciones&&datos.respuesta.instituciones.length){
+        /*if(datos&&datos.respuesta&&datos.respuesta.instituciones&&datos.respuesta.instituciones.length){
           $('#'+selector).append(
             $('<br>'),
             $('<div>',{class:'contenedorInstitucionesx'}).append(
@@ -68,21 +97,25 @@ function ObtenerFiltros(selector){
             )
           });
           
-        }
+        }*/
+        /*
         $('#'+selector+' ' ).append(
           $('<div>',{
             id:"pesosContratosGraficos",
             style:'width:100%;height:500px'
           })
         )
-
+*/
         var parametros=ObtenerJsonFiltrosAplicados({})
           if(parametros.año&&parametros.institucion){
-            ObtenerContratos();
+           // ObtenerContratos();
+           MostrarContratosGenerales();
+           MostrarContratosInstitucion(false,true);
           }else if(parametros.año){
-            $('#pesosContratosGraficos').html(
+          /*  $('#pesosContratosGraficos').html(
               '<div class="textoColorGris titularColor mt-5 ">Selecciona una Institución</div>'
-              );
+              );*/
+              MostrarContratosGenerales();
           }
 
       }).fail(function() {
@@ -119,7 +152,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
     window.history.pushState({}, document.title,direccion);
   }
 function MostrarSeleccionFecha(){
-    var selector='PesosContratos';
+    var selector='FechasSeleccion';
     ObtenerFiltros(selector);
    /// <span class="botonGeneral fondoColorPrimario cargaEfecto" id="promedioMonto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
 }
@@ -129,7 +162,7 @@ function ObtenerContratos(){
   var parametros=ObtenerJsonFiltrosAplicados({});
   if(parametros.institucion ){
     var datos=ObtenerJsonFiltrosAplicados({});
-    $.get(api + "/compradores/" + encodeURIComponent(datos.institucion) + '/contratos',{tid:'id',dependencias:1}).done(function(datos) {
+    $.get(api + "/compradores/" + encodeURIComponent(datos.institucion) + '/contratos',{tid:'id',dependencias:1,pagina:1,paginarPor:100}).done(function(datos) {
         console.dir('Contratos')
         console.dir(datos);
         var resultados=[];
@@ -255,3 +288,4 @@ function InicializarGraficoContratos(datos){
         grafico.resize();
     });
 }
+

@@ -1,0 +1,996 @@
+[
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Vicepresidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"6"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Vicepresidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Vicepresidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"31"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"12",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"17"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"15"
+    },
+    {
+       "anio":"2019",
+       "mes":"2",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"9"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"11"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de Agricultura y Ganadería",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"10"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Defensa Nacional",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Defensa Nacional",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de Defensa Nacional",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de Defensa Nacional",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Defensa Nacional",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Defensa Nacional",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Defensa Nacional",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"5"
+    },
+    {
+       "anio":"2019",
+       "mes":"12",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"18"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"8"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"13"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"8"
+    },
+    {
+       "anio":"2019",
+       "mes":"1",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"16"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"10"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"28"
+    },
+    {
+       "anio":"2019",
+       "mes":"2",
+       "entidad":"Ministerio de Educación y Cultura",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"10"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"7"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"5"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"20"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"9"
+    },
+    {
+       "anio":"2019",
+       "mes":"2",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"12"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"19"
+    },
+    {
+       "anio":"2019",
+       "mes":"12",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"8"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"21"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Hacienda",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"13"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de Industria y Comercio",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"5"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Industria y Comercio",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"7"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de Industria y Comercio",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Industria y Comercio",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"5"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Industria y Comercio",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"8"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio de Industria y Comercio",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"4"
+    },
+    {
+       "anio":"2019",
+       "mes":"1",
+       "entidad":"Ministerio de Industria y Comercio",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Industria y Comercio",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"4"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Industria y Comercio",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"7"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Justicia y Trabajo",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Justicia y Trabajo",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"6"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio de Justicia y Trabajo",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Justicia y Trabajo",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"10"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio de Justicia y Trabajo",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Justicia y Trabajo",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"9"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Justicia y Trabajo",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de la Mujer",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de la Mujer",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"12"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de la Mujer",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"4"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio de la Mujer",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de la Mujer",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"4"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de la Mujer",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"6"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de la Mujer",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"7"
+    },
+    {
+       "anio":"2019",
+       "mes":"12",
+       "entidad":"Ministerio de la Mujer",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de la Mujer",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"32"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"56"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"44"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"47"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"53"
+    },
+    {
+       "anio":"2019",
+       "mes":"2",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"5"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"47"
+    },
+    {
+       "anio":"2019",
+       "mes":"12",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"18"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"24"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"23"
+    },
+    {
+       "anio":"2019",
+       "mes":"1",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"4"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio del Interior",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"58"
+    },
+    {
+       "anio":"2019",
+       "mes":"12",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"4"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"30"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"11"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"10"
+    },
+    {
+       "anio":"2019",
+       "mes":"2",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"6"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"56"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"47"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"30"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"26"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"20"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio de Obras Públicas y Comunicaciones",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"12"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"4"
+    },
+    {
+       "anio":"2019",
+       "mes":"2",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"7"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"5"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"1",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"12"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Relaciones Exteriores",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"6"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"36"
+    },
+    {
+       "anio":"2019",
+       "mes":"2",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"209"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"28"
+    },
+    {
+       "anio":"2019",
+       "mes":"12",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"19"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"57"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"29"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"124"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"32"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"66"
+    },
+    {
+       "anio":"2019",
+       "mes":"1",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Salud Pública y Bienestar Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"107"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"7"
+    },
+    {
+       "anio":"2019",
+       "mes":"12",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"6"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"19"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"9"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"8"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"36"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"16"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"22"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"12"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"18"
+    },
+    {
+       "anio":"2019",
+       "mes":"2",
+       "entidad":"Ministerio de Trabajo, Empleo y Seguridad Social",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"4"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"33"
+    },
+    {
+       "anio":"2019",
+       "mes":"12",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"11"
+    },
+    {
+       "anio":"2019",
+       "mes":"1",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"9"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"40"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"40"
+    },
+    {
+       "anio":"2019",
+       "mes":"10",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"52"
+    },
+    {
+       "anio":"2019",
+       "mes":"7",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"57"
+    },
+    {
+       "anio":"2019",
+       "mes":"2",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"7"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"47"
+    },
+    {
+       "anio":"2019",
+       "mes":"8",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"36"
+    },
+    {
+       "anio":"2019",
+       "mes":"3",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"23"
+    },
+    {
+       "anio":"2019",
+       "mes":"9",
+       "entidad":"Presidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"25"
+    },
+    {
+       "anio":"2019",
+       "mes":"4",
+       "entidad":"Vicepresidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"3"
+    },
+    {
+       "anio":"2019",
+       "mes":"6",
+       "entidad":"Vicepresidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"2"
+    },
+    {
+       "anio":"2019",
+       "mes":"11",
+       "entidad":"Vicepresidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"5"
+    },
+    {
+       "anio":"2019",
+       "mes":"5",
+       "entidad":"Vicepresidencia de la República",
+       "nivel_entidad":"PODER EJECUTIVO",
+       "cantidad":"1"
+    }
+ ]
