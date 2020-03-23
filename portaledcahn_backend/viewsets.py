@@ -7594,13 +7594,14 @@ class Descargas(APIView):
 			cursor.execute("SELECT file FROM descargas ORDER BY createddate DESC LIMIT 1")
 			row = cursor.fetchone()
 		
-		for value in row[0].values():
-			for extension in value["urls"]:
-				value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
-				
-			listaArchivos.append(value)
 
 		if row:
+			for value in row[0].values():
+				for extension in value["urls"]:
+					value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
+					
+				listaArchivos.append(value)
+	
 			return Response(listaArchivos)
 		else:
 			return Response([])
