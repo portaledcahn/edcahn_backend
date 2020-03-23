@@ -135,6 +135,12 @@
                                     <span>
                                           Indicadores de Procesos de Contratación 
                                     </span>
+                                    <!--<div>
+                                       <p style="margin:0">
+                                          <span style="color:red">*</span>
+                                          <b class="textoColorGris">No Definido corresponde a los contratos de "Compras Menores" y las órdenes de compra de "Catálogo Electrónico".</b>
+                                       </p>
+                                    </div>-->
                               </td>
                               <td style="width: 70px;">
                                     <div class="contenedorBotonAzulFiltroBusqueda"  style="display:none;margin-right: 10px;">
@@ -173,20 +179,20 @@
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 mt-4 ">
                         <div class="cajonSombreado">
                               <div class="tituloGrafico">
-                              <h4 class="titularCajonSombreado textoAlineadoCentrado">Cantidad de Contratos por Categoría de Compra</h4>
+                              <h4 class="titularCajonSombreado textoAlineadoCentrado">Cantidad de Contratos por Tipo de Contrato</h4>
                               </div>
                               <div class="contenedorGrafico">
-                              <div class="grafico minAlto_400" id="CantidadContratosCategoriaCompra"  style="height: 300px"></div>
+                              <div class="grafico minAlto_400" id="CantidadContratosCategoriaCompra"  style="height: 400px"></div>
                               </div>
                         </div>
                         </div>
                                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 mt-4 ">
                                                 <div class="cajonSombreado">
                                                       <div class="tituloGrafico">
-                                                      <h4 class="titularCajonSombreado textoAlineadoCentrado">Monto Contratado por Categoría de Compra</h4>
+                                                      <h4 class="titularCajonSombreado textoAlineadoCentrado">Monto Contratado por Tipo de Contrato</h4>
                                                       </div>
                                                       <div class="contenedorGrafico">
-                                                      <div class="grafico minAlto_400" id="MontoContratosCategoriaCompra"  style="height: 300px"></div>
+                                                      <div class="grafico minAlto_400" id="MontoContratosCategoriaCompra"  style="height: 400px"></div>
                                                       </div>
                                                 </div>
                                                 </div>
@@ -194,21 +200,21 @@
                                                 <div class="col-md-12 mt-4">
                                                    <div class="cajonSombreado">
                                                       <div class="tituloGrafico">
-                                                         <h4 class="titularCajonSombreado textoAlineadoCentrado">Top 10 Instituciones con mayor Monto de Contratos de Categoría</h4>
+                                                         <h4 class="titularCajonSombreado textoAlineadoCentrado"> Diez Instituciones con Mayor Monto Acumulado en Contratos y su Cantidad <!--Top 10 Instituciones con mayor Monto de Contratos de Categoría--></h4>
                                                          <!--<b>Bienes y Servicios, Obras, Consultorias, todas</b>-->
                                                       </div>
                                                       <div class="contenedorGrafico">
-                                                         <div class="grafico" id="top10InstitucionesMontos"  style="height: 600px"></div>
+                                                         <div class="grafico" id="top10InstitucionesMontos"  style="height: 700px"></div>
                                                       </div>
                                                    </div>
                                                 </div>
                                                 <div class="col-md-12 mt-4">
                                                    <div class="cajonSombreado">
                                                       <div class="tituloGrafico">
-                                                         <h4 class="titularCajonSombreado textoAlineadoCentrado">Montos de Contrato a través de Catálogo Electrónico por nombre</h4>
+                                                         <h4 class="titularCajonSombreado textoAlineadoCentrado">Monto de Contrato por Catálogos Electrónico <!--Montos de Contrato a través de Catálogo Electrónico por nombre--></h4>
                                                       </div>
                                                       <div class="contenedorGrafico">
-                                                         <div class="grafico" id="montoCatalogoElectronico"  style="height: 700px"></div>
+                                                         <div class="grafico" id="montoCatalogoElectronico"  style="height: 800px"></div>
                                                       </div>
                                                    </div>
                                                 </div>
@@ -243,6 +249,5 @@
 <script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
 <script src="{% static 'plugins/elastic-list/data.js' %}"></script>
 <script src="{% static 'plugins/elastic-list/elastic-list.js' %}"></script>
-<script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
 <script src="{% static 'js/indicadoresProcesosContratacion.js' %}"></script>
 {% endblock %}

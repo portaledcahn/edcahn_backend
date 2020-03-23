@@ -1,5 +1,7 @@
 var url=window.location.origin;
+//url='http://www.contratacionesabiertas.gob.hn'
 var api=url+"/api";
+//api='http://200.13.162.86'+"/api";
 var estadosContrato={
     'pending':{titulo:'Pendiente',descripcion:'Este contrato se propuso pero aún no entra en vigor. Puede estar esperando ser firmado.'},
     'active':{titulo:'Activo',descripcion:'Este contrato se ha firmado por todas las partes y ahora está legalmente en proceso.'},
@@ -12,6 +14,17 @@ var estadosContrato={
    };
 var defaultMoneda='HNL';
 
+var meses=['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+function ObtenerMes(numero){
+    numero=ObtenerNumero(numero);
+    if(numero > 0 && numero < 13){
+        return meses[numero - 1];
+    }else{
+        return '';
+    }
+
+}
 function MostrarIntroduccion(){
     introJs().setOption("nextLabel", "Siguiente").setOption("prevLabel", "Atras").setOption("skipLabel", "SALTAR").setOption("doneLabel", "LISTO").start();
 }
@@ -24,18 +37,13 @@ function DebugFecha(){
 function ObtenerColores(paleta){
     var Paletas={
         'Basica':['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED','#6569CC'],
-
-
-        'Pastel1':[/*'#17B793','#927FBF',*/'#285189','#04869C','#4F3B78','#9E0B28','#DA517A'/*'#F30A49',*/,'#0B3C77','#DA517A','#DA517A','#DA517A','#DA517A'],
-
-
+        'Pastel1':['#285189','#04869C','#4F3B78','#9E0B28','#DA517A','#0B3C77','#DA517A','#DA517A','#DA517A','#DA517A'],
         'Pastel2':['#82CCB5','#DD86B9','#FFF68F','#F9B48A','#F497AA','#B6D884','#6BCADE','#71ABDD','#FDCD7B','#9977B4'],
         'Pastel3':['#9DDAEC','#F29AC0','#FEDDB4','#FFAAA5','#C1ACD3','#B9DB9F','#B0DDD6','#DCEDC1','#EDEEA2','#FF8B94']
     }
-
     return Paletas[paleta?paleta:'Basica'];
-
 }
+
 function VerificarIntroduccion(variable,veces){
     var introduccion=ObtenerCookie(variable);
     if(introduccion===null){
@@ -87,6 +95,20 @@ function ObtenerFecha(texto,tipo){
                     return fecha.getFullYear()+'-'+('0' + (fecha.getMonth()+1)).slice(-2)+'-'+('0' +fecha.getDate()).slice(-2)+' '+('0' + fecha.getHours()).slice(-2)+':'+('0' +fecha.getMinutes()).slice(-2)+':'+('0' +fecha.getSeconds()).slice(-2);
                     break;
             }
+            }
+          catch(error) {
+            return ''
+          }
+    }else{
+        return '';
+    }
+}
+
+function ObtenerMes(texto){
+    if(texto){
+        try {
+            fecha=new Date(texto);
+            return meses[fecha.getMonth()];
             }
           catch(error) {
             return ''

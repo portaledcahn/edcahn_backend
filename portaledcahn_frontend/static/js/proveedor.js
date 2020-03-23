@@ -1033,7 +1033,7 @@ function InicializarDescargas(){
 function ObtenerDescargaProveedorProductos(resultados){
   var parametros = ObtenerFiltrosProductos();
   parametros['pagina']=1;
-  parametros['paginarPor']=resultados.paginador['total.items'];
+  parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
   $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/productos',parametros).done(function( datos ) {
     console.dir('Descargas ProveedorProductos')
     console.dir(datos);
@@ -1078,7 +1078,7 @@ function ObtenerDescargaProveedorProductos(resultados){
 function ObtenerDescargaProveedorContratos(resultados){
   var parametros = ObtenerFiltrosContratos();
   parametros['pagina']=1;
-  parametros['paginarPor']=resultados.paginador['total.items'];
+  parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
   $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/contratos',parametros).done(function( datos ) {
     console.dir('Descargas Proveedor Contratos')
     console.dir(datos);
@@ -1112,7 +1112,7 @@ function ObtenerDescargaProveedorContratos(resultados){
 function ObtenerDescargaProveedorPagos(resultados){
   var parametros = ObtenerFiltrosPagos();
   parametros['pagina']=1;
-  parametros['paginarPor']=resultados.paginador['total.items'];
+  parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
   $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/pagos',parametros).done(function( datos ) {
     console.dir('Descargas Proveedor Pagos')
     console.dir(datos);

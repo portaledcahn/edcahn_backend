@@ -3,7 +3,7 @@ var filtrosAplicables={
     instituciones: {titulo:'Institución Compradora',parametro:'idinstitucion'},
     años: {titulo:'Año',parametro:'año'},
     proveedores: {titulo:'Proveedor',parametro:'proveedor'},
-    categorias: {titulo:'Categoría de Compra',parametro:'categoria'},
+    categorias: {titulo:/*'Categoría de Compra'*/'Tipo de Contrato',parametro:'categoria'},
     modalidades : {titulo:'Modalidad de Compra',parametro:'modalidad'},
     sistemas :{titulo:'Sistema de Origen', parametro: 'sistema'}
     
@@ -14,18 +14,18 @@ var filtrosAplicables={
     año: {titulo:'Año',parametro:'años'},
     proveedor: {titulo:'Proveedor',parametro:'proveedores'},
     modalidad: {titulo:'Modalidad de Compra',parametro:'modalidades'},
-    categoria : {titulo:'Categoría de Compra',parametro:'categorias'},
+    categoria : {titulo:/*'Categoría de Compra'*/'Tipo de Contrato',parametro:'categorias'},
     sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
     
   };
-  var ordenFiltros=['años','monedas','proveedores','categorias','modalidades','sistemas'];
+  var ordenFiltros=['años','monedas','instituciones','categorias','modalidades','sistemas'];
   var traducciones={
-    'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
+    'goods':{titulo: 'Suministro de Bienes y/o Servicios'/*'Bienes y provisiones'*/,descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
-    'services':{titulo:'Servicios',descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
+    'services':{titulo: 'Consultorías'/*'Servicios'*/,descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
     'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'},
-    'tender':{titulo:'Licitación',descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'},
-    'awards':{titulo:'Adjudicación',descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'},
+    'tender':{titulo:/*'Licitación' */'Desde Elaboración hasta Evaluación',descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'},
+    'awards':{titulo:'Adjudicado'/*'Licitación'*/ ,descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'},
     'contracts':{titulo:'Contrato',descripcion:'Da información sobre los detalles de un contrato que ha entrado, o entrará, en vigencia. La sección de licitación puede ser poblada con detalles del proceso que lleva al contrato, y la sección de adjudicación puede tener detalles sobre la adjudicación sobre la '},
     'planning':{
         titulo:'Planeación',
@@ -146,6 +146,12 @@ function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('sistema'))){
         parametros['sistema']=decodeURIComponent(ObtenerValor('sistema'));
     }
+    if(Validar(ObtenerValor('masinstituciones'))){
+        parametros['masinstituciones']=decodeURIComponent(ObtenerValor('masinstituciones'));
+    }
+    if(Validar(ObtenerValor('masproveedores'))){
+        parametros['masproveedores']=decodeURIComponent(ObtenerValor('masproveedores'));
+    }
     
 
     return parametros;
@@ -160,7 +166,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
     (ValidarCadena(opciones.proveedor)? '&proveedor='+encodeURIComponent(opciones.proveedor): (ValidarCadena(ObtenerValor('proveedor'))&&!desUrl?'&proveedor='+ObtenerValor('proveedor'):''))+
     (ValidarCadena(opciones.categoria)? '&categoria='+encodeURIComponent(opciones.categoria): (ValidarCadena(ObtenerValor('categoria'))&&!desUrl?'&categoria='+ObtenerValor('categoria'):''))+
     (ValidarCadena(opciones.modalidad) ? '&modalidad='+encodeURIComponent(opciones.modalidad):(ValidarCadena(ObtenerValor('modalidad'))&&!desUrl?'&modalidad='+ObtenerValor('modalidad'):''))+
-    (ValidarCadena(opciones.sistema) ? '&sistema='+encodeURIComponent(opciones.sistema):(ValidarCadena(ObtenerValor('sistema'))&&!desUrl?'&sistema='+ObtenerValor('sistema'):''))
+    (ValidarCadena(opciones.sistema) ? '&sistema='+encodeURIComponent(opciones.sistema):(ValidarCadena(ObtenerValor('sistema'))&&!desUrl?'&sistema='+ObtenerValor('sistema'):''))+
+    (ValidarCadena(opciones.masproveedores) ? '&masproveedores='+encodeURIComponent(opciones.masproveedores):(ValidarCadena(ObtenerValor('masproveedores'))&&!desUrl?'&masproveedores='+ObtenerValor('masproveedores'):''))+
+    (ValidarCadena(opciones.masinstituciones) ? '&masinstituciones='+encodeURIComponent(opciones.masinstituciones):(ValidarCadena(ObtenerValor('masinstituciones'))&&!desUrl?'&masinstituciones='+ObtenerValor('masinstituciones'):''))
   
     );
     return direccion;
@@ -172,6 +180,8 @@ function ObtenerJsonFiltrosAplicados(parametros){
   }
   
   function MostrarEtiquetasFiltrosAplicados(parametros){
+    delete parametros.masinstituciones;
+    delete parametros.masproveedores;
     if(!$.isEmptyObject(parametros)){
       $('#contenedorSinFiltros').hide();
       $('#contenedorFiltros').show();
@@ -205,6 +215,8 @@ function ObtenerJsonFiltrosAplicados(parametros){
         )
       )
     });
+    $('.filtrosContenedoFiltrosBusqueda').attr('style','height:calc(100vh - '+($('#extencionFiltrosAplicados').height()?123:110)+'px - '+($('#extencionFiltrosAplicados').height() + ($('#extencionFiltrosAplicados').height()?4:0))+'px)')
+
   }
 
   function MostrarEtiquetaListaElasticaAplicada(){
@@ -251,7 +263,21 @@ function ObtenerJsonFiltrosAplicados(parametros){
             $('<style>',{id:'style'+llave}),
             $('<ul >',{class:'list-group',id:'ul'+llave}).append(
               AgregarPropiedadesListaElastica(valor,llave)
-            )
+            ),
+            ['instituciones','proveedores'].includes(llave)&&valor&&valor.length>=50?
+              $('<a>',{
+                class:'enlaceTablaGeneral ptextoColorPrimario pcursorMano',
+                href:'javascript:void(0)',
+                style:'width:150px;padding:5px 15px',
+                text: valor.length==50? 'Mostrar Todos...':'Mostrar Menos...',
+                toolTexto:valor.length==50?'Mostrar más resultados':'Mostrar menos resultados',
+                toolCursor:'true',
+                llave:llave,
+                on:{
+                  click:MostrarMasResultados
+                }
+              })
+            :null
               
             
           )
@@ -264,6 +290,32 @@ function ObtenerJsonFiltrosAplicados(parametros){
     
     
   }
+
+  function MostrarMasResultados(e){
+    switch($(e.currentTarget).attr('llave')){
+        case 'instituciones':
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                if(filtros.masinstituciones){
+                    delete filtros.masinstituciones;
+                }else{
+                    filtros['masinstituciones']=1;
+                }
+                PushDireccionGraficos(AccederUrlPagina(filtros,true));
+
+            break;
+        case 'proveedores':
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                if(filtros.masproveedores){
+                    delete filtros.masproveedores;
+                }else{
+                    filtros['masproveedores']=1;
+                }
+                PushDireccionGraficos(AccederUrlPagina(filtros,true));
+            break;
+        default:
+            break;
+    }
+}
 
 function ValoresLlaves(llave){
     switch(llave){
@@ -302,11 +354,11 @@ function AgregarPropiedadesListaElastica(valor,llave){
               filtro.parent().find('.list-group-item.active').removeClass('active');
               filtro.addClass('active');
             }
-            var filtros={
+            /*var filtros={
             };
             $('li.list-group-item.active').each(function(cla,val){
               filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-            });
+            });*/
             $('li.list-group-item').not('.active').remove();
             $( '.list-group' ).not(':has(li)').append(
                 $('<li >',{
@@ -320,6 +372,12 @@ function AgregarPropiedadesListaElastica(valor,llave){
                     )
                   )
             );
+            var filtros=ObtenerJsonFiltrosAplicados({});
+            if(filtro.hasClass('active')){
+                filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:'']=$(e.currentTarget).attr('valor');
+              }else{
+                delete filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:''];
+              }
             PushDireccionGraficos(AccederUrlPagina(filtros,true));
           }
         }}).append(
@@ -404,7 +462,8 @@ function InicializarCantidadProcesos(){
                     interval:0,
                     rotate:45,
                     showMinLabel:false
-                }
+                },
+                name:'Meses'
             }
         ],
         grid:{
@@ -423,7 +482,7 @@ function InicializarCantidadProcesos(){
                 position:'left',
                 axisPointer: {
                     label: {
-                        formatter: '{value} Pagos'
+                        formatter: '{value} Procesos'
                     }
                 }
             },
@@ -455,6 +514,13 @@ function InicializarCantidadProcesos(){
                 data:datos.resultados.cantidadprocesos,
                 itemStyle:{
                     color: ObtenerColores('Pastel1')[0]
+                },
+                
+                label:{
+                    show:true,
+                    formatter:function (e){
+                        return ValorNumerico(e.value)  +''
+                    }
                 }
             },
             {
@@ -474,7 +540,15 @@ function InicializarCantidadProcesos(){
                 itemStyle:{
                     color: ObtenerColores('Pastel1')[9]
                 },
-                yAxisIndex:1
+                yAxisIndex:1,
+                
+                label:{
+                    show:true,
+                    color:'grey',
+                    formatter:function (e){
+                        return ValorMoneda(e.value)  +' %'
+                    }
+                }
             }
         ],
         grid:{
@@ -559,7 +633,7 @@ function InicializarMontoProcesos(){
                     }
                 },
                 formatter:  function (e){
-                    return "{b0}<br>{a0} {s0} {c0} HNL <br>{a1} {s1} {c1} %".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);
+                    return "{b0}<br>{a0} {s0} {c0} % <br>{a1} {s1} {c1} HNL".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);
                 }
             },
             legend: {
@@ -610,26 +684,12 @@ function InicializarMontoProcesos(){
                         interval:0,
                         rotate:45,
                         showMinLabel:false
-                    }
+                    },
+                    name :'Meses'
                 }
             ],
             yAxis: [
-                {
-                    type: 'value',
-                    name: 'Monto',
-                    min: 0,
-                   /* max: 250,*/
-                  //  interval: 10000000,
-                    axisLabel: {
-                        formatter: '{value} HNL'
-                    },
-                    name:'Lempiras',
-                    axisPointer: {
-                        label: {
-                            formatter: '{value} HNL'
-                        }
-                    }
-                },
+                
                 {
                     type: 'value',
                     //name: '',
@@ -649,17 +709,26 @@ function InicializarMontoProcesos(){
                             formatter: '{value} %'
                         }
                     }
+                },
+                {
+                    type: 'value',
+                    name: 'Monto',
+                    min: 0,
+                   /* max: 250,*/
+                  //  interval: 10000000,
+                    axisLabel: {
+                        formatter: '{value} HNL'
+                    },
+                    name:'Lempiras',
+                    axisPointer: {
+                        label: {
+                            formatter: '{value} HNL'
+                        }
+                    }
                 }
             ],
             series: [
-                {
-                    name:'Monto de Procesos de Contratación',
-                    type:'bar',
-                    data:datos.resultados.monto_contratos_mes,
-                    itemStyle:{
-                        color: ObtenerColores('Pastel1')[1]
-                    }
-                },
+                
                 {
                     name:'Porcentaje del Monto Contratado en Relación a los Demás Meses',
                     type:'line',
@@ -675,9 +744,36 @@ function InicializarMontoProcesos(){
                     },
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[9]
-                    },
-                    yAxisIndex:1
+                    }
+                    /*,
+                    
+                label:{
+                    show:true,
+                    color:'grey',
+                    formatter:function (e){
+                        return ValorMoneda(e.value)  +' %'
+                    }
+                }*/
                 
+                },{
+                    name:'Monto de Procesos de Contratación',
+                    type:'bar',
+                    data:datos.resultados.monto_contratos_mes,
+                    itemStyle:{
+                        color: ObtenerColores('Pastel1')[1]
+                    },
+                    
+                label:{
+                    show:true,
+                    color:'#c4c4c4',
+                    formatter:function (e){
+                        return ValorMoneda(e.value)  +' HNL'
+                    },
+                    fontFamily:'Poppins',
+                    fontWeight:700,
+                    fontSize:15
+                },
+                yAxisIndex:1
                 }
             ],
             grid:{
@@ -696,7 +792,8 @@ function InicializarMontoProcesos(){
                         data:datos.resultados.monto_contratos_mes,
                         itemStyle:{
                             color: ObtenerColores('Pastel1')[1]
-                        }
+                        },
+                        yAxisIndex:1
                     },
                     {
                         name:'Porcentaje del Monto Contratado en \nRelación a los Demás Meses',
@@ -713,8 +810,7 @@ function InicializarMontoProcesos(){
                         },
                         itemStyle:{
                             color: ObtenerColores('Pastel1')[9]
-                        },
-                        yAxisIndex:1
+                        }
                     
                     }
                 ]
@@ -787,7 +883,11 @@ function CantidadProcesosEtapas(){
                     data: datos.resultados.etapas.map(function(e){return (traducciones[e]?traducciones[e].titulo:e);}),
                     axisPointer: {
                         type: 'shadow',
-                        showMinLabel:false
+                        showMinLabel:true
+                    },
+                    name :'Etapas',
+                    axisLabel:{
+                        showMinLabel:true
                     }
                 }
             ],
@@ -820,6 +920,16 @@ function CantidadProcesosEtapas(){
                     data:datos.resultados.procesos,
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[3]
+                    },
+                    
+                    label:{
+                        show:true,
+                        formatter:function (e){
+                            return ValorNumerico(e.value)  +''
+                        },
+                        fontFamily:'Poppins',
+                        fontWeight:700,
+                        fontSize:25
                     }
                 }
             ],
@@ -1062,7 +1172,7 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
                 {
                     name: 'Cantidad de Procesos por Categoría de Compra',
                     type: 'pie',
-                    radius : '55%',
+                    radius : '45%',
                     //center: ['40%', '50%'],
                     data: datosPastel,//[{name:'Obras',value: 20},{name:'Bienes',value: 40},{name:'Servicios',value: 60}],
                     itemStyle: {
@@ -1077,7 +1187,10 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
                         }
                     },
                     label:{
-                        color:'gray'
+                        color:'gray',
+                        formatter:function (e){
+                            return ''+e.name+' \n'+ValorNumerico(e.value) +' ('+ ValorMoneda(e.percent) +'%)'
+                        }
                     }
                 }
             ],
@@ -1154,7 +1267,7 @@ function MontoProcesosCategoriaCompra(){
                 {
                     name: 'Monto de Contratos por Categoría de Compra',
                     type: 'pie',
-                    radius : '55%',
+                    radius : '45%',
                     center: ['50%', '50%'],
                     data: datosPastel,
                     itemStyle: {
@@ -1169,7 +1282,10 @@ function MontoProcesosCategoriaCompra(){
                         }
                     },
                     label:{
-                        color:'gray'
+                        color:'gray',
+                        formatter:function (e){
+                            return ''+e.name+' \n'+ValorMoneda(e.value) +' HNL ('+ ValorMoneda(e.percent) +'%)'
+                        }
                     }
                 }
             ],
@@ -1246,7 +1362,7 @@ var opciones = {
         {
             name: 'Cantidad de Procesos por Modalidad de Contratación',
             type: 'pie',
-            radius : '55%',
+            radius : '40%',
             center: ['50%', '50%'],
             data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
             itemStyle: {
@@ -1265,7 +1381,10 @@ var opciones = {
             },
             formatter: '{c}',
             label:{
-                color:'gray'
+                color:'gray',
+                formatter:function (e){
+                    return ''+e.name+' \n'+ValorNumerico(e.value) +' ('+ ValorMoneda(e.percent) +'%)'
+                }
             }
         }
     ],
@@ -1305,7 +1424,7 @@ var opciones = {
                 {
                     name: 'Cantidad de Procesos por\nModalidad de Contratación',
                     type: 'pie',
-                    radius : '60%',
+                    radius : '40%',
                     center: ['50%', '30%'],
                     data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
                     itemStyle: {
@@ -1409,9 +1528,9 @@ var datosPastel=[];
         calculable:true,
         series : [
             {
-                name: 'Monto de Contratos por \n Método de Contratación',
+                name: 'Monto de Contratos por \n Modalidad de Contratación',
                 type: 'pie',
-                radius : '50%',
+                radius : '40%',
                 center: ['50%', '50%'],
                 data:datosPastel,
                 itemStyle: {
@@ -1428,7 +1547,10 @@ var datosPastel=[];
                     containLabel:true
                 },
                 label:{
-                    color:'gray'
+                    color:'gray',
+                    formatter:function (e){
+                        return ''+e.name+' \n'+ValorMoneda(e.value) +' HNL ('+ ValorMoneda(e.percent) +'%)'
+                    }
                 }
             }
         ],
@@ -1464,9 +1586,9 @@ var datosPastel=[];
                 option:{
                     series : [
                         {
-                            name: 'Monto de Contratos por \nMétodo de Contratación',
+                            name: 'Monto de Contratos por \nModalidad de Contratación',
                             type: 'pie',
-                            radius : '60%',
+                            radius : '40%',
                             center: ['50%', '30%'],
                             data:datosPastel,
                             itemStyle: {
@@ -1585,7 +1707,8 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                     },
                     textStyle:{
                         color:'gray'
-                    }
+                    },
+                    name:'Monto\nContratado'
                 }
             ],
             yAxis: [
@@ -1602,7 +1725,8 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                         rotate:45,
                         showMinLabel:false,
                         padding:[0,0,0,0]
-                    }
+                    },
+                    name:'Compradores'
                 }
             ],
             series: [
@@ -1792,12 +1916,13 @@ var opciones = {
                                     label: {
                                         formatter: '{value} HNL'
                                     }
-                                }
+                                },
+                                name:'Monto\nContratado'
             }
         ],
         yAxis: [
             {
-                name:'Monto Contratado',
+                name:'Proveedores',
                 type: 'category',
                 data: datos.resultados.nombreProveedores.reverse(),
                 axisPointer: {
@@ -2183,7 +2308,7 @@ function CargarCajonesMontoContratos(){
     parametros=ObtenerJsonFiltrosAplicados(parametros)
 $.get(api+"/dashboardoncae/estadisticamontosdecontratos/",parametros).done(function( datos ) {
     console.dir('cantidad***')
-console.dir(datos);
+    console.dir(datos);
     $('#MontoContratosPromedio').attr('data-to',datos.resultados.promedio);
     
     $('#MontoContratosMenor').attr('data-to',datos.resultados.menor);

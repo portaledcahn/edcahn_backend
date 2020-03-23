@@ -1,10 +1,11 @@
 var filtrosAplicables={
-  categorias:{titulo:'Categoría',parametro:'categoria'},
-  monedas: {titulo:'Moneda',parametro:'moneda'},
-  instituciones: {titulo:'Institución Compradora',parametro:'institucion'},
-  metodos_de_seleccion: {titulo:'Método de Selección',parametro:'metodo_seleccion'},
-  años: {titulo:'Año',parametro:'year'},
-  proveedor: {titulo:'Proveedor',parametro:'proveedor'}
+  categorias:{titulo:'Categoría',parametro:'categoria',parametroOrden:'categoria'},
+  monedas: {titulo:'Moneda',parametro:'moneda',parametroOrden:'moneda'},
+  instituciones: {titulo:'Institución Compradora',parametro:'institucion',parametroOrden:'institucion'},
+  metodos_de_seleccion: {titulo:'Modalidad de Compra',parametro:'metodo_seleccion',parametroOrden:'modalidad'},
+  años: {titulo:'Año',parametro:'year',parametroOrden:'year'},
+  proveedor: {titulo:'Proveedor',parametro:'proveedor',parametroOrden:'proveedor'},
+  organismosFinanciadores:{titulo:'Organismo Financiador',parametro:'organismo',parametroOrden:'organismo'}
 };
 $('#textoTotalBusqueda').html(
   $('#textoTotalBusqueda').html()+
@@ -32,11 +33,94 @@ function EliminarFiltrosMetodo(datos){
     }*/
     break;
     case 'contrato':
+      if(datos.filtros.organismosFinanciadores){
+        delete datos.filtros.organismosFinanciadores
+      }
     break;
     default://case proceso
-
+      if(datos.filtros.organismosFinanciadores){
+        delete datos.filtros.organismosFinanciadores
+      }
     break;
   }
+}
+
+
+
+/**
+ * La funcion EliminarFiltrosOrden sirve para cargar la lista de los valores por los cuales se pueden ordenar los procesos, pagos o contratos.
+ * @param {object} datos - Un Objeto con los posibles filtros aplicables para ordenar
+ */
+function EliminarFiltrosOrden(){
+  var datos=JSON.parse(JSON.stringify(filtrosAplicables));
+  switch(ObtenerMetodo()){
+    case 'pago':
+    
+    if(datos.metodos_de_seleccion){
+      delete datos.metodos_de_seleccion;
+    }
+    if(datos.categorias){
+      delete datos.categorias;
+    }
+    if(datos.monedas){
+      delete datos.monedas;
+    }
+    /*
+    if(datos.filtros.años){
+      delete datos.filtros.años
+    }*/
+    break;
+    case 'contrato':
+      if(datos.organismosFinanciadores){
+        delete datos.organismosFinanciadores;
+      }
+      if(datos.monedas){
+        delete datos.monedas;
+      }
+    break;
+    default://case proceso
+      if(datos.organismosFinanciadores){
+        delete datos.organismosFinanciadores;
+      }
+      if(datos.monedas){
+        delete datos.monedas;
+      }
+    break;
+  }
+  return datos;
+}
+function llenarSeleccionOrden(){
+  var selectorOrden='#parametrosOrden';
+  $(selectorOrden).html('');
+  $(selectorOrden).append($('<option>',{text:'Selecionar',value:''}));
+  var elementos=EliminarFiltrosOrden();
+  $.each(elementos,function(llave,valor){
+    $(selectorOrden).append($('<option>',{text:valor.titulo,value:valor.parametroOrden}));
+  });
+  MostrarOrdenSeleccinado()
+}
+
+function MostrarOrdenSeleccinado(){
+  var filtros=ObtenerJsonFiltrosAplicados({},true);
+  if(ValidarCadena(filtros.ordenarPor) ){
+    var selectorOrden='#parametrosOrden';
+    $(selectorOrden).val(filtros.ordenarPor.replace('desc(','').replace('asc(','').replace(')',''));
+
+    var checkboxOrden='#ordenBusqueda';
+    if( /desc\(/.test(filtros.ordenarPor)){
+      $("#ordenBusqueda").prop("checked", false);
+    }else{
+      $("#ordenBusqueda").prop("checked", true);
+    }
+    
+  }
+
+  /*
+  
+  $('.id_100 option')
+     .removeAttr('selected')
+     .filter('[value=val1]')
+         .attr('selected', true)*/
 }
 var traducciones={
   'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
@@ -122,7 +206,13 @@ function CargarElementosBusqueda(cargaFiltro){
     parametros['categoria']=decodeURIComponent(ObtenerValor('categoria')) ;
   }
   if(Validar(ObtenerValor('year'))){
-    parametros['year']=ObtenerValor('year');
+    parametros['year']=decodeURIComponent(ObtenerValor('year'));
+  }
+  if(Validar(ObtenerValor('organismo'))){
+    parametros['organismo']=decodeURIComponent(ObtenerValor('organismo')) ;
+  }
+  if(Validar(ObtenerValor('ordenarPor'))){
+    parametros['ordenarPor']=decodeURIComponent(ObtenerValor('ordenarPor')) ;
   }
   CargandoResultados('#listaResultadosBusqueda',3);
   CargandoResultadosEncabezados(true);
@@ -131,6 +221,7 @@ function CargarElementosBusqueda(cargaFiltro){
   EliminarEventoModalDescarga('descargaCsvBusqueda');
   EliminarEventoModalDescarga('descargaXlsxBusqueda');
   $.get(api+"/buscador",parametros).done(function( datos ) {
+  
     console.dir(datos);
     AgregarEventoModalDescarga('descargaJsonBusqueda',function(){
       var descarga=datos.resultados.map(function(e){
@@ -248,7 +339,11 @@ function AccederBusqueda(opciones,desUrl){
 
   (Validar(opciones.categoria) ? '&categoria='+opciones.categoria:(Validar(ObtenerValor('categoria'))&&!desUrl?'&categoria='+ObtenerValor('categoria'):''))+
 
-  (Validar(opciones.year) ? '&year='+opciones.year:(Validar(ObtenerValor('year'))&&!desUrl?'&year='+ObtenerValor('year'):''))
+  (Validar(opciones.year) ? '&year='+opciones.year:(Validar(ObtenerValor('year'))&&!desUrl?'&year='+ObtenerValor('year'):''))+
+
+  (Validar(opciones.organismo) ? '&organismo='+opciones.organismo:(Validar(ObtenerValor('organismo'))&&!desUrl?'&organismo='+ObtenerValor('organismo'):''))+
+
+  (ValidarCadena(opciones.ordenarPor) ? '&ordenarPor='+encodeURIComponent(opciones.ordenarPor):(ValidarCadena(ObtenerValor('ordenarPor'))&&!desUrl?'&ordenarPor='+ObtenerValor('ordenarPor'):''))
 
   );
   return direccion;
@@ -267,7 +362,7 @@ function AsignarValor(arreglo,propiedad,valor,cantidad){
   }
   return arreglo;
 }
-CargarElementosBusqueda()
+CargarElementosBusqueda();
   $(function () {
     /*
     switch( ObtenerValor('metodo') ){
@@ -289,6 +384,50 @@ CargarElementosBusqueda()
       CargarElementosBusqueda(true);
     });
     InicializarDescargas();
+    llenarSeleccionOrden();
+    $('#parametrosOrden').on('change',function(e){
+      if(ValidarCadena($(e.currentTarget).val())){
+        console.dir(
+          ($('#ordenBusqueda').is(":checked")?'asc':'desc')+'('+ $(e.currentTarget).val()+')'
+        )
+
+
+        var filtros={
+          pagina:1,
+          ordenarPor: ($('#ordenBusqueda').is(":checked")?'asc':'desc')+'('+ $(e.currentTarget).val()+')'
+        };
+        $('li.list-group-item.active').each(function(cla,val){
+          filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+        });
+        window.history.pushState({}, document.title,AccederBusqueda(filtros,true) );
+        CargarElementosBusqueda(true);
+      }else{
+        var filtros={
+        };
+        filtros=ObtenerJsonFiltrosAplicados(filtros,true);
+        filtros['pagina']=1;
+        delete filtros['ordenarPor'];
+        window.history.pushState({}, document.title,AccederBusqueda(filtros,true) );
+        CargarElementosBusqueda(true);
+      }
+    });
+    $('#ordenBusqueda').on('change',function(e){
+      if(ValidarCadena($('#parametrosOrden').val())){
+        console.dir(
+          ($(e.currentTarget).is(":checked")?'asc':'desc')+'('+ $('#parametrosOrden').val()+')'
+        )
+        var filtros={
+          pagina:1,
+          ordenarPor:($(e.currentTarget).is(":checked")?'asc':'desc')+'('+ $('#parametrosOrden').val()+')'
+        };
+        $('li.list-group-item.active').each(function(cla,val){
+          filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+        });
+        window.history.pushState({}, document.title,AccederBusqueda(filtros,true) );
+        CargarElementosBusqueda(true);
+      }
+      
+    });
     
   });
 
@@ -312,10 +451,17 @@ function ObtenerJsonFiltrosAplicados(parametros,url){
   if(Validar(ObtenerValor('proveedor'))){
     parametros[url?'proveedor':'proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
   }
+  if(Validar(ObtenerValor('organismo'))){
+    parametros[url?'organismo':'organismosFinanciadores']=decodeURIComponent(ObtenerValor('organismo'));
+  }
+  if(Validar(ObtenerValor('ordenarPor'))){
+    parametros[url?'ordenarPor':'ordenarPor']=decodeURIComponent(ObtenerValor('ordenarPor'));
+  }
   return parametros;
 }
 
 function MostrarEtiquetasFiltrosAplicados(parametros){
+  delete parametros.ordenarPor;
   if(!$.isEmptyObject(parametros)){
     $('#contenedorSinFiltros').hide();
     $('#contenedorFiltros').show();
@@ -870,7 +1016,21 @@ function MostrarListaElastica(datos,selector){
           $('<style>',{id:'style'+llave}),
           $('<ul >',{class:'list-group',id:'ul'+llave}).append(
             AgregarPropiedadesListaElastica(valor,llave)
-          )
+          )/*,
+          valor.buckets&&valor.buckets.length>=50?
+            $('<div>',{
+              class:'textoColorPrimario cursorMano',
+              style:'width:150px;padding:5px 15px',
+              text:'Mostrar Todos...',
+              toolTexto:'Mostrar más resultados',
+              toolCursor:'true',
+              on:{
+                click:function(e){
+                  alert('mostrando')
+                }
+              }
+            })
+          :null*/
             
           
         )
@@ -887,7 +1047,6 @@ function MostrarListaElastica(datos,selector){
 function AgregarPropiedadesListaElastica(valor,llave){
   var elementos=[]
   $.each(valor.buckets,function(i,propiedades){
-    //resultadosElastic=AsignarValor(resultadosElastic,llave,,propiedades.doc_count);
     elementos.push(
       $('<li >',{
       class:'list-group-item',
@@ -904,12 +1063,36 @@ function AgregarPropiedadesListaElastica(valor,llave){
             filtro.parent().find('.list-group-item.active').removeClass('active');
             filtro.addClass('active');
           }
+          /*
           var filtros={
             pagina:1
           };
           $('li.list-group-item.active').each(function(cla,val){
             filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
           });
+
+*/
+
+
+          var filtros={
+          };
+          filtros=ObtenerJsonFiltrosAplicados(filtros,true);
+          filtros['pagina']=1;
+          if(filtro.hasClass('active')){
+            filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:'']=$(e.currentTarget).attr('valor');
+          }
+          else {
+            delete filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:''];
+          }
+          console.dir(JSON.stringify(filtros))
+          /*
+          $('li.list-group-item.active').each(function(cla,val){
+            filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
+          });*/
+         
+          //delete filtros[$(e.currentTarget).parent().attr('llave')];
+        
+
           window.history.pushState({}, document.title,AccederBusqueda(filtros,true) );
           CargarElementosBusqueda(true);
         }
@@ -920,7 +1103,7 @@ function AgregarPropiedadesListaElastica(valor,llave){
         
         text:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)})
       )
-    )
+    );
   });
   return elementos;
 }
@@ -1011,3 +1194,4 @@ function CargandoResultadosEncabezados(mostrar){
     $('#totalProveedores').removeClass('cargaEfecto');
   }
 }
+

@@ -90,7 +90,7 @@ class Data(models.Model):
 
 class PackageData(models.Model):
     hash_md5 = models.TextField(unique=True)
-    data = models.TextField()  # This field type is a guess.
+    data = JSONField() # This field type is a guess.
 
     class Meta:
         managed = False

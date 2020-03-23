@@ -8,7 +8,7 @@ $('.opcionFiltroBusquedaPagina').on('click',function(e){
   });
 var selector='descargas';
 $(function(){
-  AgregarResultados(1);
+  ObtenerDescargas();
   $('#'+selector+'Buscar').on({
     change:function(e){
       AgregarResultados(1);
@@ -26,6 +26,7 @@ $(function(){
   });
   
 })
+var descargasGenerales=[];
 var descargasOncae=[ 
   { 
      "fuente":"HonduCompras 1.0 - Módulo de Difusión de Compras y Contrataciones",
@@ -277,11 +278,47 @@ var descargasOncae=[
   }
 ];
 
-
+function ObtenerDescargas(){
+  DebugFecha();
+  MostrarEspera('#descargas');
+  $.get(url+"/static/js/descargas.json"/* api+"/v1/descargas/"*/,function(datos){
+      DebugFecha();
+      console.dir(datos)
+      OcultarEspera('#descargas');
+      if(datos&&!$.isEmptyObject(datos)){
+        $.each(datos,function(indice,valor){
+          if(valor&&!$.isEmptyObject(valor.urls)){
+            descargasGenerales.push(
+              { 
+                "fuente":valor.sistema,
+                "fecha":valor.year,
+                "json":valor.urls.json,
+                "md5":valor.urls.md5,
+                "csv":valor.urls.csv,
+                "xlsx":valor.urls.xlsx,
+                "mes":valor.month,
+                "publicador":valor.publicador
+             }
+            );
+            
+          }
+        })
+      };
+      AgregarResultados(1);
+      
+      
+  }).fail(function() {
+  /*Error de Conexion al servidor */
+  console.dir('error get');
+  
+});
+}
 function ObtenerResultadosFiltrados(){
-  return descargasOncae.filter(function(elemento){
-    if(ValidarCadena($('#'+selector+'Buscar').val().trim())){
-      return (ContenerCadena(elemento.fuente,$('#'+selector+'Buscar').val().trim())||ContenerCadena(elemento.fecha,$('#'+selector+'Buscar').val().trim()));
+  return descargasGenerales.filter(function(elemento){
+    var termino=$('#'+selector+'Buscar').val().trim().replace(/ +/g,' ');
+    if(ValidarCadena(termino)){
+      return (ContenerCadena(elemento.fuente,termino)||ContenerCadena(elemento.fecha,termino)||ContenerCadena(elemento.publicador,termino)||ContenerCadena(ObtenerMes(elemento.mes),termino));
+
     }else{
       return true;
     }
@@ -301,48 +338,63 @@ function AgregarResultados(pagina){
     $('#'+selector).append(
       $('<div>',{class:'cajonDescarga posicionRelativa textoColorBlanco fondoColorClaro transicion'}).append(
         $('<div>',{class:'contenedorFechaDescarga fondoColorSecundario'}).append(
-          $('<span>',{class:'fechaMesDescarga textoColorBlanco',html:'&nbsp;'}),
-          $('<span>',{class:'fechaAnoDescarga textoColorBlanco',text:descarga.fecha})
+         
+          $('<span>',{class:'fechaAnoDescarga textoColorBlanco',text:descarga.fecha}),
+          $('<span>',{class:'fechaMesDescarga textoColorBlanco',html: ObtenerMes(descarga.mes)})
         ),
         $('<div>',{class:'contenedorPropiedadesDescarga'}).append(
           $('<div>',{class:'row'}).append(
             $('<div>',{class:'col-12 col-sm-6 col-md-6 col-lg-6'}).append(
-              $('<span>',{class:'tituloDescarga textoColorSecundario'}),
-              $('<span>',{class:'descripcionDescarga textoColorSecundario',text:descarga.fuente})
+              $('<span>',{class:'tituloDescarga textoColorSecundario',text:descarga.fuente}),
+              $('<span>',{class:'descripcionDescarga textoColorSecundario',text:descarga.publicador})
             ),
             $('<div>',{class:'col-12 col-sm-6 col-md-6 col-lg-6'}).append(
               $('<div>',{class:'contenedorClasesArchivos'}).append(
-                $('<a>',{href:descarga.json,target:'_blank'}).append(
+                descarga.json?$('<a>',{href:descarga.json,target:'_blank'}).append(
                   $('<span>',{class:'textoColorSecundario textoAlineadoDerecha p-1 cursorMano transparencia enlaceArchivoDescarga transicion titularColor'}).append(
                     $('<i>',{class:'fas fa-file-download'}),
                     ' .JSON'
                   )
-                ),
-                $('<a>',{href:descarga.csv,target:'_blank'}).append(
+                ):null,
+                descarga.csv?$('<a>',{href:descarga.csv,target:'_blank'}).append(
                   $('<span>',{class:'textoColorSecundario textoAlineadoDerecha p-1 cursorMano transparencia enlaceArchivoDescarga transicion titularColor'}).append(
                     $('<i>',{class:'fas fa-file-download'}),
                     ' .CSV'
                   )
-                ),
-                $('<a>',{href:descarga.xls,target:'_blank'}).append(
+                ):null,
+                descarga.xlsx?$('<a>',{href:descarga.xlsx,target:'_blank'}).append(
                   $('<span>',{class:'textoColorSecundario textoAlineadoDerecha p-1 cursorMano transparencia enlaceArchivoDescarga transicion titularColor'}).append(
                     $('<i>',{class:'fas fa-file-download'}),
-                    ' .XLS'
+                    ' .XLSX'
                   )
-                ),
-                $('<a>',{href:descarga.md5,target:'_blank'}).append(
+                ):null,
+                descarga.md5?$('<a>',{href:descarga.md5,target:'_blank'}).append(
                   $('<span>',{class:'textoColorSecundario textoAlineadoDerecha p-1 cursorMano transparencia enlaceArchivoDescarga transicion titularColor'}).append(
                     $('<i>',{class:'fas fa-file-download'}),
                     ' .MD5'
                   )
-                )
+                ):null
               )
             )
           )
         )
       )
-    )
-  })
+    );
+  });
+  if(filtrados.length==0){
+    $('#'+selector).append(
+      $('<div>',{class:'cajonDescarga posicionRelativa textoColorBlanco fondoColorClaro transicion'}).append(
+        $('<div>',{class:'contenedorPropiedadesDescarga'}).append(
+          $('<div>',{class:'row'}).append(
+            $('<div>',{class:'col-12 col-sm-6 col-md-6 col-lg-6'}).append(
+              $('<span>',{class:'tituloDescarga textoColorSecundario',text:'No se encontraron resultados',style:'font-size:20px;letter-spacing:unset'})
+            )
+          )
+        )
+      )
+    );
+  }
+
   MostrarPaginacion(pagina);
 
 }

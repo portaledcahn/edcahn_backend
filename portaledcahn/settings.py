@@ -25,7 +25,7 @@ SECRET_KEY = 'uo251c%zw60+efuwf$7yn7dl=6@0)p12%q(-87*p4r^dy-zbhp'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['35.237.10.60','localhost','127.0.0.1','200.13.162.86','74641fc6.ngrok.io','ddf33ef3.ngrok.io', 'http://www.contratacionesabiertas.gob.hn','www.contratacionesabiertas.gob.hn', 'contratacionesabiertas.gob.hn']
+ALLOWED_HOSTS = ['35.237.10.60','localhost','127.0.0.1','200.13.162.86', 'https://www.contratacionesabiertas.gob.hn', 'http://www.contratacionesabiertas.gob.hn','www.contratacionesabiertas.gob.hn', 'contratacionesabiertas.gob.hn']
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_elasticsearch_dsl',
     'django_elasticsearch_dsl_drf',
     'django.contrib.humanize',
+    'ocds_bulk_download',
 ]
 
 MIDDLEWARE = [
@@ -83,19 +84,28 @@ WSGI_APPLICATION = 'portaledcahn.wsgi.application'
 DATABASES = {
     'bdkingfisher': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'NAME': 'postgres',
-        # 'USER': 'postgres',
-        # 'PASSWORD': 'postgres',
-        # 'HOST': '192.168.1.15',
-        'NAME': 'ocdskingfisher',
-        'USER': 'ocdskingfisher',
-        'PASSWORD': 'ocdskingfisher',        
-        'HOST': '200.13.162.87',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '192.168.1.8',
         'PORT': '5432',
+        # 'NAME': 'ocdskingfisher',
+        # 'USER': 'ocdskingfisher',
+        # 'PASSWORD': 'ocdskingfisher',        
+        # 'HOST': '192.168.1.7',
+        # 'PORT': '5432',        
     },
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'mydatabase',
+    },
+    'portaledcahn_admin': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'portaledcahn_admin',
+        'USER': 'postgres',
+        'PASSWORD': '123456',        
+        'HOST': '192.168.1.8',
+        'PORT': '5432',
     }
 }
 
@@ -149,7 +159,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-# ELASTICSEARCH_DSL_HOST = '192.168.1.50:9200/'
+# ELASTICSEARCH_DSL_HOST = '192.168.1.7:9200/'
 # ELASTICSEARCH_DSL_HOST = '192.168.104.94:9200/'
 ELASTICSEARCH_DSL_HOST = 'http://200.13.162.87:9200/'
 
