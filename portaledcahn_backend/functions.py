@@ -126,6 +126,10 @@ def getDateParam(dateString):
 
 	return respuesta
 
+"""
+	Paramtero nuero de mes = 01, 02, 03, 04, .... , 11, 12
+	Retorna el nombre del mes.
+"""
 def NombreDelMes(numero_mes):
 	
 	m = {
@@ -152,11 +156,11 @@ def NombreDelMes(numero_mes):
 """
 	Parametros
 		paquetes = lista de models PackageData.
-		md5 = md5 del listado de releases.
+		request = objeto de solicitud.
 	retorna:
 		diccionario con los metadatos de un paquete. 
 """
-def generarMetaDatosPaquete(paquetes, md5):
+def generarMetaDatosPaquete(paquetes, request):
 
 	uri = ''
 	license = ''
@@ -166,6 +170,7 @@ def generarMetaDatosPaquete(paquetes, md5):
 	publishedDate = ''
 	publicationPolicy = ''
 	releases = []
+	dominio = 'http://contratacionesabiertas.gob.hn/descargas/'
 
 	metaDatosPaquete = {}
 
@@ -173,31 +178,81 @@ def generarMetaDatosPaquete(paquetes, md5):
 	publishedDate = fechaActual.isoformat()
 
 	for p in paquetes:
-		print("paquete", p)
-
 		paquete = p.data
 
-		print(paquete)
+		license = paquete['license']
+		version = paquete['version']
+		publisher = paquete['publisher']
+		publicationPolicy = paquete['publicationPolicy']
 
-		# license = paquete['license']
+		for e in paquete['extensions']:
+			if not e in extensions:
+				extensions.append(e)
 
-		# print(license)
-
-		# version = paquete['version']
-		# publisher = paquete['publisher']
-		# publicationPolicy = paquete['publicationPolicy']
-
-		# for e in paquete['extensions']:
-		# 	if not e in extensions:
-		# 		extensions.append(e)
-
-	# metaDatosPaquete["uri"] = md5
-	# metaDatosPaquete["version"] = version
-	# metaDatosPaquete["publishedDate"] = publishedDate
-	# metaDatosPaquete["publisher"] = publisher
-	# metaDatosPaquete["extensions"] = extensions
-	# metaDatosPaquete["license"] = license
-	# metaDatosPaquete["publicationPolicy"] = publicationPolicy
+	metaDatosPaquete["uri"] = request.build_absolute_uri()
+	metaDatosPaquete["version"] = version
+	metaDatosPaquete["publishedDate"] = publishedDate
+	metaDatosPaquete["publisher"] = publisher
+	metaDatosPaquete["extensions"] = extensions
+	metaDatosPaquete["license"] = license
+	metaDatosPaquete["publicationPolicy"] = publicationPolicy
 
 	return metaDatosPaquete
 
+"""
+	retorna un valor para filtrar en bucket selector. 
+	val: signo valor ej. >500
+"""
+def validateNumberParam(val):
+
+	validador = '^(>=|<=|<|>|==)([-+]?[0-9]*\.?[0-9]+)$'
+
+	if re.match(validador, val):
+		validado = re.search(validador, val)
+		operador = validado.group(1)
+		numero = validado.group(2)
+		decimal = float(numero)
+
+		value = operador + str(decimal)
+	else:
+		value = None
+
+	return value
+
+def paqueteRegistros(paquetes, request):
+
+	uri = ''
+	version = '1.1'
+	extensions = []
+	publisher = {}
+	license = ''
+	publicationPolicy = ''
+	publishedDate = ''
+	records = []
+
+	metaDatosPaquete = {}
+
+	fechaActual = datetime.datetime.now(dateutil.tz.tzoffset('UTC', -6*60*60))
+	publishedDate = fechaActual.isoformat()
+
+	for p in paquetes:
+		paquete = p.data
+
+		license = paquete['license']
+		version = paquete['version']
+		publisher = paquete['publisher']
+		publicationPolicy = paquete['publicationPolicy']
+
+		for e in paquete['extensions']:
+			if not e in extensions:
+				extensions.append(e)
+
+	metaDatosPaquete["uri"] = request.build_absolute_uri()
+	metaDatosPaquete["version"] = version
+	metaDatosPaquete["publishedDate"] = publishedDate
+	metaDatosPaquete["publisher"] = publisher
+	metaDatosPaquete["extensions"] = extensions
+	metaDatosPaquete["license"] = license
+	metaDatosPaquete["publicationPolicy"] = publicationPolicy
+
+	return metaDatosPaquete

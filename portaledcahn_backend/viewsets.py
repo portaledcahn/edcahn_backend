@@ -17,7 +17,8 @@ from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 from urllib.request import urlretrieve
 import json, copy, urllib.parse, datetime, operator, statistics, csv
 import pandas as pd 
-import mimetypes, os.path
+import mimetypes, os.path, math
+
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
@@ -25,7 +26,7 @@ from portaledcahn_backend import serializers as articles_serializers
 
 from django.utils.functional import LazyObject
 from django.conf import settings
-from django.http import Http404, StreamingHttpResponse, HttpResponse
+from django.http import Http404, StreamingHttpResponse, HttpResponse, HttpResponseServerError
 from itertools import chain
 from flatten_json import flatten
 
@@ -47,16 +48,16 @@ class SearchResults(LazyObject):
             search_results = list(search_results)
         return search_results
 
-class ReleaseViewSet(viewsets.ModelViewSet):
-	queryset = Release.objects.all()
-	serializer_class = ReleaseSerializer
-	http_method_names = ['get']
+# class ReleaseViewSet(viewsets.ModelViewSet):
+# 	queryset = Release.objects.all()
+# 	serializer_class = ReleaseSerializer
+# 	http_method_names = ['get']
 
-	def retrieve(self, request, pk=None):
-		queryset = Release.objects.all()
-		release = get_object_or_404(queryset, release_id=pk)
-		serializer = ReleaseSerializer(release)
-		return Response(serializer.data)
+# 	def retrieve(self, request, pk=None):
+# 		queryset = Release.objects.all()
+# 		release = get_object_or_404(queryset, release_id=pk)
+# 		serializer = ReleaseSerializer(release)
+# 		return Response(serializer.data)
 
 class PublicAPI(APIView, PaginationHandlerMixin):
 
@@ -69,26 +70,35 @@ class PublicAPI(APIView, PaginationHandlerMixin):
 
 		return Response(endpoints)
 
+"""
+	Retorna un paquete de releases
+"""
 class Releases(APIView, PaginationHandlerMixin):
 	pagination_class = BasicPagination
 	serializer_class = ReleaseSerializer
 
 	def get(self, request, format=None, *args, **kwargs):
-
-		print("Hii")
-
+		
 		respuesta = {}
+		currentPage = request.GET.get('page', "1")
+		publisher = request.GET.get('publisher', "")
+		oncae = 'Oficina Normativa de Contratación y Adquisiciones del Estado (ONCAE) / Honduras'
+		sefin = 'Secretaria de Finanzas de Honduras'
 
-		instance = Release.objects.all()
+		if publisher == 'oncae':
+			instance = Release.objects.filter(package_data__data__publisher__name=oncae)
+		elif publisher == 'sefin':
+			instance = Release.objects.filter(package_data__data__publisher__name=sefin)	
+		else:
+			instance = Release.objects.all()
+
 		page = self.paginate_queryset(instance)
 
 		if page is not None:
 			serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
 		else:
-			# enviar un 502. 
-			serializer = self.serializer_class(instance, many=True)
-
-		print("### Serializador.")
+			content = {'error': 'Internal Server Error'}
+			return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 		results = []
 		paquetesIds = {}
@@ -98,183 +108,255 @@ class Releases(APIView, PaginationHandlerMixin):
 		for d in serializer.data["results"]:
 			results.append(d["data"])
 
-			paquetesIds.add(d["package_data_id"])
-			paquetesIds.add(545182)
-
-		print("PaquetesId", list(paquetesIds))
+			if d["package_data_id"] not in paquetesIds:
+				paquetesIds.add(d["package_data_id"])
 
 		paquetes = PackageData.objects.filter(id__in=list(paquetesIds))
 
-		metadataPaquete = generarMetaDatosPaquete(paquetes, 'asd123')
+		metadataPaquete = generarMetaDatosPaquete(paquetes, request)
 
-		respuesta["count"] = serializer.data["count"]
+		respuesta["releases"] = serializer.data["count"]
+		respuesta["pages"] = math.ceil(serializer.data["count"] / 10)
+		respuesta["page"] = currentPage
 		respuesta["next"] = serializer.data["next"]
 		respuesta["previous"] = serializer.data["previous"]
-		respuesta["results"] = results
+		if serializer.data["count"] > 0:
+			respuesta["releasePackage"] = metadataPaquete
+			respuesta["releasePackage"]["releases"] = results
+		else:
+			respuesta["releasePackage"] = {}
+
 
 		return Response(respuesta, status=status.HTTP_200_OK)
 
+"""
+	Retorna un release en incluido en su paquete.
+"""
 class GetRelease(APIView):
-
 	def get(self, request, pk=None, format=None):
-		queryset = Release.objects.all()
-		release = get_object_or_404(queryset, release_id=pk)
-		serializer = ReleaseSerializer(release)
-		return Response(serializer.data)
+		queryset = Release.objects.filter(release_id=pk)
+
+		if queryset.exists():
+			release = queryset[0]
+			serializer = ReleaseSerializer(release)
+
+			data = serializer.data
+			paquetes = PackageData.objects.filter(id__in=[data["package_data_id"],])
+			releasePackage = generarMetaDatosPaquete(paquetes, request)
+			
+			releasePackage["releases"] = [data["data"],]
+
+			return Response(releasePackage)
+		else:
+			raise Http404
 
 class Records(APIView, PaginationHandlerMixin):
 	pagination_class = BasicPagination
 	serializer_class = RecordSerializer
 
 	def get(self, request, format=None, *args, **kwargs):
+		
+		respuesta = {}
+		currentPage = request.GET.get('page', "1")
+		publisher = request.GET.get('publisher', "")
+
 		instance = Record.objects.all()
+
 		page = self.paginate_queryset(instance)
+
 		if page is not None:
 			serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
 		else:
-			serializer = self.serializer_class(instance, many=True)
-		return Response(serializer.data, status=status.HTTP_200_OK)
+			content = {'error': 'Internal Server Error'}
+			return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+		results = []
+		paquetes = []
+
+		results = serializer.data["results"]
+
+		for d in results:
+			print(d)
+
+			for r in d["releases"]:
+				release = Release.objects.filter(release_id=r["id"])
+				paquete = release[0].package_data
+				paquetes.append(paquete)
+
+		metadataPaquete = paqueteRegistros(paquetes, request)
+
+		respuesta["releases"] = serializer.data["count"]
+		respuesta["pages"] = math.ceil(serializer.data["count"] / 10)
+		respuesta["page"] = currentPage
+		respuesta["next"] = serializer.data["next"]
+		respuesta["previous"] = serializer.data["previous"]
+		if serializer.data["count"] > 0:
+			respuesta["recordPackage"] = metadataPaquete
+			respuesta["recordPackage"]["records"] = results
+		else:
+			respuesta["recordPackage"] = {}
+
+
+		return Response(respuesta, status=status.HTTP_200_OK)
 
 class GetRecord(APIView):
 
 	def get(self, request, pk=None, format=None):
-		queryset = Record.objects.all()
-		record = get_object_or_404(queryset, ocid=pk)
-		serializer = RecordSerializer(record)
-		return Response(serializer.data)
+		queryset = Record.objects.filter(ocid=pk)
 
-class RecordViewSet(viewsets.ModelViewSet):
-	queryset = Record.objects.all()
-	serializer_class = RecordSerializer
-	http_method_names = ['get']
+		if queryset.exists():
+			record = queryset[0]
+			serializer = RecordSerializer(record)
 
-	def retrieve(self, request, pk=None):
-		queryset = Record.objects.all()
-		record = get_object_or_404(queryset, ocid=pk)
-		serializer = RecordSerializer(record)
-		return Response(serializer.data)
+			data = serializer.data
 
-class BuyerList(APIView):
+			paquetes = []
 
-	def get(self, request, format=None):
+			for r in data["releases"]:
+				release = Release.objects.filter(release_id=r["id"])
+				paquete = release[0].package_data
+				paquetes.append(paquete)
 
-		contador = 0
+			recordPackage = paqueteRegistros(paquetes, request)
+			
+			recordPackage["records"] = [data,]
 
-		data = articles_documents.DataDocument.search()
+			return Response(recordPackage)
+		else:
+			raise Http404
 
-		results = data.aggs\
-					.metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
-					.aggs\
-					.metric('distinct_buyers', 'cardinality', field='data.compiledRelease.contracts.buyer.id.keyword')\
-					.aggs\
-					.metric('distinct_contracts', 'cardinality', field='data.compiledRelease.contracts.id.keyword')\
-					.execute()
+# class RecordViewSet(viewsets.ModelViewSet):
+# 	queryset = Record.objects.all()
+# 	serializer_class = RecordSerializer
+# 	http_method_names = ['get']
 
-		# for r in results.aggregations:
-		# 	print(r)
+# 	def retrieve(self, request, pk=None):
+# 		queryset = Record.objects.all()
+# 		record = get_object_or_404(queryset, ocid=pk)
+# 		serializer = RecordSerializer(record)
+# 		return Response(serializer.data)
 
-		context = {
-			"distinct_contracts": results.aggregations.distinct_contracts.value,
-			"distinct_buyers": results.aggregations.distinct_buyers.value,
-			"distinct_suppliers": results.aggregations.distinct_suppliers.value
-		}
+# class BuyerList(APIView):
 
-		# contador = data.count()
+# 	def get(self, request, format=None):
 
-		# for r in results:
-			# contador += 1
+# 		contador = 0
 
-		# for d in data: 
-			# contador += 1
+# 		data = articles_documents.DataDocument.search()
 
-		# serializer = articles_serializers.DataDocumentSerializer(data, many=True)		
+# 		results = data.aggs\
+# 					.metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
+# 					.aggs\
+# 					.metric('distinct_buyers', 'cardinality', field='data.compiledRelease.contracts.buyer.id.keyword')\
+# 					.aggs\
+# 					.metric('distinct_contracts', 'cardinality', field='data.compiledRelease.contracts.id.keyword')\
+# 					.execute()
 
-		# contratos = Contrato.objects.all()
-		# data = Data.objects.all()
+# 		# for r in results.aggregations:
+# 		# 	print(r)
 
-		# serializer = DataSerializer(data, many=True)
-		# for d in data.iterator(chunk_size=10):
+# 		context = {
+# 			"distinct_contracts": results.aggregations.distinct_contracts.value,
+# 			"distinct_buyers": results.aggregations.distinct_buyers.value,
+# 			"distinct_suppliers": results.aggregations.distinct_suppliers.value
+# 		}
 
-		# for d in data:
-		# 	if contador%10 == 0:
-		# 		print("ok", contador)
+# 		# contador = data.count()
 
-		# 	contador += 1 
+# 		# for r in results:
+# 			# contador += 1
 
-		# return Response(contador)
-		return Response(context)
+# 		# for d in data: 
+# 			# contador += 1
 
-class ContractsViewSet(viewsets.ModelViewSet):
-	sql = '''
-		SELECT
-			concat(d.data->'compiledRelease'->>'ocid', '-', contract->>'id') as "id"
-			,contract->'value'->>'amount' as "amount"
-			,contract->'value'->>'currency' as "currency"
-			,case
-				when 
-					contract->>'dateSigned' is not null 
-					and contract->'period'->>'startDate' is not null 
-					then contract->>'dateSigned'
-				when 
-					contract->>'dateSigned' is not null 
-					then contract->>'dateSigned'
-				when 
-					contract->'period'->>'startDate' is not null 
-					then contract->'period'->>'startDate'
-				else
-					d.data->'compiledRelease'->>'date' 		
-			end as "date"
-			,contract->'buyer'->>'id' as "buyerId"
-			,contract->'buyer'->>'name' as "buyerName"
-			,partie->'memberOf' as "buyerMemberOf"
-		FROM 
-			"data" d 
-			,jsonb_array_elements(d.data->'compiledRelease'->'contracts') as contract
-			,jsonb_array_elements(d.data->'compiledRelease'->'parties') as partie
-		WHERE 
-			exists (select * from record where data_id= d.id)
-			and partie->'id' = contract->'buyer'->'id'
-			and contract->'value'->'amount' is not null
-	'''
+# 		# serializer = articles_serializers.DataDocumentSerializer(data, many=True)		
 
-	queryset = Contract.objects.raw(sql)
-	serializer_class = ContractSerializer
-	http_method_names = ['get']
+# 		# contratos = Contrato.objects.all()
+# 		# data = Data.objects.all()
 
-	def list(self, request):
+# 		# serializer = DataSerializer(data, many=True)
+# 		# for d in data.iterator(chunk_size=10):
 
-		localCurrency = "HNL" #Definir en config
+# 		# for d in data:
+# 		# 	if contador%10 == 0:
+# 		# 		print("ok", contador)
 
-		queryset = Contract.objects.filter(currency="USD")
+# 		# 	contador += 1 
 
-		tasasDeCambio = TasasDeCambio.objects.all()
+# 		# return Response(contador)
+# 		return Response(context)
 
-		serializer = ContractSerializer(queryset, many=True)
+# class ContractsViewSet(viewsets.ModelViewSet):
+# 	sql = '''
+# 		SELECT
+# 			concat(d.data->'compiledRelease'->>'ocid', '-', contract->>'id') as "id"
+# 			,contract->'value'->>'amount' as "amount"
+# 			,contract->'value'->>'currency' as "currency"
+# 			,case
+# 				when 
+# 					contract->>'dateSigned' is not null 
+# 					and contract->'period'->>'startDate' is not null 
+# 					then contract->>'dateSigned'
+# 				when 
+# 					contract->>'dateSigned' is not null 
+# 					then contract->>'dateSigned'
+# 				when 
+# 					contract->'period'->>'startDate' is not null 
+# 					then contract->'period'->>'startDate'
+# 				else
+# 					d.data->'compiledRelease'->>'date' 		
+# 			end as "date"
+# 			,contract->'buyer'->>'id' as "buyerId"
+# 			,contract->'buyer'->>'name' as "buyerName"
+# 			,partie->'memberOf' as "buyerMemberOf"
+# 		FROM 
+# 			"data" d 
+# 			,jsonb_array_elements(d.data->'compiledRelease'->'contracts') as contract
+# 			,jsonb_array_elements(d.data->'compiledRelease'->'parties') as partie
+# 		WHERE 
+# 			exists (select * from record where data_id= d.id)
+# 			and partie->'id' = contract->'buyer'->'id'
+# 			and contract->'value'->'amount' is not null
+# 	'''
 
-		return Response(serializer.data)
+# 	queryset = Contract.objects.raw(sql)
+# 	serializer_class = ContractSerializer
+# 	http_method_names = ['get']
 
-class BuyerViewSet(viewsets.ModelViewSet):
-	queryset = Buyer.objects.all()
-	serializer_class = BuyerSerializer
-	http_method_names = ['get']
+# 	def list(self, request):
 
-class ContratoViewSet(viewsets.ModelViewSet):
-	queryset = Contrato.objects.all()
-	serializer_class = ContratoSerializer
-	http_method_names = ['get']
+# 		localCurrency = "HNL" #Definir en config
 
-class DataViewSet(DocumentViewSet):
-	document = articles_documents.DataDocument
-	serializer_class = articles_serializers.DataDocumentSerializer
+# 		queryset = Contract.objects.filter(currency="USD")
 
-class DataRecordViewSet(DocumentViewSet):
-    document = articles_documents.RecordDocument
-    serializer_class = articles_serializers.RecordDocumentSerializer
+# 		tasasDeCambio = TasasDeCambio.objects.all()
+
+# 		serializer = ContractSerializer(queryset, many=True)
+
+# 		return Response(serializer.data)
+
+# class BuyerViewSet(viewsets.ModelViewSet):
+# 	queryset = Buyer.objects.all()
+# 	serializer_class = BuyerSerializer
+# 	http_method_names = ['get']
+
+# class ContratoViewSet(viewsets.ModelViewSet):
+# 	queryset = Contrato.objects.all()
+# 	serializer_class = ContratoSerializer
+# 	http_method_names = ['get']
+
+# class DataViewSet(DocumentViewSet):
+# 	document = articles_documents.DataDocument
+# 	serializer_class = articles_serializers.DataDocumentSerializer
+
+# class DataRecordViewSet(DocumentViewSet):
+#     document = articles_documents.RecordDocument
+#     serializer_class = articles_serializers.RecordDocumentSerializer
 
 class RecordAPIView(APIView):
 
 	def get(self, request, format=None):
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='edca')
 		results = s[0:10].execute()
 
@@ -285,7 +367,7 @@ class RecordAPIView(APIView):
 class RecordDetail(APIView):
 
 	def get(self, request, pk=None, format=None):
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='edca')
 		s = s.filter('match_phrase', doc__ocid__keyword=pk)
 
@@ -308,7 +390,7 @@ class Index(APIView):
 		precision = 40000
 		sourceSEFIN = 'HN.SIAFI2'
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=120)
 
 		oncae = Search(using=cliente, index='edca')
 		sefin = Search(using=cliente, index='edca')
@@ -433,7 +515,7 @@ class Buscador(APIView):
 		if metodo not in ['proceso', 'contrato', 'pago']:
 			metodo = 'proceso'
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='edca')
 
@@ -444,7 +526,7 @@ class Buscador(APIView):
 		#Filtros
 		s.aggs.metric('contratos', 'nested', path='doc.compiledRelease.contracts')
 
-		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword', missing=noMoneda)
+		s.aggs["contratos"].metric('monedas', 'terms', field='doc.compiledRelease.contracts.value.currency.keyword')
 
 		s.aggs["contratos"]["monedas"].metric("nProcesos", "reverse_nested")
 
@@ -452,7 +534,7 @@ class Buscador(APIView):
 
 		s.aggs.metric('instituciones', 'terms', field='extra.parentTop.name.keyword', size=10000)
 
-		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+		s.aggs.metric('categorias', 'terms', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 
 		s.aggs.metric('organismosFinanciadores', 'terms', field='doc.compiledRelease.planning.budget.budgetBreakdown.classifications.organismo.keyword', size=2000)
 
@@ -542,7 +624,7 @@ class Buscador(APIView):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 
 		if categoria.replace(' ', ''):
-			s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory=categoria)
+			s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory=categoria)
 
 		if year.replace(' ', ''):
 			if metodo == 'pago' or metodo == 'contrato':
@@ -568,7 +650,7 @@ class Buscador(APIView):
 		mappingSort = {
 			"year":"doc.compiledRelease.date",
 			"institucion":"doc.compiledRelease.buyer.name.keyword",
-			"categoria": "doc.compiledRelease.tender.mainProcurementCategory.keyword",
+			"categoria": "doc.compiledRelease.tender.localProcurementCategory.keyword",
 			"modalidad": "doc.compiledRelease.tender.procurementMethodDetails.keyword",
 			"proveedor": "doc.compiledRelease.contracts.implementation.transactions.payee.name.keyword" if metodo == 'pago' else 'doc.compiledRelease.contracts.suppliers.name.keyword',
 			"monto": "doc.compiledRelease.contracts.extra.sumTransactions" if metodo == 'pago' else 'doc.compiledRelease.contracts.value.amount',
@@ -718,7 +800,7 @@ class Proveedores(APIView):
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=120)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='edca')
 
@@ -923,11 +1005,259 @@ class Proveedores(APIView):
 
 		return Response(context)
 
+class ProveedoresSEFIN(APIView):
+
+	def get(self, request, format=None):
+		page = int(request.GET.get('pagina', '1'))
+		metodo = request.GET.get('metodo', None)
+		nombre = request.GET.get('nombre', '')
+		identificacion = request.GET.get('identificacion', '')
+		procesos = request.GET.get('procesos', None)
+		total = request.GET.get('total', None)
+		promedio = request.GET.get('promedio', None)
+		maximo = request.GET.get('maximo', None)
+		minino = request.GET.get('minimo', None)
+		term = request.GET.get('term', '')
+		tmc = request.GET.get('tmc', '')
+		pmc = request.GET.get('pmc', '')
+		mamc = request.GET.get('mamc', '')
+		memc = request.GET.get('memc', '')
+		fua = request.GET.get('fua', '')
+		cp = request.GET.get('cp', '')
+		ordenarPor = request.GET.get('ordenarPor', '')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
+
+		start = (page-1) * settings.PAGINATE_BY
+		end = start + settings.PAGINATE_BY
+
+		size = 30000
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+
+		s = Search(using=cliente, index='transaction')
+
+		filtro = Q()
+		filtros = []
+
+		if nombre.replace(' ',''):
+			q_nombre = '*' + nombre + '*'
+			filtro = Q("wildcard", payee__name__keyword=q_nombre)
+			filtros.append(filtro)
+
+		if identificacion.replace(' ',''):
+			q_id = '*' + identificacion + '*'
+			filtro = Q("wildcard", payee__id__keyword=q_id)
+			filtros.append(filtro)
+
+		filtro = Q('bool', must=filtros)
+
+		s.aggs.metric('proveedores', 'filter', filter=filtro)
+		s.aggs['proveedores'].metric('id', 'terms', field='payee.id.keyword', size=size, order={"total_monto_contratado": "desc"})
+		s.aggs['proveedores']['id'].metric('name', 'terms', field='payee.name.keyword', size=size)
+		s.aggs['proveedores']['id'].metric('total_monto_contratado', 'sum', field='value.amount')
+		s.aggs['proveedores']['id'].metric('promedio_monto_contratado', 'avg', field='value.amount')
+		s.aggs['proveedores']['id'].metric('mayor_monto_contratado', 'avg', field='value.amount')
+		s.aggs['proveedores']['id'].metric('menor_monto_contratado', 'avg', field='value.amount')
+		s.aggs['proveedores']['id'].metric('fecha_ultimo_proceso', 'max', field='date')
+		s.aggs['proveedores']['id'].metric('procesos','cardinality', field='extra.ocid.keyword')
+
+		if tmc.replace(' ', ''):
+
+			val = validateNumberParam(tmc)
+
+			if val is not None:
+				q_tmc = 'params.tmc' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"tmc": "total_monto_contratado"}, 
+					script=q_tmc
+				)
+
+		if pmc.replace(' ', ''):
+
+			val = validateNumberParam(pmc)
+
+			if val is not None:
+				q_pmc = 'params.pmc' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"pmc": "promedio_monto_contratado"}, 
+					script=q_pmc
+				)
+
+		if mamc.replace(' ', ''):
+
+			val = validateNumberParam(mamc)
+
+			if val is not None:
+				q_mamc = 'params.mamc' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"mamc": "mayor_monto_contratado"}, 
+					script=q_mamc
+				)
+
+		if memc.replace(' ', ''):
+
+			val = validateNumberParam(memc)
+
+			if val is not None:
+				q_memc = 'params.memc' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"memc": "menor_monto_contratado"}, 
+					script=q_memc
+				)
+
+		if cp.replace(' ', ''):
+
+			val = validateNumberParam(cp)
+
+			if val is not None:
+				q_cp = 'params.cp' + val
+			
+				s.aggs['proveedores']['id'].metric(
+					'filtrar_totales', 
+					'bucket_selector', 
+					buckets_path={"cp": "procesos"}, 
+					script=q_cp
+				)
+
+		search_results = SearchResults(s)
+
+		results = s[start:end].execute()
+
+		proveedores = []
+
+		ProveedoresSEFIN = results.aggregations.proveedores.id.to_dict()["buckets"]
+
+		for p in ProveedoresSEFIN:
+			proveedor = {}
+			proveedor["id"] = p["key"]
+			proveedor["name"] = p["name"]["buckets"][0]["key"]
+	
+			proveedor["procesos"] = p["procesos"]["value"]
+			proveedor["total_monto_pagado"] = p["total_monto_contratado"]["value"]
+			proveedor["promedio_monto_pagado"] = p["promedio_monto_contratado"]["value"]
+			proveedor["mayor_monto_pagado"] = p["mayor_monto_contratado"]["value"]
+			proveedor["menor_monto_pagado"] = p["menor_monto_contratado"]["value"]
+			proveedor["fecha_ultimo_proceso"] = p["fecha_ultimo_proceso"]["value_as_string"]
+
+			proveedores.append(copy.deepcopy(proveedor))
+
+		parametros = {}
+		parametros["pagina"] = page
+		parametros["nombre"] = nombre
+		parametros["identificacion"] = identificacion
+		parametros["tmc"] = tmc 
+		parametros["pmc"] = pmc 
+		parametros["mamc"] = mamc 
+		parametros["memc"] = memc 
+		parametros["fua"] = fua 
+		parametros["cp"] = cp
+		parametros["orderBy"] = ordenarPor
+		parametros["paginarPor"] = paginarPor
+
+		#Ordenamiento
+		#Ejemplo: /proveedores?ordenarPor=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
+	
+		if not ordenarPor:
+			ordenarPor = 'asc(name)'
+
+		dfProveedores = pd.DataFrame(proveedores)
+		ordenar = getSortBy(ordenarPor)
+
+		if not dfProveedores.empty:
+			dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'], errors='coerce')
+			# dfProveedores['name'] = dfProveedores['name'].apply(lambda x : x.strip().replace('"', ''))
+
+		for indice, columna in enumerate(ordenar["columnas"]):
+			if not columna in dfProveedores:
+				ordenar["columnas"].pop(indice)
+				ordenar["ascendentes"].pop(indice)
+
+		if ordenar["columnas"]:
+			dfProveedores = dfProveedores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
+
+		# # Ejemplo: fua==2018-03-02
+		if fua.replace(' ', ''):
+			if len(fua)>1:
+				if fua[0:2] in ['!=', '>=', '<=', '==']:
+					operador = fua[0:2]
+					fecha = fua[2:len(fua)]
+				elif fua[0:1] in ['>', '<']:
+					operador = fua[0:1]
+					fecha = fua[1:len(fua)]
+				else:
+					operador = ''
+					fecha = ''	
+			else:
+				operador = ''
+				fecha = ''
+
+			if operador == "==":
+				mask = (dfProveedores['fecha_ultimo_proceso'].dt.date.astype(str) == fecha) 
+			elif operador == "!=":
+				mask = (dfProveedores['fecha_ultimo_proceso'] != fecha)
+			elif operador == "<":
+				mask = (dfProveedores['fecha_ultimo_proceso'] < fecha)
+			elif operador == "<=":
+				mask = (dfProveedores['fecha_ultimo_proceso'] <= fecha)
+			elif operador == ">":
+				mask = (dfProveedores['fecha_ultimo_proceso'] > fecha)
+			elif operador == ">=":
+				mask = (dfProveedores['fecha_ultimo_proceso'] >= fecha)
+			else:
+				mask = None
+
+			if mask is not None:
+				dfProveedores = dfProveedores.loc[mask]
+
+
+		proveedores = dfProveedores.to_dict('records')
+
+		paginator = Paginator(proveedores, paginarPor)
+
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
+
+		pagination = {
+			"has_previous": posts.has_previous(),
+			"has_next": posts.has_next(),
+			"previous_page_number": posts.previous_page_number() if posts.has_previous() else None,
+			"page": posts.number,
+			"next_page_number": posts.next_page_number() if posts.has_next() else None,
+			"num_pages": paginator.num_pages,
+			"total.items": len(proveedores)
+		}
+
+		context = {
+			# "response": ProveedoresSEFIN
+			"paginador": pagination,
+			"parametros": parametros,
+			"resultados": posts.object_list,
+			# "elastic": results.aggregations.proveedores.to_dict(),
+		}
+
+		return Response(context)
+
 class Proveedor(APIView):
 
 	def get(self, request, partieId=None, format=None):
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='edca')
 
 		qPartieId = Q('match_phrase', doc__compiledRelease__parties__id__keyword=partieId) 
@@ -964,7 +1294,7 @@ class ContratosDelProveedor(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='contract')
 
 		qPartieId = Q('match_phrase', suppliers__id=partieId) 
@@ -990,7 +1320,7 @@ class ContratosDelProveedor(APIView):
 			filtros.append(filtro)
 
 		if categoriaCompra.replace(' ',''):
-			filtro = Q("match_phrase", extra__tenderMainProcurementCategory=categoriaCompra)
+			filtro = Q("match_phrase", localProcurementCategory=categoriaCompra)
 			filtros.append(filtro)
 
 		if estado.replace(' ',''):
@@ -1075,7 +1405,7 @@ class ContratosDelProveedor(APIView):
 			"comprador": "buyer.name.keyword",
 			"titulo": "title.keyword",
 			"tituloLicitacion": "extra.tenderTitle.keyword",
-			"categoriaCompra": "extra.tenderMainProcurementCategory.keyword",
+			"categoriaCompra": "localProcurementCategory.keyword",
 			"estado": "status.keyword",
 			"monto": "value.amount",
 			"fechaInicio": "period.startDate",
@@ -1154,7 +1484,7 @@ class PagosDelProveedor(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='contract')
 
 		#Filtros
@@ -1318,7 +1648,7 @@ class ProductosDelProveedor(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='contract')
 
 		s.aggs.metric('productos','nested', path='items')
@@ -1793,7 +2123,7 @@ class Comprador(APIView):
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='edca')
 
 		partieId = urllib.parse.unquote_plus(partieId)
@@ -1875,7 +2205,7 @@ class ProcesosDelComprador(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='edca')
 
 		#Mostrando 
@@ -2113,6 +2443,7 @@ class ContratosDelComprador(APIView):
 		descripcion = request.GET.get('descripcion', '')
 		tituloLicitacion = request.GET.get('tituloLicitacion', '')
 		categoriaCompra = request.GET.get('categoriaCompra', '')
+		modalidad = request.GET.get('modalidad', '')
 		estado = request.GET.get('estado', '')
 		monto = request.GET.get('monto', '')
 		fechaFirma = request.GET.get('fechaFirma', '')
@@ -2120,6 +2451,7 @@ class ContratosDelComprador(APIView):
 		ordenarPor = request.GET.get('ordenarPor', '')
 		dependencias = request.GET.get('dependencias', '0')
 		tipoIdentificador = request.GET.get('tid', 'id') #por id, nombre
+		anio = request.GET.get('year', '')
 
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
@@ -2127,7 +2459,7 @@ class ContratosDelComprador(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='contract')
 
 		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
@@ -2170,7 +2502,11 @@ class ContratosDelComprador(APIView):
 			filtros.append(filtro)
 
 		if categoriaCompra.replace(' ',''):
-			filtro = Q("match_phrase", extra__tenderMainProcurementCategory=categoriaCompra)
+			filtro = Q("match_phrase", localProcurementCategory=categoriaCompra)
+			filtros.append(filtro)
+
+		if modalidad.replace(' ',''):
+			filtro = Q("match_phrase", extra__tenderProcurementMethodDetails__keyword=modalidad)
 			filtros.append(filtro)
 
 		if estado.replace(' ',''):
@@ -2246,6 +2582,14 @@ class ContratosDelComprador(APIView):
 			if filtro is not None:
 				filtros.append(filtro)
 
+		if anio.replace(' ', ''):
+			# Or Statement 
+			dateFilter = {'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)}
+			filtroFechaFirma = Q('range', dateSigned=dateFilter)
+			filtroFechaInicio =  Q('range', period__startDate=dateFilter)
+			filtrFecha = Q(filtroFechaFirma | filtroFechaInicio)
+			filtros.append(filtrFecha)
+
 		s = s.query('bool', filter=filtros)
 
 		# Ordenar resultados.
@@ -2253,7 +2597,7 @@ class ContratosDelComprador(APIView):
 			"comprador": "extra.buyerFullName.keyword",
 			"titulo": "title.keyword",
 			"tituloLicitacion": "extra.tenderTitle.keyword",
-			"categoriaCompra": "extra.tenderMainProcurementCategory.keyword",
+			"categoriaCompra": "localProcurementCategory.keyword",
 			"estado": "status.keyword",
 			"monto": "value.amount",
 			"fechaFirma": "period.startDate",
@@ -2309,11 +2653,13 @@ class ContratosDelComprador(APIView):
 		parametros["descripcion"] = descripcion
 		parametros["tituloLicitacion"] = tituloLicitacion
 		parametros["categoriaCompra"] = categoriaCompra
+		parametros["modalidad"] = modalidad
 		parametros["estado"] = estado
 		parametros["monto"] = monto
 		parametros["fechaInicio"] = fechaInicio
 		parametros["fechaFirma"] = fechaInicio
 		parametros["dependencias"] = dependencias
+		parametros["year"] = anio
 		parametros["ordenarPor"] = ordenarPor
 		parametros["pagianrPor"] = paginarPor
 		parametros["pagina"] = page
@@ -2348,7 +2694,7 @@ class PagosDelComprador(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 		s = Search(using=cliente, index='contract')
 
 		#Filtros
@@ -2532,7 +2878,7 @@ class FiltrosDashboardSEFIN(APIView):
 		masinstituciones = request.GET.get('masinstituciones', '')
 		masproveedores = request.GET.get('masproveedores', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='transaction')
 
@@ -2673,7 +3019,7 @@ class GraficarCantidadDePagosMes(APIView):
 				"promedio_pagos": 0
 			}
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='transaction')
 
@@ -2794,7 +3140,7 @@ class GraficarMontosDePagosMes(APIView):
 				"promedio_pagos": 0
 			}
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='transaction')
 
@@ -2903,7 +3249,7 @@ class EstadisticaMontoDePagos(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='transaction')
 		ss = Search(using=cliente, index='transaction')
@@ -2999,7 +3345,7 @@ class EstadisticaCantidadDePagos(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3082,7 +3428,7 @@ class TopCompradoresPorMontoPagado(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3168,7 +3514,7 @@ class TopProveedoresPorMontoPagado(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3254,7 +3600,7 @@ class TopObjetosDeGastoPorMontoPagado(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3338,7 +3684,7 @@ class EtapasPagoProcesoDeCompra(APIView):
 		institucion = request.GET.get('institucion', '')
 		anio = request.GET.get('año', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST)
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
 		s = Search(using=cliente, index='edca')
 
@@ -3440,7 +3786,7 @@ proceso_csv = dict([
 		("Código Unidad Ejecutora","doc.compiledRelease.buyer.id"),
 		("Unidad Ejecutora","doc.compiledRelease.buyer.name"),
 		("Expediente", "doc.compiledRelease.tender.title"),
-		("Tipo Adquisición", "doc.compiledRelease.tender.mainProcurementCategory"),
+		("Tipo Adquisición", "doc.compiledRelease.tender.localProcurementCategory"),
 		("Tipo Adquisición adicional", "doc.compiledRelease.tender.additionalProcurementCategories.0"),
 		("Modalidad", "doc.compiledRelease.tender.procurementMethodDetails"),
 		("Fecha de Inicio", "doc.compiledRelease.tender.tenderPeriod.startDate"),
@@ -3470,7 +3816,7 @@ contrato_csv = dict([
 		("Fecha de Inicio", "dateSigned"),
 		("Fuente de datos","extra.sources.0.name"),
 		("Número de Expediente", "extra.tenderTitle"),
-		("Tipo Adquisición", "extra.tenderMainProcurementCategory"),
+		("Tipo Adquisición", "localProcurementCategory"),
 		("Tipo Adquisición adicional", "extra.tenderAdditionalProcurementCategories"),
 		("Modalidad", "extra.tenderProcurementMethodDetails"),
 	])
@@ -3678,8 +4024,8 @@ class FiltrosDashboardONCAE(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':			
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword') 
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword') 
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 				sss = sss.filter('bool', must_not=qqCategoria)
@@ -3689,13 +4035,13 @@ class FiltrosDashboardONCAE(APIView):
 				sssFecha = sssFecha.filter('bool', must_not=qqCategoria)
 			
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				sss = sss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				sss = sss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
-				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
-				ssFecha = ssFecha.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				sssFecha = sssFecha.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
+				ssFecha = ssFecha.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				sssFecha = sssFecha.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':			
@@ -3818,7 +4164,7 @@ class FiltrosDashboardONCAE(APIView):
 			'categoriasProcesos', 
 			'terms', 
 			missing='No Definido',
-			field='doc.compiledRelease.tender.mainProcurementCategory.keyword', 
+			field='doc.compiledRelease.tender.localProcurementCategory.keyword', 
 			size=10000
 		)
 
@@ -3826,7 +4172,7 @@ class FiltrosDashboardONCAE(APIView):
 			'categoriasContratosFechaFirma', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword', 
+			field='localProcurementCategory.keyword', 
 			size=10000
 		)
 
@@ -3834,7 +4180,7 @@ class FiltrosDashboardONCAE(APIView):
 			'categoriasContratosFechaInicio', 
 			'terms',
 			missing='No Definido', 
-			field='extra.tenderMainProcurementCategory.keyword', 
+			field='localProcurementCategory.keyword', 
 			size=10000
 		)
 
@@ -4232,10 +4578,10 @@ class GraficarProcesosPorCategorias(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -4255,7 +4601,7 @@ class GraficarProcesosPorCategorias(APIView):
 			'procesosPorEtapa', 
 			'terms', 
 			missing='No Definido',
-			field='doc.compiledRelease.tender.mainProcurementCategory.keyword' 
+			field='doc.compiledRelease.tender.localProcurementCategory.keyword' 
 		)
 		#Borrar estas lineas
 		# print("Resultados")
@@ -4334,10 +4680,10 @@ class GraficarProcesosPorModalidad(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -4442,10 +4788,10 @@ class GraficarCantidadDeProcesosMes(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -4562,10 +4908,10 @@ class EstadisticaCantidadDeProcesos(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -4662,10 +5008,10 @@ class GraficarProcesosPorEtapa(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No definido':
@@ -4765,12 +5111,12 @@ class GraficarMontosDeContratosMes(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -4981,12 +5327,12 @@ class EstadisticaCantidadDeContratos(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -5194,12 +5540,12 @@ class EstadisticaMontosDeContratos(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='extra.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -5394,12 +5740,12 @@ class GraficarContratosPorCategorias(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -5435,14 +5781,14 @@ class GraficarContratosPorCategorias(APIView):
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		ss.aggs.metric(
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		s.aggs["contratosPorCategorias"].metric(
@@ -5547,12 +5893,12 @@ class GraficarContratosPorModalidad(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -5706,16 +6052,16 @@ class TopCompradoresPorMontoContratado(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
-				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+				qqModalidad = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqModalidad)
 				ss = ss.filter('bool', must_not=qqModalidad)
 			else:
@@ -5897,12 +6243,12 @@ class TopProveedoresPorMontoContratado(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -6062,8 +6408,8 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		idinstitucion = request.GET.get('idinstitucion', '')
 		anio = request.GET.get('año', '')
 		moneda = request.GET.get('moneda', '')
-		categoria = request.GET.get('categoria', '')
-		modalidad = request.GET.get('modalidad', '')
+		pcategoria = request.GET.get('categoria', '')
+		pmodalidad = request.GET.get('modalidad', '')
 
 		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
 
@@ -6101,36 +6447,61 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 				s = s.query('nested', path='doc.compiledRelease.contracts', query=qMoneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 
-		if categoria.replace(' ', ''):
-			if categoria == 'No Definido':
-				qCategoria = Q('exists', field='doc.compiledRelease.tender.mainProcurementCategory.keyword')
+		if pcategoria.replace(' ', ''):
+			if pcategoria == 'No Definido':
+				qCategoria = Q('exists', field='doc.compiledRelease.tender.localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qCategoria)
 
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__mainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=pcategoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=pcategoria)
 
-		if modalidad.replace(' ', ''):
-			if modalidad == 'No Definido':
+		if pmodalidad.replace(' ', ''):
+			if pmodalidad == 'No Definido':
 				qModalidad = Q('exists', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
 				s = s.filter('bool', must_not=qModalidad)	
 
 				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
 				ss = ss.filter('bool', must_not=qqModalidad)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
-				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=pmodalidad)
+				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=pmodalidad)
 
 		# Agregados
+
 		s.aggs.metric(
+			'categorias',
+			'terms',
+			field='doc.compiledRelease.tender.localProcurementCategory.keyword'
+		)
+
+		ss.aggs.metric(
+			'categorias',
+			'terms',
+			field='localProcurementCategory.keyword'
+		)
+
+		s.aggs['categorias'].metric(
+			'modalidades',
+			'terms',
+			field='doc.compiledRelease.tender.procurementMethodDetails.keyword'
+		)
+
+		ss.aggs['categorias'].metric(
+			'modalidades',
+			'terms',
+			field='extra.tenderProcurementMethodDetails.keyword'
+		)
+
+		s.aggs['categorias']['modalidades'].metric(
 			'promedioDiasLicitacion',
 			'avg',
 			field='extra.daysTenderPeriod'
 		)
 
-		ss.aggs.metric(
+		ss.aggs['categorias']['modalidades'].metric(
 			'promedioDiasIniciarContrato',
 			'avg',
 			field='extra.tiempoContrato'
@@ -6139,21 +6510,52 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		results = s.execute()
 		results2 = ss.execute()
 
-		diasLicitacion = results.aggregations.promedioDiasLicitacion["value"]
-		diasIniciarContrato = results2.aggregations.promedioDiasIniciarContrato["value"]
+		diasLicitacion = results.aggregations.categorias.to_dict()
+		diasContrato = results2.aggregations.categorias.to_dict()
 
-		resultados = {
-			"promedioDiasLicitacion": diasLicitacion,
-			"promedioDiasIniciarContrato": diasIniciarContrato
-		}
+		tiempos = {}
+
+		for categoria in diasLicitacion["buckets"]:
+			tiempos[categoria["key"]] = {}
+
+			for modalidad in categoria["modalidades"]["buckets"]:
+				tiempos[categoria["key"]][modalidad["key"]] = {}
+
+				if "promedioDiasLicitacion" in modalidad:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasLicitacion"] = modalidad["promedioDiasLicitacion"]["value"]
+				else:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasLicitacion"] = None
+
+				tiempos[categoria["key"]][modalidad["key"]]["promedioDiasIniciarContrato"] = None
+
+
+		for categoria in diasContrato["buckets"]:
+			
+			if not categoria["key"] in tiempos:
+				tiempos[categoria["key"]] = {}
+
+			for modalidad in categoria["modalidades"]["buckets"]:
+				
+				if not modalidad["key"] in tiempos[categoria["key"]]:
+					tiempos[categoria["key"]][modalidad["key"]] = {}
+
+				if "promedioDiasIniciarContrato" in modalidad:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasIniciarContrato"] = modalidad["promedioDiasIniciarContrato"]["value"]
+				else:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasIniciarContrato"] = None
+
+				if not "promedioDiasIniciarContrato" in tiempos[categoria["key"]][modalidad["key"]]:
+					tiempos[categoria["key"]][modalidad["key"]]["promedioDiasLicitacion"] = None
+
+		resultados = tiempos
 
 		parametros = {}
 		parametros["institucion"] = institucion
 		parametros["idinstitucion"] = institucion
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
-		parametros["categoria"] = categoria
-		parametros["modalidad"] = modalidad
+		parametros["categoria"] = pcategoria
+		parametros["modalidad"] = pmodalidad
 
 		context = {
 			"resultados": resultados,
@@ -6202,12 +6604,12 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -6248,14 +6650,14 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		ss.aggs.metric(
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		s.aggs["contratosPorCategorias"].metric(
@@ -6365,12 +6767,12 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -6411,7 +6813,7 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		s.aggs["contratosPorCategorias"].metric(		
@@ -6426,7 +6828,7 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 			'contratosPorCategorias', 
 			'terms', 
 			missing='No Definido',
-			field='extra.tenderMainProcurementCategory.keyword' 
+			field='localProcurementCategory.keyword' 
 		)
 
 		ss.aggs["contratosPorCategorias"].metric(		
@@ -6535,12 +6937,12 @@ class IndicadorTopCompradores(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -6740,6 +7142,10 @@ class IndicadorCatalogoElectronico(APIView):
 		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
 		# s = s.source(campos)
 
+		# Excluir compra conjunta asd
+		qTerm = Q('match', items__attributes__value='compra conjunta')
+		s = s.exclude('nested', path='items', query=qTerm)
+
 		# # Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
@@ -6752,10 +7158,10 @@ class IndicadorCatalogoElectronico(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -6787,7 +7193,7 @@ class IndicadorCatalogoElectronico(APIView):
 		s.aggs["items"].metric(
 			'porCatalogo', 
 			'terms', 
-			missing='No Definido',
+			missing='CONVENIO MARCO',
 			field='items.attributes.value.keyword',
 			order={'montoContratado': 'desc'},
 			size=10000
@@ -6823,7 +7229,151 @@ class IndicadorCatalogoElectronico(APIView):
 		# catalogos = []
 		for c in itemsCE["buckets"]:
 
-			nombreCatalogo.append(c["key"])
+			nombreCatalogo.append(c["key"].upper())
+			totalContratado.append(c["montoContratado"]["value"])
+			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
+
+		nombreCatalogo.reverse()
+		totalContratado.reverse()
+		cantidadProcesos.reverse()
+
+		resultados = {
+			# "catalogos": catalogos,
+			"nombreCatalogos": nombreCatalogo,
+			"montoContratado": totalContratado,
+			"cantidadProcesos": cantidadProcesos
+			# "elasticsearch": itemsCE,
+		}
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["año"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+		parametros["sistema"] = sistema
+
+		context = {
+			"resultados": resultados,
+			"parametros": parametros
+		}
+
+		return Response(context)
+
+class IndicadorCompraConjunta(APIView):
+
+	def get(self, request, format=None):
+
+		nombreCatalogo = []
+		totalContratado = []
+		cantidadProcesos = []
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('año', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+
+		s = Search(using=cliente, index='contract')
+		s = s.filter('match_phrase', extra__sources__id='catalogo-electronico')
+
+		# Source 
+		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
+		# s = s.source(campos)
+
+		# Solo compras conjuntas
+		qTerm = Q('match', items__attributes__value='compra conjunta')
+		s = s.query('nested', path='items', query=qTerm)
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			if categoria == 'No Definido':
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
+				s = s.filter('bool', must_not=qqCategoria)
+			else:
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			if modalidad == 'No Definido':
+				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+				s = s.filter('bool', must_not=qqModalidad)
+			else:
+				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			if moneda == 'No Definido':
+				qqMoneda = Q('exists', field='value.currency.keyword')
+				s = s.filter('bool', must_not=qqMoneda)
+			else:
+				s = s.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+		s.aggs.metric(
+			'items', 
+			'nested', 
+			path='items'
+		)
+
+		s.aggs["items"].metric(
+			'sumaTotalMontos',
+			'sum',
+			field='items.extra.total'
+		)
+		
+		s.aggs["items"].metric(
+			'porCatalogo', 
+			'terms', 
+			missing='CONVENIO MARCO',
+			field='items.attributes.value.keyword',
+			order={'montoContratado': 'desc'},
+			size=10000
+		)
+
+		s.aggs["items"]["porCatalogo"].metric(
+			'montoContratado', 
+			'sum', 
+			field='items.extra.total'
+		)
+
+		s.aggs["items"]["porCatalogo"].metric(
+			'contract', 
+			'reverse_nested'
+		)
+
+		s.aggs["items"]["porCatalogo"]["contract"].metric(
+			'contadorOCIDs',
+			'cardinality',
+			precision_threshold=10000,
+			field='extra.ocid.keyword'
+		)
+
+		#Borrar estas lineas
+		# print("Resultados")
+		# return descargar_contratos_csv(request, s)
+		# return descargar_productos_csv(request, s)
+
+		contratosCE = s.execute()
+
+		itemsCE = contratosCE.aggregations.items.porCatalogo.to_dict()
+
+		# catalogos = []
+		for c in itemsCE["buckets"]:
+
+			nombreCatalogo.append(c["key"].upper())
 			totalContratado.append(c["montoContratado"]["value"])
 			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
 
@@ -6894,12 +7444,12 @@ class IndicadorContratosPorModalidad(APIView):
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
-				qqCategoria = Q('exists', field='extra.tenderMainProcurementCategory.keyword')
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
 				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
-				s = s.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', extra__tenderMainProcurementCategory__keyword=categoria)
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
@@ -7044,13 +7594,14 @@ class Descargas(APIView):
 			cursor.execute("SELECT file FROM descargas ORDER BY createddate DESC LIMIT 1")
 			row = cursor.fetchone()
 		
-		for value in row[0].values():
-			for extension in value["urls"]:
-				value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
-				
-			listaArchivos.append(value)
 
 		if row:
+			for value in row[0].values():
+				for extension in value["urls"]:
+					value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
+					
+				listaArchivos.append(value)
+	
 			return Response(listaArchivos)
 		else:
 			return Response([])
@@ -7064,3 +7615,314 @@ class Descargar(APIView):
 		response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
 		response['X-Accel-Redirect'] = '/protectedMedia/' + file_name
 		return response
+
+# Visualizaciones de ONCAE
+
+class CompradoresPorCantidadDeContratos(APIView):
+
+	def get(self, request, format=None):
+		anioActual = str(datetime.date.today().year)
+
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		anio = request.GET.get('anio', anioActual)
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+
+		s = Search(using=cliente, index='contract')
+		ss = Search(using=cliente, index='contract')
+
+		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
+		try:
+			int(anio)
+		except Exception as e:
+			anio = anioActual
+
+		# # Filtros
+		if institucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if anio.replace(' ', ''):
+			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+
+		if categoria.replace(' ', ''):
+			if categoria == 'No Definido':
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
+				s = s.filter('bool', must_not=qqCategoria)
+				ss = ss.filter('bool', must_not=qqCategoria)
+			else:
+				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			if modalidad == 'No Definido':
+				qqModalidad = Q('exists', field='localProcurementCategory.keyword')
+				s = s.filter('bool', must_not=qqModalidad)
+				ss = ss.filter('bool', must_not=qqModalidad)
+			else:
+				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			if moneda == 'No Definido':
+				qqMoneda = Q('exists', field='value.currency.keyword')
+				s = s.filter('bool', must_not=qqMoneda)
+				ss = ss.filter('bool', must_not=qqMoneda)			
+			else:
+				s = s.filter('match_phrase', value__currency__keyword=moneda)
+				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Agregados
+
+		s.aggs.metric(
+			'contratosPorComprador', 
+			'terms', 
+			missing='No Definido',
+			field='extra.parentTop.id.keyword',
+			size=10000
+		)
+
+		ss.aggs.metric(
+			'contratosPorComprador', 
+			'terms', 
+			missing='No Definido',
+			field='extra.parentTop.id.keyword',
+			size=10000
+		)
+
+		s.aggs["contratosPorComprador"].metric(
+			'nombreComprador', 
+			'terms', 
+			missing='No Definido',
+			field='extra.parentTop.name.keyword',
+			size=10000
+		)
+
+		ss.aggs["contratosPorComprador"].metric(
+			'nombreComprador', 
+			'terms', 
+			missing='No Definido',
+			field='extra.parentTop.name.keyword',
+			size=10000
+		)
+
+		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
+			'procesosPorMes', 
+			'date_histogram', 
+			field='dateSigned',
+			interval= "month",
+			format= "MM",
+			min_doc_count=1
+		)
+
+		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
+			'procesosPorMes', 
+			'date_histogram', 
+			field='period.startDate',
+			interval= "month",
+			format= "MM",
+			min_doc_count=1
+		)
+
+		contratosPC = s.execute()
+		contratosDD = ss.execute()
+
+		montosContratosPC = contratosPC.aggregations.contratosPorComprador.to_dict()
+		montosContratosDD = contratosDD.aggregations.contratosPorComprador.to_dict()
+
+		compradores = []
+
+		for valor in montosContratosPC["buckets"]:
+			for comprador in valor["nombreComprador"]["buckets"]:
+				for mes in comprador["procesosPorMes"]["buckets"]:
+					compradores.append({
+						"anio": anio,
+						"mes": mes["key_as_string"],
+						"codigo": valor["key"],
+						"nombre": comprador["key"],
+						"cantidad": mes["doc_count"],
+					})
+
+		if anio.replace(' ', ''):
+			for valor in montosContratosDD["buckets"]:
+				for comprador in valor["nombreComprador"]["buckets"]:
+					for mes in comprador["procesosPorMes"]["buckets"]:
+						compradores.append({
+							"anio": anio,
+							"mes": mes["key_as_string"],
+							"codigo": valor["key"],
+							"nombre": comprador["key"],
+							"cantidad": mes["doc_count"],
+						})
+
+		if compradores:
+			dfCompradores = pd.DataFrame(compradores)
+
+			agregaciones = {
+				"cantidad": 'sum',
+			}
+
+			groupBy = ['anio','mes','codigo','nombre']
+
+			dfCompradores = dfCompradores.groupby(groupBy, as_index=True).agg(agregaciones).reset_index().sort_values("cantidad", ascending=False)
+
+			compradores = dfCompradores[0:10].to_dict('records')
+
+		resultados = dfCompradores.to_dict('records')
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = institucion
+		parametros["anio"] = anio
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+
+		context = {
+			"parametros": parametros,
+			"resultados": resultados,
+		}
+
+		return Response(context)
+
+class FiltrosVisualizacionesONCAE(APIView):
+
+	def get(self, request, format=None):
+		institucion = request.GET.get('institucion', '')
+		idinstitucion = request.GET.get('idinstitucion', '')
+		moneda = request.GET.get('moneda', '')
+		categoria = request.GET.get('categoria', '')
+		modalidad = request.GET.get('modalidad', '')
+
+		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+
+		ssFecha = Search(using=cliente, index='contract')
+		sssFecha = Search(using=cliente, index='contract')
+
+		# Excluyendo procesos de SEFIN
+		ssFecha = ssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		sssFecha = sssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
+		# Filtros
+		if institucion.replace(' ', ''):
+			ssFecha = ssFecha.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__name__keyword=institucion)
+
+		if idinstitucion.replace(' ', ''):
+			ssFecha = ssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
+
+		if categoria.replace(' ', ''):
+			if categoria == 'No Definido':			
+				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
+				ssFecha = ssFecha.filter('bool', must_not=qqCategoria)
+				sssFecha = sssFecha.filter('bool', must_not=qqCategoria)
+			else:
+				ssFecha = ssFecha.filter('match_phrase', localProcurementCategory__keyword=categoria)
+				sssFecha = sssFecha.filter('match_phrase', localProcurementCategory__keyword=categoria)
+
+		if modalidad.replace(' ', ''):
+			if modalidad == 'No Definido':			
+				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
+
+				ssFecha = ssFecha.filter('bool', must_not=qqModalidad)
+				sssFecha = sssFecha.filter('bool', must_not=qqModalidad)
+			else:
+				ssFecha = ssFecha.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+				sssFecha = sssFecha.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
+
+		if moneda.replace(' ', ''):
+			if moneda == 'No Definido':
+				qMoneda = Q('exists', field='value.currency.keyword') 
+
+				ssFecha = ssFecha.filter('bool', must_not=qMoneda)
+				sssFecha = sssFecha.filter('bool', must_not=qMoneda)
+			else:
+				ssFecha = ssFecha.filter('match_phrase', value__currency__keyword=moneda)
+				sssFecha = sssFecha.filter('match_phrase', value__currency__keyword=moneda)
+
+		# Resumen
+		ssFecha.aggs.metric(
+			'aniosContratoFechaFirma', 
+			'date_histogram', 
+			field='dateSigned', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
+		)
+
+		sssFecha.aggs.metric(
+			'aniosContratoFechaInicio', 
+			'date_histogram', 
+			field='period.startDate', 
+			interval='year', 
+			format='yyyy',
+			min_doc_count=1
+		)
+		
+		ssFechaResultados = ssFecha.execute()
+		sssFechaResultados = sssFecha.execute()
+
+		aniosFechaFirma = ssFechaResultados.aggregations.aniosContratoFechaFirma.to_dict()
+		aniosFechaInicio = sssFechaResultados.aggregations.aniosContratoFechaInicio.to_dict()
+
+		#Valores para filtros por anio
+		anios = {}
+
+		for value in aniosFechaFirma["buckets"]:
+			if value["key_as_string"] in anios:
+				if "contratos" in anios[value["key_as_string"]]:
+					anios[value["key_as_string"]]["contratos"] += value["doc_count"]
+				else:
+					anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+			else:
+				anios[value["key_as_string"]] = {}
+				anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+
+		for value in aniosFechaInicio["buckets"]:
+			if value["key_as_string"] in anios:
+				if "contratos" in anios[value["key_as_string"]]:
+					anios[value["key_as_string"]]["contratos"] += value["doc_count"]
+				else:
+					anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+			else:
+				anios[value["key_as_string"]] = {}
+				anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
+
+		years = []
+		annioActual = int(datetime.datetime.now().year)
+
+		for key, value in anios.items():
+			if int(value["key_as_string"]) <= annioActual and int(value["key_as_string"]) >= 1980:
+				years.append(value)
+
+		years = sorted(years, key=lambda k: k['key_as_string'], reverse=True) 
+
+		resultados = years
+
+		parametros = {}
+		parametros["institucion"] = institucion
+		parametros["idinstitucion"] = idinstitucion
+		parametros["moneda"] = moneda
+		parametros["categoria"] = categoria
+		parametros["modalidad"] = modalidad
+
+		context = {
+			"parametros": parametros,
+			"respuesta": resultados
+		}
+
+		return Response(context)

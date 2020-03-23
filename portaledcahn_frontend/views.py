@@ -32,73 +32,6 @@ def Acerca(request):
     return render(request,'acerca/acerca.html')
 
 def Busqueda(request):
-    """page = int(request.GET.get('page', '1'))
-    start = (page-1) * 10
-    end = start + 10
-
-    q = my_param = request.GET.get('q', '')
-
-    query = {
-      "query": {
-        "bool": {
-          "must": [
-            {
-              "query_string": {
-                "query": q
-              }
-            },
-            {
-              "match": {
-                "data.releases.tag": "contract"
-              }
-            }
-          ]
-        }        
-        },
-          "aggs" : {
-            "distinct_suppliers" : {
-                "cardinality" : {
-                  "field" : "data.compiledRelease.contracts.suppliers.id.keyword"
-                }
-            },
-            "distinct_buyers" : {
-                "cardinality" : {
-                  "field" : "data.compiledRelease.contracts.buyer.id.keyword"
-                }
-            },
-            "distinct_contracts" : {
-                "cardinality" : {
-                  "field" : "data.compiledRelease.contracts.id.keyword"
-                }
-            },
-            "avg_amount": {
-                "avg": {
-                    "field": "data.compiledRelease.contracts.value.amount"
-                }
-            }
-        }  
-    } 
-
-    response = documents.DataDocument.search().from_dict(query)[start:end].execute()
-
-    # for h in response.hits:
-    #     print (h.data.ocid)
-
-    paginator = DSEPaginator(response, 1)
-    
-    try:
-        posts = paginator.page(page)
-    except PageNotAnInteger:
-        posts = paginator.page(0)
-    except EmptyPage:
-        posts = paginator.page(paginator.num_pages)
-
-    context = {
-        "resultados": response.hits,
-        "resumen": response.aggregations,
-        "q": q,
-        "posts": posts
-    }"""
     parametros = {}
     parametros['metodo'] = request.GET.get('metodo','proceso')
     return render(request,'busqueda/busqueda.html',parametros)
@@ -331,7 +264,37 @@ def Proveedores(request):
     parametros['ordenmemc'] = verificarOrden(request.GET.get('ordenarPor',''),'memc')
     
     return render(request,'proveedores/proveedores.html',parametros)
-    
+def ProveedoresSefin(request):
+  parametros = {
+    "nombre" : request.GET.get('nombre',''),
+    "identificacion" : request.GET.get('identificacion',''),
+    "tmc" : request.GET.get('tmc','').replace(">", "").replace("<", "").replace("==", ""),
+    "cp" : request.GET.get('cp','').replace(">", "").replace("<", "").replace("==", ""),
+    "pmc" : request.GET.get('pmc','').replace(">", "").replace("<", "").replace("==", ""),
+    "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("==", ""),
+    "fua" : request.GET.get('fua','').replace(">", "").replace("<", "").replace("==", ""),
+    "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("==", ""),
+    "paginarPor" : int(request.GET.get('paginarPor','5')),
+    "ordenarPor" : request.GET.get('ordenarPor','')
+  }
+  parametros['operadortmc'] = verificarOperador(request.GET.get('tmc',''))
+  parametros['operadorpmc'] = verificarOperador(request.GET.get('pmc',''))
+  parametros['operadormamc'] = verificarOperador(request.GET.get('mamc',''))
+  parametros['operadormemc'] = verificarOperador(request.GET.get('memc',''))
+  parametros['operadorfua'] = verificarOperador(request.GET.get('fua',''))
+  parametros['operadorcp'] = verificarOperador(request.GET.get('cp',''))
+
+  parametros['ordennombre'] = verificarOrden(request.GET.get('ordenarPor',''),'nombre')
+  parametros['ordenidentificacion'] = verificarOrden(request.GET.get('ordenarPor',''),'identificacion')
+  parametros['ordentmc'] = verificarOrden(request.GET.get('ordenarPor',''),'tmc')
+  parametros['ordenpmc'] = verificarOrden(request.GET.get('ordenarPor',''),'pmc')
+  parametros['ordenmamc'] = verificarOrden(request.GET.get('ordenarPor',''),'mamc')
+  parametros['ordencp'] = verificarOrden(request.GET.get('ordenarPor',''),'cp')
+  parametros['ordenfua'] = verificarOrden(request.GET.get('ordenarPor',''),'fua')
+  parametros['ordenmemc'] = verificarOrden(request.GET.get('ordenarPor',''),'memc')
+  
+  return render(request,'proveedoresSefin/proveedoresSefin.html',parametros)
+  
 def Visualizaciones(request):
     return render(request,'visualizaciones/visualizaciones.html')
 

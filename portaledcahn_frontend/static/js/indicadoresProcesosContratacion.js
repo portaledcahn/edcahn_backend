@@ -21,15 +21,16 @@ var filtrosAplicables={
   var traducciones={
     'goods':{titulo: 'Suministro de Bienes y/o Servicios'/*'Bienes y provisiones'*/,descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
-    'services':{titulo:'Consultorías'/*'Servicios'*/,descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
-    'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'},
+    'services':{titulo:'Servicios'/*'Servicios'*/,descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
+    'consultingServices':{titulo:'Consultorías',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'},
     'tender':{titulo:'Licitación',descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'},
     'awards':{titulo:'Adjudicación',descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'},
     'contracts':{titulo:'Contrato',descripcion:'Da información sobre los detalles de un contrato que ha entrado, o entrará, en vigencia. La sección de licitación puede ser poblada con detalles del proceso que lleva al contrato, y la sección de adjudicación puede tener detalles sobre la adjudicación sobre la '},
     'planning':{
         titulo:'Planeación',
         descripcion:'Se propone o planea un proceso de contratación. La información en la sección de licitación describe el proceso propuesto. El campo tender.status debe de usarse para identificar si la planeación está en una etapa temprana o si hay planes detallados para una licitación.'
-    }
+    },
+    'goodsOrServices':{titulo:'Bienes y/o Servicios',descripcion:''}
 
   }
 function ModalidadMontoCantidad(){
@@ -1197,6 +1198,7 @@ function CargarGraficos(){
     MontoContratosCategoriaCompra();
     Top10InstitucionesMontos();
     MontoCatalogoElectronico();
+    MontoCompraConjunta();
 }
 function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('moneda'))){
@@ -1439,7 +1441,9 @@ function ValoresLlaves(llave){
 function AgregarPropiedadesListaElastica(valor,llave){
     var elementos=[]
     $.each(valor,function(i,propiedades){
-      //resultadosElastic=AsignarValor(resultadosElastic,llave,,propiedades.doc_count);
+      if(!(ObtenerNumero(propiedades.contratos) >0)){
+          return;
+      }
       elementos.push(
         $('<li >',{
         class:'list-group-item',
@@ -1534,4 +1538,264 @@ function AgregarPropiedadesListaElastica(valor,llave){
       
       
     });
+}
+
+
+function MontoCompraConjunta(){
+    var parametros={}
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarReloj('#montoCompraConjunta',true);
+$.get(api+"/indicadoresoncae/comprasconjuntas/",parametros).done(function( datos ) {
+console.dir('MONTO COMPRA CONJUNTA');
+console.dir(datos);
+OcultarReloj('#montoCompraConjunta',true);
+var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
+    var opciones = {
+        baseOption:{
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
+                }
+            },
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    saveAsImage: {show: true,title:'Descargar'}
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
+                }
+            },
+            xAxis: [
+                {
+                    type: 'value',
+                                /*min: 0,
+                                max: 810,*/
+                                //interval: 100000,
+                                axisLabel: {
+                                    formatter: '{value} HNL',
+                                    rotate:45,
+                            showMinLabel:false
+                                },
+                                axisPointer: {
+                                    label: {
+                                        formatter: '{value} HNL'
+                                    }
+                                },
+                    position:'bottom',
+                    name:'Monto de Contratos'
+                },
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}'
+                    },
+                    position:'top',
+                    name:'Cantidad de Contratos'
+                }
+            ],
+            yAxis: [
+                {
+                    
+                    type: 'category',
+                    data: datos.resultados.nombreCatalogos.reverse(),
+                    axisPointer: {
+                        type: 'shadow'
+                    },axisLabel: {
+                        rotate:45
+                    },
+                    name:'Compra Conjunta'
+                    
+                }
+            ],
+            series: [
+                {
+                    name:'Monto de Contrato',
+                    type:'bar',
+                    data:datos.resultados.montoContratado.reverse(),
+                    itemStyle:{
+                        color: ObtenerColores('Pastel1')[4]
+                    },
+                    label: {
+                        normal: {
+                            show:true,
+                            fontFamily:'Poppins',
+                            fontWeight:700,
+                            fontSize:15,
+                            position: 'right',
+                            formatter: function (e){
+                                return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                            }
+                        }
+                    },
+                    barWidth:30,
+                    barCategoryGap:'20%',
+                    barGap:'50%'
+                },
+                {
+                    name:'Cantidad de Contratos',
+                    type:'line',
+                    //yAxisIndex: 1,
+                    data:datos.resultados.cantidadProcesos.reverse(),
+                    symbol: 'circle',
+                    symbolSize: 10,
+                    lineStyle: {
+                        normal: {
+                            color: ObtenerColores('Pastel1')[9],
+                            width: 4/*,
+                            type: 'dashed'*/
+                        }
+                    },
+                    itemStyle:{
+                        color: ObtenerColores('Pastel1')[9]
+                    },
+                    xAxisIndex: 1
+                }
+            ],
+            grid:{
+                containLabel:true,
+                right:'15%'
+            },
+            label:{
+                show:true,
+                fontFamily:'Poppins',
+                fontWeight:700,
+                fontSize:15,
+                color:'gray'
+            }
+        },
+        media:[
+            {
+                query:{
+                    maxWidth:600
+                },
+                option:{
+                    xAxis: [
+                        {
+                            
+                            type: 'category',
+                            data: datos.resultados.nombreCatalogos.reverse(),
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            axisLabel: {
+                                rotate:90
+                            },
+                            name:'Compra\nConjunta'
+                            
+                        },
+                        {
+                           
+                            name:''
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            name:'Monto de\nContrato',
+                            type: 'value',
+                            axisLabel: {
+                                formatter: '{value} HNL',
+                                rotate:65,
+                            showMinLabel:false
+                            },
+                            axisPointer: {
+                                label: {
+                                    formatter: '{value} HNL'
+                                }
+                            },
+                            position:'bottom'
+                        },
+                        {
+                            name:'Cantidad de\nContratos',
+                            type: 'value',
+                            axisLabel: {
+                                formatter: '{value}',
+                                rotate:295
+                            },
+                            position:'top'
+                        }
+                        
+                    ],
+                    series: [
+                        {
+                            name:'Monto de\nContrato',
+                            type:'bar',
+                            data:datos.resultados.montoContratado.reverse(),
+                            itemStyle:{
+                                color: ObtenerColores('Pastel1')[2]
+                            },
+                            label: {
+                                normal: {
+                                    show:false,
+                                    fontFamily:'Poppins',
+                                    fontWeight:700,
+                                    fontSize:15,
+                                    position: 'right',
+                                    formatter: function (e){
+                                        return "{c} HNL".replace('{c}',ValorMoneda(e.value));
+                                    }
+                                }
+                            },
+                            barWidth:20,
+                            barCategoryGap:'10%',
+                            barGap:'10%'
+                        },
+                        {
+                            name:'Cantidad de\nContratos',
+                            type:'line',
+                            //yAxisIndex: 1,
+                            data:datos.resultados.cantidadProcesos.reverse(),
+                            symbol: 'circle',
+                            symbolSize: 10,
+                            lineStyle: {
+                                normal: {
+                                    color:ObtenerColores('Pastel1')[9],
+                                    width: 4/*,
+                                    type: 'dashed'*/
+                                }
+                            },
+                            itemStyle:{
+                                color: ObtenerColores('Pastel1')[9]
+                            },
+                            xAxisIndex: 0,
+                            yAxisIndex: 1
+                        }
+                    ],
+                    grid:{
+                        right:'10%',
+                        left:0,
+                        top:100
+                    },
+                    tooltip:{
+                        position:['0%','50%']
+                    }
+                }
+            }
+
+        ]
+        
+    };
+    grafico.setOption(opciones, true);
+
+    
+    window.addEventListener("resize", function(){
+        grafico.resize();
+    });
+}).fail(function() {
+    
+});
+    
 }

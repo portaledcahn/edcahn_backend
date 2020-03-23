@@ -16,7 +16,7 @@ var defaultMoneda='HNL';
 
 var meses=['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-function ObtenerMes(numero){
+function ObtenerMesNombre(numero){
     numero=ObtenerNumero(numero);
     if(numero > 0 && numero < 13){
         return meses[numero - 1];
@@ -37,7 +37,7 @@ function DebugFecha(){
 function ObtenerColores(paleta){
     var Paletas={
         'Basica':['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED','#6569CC'],
-        'Pastel1':['#285189','#04869C','#4F3B78','#9E0B28','#DA517A','#0B3C77','#DA517A','#DA517A','#DA517A','#DA517A'],
+        'Pastel1':['#285189','#04869C','#4F3B78','#9E0B28','#DA517A','#45B4E7','#0B3C77','#F79A6A','#AD61ED','#6569CC'],
         'Pastel2':['#82CCB5','#DD86B9','#FFF68F','#F9B48A','#F497AA','#B6D884','#6BCADE','#71ABDD','#FDCD7B','#9977B4'],
         'Pastel3':['#9DDAEC','#F29AC0','#FEDDB4','#FFAAA5','#C1ACD3','#B9DB9F','#B0DDD6','#DCEDC1','#EDEEA2','#FF8B94']
     }

@@ -49,12 +49,19 @@
             </div>
             <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-4 ">
-                        <div class="cajonSombreado">
+                        <div class="cajonSombreado minAlto_400">
                               <!--<div class="tituloGrafico">
                               <h4 class="titularCajonSombreado textoAlineadoCentrado">Instituciones Compradoras</h4>
+                               <h4 class="titularCajonSombreado textoAlineadoCentrado">Cantidad de Contratos por Instiución</h4>
                               </div>-->
-                              <div class="contenedorGrafico">
-                              <div class="grafico minAlto_400" id="PesosContratos"  style="min-height: 500px;text-align: center;">
+                              <div class="contenedorGrafico" id="VisualizacionGeneral" style="position: relative;">
+                              <div class="grafico visualizacion textoAlineadoCentrado" id="FechasSeleccion" >
+                              </div>
+                             
+                              <div class="grafico visualizacion mt-2 " id="ContratosGenerales"  style="min-height: 500px;text-align: center;position: relative;">
+                              </div>
+                              
+                              <div class="grafico visualizacion " id="PesosContratos"  style="min-height: 500px;text-align: center;position: relative;display: none;">
                               
                               </div>
                               </div>
@@ -75,5 +82,16 @@
 {% block script_content %}
 <script src="{% static 'plugins/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
 <script src="{% static 'plugins/echarts-4.2.1/dist/echarts.min.js' %}"></script>
+<script src="{% static 'plugins/d3.v3/d3.v3.min.js' %}"></script>
+<script src="{% static 'plugins/d3.v3/underscore-min.js' %}"></script>
+<script src="{% static 'plugins/d3.v3/moment.min.js' %}"></script>
+<script src="{% static 'plugins/d3.v3/convert_entidad.js' %}"></script>
+<script src="{% static 'plugins/d3.v3/distritos.js' %}"></script>
+<script src="{% static 'js/codigoDNCP.js' %}"></script>
+<link rel="stylesheet" href="{% static 'plugins/d3.v3/custom.css' %}">
+
+
+
+
 <script src="{% static 'js/pesosContratos.js' %}"></script>
 {% endblock %}

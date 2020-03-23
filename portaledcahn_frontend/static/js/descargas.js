@@ -317,7 +317,7 @@ function ObtenerResultadosFiltrados(){
   return descargasGenerales.filter(function(elemento){
     var termino=$('#'+selector+'Buscar').val().trim().replace(/ +/g,' ');
     if(ValidarCadena(termino)){
-      return (ContenerCadena(elemento.fuente,termino)||ContenerCadena(elemento.fecha,termino)||ContenerCadena(elemento.publicador,termino)||ContenerCadena(ObtenerMes(elemento.mes),termino));
+      return (ContenerCadena(elemento.fuente,termino)||ContenerCadena(elemento.fecha,termino)||ContenerCadena(elemento.publicador,termino)||ContenerCadena(ObtenerMesNombre(elemento.mes),termino));
 
     }else{
       return true;
@@ -340,7 +340,7 @@ function AgregarResultados(pagina){
         $('<div>',{class:'contenedorFechaDescarga fondoColorSecundario'}).append(
          
           $('<span>',{class:'fechaAnoDescarga textoColorBlanco',text:descarga.fecha}),
-          $('<span>',{class:'fechaMesDescarga textoColorBlanco',html: ObtenerMes(descarga.mes)})
+          $('<span>',{class:'fechaMesDescarga textoColorBlanco',html: ObtenerMesNombre(descarga.mes)})
         ),
         $('<div>',{class:'contenedorPropiedadesDescarga'}).append(
           $('<div>',{class:'row'}).append(

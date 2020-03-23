@@ -22,15 +22,16 @@ var filtrosAplicables={
   var traducciones={
     'goods':{titulo: 'Suministro de Bienes y/o Servicios'/*'Bienes y provisiones'*/,descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
-    'services':{titulo: 'Consultorías'/*'Servicios'*/,descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
-    'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'},
+    'services':{titulo: 'Servicios'/*'Servicios'*/,descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
+    'consultingServices':{titulo:'Consultorías',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'},
     'tender':{titulo:/*'Licitación' */'Desde Elaboración hasta Evaluación',descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'},
     'awards':{titulo:'Adjudicado'/*'Licitación'*/ ,descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'},
     'contracts':{titulo:'Contrato',descripcion:'Da información sobre los detalles de un contrato que ha entrado, o entrará, en vigencia. La sección de licitación puede ser poblada con detalles del proceso que lleva al contrato, y la sección de adjudicación puede tener detalles sobre la adjudicación sobre la '},
     'planning':{
         titulo:'Planeación',
         descripcion:'Se propone o planea un proceso de contratación. La información en la sección de licitación describe el proceso propuesto. El campo tender.status debe de usarse para identificar si la planeación está en una etapa temprana o si hay planes detallados para una licitación.'
-    }
+    },
+    'goodsOrServices':{titulo:'Bienes y/o Servicios',descripcion:''}
 
   }
   window.onpopstate = function(e){
@@ -970,6 +971,60 @@ function TiempoPromedioEtapas(){
     OcultarReloj('#tiempoPromedioEtapas');
     console.dir('TIEMPOS POR ETAPA');
     console.dir(datos);
+    var resultados=[]
+    if(datos&&datos.resultados){
+        $.each(datos.resultados,function(tipocontrato,modalidad){
+            $.each(modalidad,function(llave,valor){
+                resultados.push({
+                    'tipoContrato':tipocontrato,
+                    'modalidad':llave,
+                    promedioDiasIniciarContrato:  ObtenerNumero(valor.promedioDiasIniciarContrato),
+                    promedioDiasLicitacion: ObtenerNumero(valor.promedioDiasLicitacion)
+                });
+            });
+        });
+    }
+    var seriesGrafico=[];
+    var ejeY=[]
+    resultados.forEach(function(valor){
+        ejeY.push(
+            (traducciones[valor.tipoContrato]?traducciones[valor.tipoContrato].titulo:valor.tipoContrato) +' | '+valor.modalidad
+        );
+        seriesGrafico.push(
+            {
+                name:  (traducciones[valor.tipoContrato]?traducciones[valor.tipoContrato].titulo:valor.tipoContrato) +' | '+valor.modalidad,
+                type: 'bar',
+                stack: 'Tiempo',
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'insideRight'
+                    }
+                },
+                data: [Math.round( ObtenerNumero(valor.promedioDiasLicitacion)),Math.round( ObtenerNumero(valor.promedioDiasIniciarContrato))],
+                itemStyle:{
+                    color: ObtenerColores('Pastel1')[3]
+                }
+
+                
+            }
+        );
+    });
+
+
+    /*
+    {
+            name: '直接访问',
+            type: 'bar',
+            stack: '总量',
+            label: {
+                show: true,
+                position: 'insideRight'
+            },
+            data: [320, 302, 301, 334, 390, 330, 320]
+        },
+    */
+    console.dir(resultados);
     var grafico=echarts.init(document.getElementById('tiempoPromedioEtapas'));
     var opciones ={
         baseOption:{
@@ -989,9 +1044,11 @@ function TiempoPromedioEtapas(){
                 containLabel: true
             },
             legend: {
-                plain: 'scroll',
+                /*plain: 'scroll',
                 orient: 'horizontal',
-                position:'bottom',
+                position:'bottom',*/
+                //data: ['Periodo de invitación – recepción de ofertas', 'Periodo de Evaluación – Adjudicación - Contratación']
+                /*
                 formatter:function(e){
                     valores={
                         'Período de Licitación':Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion)),
@@ -999,7 +1056,7 @@ function TiempoPromedioEtapas(){
 
                     }
                     return e+', '+valores[e]+' Días';
-                }
+                }*/
                 /*right: 10,
                 top: 20,
                 bottom: 20*//*,
@@ -1018,53 +1075,74 @@ function TiempoPromedioEtapas(){
             },
             yAxis: {
                 type: 'category',
-                data: ['']
+                data: ejeY,
+                axisLabel: {
+                    formatter: function(e){
+                        return '{valor|' + e.split(' | ')[0] + ' }\n{value|' + e.split(' | ')[1] + '}'
+                        
+                    },
+                    rich: {
+                        value: {
+                        },
+                        valor:{
+                            fontWeight:'bold'
+                        }
+                    }
+                }
             },
-            series: [
+            series:[
                 {
-                    name: 'Período de Licitación',
+                    name:  'Periodo de invitación – recepción de ofertas',
                     type: 'bar',
                     stack: 'Tiempo',
                     label: {
                         normal: {
                             show: true,
-                            position: 'insideRight'
+                            position: 'insideLeft'
                         }
                     },
-                    data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion))],
+                    data: resultados.map(function(e){
+                        return Math.round( ObtenerNumero(e.promedioDiasLicitacion));
+                    }) ,
                     itemStyle:{
-                        color: ObtenerColores('Pastel1')[3]
+                        color: ObtenerColores('Pastel1')[4]
                     }
     
                     
                 },
                 {
-                    name: 'Período de Inicio Contrato',
+                    name:  'Periodo de Evaluación – Adjudicación - Contratación',
                     type: 'bar',
                     stack: 'Tiempo',
                     label: {
                         normal: {
                             show: true,
-                            position: 'insideRight'
+                            position: 'insideLeft'
                         }
                     },
-                    data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))],
+                    data: resultados.map(function(e){
+                        return Math.round( ObtenerNumero(e.promedioDiasIniciarContrato));
+                    }),
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[1]
                     }
+    
+                    
                 }
+                
+                
             ],
             label:{
                 show:true,
                 fontFamily:'Poppins',
-                fontWeight:700,
-                fontSize:25,
-                align:'right',
+                fontWeight:600,
+                fontSize:13,
+                //align:'right',
                 formatter: function (e){
                     return "{c} Días".replace('{c}',e.value);
                 }
             }
-        },
+        }/*,
         media:[
             {
                 query:{
@@ -1110,7 +1188,7 @@ function TiempoPromedioEtapas(){
                     }
                 }
             }
-        ]
+        ]*/
         
     };
     grafico.setOption(opciones, true);
