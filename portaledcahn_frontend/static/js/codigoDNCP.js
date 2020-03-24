@@ -13,7 +13,7 @@ function MostrarContratosInstitucion(todos,inicio) {
 		$('html,body').animate({ scrollTop: $('#PesosContratos').position().top}, 'slow');
 	}
 	
-    $.get(api + "/compradores/" + encodeURIComponent(filtros.institucion) + '/contratos',{tid:'id',year:filtros.año,dependencias:1,pagina:1,paginarPor: todos?99999:250,ordenarPor:'desc(montoCon)'}).done(function(datos) {
+    $.get(api + "/compradores/" + encodeURIComponent(filtros.institucion) + '/contratos',{tid:'id',year:filtros.año,dependencias:1,pagina:1,paginarPor: todos?99999:300,ordenarPor:'desc(montoCon)'}).done(function(datos) {
         console.dir('DATOS JSON COMRPADOR')
        
 		console.dir(datos)
@@ -112,7 +112,7 @@ var width2 = 960,
 	padding = 1, 
 	legendRectSize = 18;
 	legendSpacing = 4;
-    var maximoBurbujas = 250;
+    var maximoBurbujas = 300;
     var nodes, labels;
 var chart = null, force = null, dataChart2, dataChart2Complete, tiposDeProcedimiento, categorias;
 var padding = 5;
@@ -199,12 +199,12 @@ var initForce = function(datos) {
 		
 		// escalar el monto segun la moneda
 		var montoEscalable;
-		if (datos.contratos[j]._moneda == "PYG") {
+		//if (datos.contratos[j]._moneda == "PYG") {
 			montoEscalable = datos.contratos[j].monto_adjudicado;
-		} else {
+		/*} else {
 			var anio = m.year();
 			montoEscalable = datos.contratos[j].monto_adjudicado * anioCambio[anio];
-		}
+		}*/
 		
 		//datos.contratos[j].r = rScale(datos.contratos[j].monto_adjudicado);
 		datos.contratos[j].r = rScale(montoEscalable);
@@ -457,7 +457,7 @@ function clickBubble(d) {
 function getCenters (vname, size,datos) {
     var centersByDay, groups, centers;
     if(vname === 'dia'){
-        centersByDay = getCentersByDay(size);
+		centersByDay = getCentersByDay(size);
         //centers = centersByDay;
         centers = _.map(centersByDay, function(c){
          return {name: c.name, value: 1, dia: c.dia, x: c.x, y: c.y + 100, dx: c.dx, dy: c.dy }
@@ -479,9 +479,9 @@ function getCenters (vname, size,datos) {
 
 function getCentersByDay (size){
     var centers, map;
-    var circulitos;
-
-    centers = _.range(365).map(function (d) { //A
+	var circulitos;
+	var filtros=ObtenerJsonFiltrosAplicados({});
+    centers = _.range(EsBiciesto(filtros.año)?366:365).map(function (d) {
             return {name: d, value: 1, dia:d};
     });
 
@@ -493,15 +493,17 @@ function getCentersByDay (size){
 
 /* Funcion para agrupar las burbujas hacia su centro */
 function tick (centers, varname,datos) {
-    //console.log(centers);
+	//console.log(centers);
+	
+	//console.dir(datos.contratos)dia
     var foci = {}; // Making an object here for quick look-up
     for (var i = 0; i < centers.length; i++) {
       foci[centers[i].name] = centers[i];
     }
     return function (e) { //A
       for (var i = 0; i < datos.contratos.length; i++) {
-        var o = datos.contratos[i];
-        var key = (varname === 'dia') ? o[varname] : o.dia.toString() + o[varname];
+		var o = datos.contratos[i];
+        var key = (varname === 'dia') ?( o[varname]) : o.dia.toString() + o[varname];
         var f = foci[key];
         if(!f){
             console.log(o);
@@ -606,7 +608,7 @@ var initChart = function(nivel, rScale,datos) {
 		right : 200,
 		bottom : 0,
 		left : 20
-	}, width = 700;
+	}, width = 900;
 
 	var start_year = 1, end_year = 12;
 
