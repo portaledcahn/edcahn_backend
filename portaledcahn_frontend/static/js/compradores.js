@@ -131,6 +131,7 @@
     EliminarEventoModalDescarga('descargaXlsxCompradores');
     parametros['tid']='id';
     $.get(api+"/compradores",parametros).done(function( datos ) {
+
       console.dir(datos);
     
       AgregarResultados(datos,'#resultadosCompradores');
@@ -411,11 +412,14 @@
     });
   }
   function ObtenerDescargaCompradores(resultados){
-    var parametros=ObtenerFiltros();
+    var datos={'resultados':resultados};
+    /*var parametros=ObtenerFiltros();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items'];
     parametros['tid']='id';
     $.get(api+"/compradores",parametros).done(function( datos ) {
+
+*/
       console.dir('Descargas Compradores')
       console.dir(datos);
     
@@ -468,11 +472,11 @@
         DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Compradores');
       });
     
-      
+     /* 
     }).fail(function() {
-        /*Error de Conexion al servidor */
+       
         console.dir('error de api descargas');
         
-      });
+      });*/
     
   }

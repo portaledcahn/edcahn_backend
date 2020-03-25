@@ -26,4 +26,5 @@ urlpatterns = [
     path('indicadoresProcesosPago/', frontend_views.IndicadoresProcesosPago),
     path('descargar/<str:file>/', frontend_views.DescargarArchivo),
     path('pesosContratos/', frontend_views.pesosContratos),
+    path('pesosContratosEmbed/', frontend_views.pesosContratosEmbed),
 ]

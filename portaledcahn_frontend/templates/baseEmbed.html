@@ -29,14 +29,12 @@
 
     </head>
    <body>
-       {% include "nav.html" %}
 
        {% block container %}
        {% endblock %}
 
        
        
-{% if request.path != '/tableroProcesosContratacion/' and request.path != '/indicadoresProcesosContratacion/' and request.path != '/tableroProcesosPago/' %}{% include "footer.html" %}{% endif %}
 
       <script type="text/javascript" src="{% static 'plugins/intro.js-2.9.3/intro.min.js' %}"></script>
       <script type="text/javascript" src="{% static 'js/polyfill.js' %}"></script>

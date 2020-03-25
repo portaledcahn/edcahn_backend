@@ -319,12 +319,13 @@ $.get(api+"/proveedores",parametros).done(function( datos ) {
   });
 }
 function ObtenerDescargaProveedores(resultados){
-  var parametros=ObtenerFiltros();
+var datos={'resultados':resultados};
+  /*var parametros=ObtenerFiltros();
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items'];
   $.get(api+"/proveedores",parametros).done(function( datos ) {
     console.dir('Descargas Proveedores')
-    console.dir(datos);
+    console.dir(datos);*/
   
     AgregarEventoModalDescarga('descargaJsonProveedores',function(){
       var descarga=datos.resultados.map(function(e){
@@ -375,12 +376,12 @@ function ObtenerDescargaProveedores(resultados){
       DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Proveedores');
     });
   
-    
+    /*
   }).fail(function() {
-      /*Error de Conexion al servidor */
+      
       console.dir('error de api descargas');
       
-    });
+    });*/
   
 }
 

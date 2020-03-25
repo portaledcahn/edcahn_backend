@@ -319,10 +319,11 @@ $.get(api+"/proveedores-sefin",parametros).done(function( datos ) {
   });
 }
 function ObtenerDescargaProveedores(resultados){
-  var parametros=ObtenerFiltros();
+  var datos={'resultados':resultados};
+  /*var parametros=ObtenerFiltros();
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items'];
-  $.get(api+"/proveedores-sefin/",parametros).done(function( datos ) {
+  $.get(api+"/proveedores-sefin/",parametros).done(function( datos ) {*/
     console.dir('Descargas Proveedores')
     console.dir(datos);
   
@@ -375,12 +376,12 @@ function ObtenerDescargaProveedores(resultados){
       DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Proveedores');
     });
   
-    
+    /*
   }).fail(function() {
-      /*Error de Conexion al servidor */
+     
       console.dir('error de api descargas');
       
-    });
+    });*/
   
 }
 

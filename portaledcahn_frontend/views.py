@@ -327,6 +327,8 @@ def IndicadoresProcesosPago(request):
     return render(request,'indicadoresProcesosPago/indicadoresProcesosPago.html')
 def pesosContratos(request):
     return render(request,'pesosContratos/pesosContratos.html')
+def pesosContratosEmbed(request):
+    return render(request,'pesosContratos/pesosContratosEmbed.html')
 
 
 def verificarOperador(filtro):

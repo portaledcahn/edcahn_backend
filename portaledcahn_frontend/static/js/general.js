@@ -16,6 +16,11 @@ var defaultMoneda='HNL';
 
 var meses=['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
+/**
+ * Obtiene el nombre de un mes, recibiendo el numero del mes 
+ * @constructor
+ * @param {string} numero - EL numero del mes empezando por 01 hasta 12.
+ */
 function ObtenerMesNombre(numero){
     numero=ObtenerNumero(numero);
     if(numero > 0 && numero < 13){
@@ -25,15 +30,29 @@ function ObtenerMesNombre(numero){
     }
 
 }
+/**
+ * Inicializa el tour con INTRO JS 
+ * @constructor
+ */
 function MostrarIntroduccion(){
     introJs().setOption("nextLabel", "Siguiente").setOption("prevLabel", "Atras").setOption("skipLabel", "SALTAR").setOption("doneLabel", "LISTO").start();
 }
+
+/**
+ * Imprime un momento de la fecha, util para verificar tiempos 
+ * @constructor
+ */
 function DebugFecha(){
     let d =new Date();
     let fecha=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()+':'+d.getMilliseconds();
     console.dir(fecha);
 }
 
+/**
+ * Obtiene un arreglo de las paletas de colores creadas en base a un nombre 
+ * @constructor
+ * @param {string} paleta - El nombre de la plateta que se desea obtener.
+ */
 function ObtenerColores(paleta){
     var Paletas={
         'Basica':['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED','#6569CC'],
@@ -44,6 +63,11 @@ function ObtenerColores(paleta){
     return Paletas[paleta?paleta:'Basica'];
 }
 
+/**
+ * Obtiene una de las paletas de colores creadas en base a un nombre 
+ * @constructor
+ * @param {string} paleta - El nombre de la plateta que se desea obtener.
+ */
 function VerificarIntroduccion(variable,veces){
     var introduccion=ObtenerCookie(variable);
     if(introduccion===null){
@@ -58,9 +82,40 @@ function VerificarIntroduccion(variable,veces){
     }
 }
 
+/**
+ * Parte una cadena de texto por limite de caracteres, buscando el  ultimo espacio o el ultimo salto de linea 
+ * @constructor
+ * @param {string} cadena - La cadena que se desea obtener.
+ * @param {string} limite - Limite de carácteres por linea.
+ */
+function ObtenerParrafo(cadena,limite){
+    var parrafo = ''; 
+    var subCadena = cadena;
+    while (subCadena.length > limite) {
+        var c = subCadena.substring(0,limite);
+        limiteLinea = c.lastIndexOf(' ');
+        var limiteLinea2 =c.lastIndexOf('\n');
+        if (limiteLinea2 != -1) {limiteLinea = limiteLinea2;}
+        if (limiteLinea == -1) {limiteLinea = limite;}
+        parrafo += c.substring(0,limiteLinea) + '\n';
+        subCadena = subCadena.substring(limiteLinea+1);
+    }
+    return parrafo + subCadena;
+}
+
+/**
+ * Elimina una cookie
+ * @constructor
+ * @param {string} nombre - nombre de la cookie a eliminar.
+ */
 function EliminarCookie(nombre){
     document.cookie=nombre+'=;path=/;Max-Age=0';
 }
+/**
+ * Obtiene el valor de una cookie, si no se encuentra se devuelve null
+ * @constructor
+ * @param {string} nombre - nombre de la cookie a obtener.
+ */
 function ObtenerCookie(nombre){
     var vs = document.cookie.split(';');
     if(vs.length>0){
@@ -73,6 +128,13 @@ function ObtenerCookie(nombre){
     }
     return null;
 }
+
+
+/**
+ * Obtiene el valor de una cookie, si no se encuentra se devuelve null
+ * @constructor
+ * @param {string} nombre - nombre de la cookie a obtener.
+ */
 function DefinirCookie(nombre,valor,dias){
 
     document.cookie = nombre+'='+valor+'; path=/; expires='+ObtenerDuracionCookie(dias ? dias : 40);
@@ -102,6 +164,16 @@ function ObtenerFecha(texto,tipo){
     }else{
         return '';
     }
+}
+
+function EsBiciesto(ano){
+    if(ano){
+        ano=Number(ano);
+        return (((ano%4===0)&&(ano%100!==0))||(ano%400===0));
+    }else{
+        return false;
+    }
+    
 }
 
 function ObtenerMes(texto){
@@ -150,7 +222,7 @@ function SanitizarId(texto){
 }
 function reemplazarValor(texto,nombre,reemplazo)
 {   
-    let regular=new RegExp(nombre, "g");;
+    var regular=new RegExp(nombre, "g");
     while(regular.test(texto)){
       texto=texto.replace(nombre,reemplazo);
     }
