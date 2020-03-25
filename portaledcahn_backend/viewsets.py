@@ -482,8 +482,14 @@ class Index(APIView):
 
 		diccionario_proveedores = []
 		dfProveedores = pd.DataFrame(resultsSEFIN.aggregations.contratos.proveedores_sefin.to_dict()["buckets"])
-		dfProveedores = dfProveedores.append(resultsONCAE.aggregations.contratos.proveedores_oncae.to_dict()["buckets"])
-		cantidad_proveedores = dfProveedores['key'].nunique()
+		
+		if resultsONCAE.aggregations.contratos.proveedores_oncae.to_dict()["buckets"]:
+			dfProveedores = dfProveedores.append(resultsONCAE.aggregations.contratos.proveedores_oncae.to_dict()["buckets"])
+		
+		if not dfProveedores.empty:
+			cantidad_proveedores = dfProveedores['key'].nunique()
+		else:
+			cantidad_proveedores = 0
 
 		# dfProveedores.to_csv(r'proveedores.csv', sep='\t', encoding='utf-8')
 
