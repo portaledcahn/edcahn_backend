@@ -23,21 +23,7 @@ class DSEPaginator(Paginator):
 
 # Create your views here.
 def Inicio(request):
-    data = documents.DataDocument.search()
-
-    results = data.aggs\
-                .metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
-                .aggs\
-                .metric('distinct_buyers', 'cardinality', field='data.compiledRelease.contracts.buyer.id.keyword')\
-                .aggs\
-                .metric('distinct_contracts', 'cardinality', field='data.compiledRelease.contracts.id.keyword')\
-                .execute()
-
-    context = {
-        "distinct_contracts": results.aggregations.distinct_contracts.value,
-        "distinct_buyers": results.aggregations.distinct_buyers.value,
-        "distinct_suppliers": results.aggregations.distinct_suppliers.value
-    }
+    context = {}
 
     return render(request,'inicio/inicio.html', context)
 

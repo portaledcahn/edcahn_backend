@@ -28,9 +28,18 @@ from django.utils.functional import LazyObject
 from django.conf import settings
 from django.http import Http404, StreamingHttpResponse, HttpResponse, HttpResponseServerError
 from itertools import chain
-from flatten_json import flatten
 
 import ocds_bulk_download
+
+def ElasticSearchDefaultConnection():
+	url = settings.ELASTICSEARCH_DSL_HOST
+	usuario = settings.ELASTICSEARCH_USER
+	contrasena = settings.ELASTICSEARCH_PASS
+	tiempo = settings.ELASTICSEARCH_TIMEOUT
+
+	cliente = Elasticsearch(url, timeout=tiempo, http_auth=(usuario, contrasena))
+
+	return cliente
 
 class BasicPagination(pagination.PageNumberPagination):
     page_size_query_param = 'limit'
@@ -356,7 +365,7 @@ class GetRecord(APIView):
 class RecordAPIView(APIView):
 
 	def get(self, request, format=None):
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='edca')
 		results = s[0:10].execute()
 
@@ -367,7 +376,7 @@ class RecordAPIView(APIView):
 class RecordDetail(APIView):
 
 	def get(self, request, pk=None, format=None):
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='edca')
 		s = s.filter('match_phrase', doc__ocid__keyword=pk)
 
@@ -390,7 +399,7 @@ class Index(APIView):
 		precision = 40000
 		sourceSEFIN = 'HN.SIAFI2'
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=120)
+		cliente = ElasticSearchDefaultConnection()
 
 		oncae = Search(using=cliente, index='edca')
 		sefin = Search(using=cliente, index='edca')
@@ -473,8 +482,14 @@ class Index(APIView):
 
 		diccionario_proveedores = []
 		dfProveedores = pd.DataFrame(resultsSEFIN.aggregations.contratos.proveedores_sefin.to_dict()["buckets"])
-		dfProveedores = dfProveedores.append(resultsONCAE.aggregations.contratos.proveedores_oncae.to_dict()["buckets"])
-		cantidad_proveedores = dfProveedores['key'].nunique()
+		
+		if resultsONCAE.aggregations.contratos.proveedores_oncae.to_dict()["buckets"]:
+			dfProveedores = dfProveedores.append(resultsONCAE.aggregations.contratos.proveedores_oncae.to_dict()["buckets"])
+		
+		if not dfProveedores.empty:
+			cantidad_proveedores = dfProveedores['key'].nunique()
+		else:
+			cantidad_proveedores = 0
 
 		# dfProveedores.to_csv(r'proveedores.csv', sep='\t', encoding='utf-8')
 
@@ -515,7 +530,7 @@ class Buscador(APIView):
 		if metodo not in ['proceso', 'contrato', 'pago']:
 			metodo = 'proceso'
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 
@@ -800,7 +815,7 @@ class Proveedores(APIView):
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 
@@ -1032,7 +1047,7 @@ class ProveedoresSEFIN(APIView):
 
 		size = 30000
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='transaction')
 
@@ -1257,7 +1272,7 @@ class Proveedor(APIView):
 
 	def get(self, request, partieId=None, format=None):
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='edca')
 
 		qPartieId = Q('match_phrase', doc__compiledRelease__parties__id__keyword=partieId) 
@@ -1294,7 +1309,7 @@ class ContratosDelProveedor(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='contract')
 
 		qPartieId = Q('match_phrase', suppliers__id=partieId) 
@@ -1484,7 +1499,7 @@ class PagosDelProveedor(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='contract')
 
 		#Filtros
@@ -1648,7 +1663,7 @@ class ProductosDelProveedor(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='contract')
 
 		s.aggs.metric('productos','nested', path='items')
@@ -1806,7 +1821,7 @@ class Compradores(APIView):
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		
 		s = Search(using=cliente, index='edca')
 
@@ -2123,7 +2138,7 @@ class Comprador(APIView):
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='edca')
 
 		partieId = urllib.parse.unquote_plus(partieId)
@@ -2205,7 +2220,7 @@ class ProcesosDelComprador(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='edca')
 
 		#Mostrando 
@@ -2459,7 +2474,7 @@ class ContratosDelComprador(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='contract')
 
 		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
@@ -2694,7 +2709,7 @@ class PagosDelComprador(APIView):
 		start = (page-1) * paginarPor
 		end = start + paginarPor
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 		s = Search(using=cliente, index='contract')
 
 		#Filtros
@@ -2878,7 +2893,7 @@ class FiltrosDashboardSEFIN(APIView):
 		masinstituciones = request.GET.get('masinstituciones', '')
 		masproveedores = request.GET.get('masproveedores', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3019,7 +3034,7 @@ class GraficarCantidadDePagosMes(APIView):
 				"promedio_pagos": 0
 			}
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3140,7 +3155,7 @@ class GraficarMontosDePagosMes(APIView):
 				"promedio_pagos": 0
 			}
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3249,7 +3264,7 @@ class EstadisticaMontoDePagos(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='transaction')
 		ss = Search(using=cliente, index='transaction')
@@ -3345,7 +3360,7 @@ class EstadisticaCantidadDePagos(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3428,7 +3443,7 @@ class TopCompradoresPorMontoPagado(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3514,7 +3529,7 @@ class TopProveedoresPorMontoPagado(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3600,7 +3615,7 @@ class TopObjetosDeGastoPorMontoPagado(APIView):
 		fuentefinanciamiento = request.GET.get('fuentefinanciamiento', '')
 		proveedor = request.GET.get('proveedor', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='transaction')
 
@@ -3684,7 +3699,7 @@ class EtapasPagoProcesoDeCompra(APIView):
 		institucion = request.GET.get('institucion', '')
 		anio = request.GET.get('año', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 
@@ -3977,7 +3992,7 @@ class FiltrosDashboardONCAE(APIView):
 		sistema = request.GET.get('sistema', '')
 		masinstituciones = request.GET.get('masinstituciones', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 		ss = Search(using=cliente, index='contract')
@@ -4549,7 +4564,7 @@ class GraficarProcesosPorCategorias(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 
@@ -4651,7 +4666,7 @@ class GraficarProcesosPorModalidad(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 
@@ -4759,7 +4774,7 @@ class GraficarCantidadDeProcesosMes(APIView):
 				"promedio_procesos": 0
 			}
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 
@@ -4879,7 +4894,7 @@ class EstadisticaCantidadDeProcesos(APIView):
 				"cantidad_procesos": 0,
 			}
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 
@@ -4979,7 +4994,7 @@ class GraficarProcesosPorEtapa(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 
@@ -5088,7 +5103,7 @@ class GraficarMontosDeContratosMes(APIView):
 				"monto_contratos": 0,
 				"cantidad_contratos": 0,			}
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -5304,7 +5319,7 @@ class EstadisticaCantidadDeContratos(APIView):
 				"monto_contratos": 0,
 				"cantidad_contratos": 0,			}
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -5517,7 +5532,7 @@ class EstadisticaMontosDeContratos(APIView):
 				"monto_contratos": 0,
 				"cantidad_contratos": 0,			}
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -5717,7 +5732,7 @@ class GraficarContratosPorCategorias(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -5870,7 +5885,7 @@ class GraficarContratosPorModalidad(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -6029,7 +6044,7 @@ class TopCompradoresPorMontoContratado(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -6220,7 +6235,7 @@ class TopProveedoresPorMontoContratado(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -6411,7 +6426,7 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		pcategoria = request.GET.get('categoria', '')
 		pmodalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
 		ss = Search(using=cliente, index='contract')
@@ -6581,7 +6596,7 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -6744,7 +6759,7 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -6914,7 +6929,7 @@ class IndicadorTopCompradores(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -7133,7 +7148,7 @@ class IndicadorCatalogoElectronico(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		s = s.filter('match_phrase', extra__sources__id='catalogo-electronico')
@@ -7277,7 +7292,7 @@ class IndicadorCompraConjunta(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		s = s.filter('match_phrase', extra__sources__id='catalogo-electronico')
@@ -7421,7 +7436,7 @@ class IndicadorContratosPorModalidad(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -7630,7 +7645,7 @@ class CompradoresPorCantidadDeContratos(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
 		ss = Search(using=cliente, index='contract')
@@ -7805,7 +7820,7 @@ class FiltrosVisualizacionesONCAE(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 
-		cliente = Elasticsearch(settings.ELASTICSEARCH_DSL_HOST, timeout=settings.TIMEOUT_ES)
+		cliente = ElasticSearchDefaultConnection()
 
 		ssFecha = Search(using=cliente, index='contract')
 		sssFecha = Search(using=cliente, index='contract')
