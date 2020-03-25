@@ -25,4 +25,5 @@ urlpatterns = [
     path('indicadoresProcesosContratacion/', frontend_views.IndicadoresProcesosContratacion),
     path('indicadoresProcesosPago/', frontend_views.IndicadoresProcesosPago),
     path('pesosContratos/', frontend_views.pesosContratos),
+    path('pesosContratosEmbed/', frontend_views.pesosContratosEmbed),
 ]

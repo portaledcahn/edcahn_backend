@@ -13,7 +13,7 @@ function MostrarContratosInstitucion(todos,inicio) {
 		$('html,body').animate({ scrollTop: $('#PesosContratos').position().top}, 'slow');
 	}
 	
-    $.get(api + "/compradores/" + encodeURIComponent(filtros.institucion) + '/contratos',{tid:'id',year:filtros.año,dependencias:1,pagina:1,paginarPor: todos?99999:300,ordenarPor:'desc(montoCon)'}).done(function(datos) {
+    $.get(api + "/compradores/" + encodeURIComponent(filtros.institucion) + '/contratos',{tid:'id',year:filtros.año,dependencias:1,pagina:1,paginarPor: todos?todos:250,ordenarPor:'desc(montoCon)'}).done(function(datos) {
         console.dir('DATOS JSON COMRPADOR')
        
 		console.dir(datos)
@@ -55,7 +55,7 @@ function MostrarContratosInstitucion(todos,inicio) {
             });
         }
 
-        initForce({contratos:resultados});
+        initForce({contratos:resultados,cantidad:datos.paginador['total.items']});
     }).fail(function() {
         /*Error de Conexion al servidor */
         console.dir('error de api');
@@ -69,10 +69,20 @@ function MostrarContratosInstitucion(todos,inicio) {
 function MostrarContratosGenerales(){
     $('#ContratosGeneralesGrafico').empty();
     MostrarEspera('#ContratosGenerales',true);
-    var parametros=ObtenerJsonFiltrosAplicados({});
+	var parametros=ObtenerJsonFiltrosAplicados({});
+	
+
+	if(!parametros.año){
+			alerty.toasts('Selecciona un Año', {place: 'top',time:2000});
+			OcultarEspera('#ContratosGenerales');
+			return;
+	}
     $.get(api+"/visualizacionesoncae/instituciones/",{anio:parametros.año}).done(function(datos) {
+
+		if(datos&&datos.resultados&&datos.resultados.length){
+			datos.resultados=datos.resultados.sort(function(a, b){return ((a.nombre > b.nombre) ? 1 : -1);});
+		}
         console.dir('DATOS JSON GENERALES');
-       
         console.dir(datos);
         OcultarEspera('#ContratosGenerales');
         DibujarContratosGenerales(datos.resultados,'Cantidad de Contratos por Institución');
@@ -112,7 +122,7 @@ var width2 = 960,
 	padding = 1, 
 	legendRectSize = 18;
 	legendSpacing = 4;
-    var maximoBurbujas = 300;
+    var maximoBurbujas = 250;
     var nodes, labels;
 var chart = null, force = null, dataChart2, dataChart2Complete, tiposDeProcedimiento, categorias;
 var padding = 5;
@@ -125,10 +135,74 @@ function MostrarVarianteContrato(e){
 	return $(e.currentTarget).attr('mostrar');
 }
 var initForce = function(datos) {
+	//console.dir(datos)
+	if(!datos.contratos[0]){
+		alerty.toasts('No hay Contratos de esta Institución', {place: 'top',time:2000});
+		return;
+	}
 	var selector='PesosContratos';
 	if(!$('#PesosContratosGrafico').length){
         $('#'+selector).append(
 			$('<h4>',{class:'titularCajonSombreado textoAlineadoCentrado mt-2',text:datos.contratos[0].institucion}),
+			$('<div>',{id:'SubTituloGrafico'}),
+			$('<div>',{class:'row'}).append(
+				$('<div>',{class:'col-xs-6 col-sm-4 col-md-4 col-lg-4 col-xl-4'}).append(
+					$('<table>').append(
+						$('<tbody>').append(
+							$('<tr>').append(
+								$('<td>').append(
+									$('<i>',{class:'far fa-check-square textoColorPrimario',style:'font-size:50px'})
+								),
+								$('<td>').append(
+									$('<div>',{
+										style:'padding-left:10px;text-align:left'
+									}).append(
+										$('<b>',{class:'textoColorGrisNormal',text:'Selecciona algún criterio como ser: Contratos, Dependencias, Modalidad de Compra.'})
+									)
+									)
+							)
+						)
+					)
+				),
+					$('<div>',{class:'col-xs-6 col-sm-4 col-md-4 col-lg-4 col-xl-4'}).append(
+						$('<table>').append(
+							$('<tbody>').append(
+								$('<tr>').append(
+									$('<td>').append(
+										$('<i>',{class:'far fa-question-circle textoColorPrimario',style:'font-size:50px'})
+									),
+									$('<td>').append(
+										$('<div>',{
+											style:'padding-left:10px;text-align:left'
+										}).append(
+											$('<b>',{class:'textoColorGrisNormal',text:'Cada círculo representa un contrato, en donde el tamaño está dado por el monto y el color por el tipo de contrato.'})
+										)
+										)
+								)
+							)
+						)
+					),
+						$('<div>',{class:'col-xs-6 col-sm-4 col-md-4 col-lg-4 col-xl-4'}).append(
+							$('<table>').append(
+								$('<tbody>').append(
+									$('<tr>').append(
+										$('<td>').append(
+											$('<i>',{class:'fas fa-mouse-pointer textoColorPrimario',style:'font-size:50px'})
+										),
+										$('<td>').append(
+											$('<div>',{
+												style:'padding-left:10px;text-align:left'
+											}).append(
+												$('<b>',{class:'textoColorGrisNormal',text:'Posicionando el mouse sobre un contrato se pueden ver más detalles y haciendo click se puede ver el proceso de contratación en la sección de este contrato.'})
+											)
+											)
+									)
+								)
+							)
+						)
+			
+			),
+			
 			$('<div>',{class:'metodoBusquedaContenedor mt-3 mb-3 textoAlineadoCentrado visualizacion',style:'width: 100%;max-width: 400px;margin:0 auto',id:"SeleccionContratos"}).append(
 				$('<div>',{class:'btn-group sombraBasica',role:'group','aria-label':'Mostrar Contratos'}).append(
 					$('<a>',{href:'javascript:void(0)',class:'btn btn-primary fondoColorSecundario activo', mostrar:'contratos', on:{
@@ -156,7 +230,7 @@ var initForce = function(datos) {
 				)
 			),
             $('<div>',{id:'PesosContratosGrafico'})
-        )
+        );
     }else{
 		$('#PesosContratosGrafico').empty();
 	}
@@ -179,12 +253,12 @@ var initForce = function(datos) {
 			var test = now.substring(0,10);
 			var m = moment(test);
 			var montoEscalable;
-			if (elem._moneda == "PYG") {
+			//if (elem._moneda == "PYG") {
 				montoEscalable = elem.monto_adjudicado;
-			} else {
+			/*} else {
 				var anio = m.year();
 				montoEscalable = elem.monto_adjudicado * anioCambio[anio];
-			}
+			}*/
 			//return parseInt(elem.monto_adjudicado)
 			return parseInt(montoEscalable)
 		});
@@ -259,7 +333,8 @@ var initForce = function(datos) {
 	    .attr("r", function(d) { return d.r })
 		.style("fill", function(d) {
 			return  ObtenerColor(d.objeto_licitacion);})
-	  	.style("stroke", "black")
+		  .style("stroke", "black")
+		.style("cursor", "pointer")
 		.style("stroke-width", nodeStrokeW)
       	.style("display", function(){ return (datos.contratos.length > maximoBurbujas) ? "none" : "block"; })
       	//.on("mouseover", function (d) { showPopover.call(this, d); })
@@ -290,28 +365,22 @@ var initForce = function(datos) {
     }
 
 
-    var msg = "Mostrando " + datos.contratos.length.toString() + " contratos de un total de " + totalContratos + ".";
-    if(datos.contratos.length < totalContratos){
-        msg += " Ver todos los contratos haciendo click <a id='showAll' href='#'>aquí</a>."
+    var msg = "Mostrando " + datos.contratos.length.toString() + " contratos de un total de " + datos.cantidad + ".";
+    if(datos.contratos.length < datos.cantidad){
+		console.dir(datos.contratos.length)
+		console.dir(datos.cantidad)
+        msg += " Ver todos los contratos haciendo click <a id='MostrarTodos' href='javascript:void(0)'>aquí</a>."
     }
     if(datos.contratos.length > maximoBurbujas){
-        msg += " Ver los " + maximoBurbujas.toString() + " contratos con mayor monto adjudicado haciendo click <a id='showSome' href='#'>aquí</a>."
+        msg += " Ver los " + maximoBurbujas.toString() + " contratos con mayor monto adjudicado haciendo click <a id='MostrarAlgunos' href='javascript:void(0)'>aquí</a>."
     }
-    $('.subTitleChart').remove();
-    $('#titleChart').after('<div class="subTitleChart">'+ msg +'</div>');
-    $('#showAll').click(function(e){
-        e.preventDefault();
-        $("#"+selector+'Grafico').empty();
-        //initForce(true);
-        //loadingSpinner.spin(document.getElementById(selector), {top: '95%'});
-    	obtenerContratosPorEntidad(anioActual, nivelActual, entidadActual, totalContratos);
+    $('.SubTituloGrafico').remove();
+    $('#SubTituloGrafico').html('<div class="SubTituloGrafico tituloFiltrosAplicados textoColorGris" style="font-size:16px;color:#c4c4c4">'+ msg +'</div>');
+    $('#MostrarTodos').unbind().click(function(e){
+        MostrarContratosInstitucion(datos.cantidad,true);
     });
-    $('#showSome').click(function(e){
-        e.preventDefault();
-        $("#"+selector+'Grafico').empty();
-        //initForce(false);
-        //loadingSpinner.spin(document.getElementById(selector), {top: '95%'});
-    	obtenerContratosPorEntidad(anioActual, nivelActual, entidadActual, 250);
+    $('#MostrarAlgunos').unbind().click(function(e){
+		MostrarContratosInstitucion(false,true);
     });
 
 	/* que se grafique en el tree layout con sus centros */
@@ -398,7 +467,7 @@ var objetosDelLlamadoMap = {
 	"TIERRAS" : "#ddd"
 };*/
 var tooltip = d3.select("body").append("div").style("position", "absolute")
-		.style("z-index", "10").style("visibility", "hidden").style("color",
+		.style("z-index", "10").style("visibility", "hidden").style("display", "none").style("color",
 				"white").style("padding", "8px").style("background-color",
 				"rgba(0, 0, 0, 0.75)").style("border-radius", "6px").style(
 				"font", "12px sans-serif").text("tooltip");
@@ -416,23 +485,18 @@ function ObtenerColor(d){
 }
 
 function mouseover(d) {
-	var moneda;
-	if (d._moneda == "USD") {
-		moneda = d._moneda;
-	} else {
-		moneda = "Gs.";
-	}
 	tooltip.html("<strong>Proveedor </strong> " + d.razon_social + "<br>" +
-			"<strong>Llamado </strong> " + d.nombre_licitacion + "<br>" +
-			"<strong>Objeto del llamado </strong> " + d.objeto_licitacion + "<br>" +
-			"<strong>Categoria </strong> " + d.categoria + "<br>" +
-			"<strong>Tipo de procedimiento </strong> " + d.tipo_procedimiento + "<br>" +
-			"<strong>Código de contratación</strong> " + d.codigo_contratacion + "<br>" +
-			"<strong>Fecha firma contrato </strong> " + moment(d.fecha_firma_contrato.split(" ")[0]).format('DD-MM-YYYY') + 
-			"<br><strong>Monto total adjudicado </strong> " + parseInt(d.monto_adjudicado).toLocaleString() + " " + moneda)
-			.style("visibility", "visible");
+			"<strong>Nombre </strong> " + d.nombre_licitacion + "<br>" +
+			"<strong>Tipo de Contrato </strong> " + d.objeto_licitacion + "<br>" +
+			//"<strong>Categoria </strong> " + d.categoria + "<br>" +
+			"<strong>Modalidad de Compra </strong> " + d.tipo_procedimiento + "<br>" +
+			"<strong>Código de contrato</strong> " + d.codigo_contratacion + "<br>" +
+			"<strong>Fecha firma contrato </strong> " + moment(d.fecha_firma_contrato.split(" ")[0]).format('YYYY-MM-DD') + 
+			"<br><strong>Monto</strong> " + ValorMoneda(d.monto_adjudicado)+ " HNL ")
+			.style("visibility", "visible").style("display", "block");
+			//.style("display", "static");
 	//d3.select(this).style("fill-opacity", function(d) { return 0.8; });
-	d3.select(this).style("stroke-width", "2px");
+	d3.select(this).style("stroke-width", "2px")
 }
 
 function mousemove(d) {
@@ -441,7 +505,7 @@ function mousemove(d) {
 }
 
 function mouseout(d) {
-	tooltip.style("visibility", "hidden");
+	tooltip.style("visibility", "hidden").style("display", "none");
 	//d3.select(this).style("fill-opacity", function(d) { return 1; });
 	d3.select(this).style("stroke-width", "0.5px");
 }
@@ -565,29 +629,52 @@ function tick (centers, varname,datos) {
             };
         }).entries(datos);
 
-        data = nestData;
-        console.dir('NEST DATA')
-        console.dir(data)
-        //ObtenerJsonFiltrosAplicados(parametros)
-        /* Para el caso de especial de municipalidades se separa por departamento */
-        var nestDistritos = {};
-        var nestDepartamentos = {};
-        console.dir('NIVEL')
-        console.dir(nivel)
-        initChart(nivel, rScale, nestData);
+        initChart(nivel, rScale, nestData, nestData);
 }
 
 
-var initChart = function(nivel, rScale,datos) {
+var initChart = function(nivel, rScale,datos, datosCompletos) {
     // console.log(data.length);
-    var selector='ContratosGenerales';
-    
+	var selector='ContratosGenerales';
     if(!$('#ContratosGeneralesGrafico').length){
         $('#'+selector).append(
-            $('<h4>',{class:'titularCajonSombreado textoAlineadoCentrado',text:nivel}),
-            $('<div>',{id:'ContratosGeneralesGrafico',style:'overflow-y: auto; height:500px'})
+			$('<h4>',{class:'titularCajonSombreado textoAlineadoCentrado',text:nivel}),
+			
+			$('<div>',{class:'campoAzulBusquedaPadre normal',style:'margin:0 auto; max-width:500px;width:100%;transform:scale(0.8)',id:"contenedorCampoBusqueda"}).append(
+				$('<input>',{class:'form-control form-control-lg campoAzulBusqueda',type:'text',placeholder:'Busca una Institución..',id:'campoBusquedaInstitucion'
+			}),
+				$('<i>',{class:'fas fa-search cursorMano'})
+			),
+            $('<div>',{id:'ContratosGeneralesGrafico',style:'overflow-y: auto; height:500px;overflow-x: auto'})
         )
-    }
+	}
+	
+	$('#campoBusquedaInstitucion').unbind().change(function(e){
+		$('#ContratosGeneralesGrafico').empty();
+					if(ValidarCadena($('#campoBusquedaInstitucion').val().trim())){
+						var filtrados=datosCompletos.filter(function(e){
+							var regular=new RegExp($('#campoBusquedaInstitucion').val().trim().toLowerCase(), "g");
+							return regular.test(e.key.toString().toLowerCase());
+						});
+						if(filtrados.length==0){alerty.toasts('Sin Resultados', {place: 'top',time:2000});}
+						initChart(nivel, rScale,filtrados,datosCompletos);
+					}else{
+						initChart(nivel, rScale,datosCompletos,datosCompletos);
+					}
+	});
+	$('#contenedorCampoBusqueda i').unbind().click(function(e){
+		$('#ContratosGeneralesGrafico').empty();
+					if(ValidarCadena($('#campoBusquedaInstitucion').val().trim())){
+						var filtrados=datosCompletos.filter(function(e){
+							var regular=new RegExp($('#campoBusquedaInstitucion').val().trim().toLowerCase(), "g");
+							return regular.test(e.key.toString().toLowerCase());
+						});
+						if(filtrados.length==0){alerty.toasts('Sin Resultados', {place: 'top',time:2000});}
+						initChart(nivel, rScale,filtrados,datosCompletos);
+					}else{
+						initChart(nivel, rScale,datosCompletos,datosCompletos);
+					}
+	});
 	var cant = datos.length;
 	if (cant == 1 || cant == 2)
 		height = 50 + cant * 55 + 50;
@@ -607,8 +694,8 @@ var initChart = function(nivel, rScale,datos) {
 		top : 20,
 		right : 200,
 		bottom : 0,
-		left : 20
-	}, width = 900;
+		left : 0
+	}, width = 800;
 
 	var start_year = 1, end_year = 12;
 
@@ -628,9 +715,9 @@ var initChart = function(nivel, rScale,datos) {
 	var formatYears = d3.format("0000");
 	xAxis.tickFormat(formatYears);
 
-	var marginleft = margin.left + 320;
+	var marginleft = margin.left + 520;
 	var svg = d3.select("#"+selector+'Grafico').append("svg").style("width",
-			850 + margin.left + margin.right).attr("height",
+			(1250 + margin.left + margin.right)+'px').attr("height",
 			height + margin.top + margin.bottom).style("margin-left",
 			margin.left + "px").append("g").attr("transform",
 			"translate(" + marginleft + "," + margin.top + ")");
@@ -681,10 +768,10 @@ var initChart = function(nivel, rScale,datos) {
 		}).style("display", "none")
 		.on("click", click).on("mouseover", mouseover).on("mouseout", mouseout);
 
-		g.append("text").attr("y", j * 50 + 85).attr("x", -320).attr(
+		g.append("text").attr("y", j * 50 + 85).attr("x", -450).attr(
 				"class", "label")
 		// .text(truncate(data[j]['key'],40,"..."))
-		.text(datos[j]['key']).style("fill", function(d) {
+		.text(/*datos[j]['key']*/ truncate(datos[j]['key'],70,"...")).style("fill", function(d) {
 			return c(j);
 		}).on("click",click).on("mouseover", mouseover).on("mouseout", mouseout);
 	};

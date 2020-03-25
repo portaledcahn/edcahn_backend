@@ -128,6 +128,13 @@ function ObtenerCookie(nombre){
     }
     return null;
 }
+
+
+/**
+ * Obtiene el valor de una cookie, si no se encuentra se devuelve null
+ * @constructor
+ * @param {string} nombre - nombre de la cookie a obtener.
+ */
 function DefinirCookie(nombre,valor,dias){
 
     document.cookie = nombre+'='+valor+'; path=/; expires='+ObtenerDuracionCookie(dias ? dias : 40);
@@ -215,7 +222,7 @@ function SanitizarId(texto){
 }
 function reemplazarValor(texto,nombre,reemplazo)
 {   
-    let regular=new RegExp(nombre, "g");;
+    var regular=new RegExp(nombre, "g");
     while(regular.test(texto)){
       texto=texto.replace(nombre,reemplazo);
     }
