@@ -789,6 +789,36 @@ class Buscador(APIView):
 
 		return Response(context)
 
+class FiltroAniosProveedoresSEFIN(APIView):
+
+	def get(self, request, format=None):
+
+		cliente = ElasticSearchDefaultConnection()
+
+		ss = Search(using=cliente, index='transaction')
+
+		ss.aggs.metric(
+			'anios', 
+			'date_histogram', 
+			field='date', 
+			interval='year', 
+			format='yyyy'
+		)
+
+		resultsYears = ss.execute()
+
+		yearsDict = resultsYears.aggregations.anios.to_dict()["buckets"]
+
+		respuesta = []
+
+		if yearsDict:
+			for y in yearsDict:
+				respuesta.append({"key_as_string": y["key_as_string"]})
+
+		context = {"respuesta": respuesta}
+
+		return Response(context)
+
 class Proveedores(APIView):
 
 	def get(self, request, format=None):
@@ -808,6 +838,7 @@ class Proveedores(APIView):
 		memc = request.GET.get('memc', '')
 		fua = request.GET.get('fua', '')
 		cp = request.GET.get('cp', '')
+		anio = request.GET.get('anio','')
 
 		ordenarPor = request.GET.get('ordenarPor', '')
 		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
@@ -830,6 +861,16 @@ class Proveedores(APIView):
 
 		filtro = Q()
 		filtros = []
+
+		anioActual = str(datetime.date.today().year)
+
+		try:
+			int(anio)
+		except Exception as e:
+			anio = anioActual
+
+		if anio.replace(' ',''):
+			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if nombre.replace(' ',''):
 			q_nombre = '*' + nombre + '*'
@@ -884,12 +925,6 @@ class Proveedores(APIView):
 			s.aggs['proveedores']['filtros']['id']['name']\
 			.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "totales.menor_monto_contratado"}, script=q_memc)
 
-		# Falta el filtro cantidad de procesos
-		# if cp.replace(' ', ''):
-		# 	q_cp = 'params.memc' + cp
-		# 	s.aggs['proveedores']['filtros']['id']['name']\
-		# 	.metric('filtro_totales', 'bucket_selector', buckets_path={"cp": "doc_count"}, script=q_cp)
-
 		search_results = SearchResults(s)
 
 		results = s[start:end].execute()
@@ -927,6 +962,7 @@ class Proveedores(APIView):
 		parametros["memc"] = memc 
 		parametros["fua"] = fua 
 		parametros["cp"] = cp
+		parametros["anio"] = anio
 		parametros["orderBy"] = ordenarPor
 		parametros["paginarPor"] = paginarPor
 
@@ -1039,13 +1075,14 @@ class ProveedoresSEFIN(APIView):
 		memc = request.GET.get('memc', '')
 		fua = request.GET.get('fua', '')
 		cp = request.GET.get('cp', '')
+		anio = request.GET.get('anio','')
 		ordenarPor = request.GET.get('ordenarPor', '')
 		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 
 		start = (page-1) * settings.PAGINATE_BY
 		end = start + settings.PAGINATE_BY
 
-		size = 30000
+		size = 60000
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -1053,6 +1090,16 @@ class ProveedoresSEFIN(APIView):
 
 		filtro = Q()
 		filtros = []
+
+		anioActual = str(datetime.date.today().year)
+
+		try:
+			int(anio)
+		except Exception as e:
+			anio = anioActual
+
+		if anio.replace(' ',''):
+			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if nombre.replace(' ',''):
 			q_nombre = '*' + nombre + '*'
@@ -1075,6 +1122,8 @@ class ProveedoresSEFIN(APIView):
 		s.aggs['proveedores']['id'].metric('menor_monto_contratado', 'avg', field='value.amount')
 		s.aggs['proveedores']['id'].metric('fecha_ultimo_proceso', 'max', field='date')
 		s.aggs['proveedores']['id'].metric('procesos','cardinality', field='extra.ocid.keyword')
+
+		# s.aggs['proveedores']['id'].metric('truncate', 'top_hits', size=10, sort=[{'_doc': 'desc'}])
 
 		if tmc.replace(' ', ''):
 
@@ -1178,6 +1227,7 @@ class ProveedoresSEFIN(APIView):
 		parametros["memc"] = memc 
 		parametros["fua"] = fua 
 		parametros["cp"] = cp
+		parametros["anio"] = anio
 		parametros["orderBy"] = ordenarPor
 		parametros["paginarPor"] = paginarPor
 
