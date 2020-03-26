@@ -2324,11 +2324,12 @@ class ProcesosDelComprador(APIView):
 			filtros.append(filtro)
 
 		if ocid.replace(' ',''):
-			filtro = Q("match", doc__ocid__keyword=ocid)
+			q_ocid = '*{0}*'.format(ocid)
+			filtro = Q("wildcard", doc__compiledRelease__ocid__keyword=q_ocid)
 			filtros.append(filtro)
 
 		if titulo.replace(' ',''):
-			filtro = Q("match", doc__compiledRelease__tender__title=titulo)
+			filtro = Q("match", doc__compiledRelease__tender__title__keyword=titulo)
 			filtros.append(filtro)
 
 		if categoriaCompra.replace(' ',''):
@@ -4075,6 +4076,12 @@ class FiltrosDashboardONCAE(APIView):
 		sssFecha = sssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
 		# Filtros
+
+		#Temporal
+		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+		sFecha = sFecha.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+		ssss = ssss.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
@@ -4629,8 +4636,10 @@ class GraficarProcesosPorCategorias(APIView):
 
 		s = Search(using=cliente, index='edca')
 
+
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -4733,6 +4742,9 @@ class GraficarProcesosPorModalidad(APIView):
 
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		#Temporal
+		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -4841,6 +4853,9 @@ class GraficarCantidadDeProcesosMes(APIView):
 
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		# Temporal 
+		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -4962,6 +4977,9 @@ class EstadisticaCantidadDeProcesos(APIView):
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
 
+		# Temporal 
+		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+
 		# Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
@@ -5061,6 +5079,9 @@ class GraficarProcesosPorEtapa(APIView):
 
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+		# Temporal 
+		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -6495,6 +6516,9 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
 		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+
+		# Temporal 
+		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
 		# Filtros
 		if institucion.replace(' ', ''):
