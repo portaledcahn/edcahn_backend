@@ -455,7 +455,7 @@ function InicializarCantidadProcesos(){
         xAxis: [
             {
                 type: 'category',
-                data: datos.resultados.meses,//['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+                data: datos.resultados.meses,
                 axisPointer: {
                     type: 'shadow'
                 },
@@ -771,8 +771,13 @@ function InicializarMontoProcesos(){
                         return ValorMoneda(e.value)  +' HNL'
                     },
                     fontFamily:'Poppins',
-                    fontWeight:700,
-                    fontSize:15
+                    fontWeight:600,
+                    fontSize:12,
+                    rotate:90,
+                    verticalAlign:'top',
+                    position: ['50%', '0%'],
+                    zIndex:3,
+                    align:'right'
                 },
                 yAxisIndex:1
                 }
@@ -1077,6 +1082,9 @@ function TiempoPromedioEtapas(){
                 type: 'category',
                 data: ejeY,
                 axisLabel: {
+                    interval:0,
+                    showMinLabel:false,
+                    padding:[0,0,0,0],
                     formatter: function(e){
                         return '{valor|' + e.split(' | ')[0] + ' }\n{value|' + e.split(' | ')[1] + '}'
                         
@@ -1099,7 +1107,17 @@ function TiempoPromedioEtapas(){
                         normal: {
                             show: true,
                             position: 'insideLeft'
+                            ,
+                        formatter:function(e){
+                            console.dir(e)
+                            if(e.value==0){
+                                return '';
+                            }else{
+                                return "{c} Días".replace('{c}',e.value);
+                            }
                         }
+                        }
+                        
                     },
                     data: resultados.map(function(e){
                         return Math.round( ObtenerNumero(e.promedioDiasLicitacion));
@@ -1117,7 +1135,15 @@ function TiempoPromedioEtapas(){
                     label: {
                         normal: {
                             show: true,
-                            position: 'insideLeft'
+                            position: 'insideLeft',
+                            formatter:function(e){
+                                console.dir(e)
+                                if(e.value==0){
+                                    return '';
+                                }else{
+                                    return "{c} Días".replace('{c}',e.value);
+                                }
+                            }
                         }
                     },
                     data: resultados.map(function(e){
@@ -1800,7 +1826,10 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                     align: 'right',
                     axisLabel:{
                         interval:0,
-                        rotate:45,
+                        //rotate:45,
+                        formatter:function(e){
+                            return ObtenerParrafo(e,30);
+                        },
                         showMinLabel:false,
                         padding:[0,0,0,0]
                     },
@@ -1834,7 +1863,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
             ],
             grid:{
                 containLabel:true,
-                right:'5%'
+                right:'10%'
             },
             label:{
                 show:true,
@@ -1982,9 +2011,7 @@ var opciones = {
         xAxis: [
             {
                 type: 'value',
-                                /*min: 0,
-                                max: 810,*/
-                                //interval: 100000,
+                
                                 axisLabel: {
                                     formatter: '{value} HNL',
                                     rotate:45,
@@ -2008,7 +2035,10 @@ var opciones = {
                 },
                 axisLabel:{
                     interval:0,
-                    rotate:45,
+                    //rotate:45,
+                    formatter:function(e){
+                        return ObtenerParrafo(e,40);
+                    },
                     showMinLabel:false,
                     padding:[0,0,0,0]
                 }

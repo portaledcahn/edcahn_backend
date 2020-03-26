@@ -715,7 +715,10 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                     },
                     axisLabel:{
                         interval:0,
-                        rotate:45,
+                        //rotate:45,
+                        formatter:function(e){
+                            return ObtenerParrafo(e,30);
+                        },
                         showMinLabel:false,
                         padding:[0,0,0,0]
                     }
@@ -973,7 +976,10 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                     axisPointer: {
                         type: 'shadow'
                     },axisLabel: {
-                        rotate:45
+                        //rotate:45
+                        formatter:function(e){
+                            return ObtenerParrafo(e,30);
+                        }
                     },
                     name:'Catálogo Electrónico'
                     
@@ -1615,7 +1621,10 @@ var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
                     axisPointer: {
                         type: 'shadow'
                     },axisLabel: {
-                        rotate:45
+                        //rotate:45
+                        formatter:function(e){
+                            return ObtenerParrafo(e,30);
+                        }
                     },
                     name:'Compra Conjunta'
                     

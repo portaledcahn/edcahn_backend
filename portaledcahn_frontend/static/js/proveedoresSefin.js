@@ -25,6 +25,13 @@
     $('.fecha').datepicker({
            "dateFormat": 'yy-mm-dd'
        });*/
+       $('#cambioProveedores').change(function(evento){
+        if(evento.currentTarget.checked){
+          location.href='/proveedores_sefin/?pagina=1&paginarPor=5&anio='+ObtenerAnio();
+        }else{
+          location.href='/proveedores/?pagina=1&paginarPor=5&anio='+ObtenerAnio();
+        }
+      });
     var configuracionNumerica={ 
       decimalCharacter:'.',
       decimalPlaces:0,
@@ -43,6 +50,7 @@
       language:'es'
     });*/
     //
+    ObtenerAniosProveedores();
     $('.fecha').mask('0000-00-00');
   
     $('.OpcionFiltroBusquedaNumerico input').on('change',function(evento){
@@ -87,12 +95,12 @@
   var filtrosAPropiedades={
     fua: 'fecha_ultimo_proceso',
     identificacion:'id',
-    mamc:'mayor_monto_contratado',
-    memc:'menor_monto_contratado',
+    mamc:'mayor_monto_pagado',
+    memc:'menor_monto_pagado',
     nombre:'name',
     cp:'procesos',
-    pmc:'promedio_monto_contratado',
-    tmc:'total_monto_contratado'
+    pmc:'promedio_monto_pagado',
+    tmc:'total_monto_pagado'
   };
 
 
@@ -112,16 +120,20 @@
           ),
           $('<td>',{'data-label':'RTN' ,class:'textoAlineadoDerecha'}).text(resultados[i].id),
           $('<td>',{'data-label':'Contratos' ,class:'textoAlineadoCentrado'}).text(ValorNumerico(resultados[i].procesos)),
-          $('<td>',{'data-label':'Total de Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].total_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
-          $('<td>',{'data-label':'Promedio de Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].promedio_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
-          $('<td>',{'data-label':'Mayor Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].mayor_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
-          $('<td>',{'data-label':'Menor Monto Contratado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].menor_monto_contratado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
-          $('<td>',{'data-label':'Fecha de Última Adjudicación' ,class:'textoAlineadoCentrado'}).append(
+          $('<td>',{'data-label':'Total de Monto Pagado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].total_monto_pagado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
+          $('<td>',{'data-label':'Promedio de Monto Pagado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].promedio_monto_pagado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
+          $('<td>',{'data-label':'Mayor Monto Pagado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].mayor_monto_pagado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
+          $('<td>',{'data-label':'Menor Monto Pagado' ,class:'textoAlineadoDerecha'}).append(ValorMoneda(resultados[i].menor_monto_pagado),$('<span>',{class:'textoColorPrimario',text:' HNL'})),
+          $('<td>',{'data-label':'Fecha de Última Transacción' ,class:'textoAlineadoCentrado'}).append(
             $('<span>',{class:resultados[i].fecha_ultimo_proceso&&resultados[i].fecha_ultimo_proceso!='NaT'?'':'textoColorGris' }).text(
               resultados[i].fecha_ultimo_proceso&&resultados[i].fecha_ultimo_proceso!='NaT'?ObtenerFecha(resultados[i].fecha_ultimo_proceso,'fecha'):'No Disponible'
             )
             
-            )
+          ),
+          $('<td>',{'data-label':'Año' ,class:'textoAlineadoCentrado'}).text(ObtenerAnio())
+
+
+          
         )
       )
     }
@@ -163,6 +175,9 @@ function ObtenerFiltros(){
   if(Validar(ObtenerValor('cp'))){
     parametros['cp']=decodeURIComponent(ObtenerValor('cp'));
   }
+  if(Validar(ObtenerValor('anio'))){
+    parametros['anio']=decodeURIComponent(ObtenerValor('anio'));
+  }
   if(Validar(ObtenerValor('ordenarPor'))){
     parametros['ordenarPor']=decodeURIComponent(ObtenerValor('ordenarPor'));
   }
@@ -170,7 +185,7 @@ function ObtenerFiltros(){
 }
 
 function AccederProveedores(opciones,desUrl){
-  var direccion=('/proveedores/?'+
+  var direccion=('/proveedores_sefin/?'+
 
   'pagina='+(opciones.pagina?opciones.pagina:(ObtenerNumero(ObtenerValor('pagina')) ? ObtenerNumero(ObtenerValor('pagina')) : 1))+
   '&paginarPor='+(opciones.paginarPor?opciones.paginarPor:(ObtenerNumero(ObtenerValor('paginarPor')) ? ObtenerNumero(ObtenerValor('paginarPor')) : 5))+
@@ -183,6 +198,7 @@ function AccederProveedores(opciones,desUrl){
   (ValidarCadena(opciones.fua) ? '&fua='+encodeURIComponent(reemplazarValor(opciones.fua,',','')):(ValidarCadena(ObtenerValor('fua'))&&!desUrl?'&fua='+ObtenerValor('fua'):''))+
   (ValidarCadena(opciones.memc) ? '&memc='+encodeURIComponent(reemplazarValor(opciones.memc,',','')):(ValidarCadena(ObtenerValor('memc'))&&!desUrl?'&memc='+ObtenerValor('memc'):''))+
   (ValidarCadena(opciones.cp) ? '&cp='+encodeURIComponent(reemplazarValor(opciones.cp,',','')):(ValidarCadena(ObtenerValor('cp'))&&!desUrl?'&cp='+ObtenerValor('cp'):''))+
+  (ValidarCadena(opciones.anio) ? '&anio='+encodeURIComponent(reemplazarValor(opciones.anio,',','')):(ValidarCadena(ObtenerValor('anio'))&&!desUrl?'&anio='+ObtenerValor('anio'):''))+
   (ValidarCadena(opciones.ordenarPor) ? '&ordenarPor='+encodeURIComponent(opciones.ordenarPor):(ValidarCadena(ObtenerValor('ordenarPor'))&&!desUrl?'&ordenarPor='+ObtenerValor('ordenarPor'):''))
 
   );
@@ -280,13 +296,62 @@ function OrdenFiltro(filtro,orden){
 
   }
 }
+function ObtenerAnio(){
+  var fecha = new Date();
+  var parametros=ObtenerFiltros();
+  if(ObtenerNumero(parametros.anio)){
+    return ObtenerNumero(parametros.anio);
+  }else{
+    return fecha.getFullYear();
+  }
+}
+
+function ObtenerAniosProveedores(){
+
+  $.get(api+"/proveedores-sefin/filtros/",{}).done(function( datos ) {
+    console.dir(datos)
+    if(datos&&datos.respuesta&&datos.respuesta.length){
+      var anios=datos.respuesta.map(function(e){
+        return ObtenerNumero(e.key_as_string);
+      }).sort(function(a, b){
+        return b - a;
+      });
+      anios.forEach(function(elemento){
+        var atributos={value:elemento,text:elemento};
+        if(elemento==ObtenerNumero(ObtenerAnio())){
+          atributos['selected']='selected';
+        }
+        $('.campoFiltrado[filtro="anio"] select').append(
+          $('<option>',atributos)
+        )
+      });
+
+     
+    }else{
+      $('.campoFiltrado[filtro="anio"] select').append(
+        $('<option>',{value:ObtenerAnio(),text:ObtenerAnio()})
+      )
+    }
+
+  }).fail(function() {
+    /*Error de Conexion al servidor */
+    console.dir('error de api');
+    $('.campoFiltrado[filtro="anio"] select').append(
+      $('<option>',{value:ObtenerAnio(),text:ObtenerAnio()})
+    )
+    
+    
+  });
+}
+
 function CargarProveedores(){
 $('#resultadosProveedores').html(
   $('<tr>').append(
-    $('<td>',{style:'height:300px;position:relative',colspan:'8',id:'cargando'})
+    $('<td>',{style:'height:300px;position:relative',colspan:'9',id:'cargando'})
   ));
 MostrarEspera('#cargando');
 var parametros=ObtenerFiltros();
+parametros.anio= ObtenerAnio();
 if(ValidarCadena(parametros['fua'])){
 //  parametros['fua']='"'+parametros['fua']+'"';
 }
@@ -319,57 +384,55 @@ $.get(api+"/proveedores-sefin",parametros).done(function( datos ) {
   });
 }
 function ObtenerDescargaProveedores(resultados){
-  var datos={'resultados':resultados};
   /*var parametros=ObtenerFiltros();
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items'];
   $.get(api+"/proveedores-sefin/",parametros).done(function( datos ) {*/
-    console.dir('Descargas Proveedores')
-    console.dir(datos);
-  
+ 
     AgregarEventoModalDescarga('descargaJsonProveedores',function(){
-      var descarga=datos.resultados.map(function(e){
+
+      var descarga=resultados.resultados.map(function(e){
         return {
           'Proveedor':e.name,
           'Id':e.id,
           'Procesos':e.procesos,
-          'TotalMontoContratado':e.total_monto_contratado,
-          'PromedioMontoContratado':e.promedio_monto_contratado,
-          'MayorMontoContratado':e.mayor_monto_contratado,
-          'MenorMontoContratado':e.menor_monto_contratado,
-          'FechaUltimaAdjudicacion':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
+          'TotalMontoPagado':e.total_monto_pagado,
+          'PromedioMontoPagado':e.promedio_monto_pagado,
+          'MayorMontoPagado':e.mayor_monto_pagado,
+          'MenorMontoPagado':e.menor_monto_pagado,
+          'FechaUltimaTransaccion':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
           'Enlace':url+'/proveedor/'+encodeURIComponent(e.id)
         };
       });
       DescargarJSON(descarga,'Proveedores');
     });
     AgregarEventoModalDescarga('descargaCsvProveedores',function(){
-      var descarga=datos.resultados.map(function(e){
+      var descarga=resultados.resultados.map(function(e){
         return {
           'Proveedor':e.name,
           'Id':e.id,
           'Procesos':e.procesos,
-          'TotalMontoContratado':e.total_monto_contratado,
-          'PromedioMontoContratado':e.promedio_monto_contratado,
-          'MayorMontoContratado':e.mayor_monto_contratado,
-          'MenorMontoContratado':e.menor_monto_contratado,
-          'FechaUltimaAdjudicacion':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
+          'TotalMontoPagado':e.total_monto_pagado,
+          'PromedioMontoPagado':e.promedio_monto_pagado,
+          'MayorMontoPagado':e.mayor_monto_pagado,
+          'MenorMontoPagado':e.menor_monto_pagado,
+          'FechaUltimaTransaccion':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
           'Enlace':url+'/proveedor/'+encodeURIComponent(e.id)
         };
       });
       DescargarCSV(ObtenerMatrizObjeto(descarga) ,'Proveedores');
     });
     AgregarEventoModalDescarga('descargaXlsxProveedores',function(){
-      var descarga=datos.resultados.map(function(e){
+      var descarga=resultados.resultados.map(function(e){
         return {
           'Proveedor':e.name,
           'Id':e.id,
           'Procesos':e.procesos,
-          'TotalMontoContratado':e.total_monto_contratado,
-          'PromedioMontoContratado':e.promedio_monto_contratado,
-          'MayorMontoContratado':e.mayor_monto_contratado,
-          'MenorMontoContratado':e.menor_monto_contratado,
-          'FechaUltimaAdjudicacion':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
+          'TotalMontoPagado':e.total_monto_pagado,
+          'PromedioMontoPagado':e.promedio_monto_pagado,
+          'MayorMontoPagado':e.mayor_monto_pagado,
+          'MenorMontoPagado':e.menor_monto_pagado,
+          'FechaUltimaTransaccion':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
           'Enlace':url+'/proveedor/'+encodeURIComponent(e.id)
         };
       });
@@ -386,7 +449,7 @@ function ObtenerDescargaProveedores(resultados){
 }
 
 function AsignarEventosFiltro(){
-  $('.campoFiltrado input[type="text"]').on(
+  $('.campoFiltrado input[type="text"], .campoFiltrado select.campoBlancoTextoSeleccion').on(
     {'change': function(e){
       var elemento=$(e.currentTarget);
       var elementoPadre=elemento.closest('.campoFiltrado');

@@ -19,7 +19,7 @@ var meses=['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agos
 /**
  * Obtiene el nombre de un mes, recibiendo el numero del mes 
  * @constructor
- * @param {string} numero - EL numero del mes empezando por 01 hasta 12.
+ * @param {string} numero - El numero del mes empezando por 01 hasta 12.
  */
 function ObtenerMesNombre(numero){
     numero=ObtenerNumero(numero);

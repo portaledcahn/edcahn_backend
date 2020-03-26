@@ -224,7 +224,7 @@ function AsignarEventosFiltro(selector,sufijo,funcionFiltros,funcionInput){
 }
 function ObtenerProveedor(){
     DebugFecha();
-    MostrarEspera('body .tamanoMinimo');
+    MostrarEspera('body .tamanoMinimo',true);
     $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)/*url+"/static/"+procesoOcid+".json"*/,function(datos){
         DebugFecha();
         datosProveedor=datos;
@@ -1030,11 +1030,11 @@ function InicializarDescargas(){
     AbrirModalDescarga('descargaXlsxProveedorPagos','Descarga XLSX');
   });
 }
-function ObtenerDescargaProveedorProductos(resultados){
-  var parametros = ObtenerFiltrosProductos();
+function ObtenerDescargaProveedorProductos(datos){
+ /* var parametros = ObtenerFiltrosProductos();
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
-  $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/productos',parametros).done(function( datos ) {
+  $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/productos',parametros).done(function( datos ) {*/
     console.dir('Descargas ProveedorProductos')
     console.dir(datos);
     AgregarEventoModalDescarga('descargaJsonProveedorProductos',function(){
@@ -1065,21 +1065,20 @@ function ObtenerDescargaProveedorProductos(resultados){
       });
       DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Proveedor Productos');
     });
-  
+  /*
     
   }).fail(function() {
-      /*Error de Conexion al servidor */
       console.dir('error de api descargas');
       
-    });
+    });*/
   
 }
 
-function ObtenerDescargaProveedorContratos(resultados){
-  var parametros = ObtenerFiltrosContratos();
+function ObtenerDescargaProveedorContratos(datos){
+  /*var parametros = ObtenerFiltrosContratos();
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
-  $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/contratos',parametros).done(function( datos ) {
+  $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/contratos',parametros).done(function( datos ) {*/
     console.dir('Descargas Proveedor Contratos')
     console.dir(datos);
     AgregarEventoModalDescarga('descargaJsonProveedorContratos',function(){
@@ -1100,20 +1099,19 @@ function ObtenerDescargaProveedorContratos(resultados){
       });
       DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Proveedor Contratos');
     });
-  
+  /*
     
   }).fail(function() {
-      /*Error de Conexion al servidor */
       console.dir('error de api descargas');
       
-    });
+    });*/
 }
 
-function ObtenerDescargaProveedorPagos(resultados){
-  var parametros = ObtenerFiltrosPagos();
+function ObtenerDescargaProveedorPagos(datos){
+ /* var parametros = ObtenerFiltrosPagos();
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
-  $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/pagos',parametros).done(function( datos ) {
+  $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/pagos',parametros).done(function( datos ) {*/
     console.dir('Descargas Proveedor Pagos')
     console.dir(datos);
     AgregarEventoModalDescarga('descargaJsonProveedorPagos',function(){
@@ -1134,11 +1132,10 @@ function ObtenerDescargaProveedorPagos(resultados){
       });
       DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Proveedor Pagos');
     });
-  
+  /*
     
   }).fail(function() {
-      /*Error de Conexion al servidor */
       console.dir('error de api descargas');
       
-    });
+    });*/
 }

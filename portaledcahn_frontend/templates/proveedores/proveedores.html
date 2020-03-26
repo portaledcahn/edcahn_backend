@@ -21,8 +21,15 @@
 {% block container %}
 <div class="container-fluid tamanoMinimo" style="max-width: 1600px">
    <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-6 col-lg-6">
          <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Proveedores, ONCAE</h1>
+      </div>
+      <div class="col-md-6 col-lg-6 pt-3 textoAlineadoDerecha">
+            <label class="switchEdca" style="vertical-align:middle" >
+                  <input type="checkbox"  id="cambioProveedores">
+                  <span class="sliderEdca circular"></span>
+                  </label>
+                  <span style="padding: 5px;padding-top:10px;font-size: 15px;font-weight:900;font-family: poppins" class="textoColorGrisOscuro">Proveedores SEFIN</span>
       </div>
    </div>
    <div class="row mt-3 mb-3 ">
@@ -269,7 +276,7 @@
                      </th>
                      <th class="textoAlineadoCentrado campoFiltrado" filtro="fua" tipo="fecha">
                            <table class="alineado">
-                                 <tr><td><span toolTexto="Último awards[n].date">Fecha de Última Adjudicación</span></td><td><span class="ordenEncabezado" opcion="{{ordenfua}}">
+                                 <tr><td><span toolTexto="Último awards[n].date">Fecha de Último Proceso</span></td><td><span class="ordenEncabezado" opcion="{{ordenfua}}">
                                        <div class="contenedorFlechasOrden">
                                              <i class="fas fa-sort-up flechaArriba" {% if ordenfua == 'descendente' %}style="display:none"{% endif %}></i>
                                              <i class="fas fa-sort-down flechaAbajo" {% if ordenfua == 'ascendente' %}style="display:none"{% endif %}></i>
@@ -304,6 +311,18 @@
                            </div>
                            <!--<input id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha">-->
                         </th>
+                        <th class="textoAlineadoCentrado  campoFiltrado" filtro="anio" tipo="texto">
+                              <table class="alineado">
+                                    <tr><td> <span toolTexto="">Año</span></td></tr>
+                                 </table>
+         
+                              
+                              <!--<input  class="campoBlancoTextoSeleccion" placeholder="Nombre"  type="text" value="{% if estadoCon %}{{estadoCon}}{% endif %}">-->
+                              <select class="campoBlancoTextoSeleccion" placeholder="Nombre"  type="text" >
+                                 
+                              </select>
+                                 
+                           </th>
                         
                   </tr>
                </thead>
