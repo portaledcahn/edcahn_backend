@@ -1236,12 +1236,12 @@ function InicializarDescargas(){
       AbrirModalDescarga('descargaXlsxCompradorPagos','Descarga XLSX');
     });
   }
-  function ObtenerDescargaCompradorProcesos(resultados){
-    var parametros = ObtenerFiltrosProcesos();
+  function ObtenerDescargaCompradorProcesos(datos){
+    /*var parametros = ObtenerFiltrosProcesos();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
     parametros['tid']='id';
-    $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/procesos',parametros).done(function( datos ) {
+    $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/procesos',parametros).done(function( datos ) {*/
       console.dir('Descargas Comprador Procesos')
       console.dir(datos);
       AgregarEventoModalDescarga('descargaJsonCompradorProcesos',function(){
@@ -1273,21 +1273,21 @@ function InicializarDescargas(){
         DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Comprador Procesos');
       });
     
-      
+      /*
     }).fail(function() {
-        /*Error de Conexion al servidor */
         console.dir('error de api descargas');
         
-      });
+      });*/
     
   }
 
-  function ObtenerDescargaCompradorContratos(resultados){
+  function ObtenerDescargaCompradorContratos(datos){
+      /*
     var parametros = ObtenerFiltrosContratos();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
     parametros['tid']='id';
-    $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/contratos',parametros).done(function( datos ) {
+    $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/contratos',parametros).done(function( datos ) {*/
       console.dir('Descargas Comprador Contratos')
       console.dir(datos);
       AgregarEventoModalDescarga('descargaJsonCompradorContratos',function(){
@@ -1309,20 +1309,19 @@ function InicializarDescargas(){
         DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Comprador Contratos');
       });
     
-      
+      /*
     }).fail(function() {
-        /*Error de Conexion al servidor */
         console.dir('error de api descargas');
         
-      });
+      });*/
   }
 
-  function ObtenerDescargaCompradorPagos(resultados){
-    var parametros = ObtenerFiltrosPagos();
+  function ObtenerDescargaCompradorPagos(datos){
+    /*var parametros = ObtenerFiltrosPagos();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
     parametros['tid']='id';
-    $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/pagos',parametros).done(function( datos ) {
+    $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/pagos',parametros).done(function( datos ) {*/
       console.dir('Descargas Comprador Pagos')
       console.dir(datos);
       AgregarEventoModalDescarga('descargaJsonCompradorPagos',function(){
@@ -1344,10 +1343,9 @@ function InicializarDescargas(){
         DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Comprador Pagos');
       });
     
-      
+      /*
     }).fail(function() {
-        /*Error de Conexion al servidor */
         console.dir('error de api descargas');
         
-      });
+      });*/
   }

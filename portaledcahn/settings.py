@@ -84,16 +84,16 @@ WSGI_APPLICATION = 'portaledcahn.wsgi.application'
 DATABASES = {
     'bdkingfisher': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        #'NAME': 'postgres',
-        #'USER': 'postgres',
-        #'PASSWORD': 'postgres',
-        #'HOST': '192.168.1.7',
-        #'PORT': '5432',
-        'NAME': 'ocdskingfisher',
-        'USER': 'ocdskingfisher',
-        'PASSWORD': 'ocdskingfisher',        
-        'HOST': '200.13.162.87',
-        'PORT': '5432',        
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '192.168.1.8',
+        'PORT': '5432',
+        # 'NAME': 'ocdskingfisher',
+        # 'USER': 'ocdskingfisher',
+        # 'PASSWORD': 'ocdskingfisher',        
+        # 'HOST': '192.168.1.7',
+        # 'PORT': '5432',        
     },
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -103,9 +103,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'portaledcahn_admin',
         'USER': 'postgres',
-        'PASSWORD': '2019#Edca',        
-        'HOST': '192.168.0.198',
-        'PORT': '5772'
+        'PASSWORD': '123456',        
+        'HOST': '192.168.1.8',
+        'PORT': '5432',
     }
 }
 
@@ -159,18 +159,22 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-#ELASTICSEARCH_DSL_HOST = '192.168.1.7:9200/'
+# ELASTICSEARCH_DSL_HOST = '192.168.1.7:9200/'
 # ELASTICSEARCH_DSL_HOST = '192.168.104.94:9200/'
-ELASTICSEARCH_DSL_HOST = 'http://200.13.162.87:9200/'
+# ELASTICSEARCH_DSL_HOST = ''
+ELASTICSEARCH_DSL_HOST = ''
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': ELASTICSEARCH_DSL_HOST
+        'hosts': ELASTICSEARCH_DSL_HOST,
+        'timeout': 60
     },
 }
+
+ELASTICSEARCH_USER = ''
+ELASTICSEARCH_PASS = ''
+ELASTICSEARCH_TIMEOUT = 120
 
 PAGINATE_BY = 10
 
 SOURCE_SEFIN_ID = 'HN.SIAFI2'
-
-TIMEOUT_ES = 120

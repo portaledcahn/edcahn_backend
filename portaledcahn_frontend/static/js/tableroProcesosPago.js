@@ -733,7 +733,7 @@ function MontoPagosEtapas(){
                     type:'bar',
                     data:datos.resultados.montos,
                     itemStyle:{
-                        color: ObtenerColores('Pastel1')[3]
+                        color: ObtenerColores('Pastel1')[6]
                     },
                     seriesLayoutBy: 'row',
                     label:{
@@ -1057,7 +1057,18 @@ function Top10Compradores(){
                             axisPointer: {
                                 type: 'shadow'
                             },
-                            align: 'right'
+                            align: 'right',
+                           
+                            axisLabel:{
+                                interval:0,
+                                showMinLabel:false,
+                                padding:[0,0,0,0],
+                                formatter:function(e){
+                                    
+                                    return ObtenerParrafo(e,30);
+                                }
+                            },
+                            
                         }
                     ],
                     series: [
@@ -1243,7 +1254,16 @@ MostrarReloj('#top10Proveedores',true);
                             },
                             yAxis: {
                                 type: 'category',
-                                data: datos.resultados.proveedores.reverse()
+                                data: datos.resultados.proveedores.reverse(),
+                                axisLabel:{
+                                    interval:0,
+                        //rotate:45,
+                        formatter:function(e){
+                            return ObtenerParrafo(e,30);
+                        },
+                        showMinLabel:false,
+                        padding:[0,0,0,0]
+                                }
                             },
                             series: [
                                 {
@@ -1413,7 +1433,16 @@ MostrarReloj('#top10MontosProcesos',true);
                         },
                         yAxis: {
                             type: 'category',
-                            data: datos.resultados.objetosGasto.reverse()
+                            data: datos.resultados.objetosGasto.reverse(),
+                            axisLabel:{
+                                interval:0,
+                        //rotate:45,
+                        formatter:function(e){
+                            return ObtenerParrafo(e,30);
+                        },
+                        showMinLabel:false,
+                        padding:[0,0,0,0]
+                            }
                         },
                         label:{
                             color:'gray'

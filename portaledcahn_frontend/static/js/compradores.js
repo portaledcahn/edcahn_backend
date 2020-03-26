@@ -412,7 +412,7 @@
     });
   }
   function ObtenerDescargaCompradores(resultados){
-    var datos={'resultados':resultados};
+    var datos=resultados;
     /*var parametros=ObtenerFiltros();
     parametros['pagina']=1;
     parametros['paginarPor']=resultados.paginador['total.items'];
