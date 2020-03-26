@@ -870,7 +870,14 @@ class Proveedores(APIView):
 			anio = anioActual
 
 		if anio.replace(' ',''):
-			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			dateFilter = {'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)}
+			filtroFechaFirma = Q('range', doc__compiledRelease__contracts__dateSigned=dateFilter)
+			filtroFechaInicio =  Q('range', doc__compiledRelease__contracts__period__startDate=dateFilter)
+			filtroFecha = Q(filtroFechaFirma | filtroFechaInicio)
+			s = s.query('nested', path='doc.compiledRelease.contracts', query=filtroFecha)
+		
+			# s = s.query('bool', filter=filtros) 
+			# s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if nombre.replace(' ',''):
 			q_nombre = '*' + nombre + '*'
@@ -903,7 +910,7 @@ class Proveedores(APIView):
 		s.aggs['proveedores']['filtros']['id']['name']['totales'].metric('fecha_ultima_adjudicacion', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
 
 		s.aggs['proveedores']['filtros']['id']['name'].metric('tender','reverse_nested')
-		s.aggs['proveedores']['filtros']['id']['name']['tender'].metric('fecha_ultimo_proceso', 'sum', field='doc.compiledRelease.tender.tenderPeriod.startDate')
+		s.aggs['proveedores']['filtros']['id']['name']['tender'].metric('fecha_ultimo_proceso', 'max', field='doc.compiledRelease.tender.tenderPeriod.startDate')
 
 		if tmc.replace(' ', ''):
 			q_tmc = 'params.tmc' + tmc
@@ -944,10 +951,13 @@ class Proveedores(APIView):
 				proveedor["mayor_monto_contratado"] = n["totales"]["mayor_monto_contratado"]["value"]
 				proveedor["menor_monto_contratado"] = n["totales"]["menor_monto_contratado"]["value"]
 
-				if n["tender"]["fecha_ultimo_proceso"]["value"] == 0:
+				print(n["tender"]["fecha_ultimo_proceso"])
+
+				if n["tender"]["fecha_ultimo_proceso"]["value"] is None:
 					proveedor["fecha_ultimo_proceso"] = None
 				else:
-					proveedor["fecha_ultimo_proceso"] = n["tender"]["fecha_ultimo_proceso"]["value_as_string"]			
+					proveedor["fecha_ultimo_proceso"] = n["tender"]["fecha_ultimo_proceso"]["value_as_string"]
+				# 	# print(n["tender"]["fecha_ultimo_proceso"])
 
 				proveedor["uri"] = urllib.parse.quote_plus(proveedor["id"] + '->' + proveedor["name"])
 				proveedores.append(copy.deepcopy(proveedor))
@@ -975,9 +985,10 @@ class Proveedores(APIView):
 		dfProveedores = pd.DataFrame(proveedores)
 		ordenar = getSortBy(ordenarPor)
 
-		dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'], errors='coerce')
+		if not dfProveedores.empty:
+			dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'], errors='coerce')
 
-		dfProveedores['name'] = dfProveedores['name'].apply(lambda x : x.strip().replace('"', ''))
+			dfProveedores['name'] = dfProveedores['name'].apply(lambda x : x.strip().replace('"', ''))
 
 		for indice, columna in enumerate(ordenar["columnas"]):
 			if not columna in dfProveedores:
