@@ -82,8 +82,6 @@ function MostrarContratosGenerales(){
 		if(datos&&datos.resultados&&datos.resultados.length){
 			datos.resultados=datos.resultados.sort(function(a, b){return ((a.nombre > b.nombre) ? 1 : -1);});
 		}
-        console.dir('DATOS JSON GENERALES');
-        console.dir(datos);
         OcultarEspera('#ContratosGenerales');
         DibujarContratosGenerales(datos.resultados,'Cantidad de Contratos por Institución');
 

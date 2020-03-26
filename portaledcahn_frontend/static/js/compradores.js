@@ -122,7 +122,7 @@
   function CargarCompradores(){
     $('#resultadosCompradores').html(
       $('<tr>').append(
-        $('<td>',{style:'height:300px;position:relative',colspan:'8',id:'cargando'})
+        $('<td>',{style:'height:300px;position:relative',colspan:'7',id:'cargando'})
       ));
     MostrarEspera('#cargando');
     var parametros=ObtenerFiltros();

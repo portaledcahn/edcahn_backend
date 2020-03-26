@@ -38,7 +38,9 @@ var filtrosAPropiedades = {
 var categoriaCompra={
     'goods':{titulo:'Bienes y provisiones',descripcion:'El objeto primario de este proceso de contratación involucra bienes físicos o electrónicos o provisiones'},
     'works':{titulo:'Obras',descripcion:'El objeto primario de este proceso de contratación involucra construcción, reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
-    'services':{titulo:'Servicios',descripcion:'El objeto primario de este proceso de contratación involucra servicios profesionales de alguna manera, generalmente contratados en la forma de resultados medibles o entregables.'}
+    'services':{titulo:'Servicios',descripcion:'El objeto primario de este proceso de contratación involucra servicios profesionales de alguna manera, generalmente contratados en la forma de resultados medibles o entregables.'},
+    'goodsOrServices':{titulo:'Bienes y/o Servicios',descripcion:''},
+    'consultingServices':{titulo:'Consultorías',descripcion:''}
   }
   var estadoProceso={
     'planning':{
@@ -528,7 +530,7 @@ function AgregarResultadosContratosComprador(datos, selector) {
                     resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.buyerFullName ? $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.extra.buyerFullName) }).text(resultados[i]._source.extra.buyerFullName) : ''
                 ),*/
                 $('<td>', { 'data-label': 'Título de Contrato', class: 'textoAlineadoIzquierda' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.title ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.extra.ocid) + '/?contrato=' + resultados[i]._source.id, toolTexto: resultados[i]._source.title }).text(ReducirTexto(resultados[i]._source.title, 80)) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                    resultados[i] && resultados[i]._source && resultados[i]._source.title ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.extra.ocid) + '/?contrato=' + resultados[i]._source.id, toolTexto: resultados[i]._source.title }).text(ReducirTexto(resultados[i]._source.title, 80)) : $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.extra.ocid) + '/?contrato=' + resultados[i]._source.id }).text('Sin título')
                 ),
                 $('<td>', { 'data-label': 'Descripción', class: 'textoAlineadoIzquierda' }).append(
                     $('<span>', { text: ReducirTexto(resultados[i] && resultados[i]._source && resultados[i]._source.description ? resultados[i]._source.description : '', 80), toolTexto: resultados[i] && resultados[i]._source && resultados[i]._source.description ? resultados[i]._source.description : '' })
@@ -537,9 +539,14 @@ function AgregarResultadosContratosComprador(datos, selector) {
                 $('<td>', { 'data-label': 'Nombre del Proceso', class: 'textoAlineadoCentrado' }).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderTitle ? resultados[i]._source.extra.tenderTitle : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
+                
+                $('<td>', { 'data-label': 'Categoría de Compras', class: 'textoAlineadoCentrado' }).append(
+                    resultados[i] && resultados[i]._source && resultados[i]._source.localProcurementCategory ? (categoriaCompra[resultados[i]._source.localProcurementCategory]?categoriaCompra[resultados[i]._source.localProcurementCategory].titulo: resultados[i]._source.localProcurementCategory) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                ),
+                /*
                 $('<td>', { 'data-label': 'Categoría de Compras', class: 'textoAlineadoCentrado' }).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderMainProcurementCategory ? (categoriaCompra[resultados[i]._source.extra.tenderMainProcurementCategory]?categoriaCompra[resultados[i]._source.extra.tenderMainProcurementCategory].titulo: resultados[i]._source.extra.tenderMainProcurementCategory) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
-                ),
+                ),*/
                 $('<td>', { 'data-label': 'Monto del Contrato', class: 'textoAlineadoDerecha' }).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.value && Validar(resultados[i]._source.value.amount) ? [ValorMoneda(resultados[i]._source.value.amount), $('<span>', { class: 'textoColorPrimario', text: ' ' + resultados[i]._source.value.currency })] : ''
 
@@ -552,6 +559,12 @@ function AgregarResultadosContratosComprador(datos, selector) {
                     )
 
                 ),
+                /*$('<td>', { 'data-label': 'Fecha de Firma del Contrato', class: 'textoAlineadoCentrado' }).append(
+                    $('<span>', { class: resultados[i] && resultados[i]._source && resultados[i]._source.dateSigned && resultados[i]._source.dateSigned != 'NaT' ? '' : (resultados[i]._source.period&&resultados[i]._source.period.startDate?'':'textoColorGris') }).text(
+                        resultados[i] && resultados[i]._source && resultados[i]._source.dateSigned && resultados[i]._source.dateSigned != 'NaT' ? ObtenerFecha(resultados[i]._source.dateSigned, 'fecha') : (resultados[i]._source.period&&resultados[i]._source.period.startDate?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible')
+                    )
+
+                ), */
                 /*$('<td>',{'data-label':'Fecha de Inicio del Contrato' ,class:'textoAlineadoCentrado'}).append(
                   $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
                       resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible'
