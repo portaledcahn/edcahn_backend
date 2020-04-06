@@ -1875,7 +1875,6 @@ class Compradores(APIView):
 		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 
 		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
-		
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
 
@@ -1926,27 +1925,27 @@ class Compradores(APIView):
 			if tmc.replace(' ', ''):
 				q_tmc = 'params.tmc' + tmc
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
+				.metric('filtro_totales_tmc', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
 
 			if pmc.replace(' ', ''):
 				q_pmc = 'params.pmc' + pmc
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
+				.metric('filtro_totales_pmc', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
 
 			if mamc.replace(' ', ''):
 				q_mamc = 'params.mamc' + mamc
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
+				.metric('filtro_totales_mamc', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
 
 			if memc.replace(' ', ''):
 				q_memc = 'params.memc' + memc
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
+				.metric('filtro_totales_memc', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
 
 			if cp.replace(' ', ''):
-				q_cp = 'params.memc' + cp
+				q_cp = 'params.cp' + cp
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "procesos"}, script=q_cp)
+				.metric('filtro_totales_cp', 'bucket_selector', buckets_path={"cp": "procesos"}, script=q_cp)
 
 			search_results = SearchResults(s)
 
@@ -2048,27 +2047,27 @@ class Compradores(APIView):
 			if tmc.replace(' ', ''):
 				q_tmc = 'params.tmc' + tmc
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
+				.metric('filtro_totales_tmc', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
 
 			if pmc.replace(' ', ''):
 				q_pmc = 'params.pmc' + pmc
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
+				.metric('filtro_totales_pmc', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
 
 			if mamc.replace(' ', ''):
 				q_mamc = 'params.mamc' + mamc
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
+				.metric('filtro_totales_mamc', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
 
 			if memc.replace(' ', ''):
 				q_memc = 'params.memc' + memc
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
+				.metric('filtro_totales_memc', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
 
 			if cp.replace(' ', ''):
-				q_cp = 'params.memc' + cp
+				q_cp = 'params.cp' + cp
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "procesos"}, script=q_cp)
+				.metric('filtro_totales_cp', 'bucket_selector', buckets_path={"cp": "procesos"}, script=q_cp)
 
 			search_results = SearchResults(s)
 
