@@ -1,10 +1,23 @@
 
+/**
+ * @file api.js Este archivo se incluye en la sección de API del Portal de Contrataciones Abiertas de Honduras
+ * @author Bryant Marcelo Pérez
+ * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
+ */
+
+/**
+ * Ejecuta las funciones una vez carge el dom.
+ */
 $(function(){
   DibujarElementosApi('#documentacionApi');
   AgregarToolTips();
 })
+
+/**
+ * Arreglo de definicion de elementos para mostrar los elementos en la API del PCA.
+ * @type {Object[]}
+ */
 var apiJSON=[
-  
   {
     titulo : 'RELEASES',
     descripcionCorta : 'Muestra el Listado de los Releases en el Sistema',
@@ -71,6 +84,10 @@ var apiJSON=[
   }
 ];
 
+/**Inserta el HTML de los elementos padre de la API
+ * 
+ * @param {string} contenedor -Query string que hace referencia al elemento html donde se añadiran los elementos html de la API
+ */
 function DibujarElementosApi(contenedor){
   var elementos=[];
   apiJSON.forEach(
@@ -106,6 +123,11 @@ function DibujarElementosApi(contenedor){
   );
 }
 
+/**
+ * Agrega la tabla de métodos de la API
+ * @param {Object} elemento - Objeto del Arreglo de la API
+ * @return {Object[]} -retorna un arreglo de elementos HTML
+ */
 function ObtenerMetodos(elemento){
   var elementos=[];
   elemento.metodos.forEach(
@@ -162,6 +184,12 @@ function ObtenerMetodos(elemento){
   return elementos;
 
 }
+
+/**
+ * Agrega los elementos HTML de los parametros del método de la API
+ * @param {Object} elemento - Objeto del Arreglo de la API
+ * @return {Object[]} - retorna un arreglo de elementos HTML.
+ */
 function ObtenerParametros(elemento){
   var elementos=[];
   elemento.parametros.forEach(

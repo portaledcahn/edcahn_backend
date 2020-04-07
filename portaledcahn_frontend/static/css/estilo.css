@@ -81,6 +81,13 @@ COLOR BASE FONDOS Y FUENTES
 ///////////////////////////////////
 */
 
+
+
+/*
+*******************************
+CAMPOS DE BUSQUEDA
+*******************************
+*/
 .busquedaEspaciadoHorizontal{
 	white-space: nowrap;
 }
@@ -154,7 +161,11 @@ COLOR BASE FONDOS Y FUENTES
 	  1px 1.5em;
 	background-repeat: no-repeat;
   }
-  
+  /*
+///////////////////////////////////
+CAMPOS BUSQUEDA
+///////////////////////////////////
+*/
 .ancho50{
 	max-width: 50px;
 }
@@ -556,6 +567,12 @@ transform: translateY(-55%);
 	box-sizing:border-box;
 	padding: 10px;
 }
+
+/*
+**********************************
+Estilo de un Boton
+**********************************
+*/
 .botonGeneral{
 	color:white;
 	border-radius: 17.5px;
@@ -588,6 +605,11 @@ transform: translateY(-55%);
 	color:white;
 	box-shadow: 5px 0 15px 0 rgba(39, 63, 91,0.3);
 }
+/*
+**********************************
+Estilo de un Boton
+**********************************
+*/
 .grupoEtiquetaTitulo,.filtrosAplicados{
 	display: inline-block;
 }
@@ -1785,6 +1807,9 @@ footer a:hover{
 	margin-top: 35px;
 	margin-bottom: 35px;
 	opacity: 0.8;
+	max-width: 100%;
+	object-fit: contain;
+
 }
 .logosEntidades div:nth-child(1) img{
 	height: 70px;

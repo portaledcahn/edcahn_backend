@@ -1,3 +1,13 @@
+/**
+ * @file indicadoresProcesosContratacion.js Este archivo se incluye en la sección de Indicadores de procesos de contratacion del Portal de Contrataciones Abiertas de Honduras
+ * @author Bryant Marcelo Pérez
+ * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
+ */
+
+ /**
+ * Variable de filtros aplicables con su  titulo y parametro
+ * @type {Object} 
+ */
 var filtrosAplicables={
     monedas: {titulo:'Moneda',parametro:'moneda'},
     instituciones: {titulo:'Institución Compradora',parametro:'idinstitucion'},
@@ -8,6 +18,11 @@ var filtrosAplicables={
     sistemas :{titulo:'Sistema de Origen', parametro: 'sistema'}
     
   };
+
+/**
+ * Variable de filtros aplicables con su  titulo y parametro con su parametro como llave
+ * @type {Object} 
+ */
   var filtrosAplicablesR={
     moneda: {titulo:'Moneda',parametro:'monedas'},
     idinstitucion: {titulo:'Institución Compradora',parametro:'instituciones'},
@@ -17,7 +32,17 @@ var filtrosAplicables={
     categoria : {titulo:/*'Categoría de Compra'*/'Tipo de Contrato',parametro:'categorias'},
     sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
   };
+
+/**
+ * Arreglo para definir el orden en el que se presentan los filtros
+ * @type {string[]} 
+ */
   var ordenFiltros=['años','monedas','instituciones','categorias','modalidades','sistemas'];
+
+/**
+ * Objeto para obtener traducciones e informacion de algunos códigos el OCDS
+ * @type {Object} 
+ */
   var traducciones={
     'goods':{titulo: 'Suministro de Bienes y/o Servicios'/*'Bienes y provisiones'*/,descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
@@ -33,16 +58,48 @@ var filtrosAplicables={
     'goodsOrServices':{titulo:'Bienes y/o Servicios',descripcion:''}
 
   }
+
+/**
+ * Devuelve información de un filtro como ser que valor usar para mostrar la cantidad en el badge y que valor usar a la hora de que sea seleccionado
+ * @param {string} llave - llave de un filtro 
+ */
+function ValoresLlaves(llave){
+    switch(llave){
+        case 'años':
+            return {valor:'key_as_string',cantidad:'contratos',codigo:'key_as_string'};
+        case 'categorias':
+            return {valor:'categoria',cantidad:'contratos',codigo:'categoria'};
+        case 'instituciones':
+            return {valor:'nombre',cantidad:'contratos',codigo:'codigo'};
+        case 'modalidades':
+            return {valor:'modalidad',cantidad:'contratos',codigo:'modalidad'};
+        case 'monedas':
+            return {valor:'moneda',cantidad:'contratos',codigo:'moneda'};
+        case 'sistemas':
+            return {valor:'id',cantidad:'ocids',codigo:'id'};
+        default:
+            return {valor:'key_as_string',cantidad:'contratos',codigo:'key_as_string'};
+    }
+}
+
+
+/**
+ * Obtiene los datos e inicializa el gráfico de procesos por modalidad de compra
+ */
 function ModalidadMontoCantidad(){
     
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
-    MostrarReloj('#cantidadProcesos',true)
+    MostrarReloj('#modalidadMontoCantidad',true)
     $.get(api+"/indicadoresoncae/contratospormodalidad/",parametros).done(function( datos ) {
-    console.dir('PROCESOS POR CATEGORIA DE COMPRA');
+    console.dir('PROCESOS POR MODALIDAD DE COMPRA');
     console.dir(datos);
-    OcultarReloj('#cantidadProcesos')
-    var grafico=echarts.init(document.getElementById('cantidadProcesos'));
+    OcultarReloj('#modalidadMontoCantidad');
+    if(datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadContratos)  && datos.resultados.cantidadContratos.length==0){
+        MostrarSinDatos('#modalidadMontoCantidad',true)
+        return;
+    }
+    var grafico=echarts.init(document.getElementById('modalidadMontoCantidad'));
     var opciones = {
         baseOption:{
             tooltip: {
@@ -52,6 +109,17 @@ function ModalidadMontoCantidad(){
                     crossStyle: {
                         color: '#999'
                     }
+                },
+                formatter:  function (e){
+    
+    
+                    
+                    var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,'<br>')+'<br>';
+    
+                    e.forEach(function(valor,indice){
+                        cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorNumerico(valor.value) :ValorMoneda(valor.value)) +' '+(valor.seriesIndex==0?'Contratos':'HNL')+'<br>'
+                    });
+                    return cadena;
                 }
             },
             toolbox: {
@@ -71,17 +139,19 @@ function ModalidadMontoCantidad(){
                         textPosition:'top'
                     }
                 }
-            },/*
-            legend: {
-                data:['蒸发量1','降水量','平均温度3']
-            },*/
+            },
             xAxis: [
                 {
                     name:'Modalidad de Compra',
                     type: 'category',
                     data:datos.resultados.nombreModalidades,
                     axisPointer: {
-                        type: 'shadow'
+                        type: 'shadow',
+                        label:{
+                            formatter:function(params){
+                                return  ObtenerParrafo(params.value,30);
+                            }
+                        }
                     },
                     axisLabel:{
                         interval:0,
@@ -158,7 +228,7 @@ function ModalidadMontoCantidad(){
                                     position: 'right',
                                     formatter: function (e){
                                         return ValorNumerico(e.value);
-                                    }
+                                    },color:'gray'
                                 }
                             }
                 },
@@ -207,7 +277,7 @@ function ModalidadMontoCantidad(){
                 top:100
             },
             label:{
-                color:'gray'
+                
             }
         },
         media:[
@@ -220,7 +290,12 @@ function ModalidadMontoCantidad(){
                             type: 'category',
                             data:datos.resultados.nombreModalidades,
                             axisPointer: {
-                                type: 'shadow'
+                                type: 'shadow',
+                                label:{
+                                    formatter:function(params){
+                                        return  ObtenerParrafo(params.value,30);
+                                    }
+                                }
                             },
                             axisLabel:{
                                 interval:0,
@@ -343,20 +418,17 @@ function ModalidadMontoCantidad(){
     
 }
 
-
-
-
-
-
-
-function CantidadContratosCategoriaCompra(){
+/**
+ * Obtiene los datos e inicializa el gráfico de cantidad de contratos por categoría de compra
+ */
+function CantidadContratosTipoContrato(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
-    MostrarReloj('#CantidadContratosCategoriaCompra',true)
+    MostrarReloj('#CantidadContratosTipoContrato',true)
 $.get(api+"/indicadoresoncae/cantidadcontratosporcategoria/",parametros).done(function( datos ) {
-console.dir('CONTRATOS POR CATEGORIA');
+console.dir('CANTIDAD CONTRATOS POR TIPO CONTRATO');
 console.dir(datos);
-OcultarReloj('#CantidadContratosCategoriaCompra',true)
+OcultarReloj('#CantidadContratosTipoContrato',true)
 var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
         datosPastel.push(
@@ -366,12 +438,23 @@ var datosPastel=[];
             }
         )
     });
-var grafico=echarts.init(document.getElementById('CantidadContratosCategoriaCompra'));
+if(datosPastel.length==0){
+    MostrarSinDatos('#CantidadContratosTipoContrato',true)
+    return;
+}    
+var grafico=echarts.init(document.getElementById('CantidadContratosTipoContrato'));
 var opciones = {
     baseOption:{
     tooltip : {
         trigger: 'item',
-        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                
+        formatter:  function (valor){
+
+            var cadena=valor.name+'<br>';
+           
+            cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorNumerico(valor.value)+' '+'Contratos'+' ('+valor.percent+'%)'+'<br>';
+            return cadena;
+        }
     },
     legend: {
         type: 'plain',
@@ -489,14 +572,17 @@ window.addEventListener("resize", function(){
    
 }
 
-function MontoContratosCategoriaCompra(){
+/**
+ * Obtiene los datos e inicializa el gráfico de cantidad de contratos por categoría de compra
+ */
+function MontoContratosTipoContrato(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarReloj('#MontoContratosCategoriaCompra',true);
+    MostrarReloj('#MontoContratosTipoContrato',true);
 $.get(api+"/indicadoresoncae/montoporcategoria/",parametros).done(function( datos ) {
-console.dir('MONTOS POR CATEGORIA DE COMPRA');
+console.dir('MONTOS POR TIPO CONTRATO');
 console.dir(datos);
-OcultarReloj('#MontoContratosCategoriaCompra',true);
+OcultarReloj('#MontoContratosTipoContrato',true);
 var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
         datosPastel.push(
@@ -506,13 +592,23 @@ var datosPastel=[];
             }
         )
     });
-    var grafico=echarts.init(document.getElementById('MontoContratosCategoriaCompra'));
+
+    if(datosPastel.length==0){
+        MostrarSinDatos('#MontoContratosTipoContrato',true)
+        return;
+    } 
+    var grafico=echarts.init(document.getElementById('MontoContratosTipoContrato'));
     var opciones = {
         baseOption:{
             tooltip : {
                 trigger: 'item',
-                formatter:  function (e){
-                    return "{a} <br/>{b}: {c} HNL ({d}%)".replace('{d}',e.percent).replace('{a}',e.seriesName).replace('{b}',e.name).replace('{c}',ValorMoneda(e.value));
+                
+                formatter:  function (valor){
+    
+                    var cadena=valor.name+'<br>';
+                   
+                    cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorMoneda(valor.value)+' '+'HNL'+' ('+valor.percent+'%)'+'<br>';
+                    return cadena;
                 }
             },
             legend: {
@@ -529,7 +625,7 @@ var datosPastel=[];
             },
             series : [
                 {
-                    name: 'Monto de Contratos por Categoría de Compra',
+                    name: 'Monto de Contratos por Tipo de Contrato',
                     type: 'pie',
                     radius : '40%',
                     center: ['50%', '50%'],
@@ -577,7 +673,7 @@ var datosPastel=[];
                 option:{
                     series : [
                         {
-                            name: 'Cantidad de Contratos por Categoría de Compra',
+                            name: 'Cantidad de Contratos por Tipo de Contrato',
                             type: 'pie',
                             radius : '40%',
                             center: ['50%', '30%'],
@@ -635,6 +731,10 @@ var datosPastel=[];
     
 }
 
+
+/**
+ * Obtiene los datos e inicializa el gráfico de Top 10 Compradores por Monto Contratado
+ */
 function Top10InstitucionesMontos(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
@@ -643,6 +743,11 @@ $.get(api+"/indicadoresoncae/topcompradores/",parametros).done(function( datos )
 console.dir('TOP COMPRADORES');
 console.dir(datos);
 OcultarReloj('#top10InstitucionesMontos',true);
+
+if(datos&&datos.resultados&&Array.isArray(datos.resultados.montoContratado)  && datos.resultados.montoContratado.length==0){
+    MostrarSinDatos('#top10InstitucionesMontos',true)
+    return;
+}
 var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
     var opciones = {
         baseOption:{
@@ -653,6 +758,17 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                     crossStyle: {
                         color: '#999'
                     }
+                },
+                formatter:  function (e){
+    
+    
+                    
+                    var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,'<br>')+'<br>';
+    
+                    e.forEach(function(valor,indice){
+                        cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorMoneda(valor.value) :ValorNumerico(valor.value) ) +' '+(valor.seriesIndex==0?'HNL':'Procesos')+'<br>'
+                    });
+                    return cadena;
                 }
             },
             toolbox: {
@@ -711,7 +827,12 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                     type: 'category',
                     data: datos.resultados.nombreCompradores.reverse(),
                     axisPointer: {
-                        type: 'shadow'
+                        type: 'shadow',
+                        label:{
+                            formatter:function(params){
+                                return  ObtenerParrafo(params.value,40);
+                            }
+                        }
                     },
                     axisLabel:{
                         interval:0,
@@ -741,7 +862,8 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                             position: 'right',
                             formatter: function (e){
                                 return "{c} HNL".replace('{c}',ValorMoneda(e.value));
-                            }
+                            },
+                            color:'gray'
                         }
                     },
                     barWidth:30,
@@ -771,13 +893,6 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
             grid:{
                 containLabel:true,
                 right:'15%'
-            },
-            label:{
-                show:true,
-                fontFamily:'Poppins',
-                fontWeight:700,
-                fontSize:15,
-                color:'gray'
             }
         },
         media:[
@@ -793,13 +908,21 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                             type: 'category',
                             data: datos.resultados.nombreCompradores.reverse(),
                             axisPointer: {
-                                type: 'shadow'
+                                type: 'shadow',
+                                label:{
+                                    formatter:function(params){
+                                        return  ObtenerParrafo(params.value,40);
+                                    }
+                                }
                             },
                             axisLabel:{
-                                //interval:0,
+                                interval:0,
                                 rotate:90,
                                 showMinLabel:false,
-                                padding:[0,0,0,0]
+                                padding:[0,0,0,0],
+                                formatter:function(e){
+                                    return ObtenerParrafo(e,40);
+                                }
                             }
                         }
                     ],
@@ -901,7 +1024,9 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
 }
 
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Top 10 Catálogo Electrónico por Monto Contratado
+ */
 function MontoCatalogoElectronico(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
@@ -910,6 +1035,10 @@ $.get(api+"/indicadoresoncae/catalogos/",parametros).done(function( datos ) {
 console.dir('MONTO CATALOGO ELECTRONICO');
 console.dir(datos);
 OcultarReloj('#montoCatalogoElectronico',true);
+if(datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadProcesos)  && datos.resultados.cantidadProcesos.length==0){
+    MostrarSinDatos('#montoCatalogoElectronico',true)
+    return;
+}
 var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
     var opciones = {
         baseOption:{
@@ -920,6 +1049,17 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                     crossStyle: {
                         color: '#999'
                     }
+                },
+                formatter:  function (e){
+    
+    
+                    
+                    var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,'<br>')+'<br>';
+    
+                    e.forEach(function(valor,indice){
+                        cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorMoneda(valor.value) :ValorNumerico(valor.value) ) +' '+(valor.seriesIndex==0?'HNL':'Contratos')+'<br>'
+                    });
+                    return cadena;
                 }
             },
             toolbox: {
@@ -974,7 +1114,12 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                     type: 'category',
                     data: datos.resultados.nombreCatalogos.reverse(),
                     axisPointer: {
-                        type: 'shadow'
+                        type: 'shadow',
+                        label:{
+                            formatter:function(params){
+                                return  ObtenerParrafo(params.value,40);
+                            }
+                        }
                     },axisLabel: {
                         //rotate:45
                         formatter:function(e){
@@ -1002,7 +1147,8 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                             position: 'right',
                             formatter: function (e){
                                 return "{c} HNL".replace('{c}',ValorMoneda(e.value));
-                            }
+                            },
+                            color:'gray'
                         }
                     },
                     barWidth:30,
@@ -1032,14 +1178,14 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
             grid:{
                 containLabel:true,
                 right:'15%'
-            },
+            }/*,
             label:{
                 show:true,
                 fontFamily:'Poppins',
                 fontWeight:700,
                 fontSize:15,
                 color:'gray'
-            }
+            }*/
         },
         media:[
             {
@@ -1053,17 +1199,25 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                             type: 'category',
                             data: datos.resultados.nombreCatalogos.reverse(),
                             axisPointer: {
-                                type: 'shadow'
+                                type: 'shadow',
+                                label:{
+                                    formatter:function(params){
+                                        return  ObtenerParrafo(params.value,40);
+                                    }
+                                }
                             },
                             axisLabel: {
-                                rotate:90
+                                interval:0,
+                                rotate:90,
+                                showMinLabel:false,
+                                padding:[0,0,0,0],
+                                formatter:function(e){
+                                    return ObtenerParrafo(e,40);
+                                }
+                                
                             },
                             name:'Catálogo\nElectrónico'
                             
-                        },
-                        {
-                           
-                            name:''
                         }
                     ],
                     yAxis: [
@@ -1167,45 +1321,47 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
 
 
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Top 10 Compradores por Monto Contratado
+ */
 $(function(){
     $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
         $('.contenedorFiltrosBusqueda').toggle('slide');
-        /*
-        if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
-          $('.contenedorFiltrosBusqueda').removeClass('cerrado');
-          //$('.contenedorFiltrosBusqueda').show('slide', {direction: 'right'}, 1000);
-          
-        }else{
-          $('.contenedorFiltrosBusqueda').addClass('cerrado');
-          //$('.contenedorFiltrosBusqueda').hide('slide', {direction: 'left'}, 1000);
-        }*/
       });
       $( window ).resize(function() {
        if($(window).width()>767){
         $('.contenedorFiltrosBusqueda').show();
        }
       });
-      PanelInicialFiltros('#elastic-list');
+    PanelInicialFiltros('#elastic-list');
     ObtenerFiltros();
     CargarGraficos();
     $('#quitarFiltros, #quitarFiltros2').on('click',function(e){
         PushDireccionGraficos(AccederUrlPagina({},true));
       });
 })
+
+/**
+ * Ejecuta la carga de todos los gráficos
+ */
 function CargarGraficos(){
     $('.contenedorGrafico > .grafico').each(function(i,elemento){
         if(echarts.getInstanceByDom(elemento)){
             echarts.getInstanceByDom(elemento).clear();
         }
     });
-    ModalidadMontoCantidad();
-    CantidadContratosCategoriaCompra();
-    MontoContratosCategoriaCompra();
+    CantidadContratosTipoContrato();
+    MontoContratosTipoContrato();
     Top10InstitucionesMontos();
     MontoCatalogoElectronico();
     MontoCompraConjunta();
+    ModalidadMontoCantidad();
 }
+
+
+/**
+ * Obtiene un Json con los filtros aplicados según la url, recibe un json inicial por si se quiere setear el valor de algun grafico que no este todavía en la url
+ */
 function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('moneda'))){
         parametros['moneda']=decodeURIComponent(ObtenerValor('moneda'));
@@ -1239,12 +1395,14 @@ function ObtenerJsonFiltrosAplicados(parametros){
     return parametros;
   }
 
-  
+/**
+ * Obtiene los datos de los filtros a mostrar
+ */
 function ObtenerFiltros(){
     var parametros=ObtenerJsonFiltrosAplicados({});
     $.get(api+"/dashboardoncae/filtros/",parametros).done(function( datos ) {
 
-        console.dir('filtros')
+    console.dir('filtros')
     console.dir(datos);
       
        
@@ -1264,7 +1422,12 @@ function ObtenerFiltros(){
 
 }
 
-
+/**
+ * Obtiene los datos de los filtros a mostrar
+ * @param {Object} opciones - objeto de filtros aplicados
+ * @param {boolean} desUrl - descartar parametro de la url en caso de que este y no se haya recibido un json de opciones
+ * @return {string}
+ */
 function AccederUrlPagina(opciones,desUrl){
     var direccion=('/indicadoresProcesosContratacion/?'+
     (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
@@ -1282,12 +1445,20 @@ function AccederUrlPagina(opciones,desUrl){
     );
     return direccion;
   }
+
+  /**
+   * Agrega la dirección al historial de búsqueda del navegador
+   */
   function PushDireccionGraficos(direccion){
     window.history.pushState({}, document.title,direccion);
     ObtenerFiltros();
     CargarGraficos();
   }
-  
+
+ /**
+  * Muestra las etiquetas con los filtros aplicados
+  * @param {Object} parametros 
+  */
   function MostrarEtiquetasFiltrosAplicados(parametros){
     delete parametros.masinstituciones;
     delete parametros.masproveedores;
@@ -1329,6 +1500,9 @@ function AccederUrlPagina(opciones,desUrl){
 
   }
 
+  /**
+   * Envia un Json cono los parametros de los filtros aplicados a la función que muestra las etiquetas de filtros aplicados
+   */
   function MostrarEtiquetaListaElasticaAplicada(){
   
     var parametros={
@@ -1348,6 +1522,9 @@ function AccederUrlPagina(opciones,desUrl){
     });
   }
 
+  /**
+   * Muestra el contenido de los filtros aplicados, las opciones de selección
+   */
   function MostrarListaElastica(datos,selector){
     $(selector).html('');
     $.each(datos.respuesta,function(llave,valor){
@@ -1400,7 +1577,10 @@ function AccederUrlPagina(opciones,desUrl){
     
     
   }
-
+/**
+ * Ejecuta la acción al ahcer click en eun botón
+ * @param {Object} e - evento de un click
+ */
   function MostrarMasResultados(e){
     switch($(e.currentTarget).attr('llave')){
         case 'instituciones':
@@ -1426,28 +1606,17 @@ function AccederUrlPagina(opciones,desUrl){
             break;
     }
 }
-function ValoresLlaves(llave){
-    switch(llave){
-        case 'años':
-            return {valor:'key_as_string',cantidad:'contratos',codigo:'key_as_string'};
-        case 'categorias':
-            return {valor:'categoria',cantidad:'contratos',codigo:'categoria'};
-        case 'instituciones':
-            return {valor:'nombre',cantidad:'contratos',codigo:'codigo'};
-        case 'modalidades':
-            return {valor:'modalidad',cantidad:'contratos',codigo:'modalidad'};
-        case 'monedas':
-            return {valor:'moneda',cantidad:'contratos',codigo:'moneda'};
-        case 'sistemas':
-            return {valor:'id',cantidad:'ocids',codigo:'id'};
-        default:
-            return {valor:'key_as_string',cantidad:'contratos',codigo:'key_as_string'};
-    }
-}
+
+
+/**
+ * Agrega los elementos que pueden ser seleccionados en un categoría
+ * @param {Object[]} valor - arreglo de valores seleccionables en un filtro
+ * @param {string} llave - llave de un filtro 
+ */
 function AgregarPropiedadesListaElastica(valor,llave){
     var elementos=[]
     $.each(valor,function(i,propiedades){
-      if(!(ObtenerNumero(propiedades.contratos) >0)){
+      if(Validar(propiedades.contratos)&&(ObtenerNumero(propiedades.contratos) == 0)){
           return;
       }
       elementos.push(
@@ -1511,7 +1680,11 @@ function AgregarPropiedadesListaElastica(valor,llave){
     });
     return elementos;
   }
-
+/**
+ * Agrega los elementos que pueden ser seleccionados en un categoría
+ * @param {Object[]} valor - arreglo de valores seleccionables en un filtro
+ * @param {string} llave - llave de un filtro 
+ */
   function PanelInicialFiltros(selector){
     $(selector).html('')
   $.each(ordenFiltros,function(indice,elemento){
@@ -1546,7 +1719,9 @@ function AgregarPropiedadesListaElastica(valor,llave){
     });
 }
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de compra conjunta por montos de contrato
+ */
 function MontoCompraConjunta(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
@@ -1555,6 +1730,10 @@ $.get(api+"/indicadoresoncae/comprasconjuntas/",parametros).done(function( datos
 console.dir('MONTO COMPRA CONJUNTA');
 console.dir(datos);
 OcultarReloj('#montoCompraConjunta',true);
+if(datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadProcesos)  && datos.resultados.cantidadProcesos.length==0){
+    MostrarSinDatos('#montoCompraConjunta',true)
+    return;
+}
 var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
     var opciones = {
         baseOption:{
@@ -1565,6 +1744,17 @@ var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
                     crossStyle: {
                         color: '#999'
                     }
+                },
+                formatter:  function (e){
+    
+    
+                    
+                    var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,'<br>')+'<br>';
+    
+                    e.forEach(function(valor,indice){
+                        cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorMoneda(valor.value) :ValorNumerico(valor.value) ) +' '+(valor.seriesIndex==0?'HNL':'Contratos')+'<br>'
+                    });
+                    return cadena;
                 }
             },
             toolbox: {
@@ -1619,7 +1809,12 @@ var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
                     type: 'category',
                     data: datos.resultados.nombreCatalogos.reverse(),
                     axisPointer: {
-                        type: 'shadow'
+                        type: 'shadow',
+                        label:{
+                            formatter:function(params){
+                                return  ObtenerParrafo(params.value,40);
+                            }
+                        }
                     },axisLabel: {
                         //rotate:45
                         formatter:function(e){
@@ -1647,7 +1842,8 @@ var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
                             position: 'right',
                             formatter: function (e){
                                 return "{c} HNL".replace('{c}',ValorMoneda(e.value));
-                            }
+                            },
+                            color:'gray'
                         }
                     },
                     barWidth:30,
@@ -1677,13 +1873,6 @@ var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
             grid:{
                 containLabel:true,
                 right:'15%'
-            },
-            label:{
-                show:true,
-                fontFamily:'Poppins',
-                fontWeight:700,
-                fontSize:15,
-                color:'gray'
             }
         },
         media:[
@@ -1698,10 +1887,21 @@ var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
                             type: 'category',
                             data: datos.resultados.nombreCatalogos.reverse(),
                             axisPointer: {
-                                type: 'shadow'
+                                type: 'shadow',
+                                label:{
+                                    formatter:function(params){
+                                        return  ObtenerParrafo(params.value,40);
+                                    }
+                                }
                             },
                             axisLabel: {
-                                rotate:90
+                                interval:0,
+                                rotate:90,
+                                showMinLabel:false,
+                                padding:[0,0,0,0],
+                                formatter:function(e){
+                                    return ObtenerParrafo(e,40);
+                                }
                             },
                             name:'Compra\nConjunta'
                             

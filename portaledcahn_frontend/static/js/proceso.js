@@ -1,3 +1,8 @@
+/**
+ * @file proceso.js Este archivo se incluye en la sección de Visualización de un Proceso de Contratación del Portal de Contrataciones Abiertas de Honduras
+ * @author Bryant Marcelo Pérez
+ * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
+ */
 /*OCID del proceso de contratacion*/
 var procesoOcid='';
 var procesoRecord={};
@@ -106,29 +111,11 @@ function ObtenerProceso(){
         AgregarToolTips();
         AsignarOrdenTabla();
         VerificarIntroduccion('INTROJS_PROCESO',1);
-        /*DefinirElementosPlaneacion();
-        DefinirElementosConvocatoria();
-        DefinirElementosAdjudicacion();
-        DefinirElementosContrato();
-        //DefinirElementosImplementacion();
-        DeshabilitarItems();
-        MostrarPrimerProceso();*/
+        
         OcultarEspera('body .tamanoMinimo');
         console.dir(datos)
         InicializarDescargas();
-        AgregarEventoModalDescarga('descargaJsonProceso',function(){
-          console.dir('EVENTO DE DESCARGA')
-          var descarga=datos.compiledRelease;
-          DescargarJSON(descarga,'Proceso');
-        });
-        AgregarEventoModalDescarga('descargaCsvProceso',function(){
-          var descarga=datos.compiledRelease;
-          DescargarCSV(ObtenerMatrizObjeto(descarga) ,'Proceso');
-        });
-        AgregarEventoModalDescarga('descargaXlsxProceso',function(){
-          var descarga=datos.compiledRelease;
-          DescargarXLSX(ObtenerMatrizObjeto(descarga) ,'Proceso');
-        });
+        
 
         
 
@@ -607,7 +594,7 @@ function VerificarAgregarPartes(partes){
 function InicializarDescargas(){
    AbrirModalDescarga('descargaJsonProceso','Descarga JSON',true);/*Crear Modal Descarga */
    AbrirModalDescarga('descargaCsvProceso','Descarga CSV',true);/*Crear Modal Descarga */
-   AbrirModalDescarga('descargaXlsxPRoceso','Descarga XLSX',true);/*Crear Modal Descarga */
+   AbrirModalDescarga('descargaXlsxProceso','Descarga XLSX',true);/*Crear Modal Descarga */
    $('#descargaJSONContrato,#descargaJSONPlaneacion,#descargaJSONAdjudicacion,#descargaJSONConvocatoria').on('click',function(e){
      AbrirModalDescarga('descargaJsonProceso','Descarga JSON');
    });
@@ -617,4 +604,17 @@ function InicializarDescargas(){
    $('#descargaXLSXContrato,#descargaXLSXPlaneacion,#descargaXLSXAdjudicacion,#descargaXLSXConvocatoria').on('click',function(e){
      AbrirModalDescarga('descargaXlsxProceso','Descarga XLSX');
    });
+
+   AgregarEventoModalDescarga('descargaJsonProceso',function(){
+    var descarga=procesoRecord.compiledRelease;
+    DescargarJSON(descarga,'Proceso');
+  });
+  AgregarEventoModalDescarga('descargaCsvProceso',function(){
+    var descarga=procesoRecord.compiledRelease;
+    DescargarCSV(ObtenerMatrizObjeto([descarga]) ,'Proceso');
+  });
+  AgregarEventoModalDescarga('descargaXlsxProceso',function(){
+    var descarga=procesoRecord.compiledRelease;
+    DescargarXLSX(ObtenerMatrizObjeto([descarga]) ,'Proceso');
+  });
  }

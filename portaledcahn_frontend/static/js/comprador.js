@@ -1,6 +1,27 @@
+/**
+ * @file comprador.js Este archivo se incluye en la sección de comprador del Portal de Contrataciones Abiertas de Honduras
+ * @author Bryant Marcelo Pérez
+ * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
+ */
+
+/**
+ * Id del Comprador
+ * @type {string}
+ */
 var compradorId = '';
+
+/**
+ * Objeto de datos del comprador
+ * @type {Object}
+ */
 var datosComprador = {};
+
+/**
+ * Parametros dentro de la url con los parametros que corresponden a su método según la tabla
+ * @type {Object}
+ */
 var filtrosAPropiedades = {
+    /*Tabla Contratos */
     "proveedorCon": 'proveedor',
     "tituloCon": "titulo",
     "compradorCon":"compradorCon",
@@ -14,6 +35,7 @@ var filtrosAPropiedades = {
     "dependencias": "dependencias",
     "paginarPorCon": "paginarPor",
     "ordenarPorCon": "ordenarPor",
+    /*Tabla Pagos */
     "compradorPag": "comprador",
     "proveedorPag": "proveedor",
     "tituloPag": "titulo",
@@ -23,7 +45,7 @@ var filtrosAPropiedades = {
     "pagosPag": "pagos",
     "paginarPorPag": "paginarPor",
     "ordenarPorPag": "ordenarPor",
-
+    /*Tabla Procesos */
     "compradorPro": "comprador",
     "ocidPro": "ocid",
     "tituloPro": "titulo",
@@ -35,6 +57,11 @@ var filtrosAPropiedades = {
     "fechaPublicacionPro": "fechaPublicacion",
     "ordenarPorPro": "ordenarPor"
 };
+
+/**
+ * Traducciones para la Categoría de Compra
+ * @type {Object}
+ */
 var categoriaCompra={
     'goods':{titulo:'Bienes y provisiones',descripcion:'El objeto primario de este proceso de contratación involucra bienes físicos o electrónicos o provisiones'},
     'works':{titulo:'Obras',descripcion:'El objeto primario de este proceso de contratación involucra construcción, reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
@@ -42,28 +69,37 @@ var categoriaCompra={
     'goodsOrServices':{titulo:'Bienes y/o Servicios',descripcion:''},
     'consultingServices':{titulo:'Consultorías',descripcion:''}
   }
-  var estadoProceso={
-    'planning':{
-        titulo:'Planeación',
-        descripcion:'Se propone o planea un proceso de contratación. La información en la sección de licitación describe el proceso propuesto. El campo tender.status debe de usarse para identificar si la planeación está en una etapa temprana o si hay planes detallados para una licitación.'
-    },
-    'tender':{
-        titulo:'Licitación',
-        descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'
-    },
-    'awards':{
-        titulo:'Adjudicación',
-        descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'
-    },
-    'contracts':{
-        titulo:'Contrato',
-        descripcion:'Da información sobre los detalles de un contrato que ha entrado, o entrará, en vigencia. La sección de licitación puede ser poblada con detalles del proceso que lleva al contrato, y la sección de adjudicación puede tener detalles sobre la adjudicación sobre la cual este contrato será firmado.'
-    },
-    'implementation':{
-        titulo:'Implementación',
-        descripcion:'Provee información nueva sobre la implementación de un proceso de contratación.'
-    }		
+
+/**
+ * Traducciones para las estapas de un proceso
+ * @type {Object}
+ */
+var estadoProceso={
+'planning':{
+    titulo:'Planeación',
+    descripcion:'Se propone o planea un proceso de contratación. La información en la sección de licitación describe el proceso propuesto. El campo tender.status debe de usarse para identificar si la planeación está en una etapa temprana o si hay planes detallados para una licitación.'
+},
+'tender':{
+    titulo:'Licitación',
+    descripcion:'Provee información sobre una nueva licitación (llamado a propuestas). La entrega de licitación debe contener detalles de los bienes o servicios que se buscan.'
+},
+'awards':{
+    titulo:'Adjudicación',
+    descripcion:'Da información sobre la adjudicación de un contrato. Estarán presentes una o más secciones de adjudicación, y la sección de licitación puede estar poblada con detalles del proceso que llevó a la adjudicación.'
+},
+'contracts':{
+    titulo:'Contrato',
+    descripcion:'Da información sobre los detalles de un contrato que ha entrado, o entrará, en vigencia. La sección de licitación puede ser poblada con detalles del proceso que lleva al contrato, y la sección de adjudicación puede tener detalles sobre la adjudicación sobre la cual este contrato será firmado.'
+},
+'implementation':{
+    titulo:'Implementación',
+    descripcion:'Provee información nueva sobre la implementación de un proceso de contratación.'
+}		
 }
+
+/**
+ * Inicializa los eventos de las tablas, obtiene los datos del comprador.
+ */
 $(function() {
     compradorId = decodeURIComponent($('#compradorId').val());
     $('.opcionFiltroBusquedaPagina').on('click', function(e) {
@@ -104,9 +140,6 @@ $(function() {
     $('.OpcionFiltroBusquedaNumerico input').on('change', function(evento) {
         cambiarFiltroNumerico(evento.currentTarget);
     });
-
-
-
     ObtenerComprador();
     var elementosNumericos = [];
     for (let i = 0; i < $('.elementoNumerico').length; i++) {
@@ -115,18 +148,14 @@ $(function() {
             decimalPlaces: $($('.elementoNumerico')[i]).attr('decimal') == "true" ? 2 : 0,
             digitalGroupSpacing: 3,
             digitGroupSeparator: ','
-        }
+        };
         elementosNumericos[i] = new AutoNumeric($('.elementoNumerico')[i], configuracionNumerica);
     }
-    /*
-        $('#cajonContratos .OpcionFiltroBusquedaNumerico input').on('change',function(evento){
-          cambiarFiltroNumerico(evento.currentTarget);
-        });*/
 
     $('#cajonContratos input.campoAzulBusqueda').on('change', function(evento) {
         var elemento = $('#cajonContratos input.campoAzulBusqueda');
         var filtros = {};
-        filtros = ObtenerFiltrosContratos();
+        filtros = ObtenerFiltrosGenerales();
         filtros[elemento.attr('filtro')] = (elemento.val());
         if (!ValidarCadena(filtros[elemento.attr('filtro')])) {
             delete filtros[elemento.attr('filtro')];
@@ -137,7 +166,7 @@ $(function() {
     $('#cajonPagos input.campoAzulBusqueda').on('change', function(evento) {
         var elemento = $('#cajonPagos input.campoAzulBusqueda');
         var filtros = {};
-        filtros = ObtenerFiltrosPagos();
+        filtros = ObtenerFiltrosGenerales();
         filtros[elemento.attr('filtro')] = (elemento.val());
         if (!ValidarCadena(filtros[elemento.attr('filtro')])) {
             delete filtros[elemento.attr('filtro')];
@@ -148,7 +177,7 @@ $(function() {
     $('#cajonProcesos input.campoAzulBusqueda').on('change', function(evento) {
         var elemento = $('#cajonProcesos input.campoAzulBusqueda');
         var filtros = {};
-        filtros = ObtenerFiltrosProcesos();
+        filtros = ObtenerFiltrosGenerales();
         filtros[elemento.attr('filtro')] = (elemento.val());
         if (!ValidarCadena(filtros[elemento.attr('filtro')])) {
             delete filtros[elemento.attr('filtro')];
@@ -159,7 +188,7 @@ $(function() {
     $('#buscarInformacionContratos').on('click', function(evento) {
         var elemento = $('#cajonContratos input.campoAzulBusqueda');
         var filtros = {};
-        filtros = ObtenerFiltrosContratos();
+        filtros = ObtenerFiltrosGenerales();
         filtros[elemento.attr('filtro')] = (elemento.val());
         if (!ValidarCadena(filtros[elemento.attr('filtro')])) {
             delete filtros[elemento.attr('filtro')];
@@ -170,7 +199,7 @@ $(function() {
     $('#buscarInformacionPagos').on('click', function(evento) {
         var elemento = $('#cajonPagos input.campoAzulBusqueda');
         var filtros = {};
-        filtros = ObtenerFiltrosPagos();
+        filtros = ObtenerFiltrosGenerales();
         filtros[elemento.attr('filtro')] = (elemento.val());
         if (!ValidarCadena(filtros[elemento.attr('filtro')])) {
             delete filtros[elemento.attr('filtro')];
@@ -181,7 +210,7 @@ $(function() {
     $('#buscarInformacionProcesos').on('click', function(evento) {
         var elemento = $('#cajonProcesos input.campoAzulBusqueda');
         var filtros = {};
-        filtros = ObtenerFiltrosProcesos();
+        filtros = ObtenerFiltrosGenerales();
         filtros[elemento.attr('filtro')] = (elemento.val());
         if (!ValidarCadena(filtros[elemento.attr('filtro')])) {
             delete filtros[elemento.attr('filtro')];
@@ -189,9 +218,10 @@ $(function() {
         filtros['paginaPro'] = 1;
         InputFiltroProcesos(filtros, true);
     });
-    AsignarEventosFiltro('#cajonContratos', 'Con', ObtenerFiltrosContratos, InputFiltroContratos);
-    AsignarEventosFiltro('#cajonPagos', 'Pag', ObtenerFiltrosPagos, InputFiltroPagos);
-    AsignarEventosFiltro('#cajonProcesos', 'Pro', ObtenerFiltrosProcesos, InputFiltroProcesos);
+
+    AsignarEventosFiltro('#cajonContratos', 'Con', ObtenerFiltrosGenerales, InputFiltroContratos);
+    AsignarEventosFiltro('#cajonPagos', 'Pag', ObtenerFiltrosGenerales, InputFiltroPagos);
+    AsignarEventosFiltro('#cajonProcesos', 'Pro', ObtenerFiltrosGenerales, InputFiltroProcesos);
     AsignarOrdenTablaFiltros(OrdenFiltroContratos, '#cajonContratos .ordenEncabezado');
     AsignarOrdenTablaFiltros(OrdenFiltroPagos, '#cajonPagos .ordenEncabezado');
     AsignarOrdenTablaFiltros(OrdenFiltroProcesos, '#cajonProcesos .ordenEncabezado');
@@ -207,19 +237,38 @@ $(function() {
     InicializarDescargas();
 });
 
+/**
+ * Agrega el cambio de dirección en la url cuando cambia la tabla de contratos
+ * @param {number} numero 
+ */
 function CantidadResultadosContrato(numero) {
     PushDireccionContratos(AccederUrlPagina({ paginaCon: 1, paginarPorCon: numero }));
 }
 
+/**
+ * Agrega el cambio de dirección en la url cuando cambia la tabla de pagos
+ * @param {number} numero 
+ */
 function CantidadResultadosPago(numero) {
     PushDireccionPagos(AccederUrlPagina({ paginaPag: 1, paginarPorPag: numero }));
 }
 
+/**
+ * Agrega el cambio de dirección en la url cuando cambia la tabla de procesos
+ * @param {number} numero 
+ */
 function CantidadResultadosProceso(numero) {
     PushDireccionProcesos(AccederUrlPagina({ paginaPro: 1, paginarPorPro: numero }));
 }
 
-function AsignarEventosFiltro(selector, sufijo, funcionFiltros, funcionInput) {
+/**
+ * Agrega los eventos a los campos una vez que cambien su valor
+ * @param {string} selector -Identifiador de la tabla
+ * @param {string} prefijo -Prefijo para Identificar la Tabla
+ * @param {Object} funcionFiltros -Funcion para obtener los filtros
+ * @param {funcionInput} funcionInput -Funcion a realizar posterior al cambio
+ */
+function AsignarEventosFiltro(selector, prefijo, funcionFiltros, funcionInput) {
     $(selector + ' .campoFiltrado input[type="text"], '+selector+' .campoFiltrado select.campoBlancoTextoSeleccion').on({
         'change': function(e) {
             var elemento = $(e.currentTarget);
@@ -232,7 +281,7 @@ function AsignarEventosFiltro(selector, sufijo, funcionFiltros, funcionInput) {
                     if (!ValidarCadena(filtros[elementoPadre.attr('filtro')])) {
                         delete filtros[elementoPadre.attr('filtro')];
                     }
-                    filtros['pagina' + sufijo] = 1;
+                    filtros['pagina' + prefijo] = 1;
                     funcionInput(filtros, true);
                     break;
                 case 'numero':
@@ -240,7 +289,7 @@ function AsignarEventosFiltro(selector, sufijo, funcionFiltros, funcionInput) {
                     if (!ValidarCadena(filtros[elementoPadre.attr('filtro')])) {
                         delete filtros[elementoPadre.attr('filtro')];
                     }
-                    filtros['pagina' + sufijo] = 1;
+                    filtros['pagina' + prefijo] = 1;
                     funcionInput(filtros, true);
                     break;
                 default:
@@ -248,7 +297,7 @@ function AsignarEventosFiltro(selector, sufijo, funcionFiltros, funcionInput) {
                     if (!ValidarCadena(filtros[elementoPadre.attr('filtro')])) {
                         delete filtros[elementoPadre.attr('filtro')];
                     }
-                    filtros['pagina' + sufijo] = 1;
+                    filtros['pagina' + prefijo] = 1;
                     funcionInput(filtros, true);
                     break;
             }
@@ -257,21 +306,21 @@ function AsignarEventosFiltro(selector, sufijo, funcionFiltros, funcionInput) {
     })
 }
 
+/**
+ * Funcion para obtener los datos del comprador y cargar las tablas del mismo
+ */
 function ObtenerComprador() {
     DebugFecha();
     MostrarEspera('body .tamanoMinimo',true);
-    $.get(api + "/compradores/" + encodeURIComponent(compradorId) /*url+"/static/"+procesoOcid+".json"*/ ,{
+    $.get(api + "/compradores/" + encodeURIComponent(compradorId) ,{
         tid:'id'
     }, function(datos) {
         DebugFecha();
         datosComprador = datos;
-        console.dir(datos)
         OcultarEspera('body .tamanoMinimo');
         if (datos.id) {
-
             AnadirDatosComprador();
             $('.contenedorTablas').show()
-
             CargarContratosComprador();
             CargarPagosComprador();
             CargarProcesosComprador();
@@ -290,7 +339,9 @@ function ObtenerComprador() {
     });
 }
 
-
+/**
+ * Añade los datos del comprador
+*/
 function AnadirDatosComprador() {
     $('.contenedorInformacion').append(
         $('<div>', { class: 'row mt-5' }).append(
@@ -393,12 +444,12 @@ function AnadirDatosComprador() {
             )
         ) : null
 
-
-
-
-    )
+    );
 }
 
+/**
+ * Obtiene los datos de los contratos del comprador
+ */
 function CargarContratosComprador() {
     $('#resultadosContratosComprador').html(
         $('<tr>').append(
@@ -411,7 +462,7 @@ function CargarContratosComprador() {
     EliminarEventoModalDescarga('descargaXlsxCompradorContratos');
     parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/contratos', parametros).done(function(datos) {
-        console.dir('Contratos')
+        console.dir('Contratos');
         console.dir(datos);
 
         AgregarResultadosContratosComprador(datos, '#resultadosContratosComprador');
@@ -436,6 +487,9 @@ function CargarContratosComprador() {
     });
 }
 
+/**
+ * Obtiene los datos de los pagos del comprador
+ */
 function CargarPagosComprador() {
     $('#resultadosPagosComprador').html(
         $('<tr>').append(
@@ -448,31 +502,31 @@ function CargarPagosComprador() {
     EliminarEventoModalDescarga('descargaXlsxCompradorPagos');
     parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/pagos', parametros).done(function(datos) {
-        console.dir('Pagos')
+        console.dir('Pagos');
         console.dir(datos);
 
         AgregarResultadosPagosComprador(datos, '#resultadosPagosComprador')
         MostrarPaginacion(datos, '.PagosComprador',
             function(e) {
-                PaginaPagosComprador($(e.currentTarget).attr('pagina'))
+                PaginaPagosComprador($(e.currentTarget).attr('pagina'));
             });
 
 
         AgregarToolTips();
         ObtenerDescargaCompradorPagos(datos);
 
-
-
-
     }).fail(function() {
         /*Error de Conexion al servidor */
         console.dir('error de api');
-        AgregarResultadosPagosComprador({ resultados: [] }, '#resultadosPagosComprador')
+        AgregarResultadosPagosComprador({ resultados: [] }, '#resultadosPagosComprador');
         AgregarToolTips();
 
     });
 }
 
+/**
+ * Obtiene los datos de los procesos del comprador
+ */
 function CargarProcesosComprador() {
     $('#resultadosProcesosComprador').html(
         $('<tr>').append(
@@ -485,7 +539,7 @@ function CargarProcesosComprador() {
     EliminarEventoModalDescarga('descargaXlsxCompradorProcesos');
     parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/procesos', parametros).done(function(datos) {
-        console.dir('Procesos')
+        console.dir('Procesos');
         console.dir(datos);
 
         AgregarResultadosProcesosComprador(datos, '#resultadosProcesosComprador')
@@ -498,23 +552,20 @@ function CargarProcesosComprador() {
         AgregarToolTips();
         ObtenerDescargaCompradorProcesos(datos);
 
-
-
-
     }).fail(function() {
         /*Error de Conexion al servidor */
         console.dir('error de api');
-        AgregarResultadosProcesosComprador({ resultados: [] }, '#resultadosProcesosComprador')
+        AgregarResultadosProcesosComprador({ resultados: [] }, '#resultadosProcesosComprador');
         AgregarToolTips();
 
     });
 }
-/*
 
-$('<div>',{class:''})
-
-*/
-
+/**
+ * Agrega los resultados a la tabla de contratos
+ * @param {Object} datos -Datos de los resultados
+ * @param {string} selector -Identificador donde se encuentra 
+ */
 function AgregarResultadosContratosComprador(datos, selector) {
     var resultados = datos.resultados;
     $(selector).html('');
@@ -525,10 +576,6 @@ function AgregarResultadosContratosComprador(datos, selector) {
 
                     resultados[i] && resultados[i]._source && resultados[i]._source.suppliers?ObtenerProveedoresArreglo(resultados[i]._source.suppliers):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
-                /*
-                $('<td>', { 'data-label': 'Comprador' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.buyerFullName ? $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.extra.buyerFullName) }).text(resultados[i]._source.extra.buyerFullName) : ''
-                ),*/
                 $('<td>', { 'data-label': 'Título de Contrato', class: 'textoAlineadoIzquierda' }).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.title ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.extra.ocid) + '/?contrato=' + resultados[i]._source.id, toolTexto: resultados[i]._source.title }).text(ReducirTexto(resultados[i]._source.title, 80)) : $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.extra.ocid) + '/?contrato=' + resultados[i]._source.id }).text('Sin título')
                 ),
@@ -543,48 +590,35 @@ function AgregarResultadosContratosComprador(datos, selector) {
                 $('<td>', { 'data-label': 'Categoría de Compras', class: 'textoAlineadoCentrado' }).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.localProcurementCategory ? (categoriaCompra[resultados[i]._source.localProcurementCategory]?categoriaCompra[resultados[i]._source.localProcurementCategory].titulo: resultados[i]._source.localProcurementCategory) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
-                /*
-                $('<td>', { 'data-label': 'Categoría de Compras', class: 'textoAlineadoCentrado' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderMainProcurementCategory ? (categoriaCompra[resultados[i]._source.extra.tenderMainProcurementCategory]?categoriaCompra[resultados[i]._source.extra.tenderMainProcurementCategory].titulo: resultados[i]._source.extra.tenderMainProcurementCategory) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
-                ),*/
                 $('<td>', { 'data-label': 'Monto del Contrato', class: 'textoAlineadoDerecha' }).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.value && Validar(resultados[i]._source.value.amount) ? [ValorMoneda(resultados[i]._source.value.amount), $('<span>', { class: 'textoColorPrimario', text: ' ' + resultados[i]._source.value.currency })] : ''
-
-
                 ),
-
                 $('<td>', { 'data-label': 'Fecha de Firma del Contrato', class: 'textoAlineadoCentrado' }).append(
                     $('<span>', { class: resultados[i] && resultados[i]._source && resultados[i]._source.dateSigned && resultados[i]._source.dateSigned != 'NaT' ? '' : 'textoColorGris' }).text(
                         resultados[i] && resultados[i]._source && resultados[i]._source.dateSigned && resultados[i]._source.dateSigned != 'NaT' ? ObtenerFecha(resultados[i]._source.dateSigned, 'fecha') : 'No Disponible'
                     )
-
                 ),
-                /*$('<td>', { 'data-label': 'Fecha de Firma del Contrato', class: 'textoAlineadoCentrado' }).append(
-                    $('<span>', { class: resultados[i] && resultados[i]._source && resultados[i]._source.dateSigned && resultados[i]._source.dateSigned != 'NaT' ? '' : (resultados[i]._source.period&&resultados[i]._source.period.startDate?'':'textoColorGris') }).text(
-                        resultados[i] && resultados[i]._source && resultados[i]._source.dateSigned && resultados[i]._source.dateSigned != 'NaT' ? ObtenerFecha(resultados[i]._source.dateSigned, 'fecha') : (resultados[i]._source.period&&resultados[i]._source.period.startDate?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible')
-                    )
-
-                ), */
-                /*$('<td>',{'data-label':'Fecha de Inicio del Contrato' ,class:'textoAlineadoCentrado'}).append(
-                  $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
-                      resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible'
-                  )
-                  
-                  ),*/
                 $('<td>', { 'data-label': 'Estado', class: 'textoAlineadoCentrado' }).append(
                     resultados[i] && resultados[i]._source && resultados[i]._source.status ? (estadosContrato[resultados[i]._source.status]? estadosContrato[resultados[i]._source.status].titulo:resultados[i]._source.status) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
-                ),
+                )
             )
-        )
+        );
     }
     if (!resultados.length) {
         $(selector).append(
             $('<tr>', { style: '' }).append(
                 $('<td>', { 'data-label': '', 'colspan': 8 }).append(
                     $('<h4>', { class: 'titularColor textoColorPrimario mt-3 mb-3' }).text('No se Encontraron Contratos')
-                )))
+                )));
     }
 }
+
+
+/**
+ * Obtiene la Subtabla de pagos
+ * @param {Object} datos -Obtiene datos de la subtabla
+ * @return {Object[]} -Retorna un arreglo de objetos html correspondientes a cada pago
+ */
 function ObtenerFilasSubTablaPagos(datos){
     var elementos = [];
     if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
@@ -618,11 +652,17 @@ function ObtenerFilasSubTablaPagos(datos){
             $('<tr>', { style: '' }).append(
                 $('<td>', { 'data-label': '', 'colspan': 4 }).append(
                     $('<h4>', { class: 'titularColor textoColorPrimario mt-3 mb-3' }).text('No hay pagos disponibles')
-                )))
+                )));
     }
     return elementos;
 }
 
+/**
+ * Agrega una fila en la tabla de pagos
+ * @param {Object} resultados -Fila de resultados
+ * @param {string} selector -Contendor donde se agregara la fila
+ * @param {number} i -Indice
+ */
 function AgregarFilaPago(resultados,selector,i){
     $(selector).append(
         $('<tr>',{
@@ -695,64 +735,50 @@ function AgregarFilaPago(resultados,selector,i){
             )
 
         )
-    )
+    );
 }
+
+/**
+ * Obtiene las transacciones de los proveedores
+ * @param {Object[]} transacciones -Arreglo de transacciones
+ * @return {Object[]}
+ */
 function ObtenerProveedoresTransacciones(transacciones){
     var elementos=[];
     for (var i=0; i< transacciones.length; i++) {
         if(transacciones[i].payee&&transacciones[i].payee.id){
             elementos.push(
                 $('<a>',{text:transacciones[i].payee.name,class:'enlaceTablaGeneral',href:'/proveedor/'+transacciones[i].payee.id})
-            )
+            );
         }
     }
     return elementos;
 }
-/*
-function ObtenerProveedoresTransacciones(transacciones){
-    var elementos=[];
-    for (var i=0; i< transacciones.length; i++) {
-        if(transacciones[i].payee&&transacciones[i].payee.id){
-            elementos.push(
-                $('<a>',{text:transacciones[i].payee.name,class:'enlaceTablaGeneral',href:'/proveedor/'+transacciones[i].payee.id})
-            )
-        }
-    }
-    return elementos;
-}*/
+
+/**
+ * Agrega las filas de resultados en los pagos de un comprador
+ * @param {Object} datos -datos en la respuesta del metodo de pagos
+ * @param {string} selector -contenedor HTML de resultados de pagos
+ */
 function AgregarResultadosPagosComprador(datos, selector) {
     var resultados = datos.resultados;
     $(selector).html('');
     for (var i = 0; i < resultados.length; i++) {
-        AgregarFilaPago(resultados,selector,i)
+        AgregarFilaPago(resultados,selector,i);
     }
     if (!resultados.length) {
         $(selector).append(
             $('<tr>', { style: '' }).append(
                 $('<td>', { 'data-label': '', 'colspan': 5 }).append(
                     $('<h4>', { class: 'titularColor textoColorPrimario mt-3 mb-3' }).text('No se Encontraron Pagos')
-                )))
+                )));
     }
 }
 
-
-function ObtenerProveedoresContrato(datos) {
-    var elementos = [];
-    if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
-        for (let i = 0; i < datos.implementation.transactions.length; i++) {
-            if (datos.implementation.transactions[i].payee && datos.implementation.transactions[i].payee.id) {
-                elementos.push(
-                    $('<a>', { class: 'enlaceTablaGeneral', href: '/proveedor/' + encodeURIComponent(datos.implementation.transactions[i].payee.id) }).text(datos.implementation.transactions[i].payee.name)
-                )
-                elementos.push(' ');
-            }
-
-
-            
-        }
-    }
-    return elementos;
-}
+/**
+ * Obtiene un arreglo de elementos HTML de los datos de los proveedores
+ * @param {Object} datos -Arreglo de proveedores
+ */
 function ObtenerProveedoresArreglo(datos) {
     var elementos = [];
     if (datos && datos.length) {
@@ -768,6 +794,11 @@ function ObtenerProveedoresArreglo(datos) {
     return elementos;
 }
 
+/**
+ * Agrega los resultados en la tabla de procesos del comprador
+ * @param {Object} datos -datos de la respuesta
+ * @param {string} selector -contenedor donde se desean agregar
+ */
 function AgregarResultadosProcesosComprador(datos, selector) {
     var resultados = datos.resultados;
     $(selector).html('');
@@ -775,7 +806,7 @@ function AgregarResultadosProcesosComprador(datos, selector) {
         $(selector).append(
             $('<tr>').append(
                 $('<td>', { 'data-label': 'Comprador' }).append(
-                resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.buyer && resultados[i]._source.doc.compiledRelease.buyer.id ?  /*ObtenerElementosParte(resultados[i]._source.doc.compiledRelease.buyer.id,resultados[i]._source.doc.compiledRelease)*/
+                resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.buyer && resultados[i]._source.doc.compiledRelease.buyer.id ?
                 $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.doc.compiledRelease.buyer.id)}).text(
                     resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?resultados[i]._source.extra.buyerFullName:'Comprador'
                     ) :  $('<span>', { class: 'textoColorGris' }).text('No Disponible')
@@ -794,11 +825,8 @@ function AgregarResultadosProcesosComprador(datos, selector) {
                     $('<span>', { class: resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.date && resultados[i]._source.doc.compiledRelease.date != 'NaT' ? '' : 'textoColorGris' }).text(
                         resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.date && resultados[i]._source.doc.compiledRelease.date != 'NaT' ? ObtenerFecha(resultados[i]._source.doc.compiledRelease.date, 'fecha') : 'No Disponible'
                     )
-
                 ),
                 $('<td>', { 'data-label': 'Fecha de Recepción de Ofertas', class: 'textoAlineadoCentrado' }).append(
-
-
                     $('<span>', { class: resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.tender && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate != 'NaT' ? '' : 'textoColorGris' }).text(
                         resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.tender && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate != 'NaT' ? ObtenerFecha(resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate, 'fecha') : 'No Disponible'
                     )
@@ -810,29 +838,29 @@ function AgregarResultadosProcesosComprador(datos, selector) {
                 ),
                 $('<td>', { 'data-label': 'Monto Contratado', class: 'textoAlineadoDerecha' }).append(
                     resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.tender && resultados[i]._source.doc.compiledRelease.tender.extra && resultados[i]._source.doc.compiledRelease.tender.extra && Validar(resultados[i]._source.doc.compiledRelease.tender.extra.sumContracts) ? [ValorMoneda(resultados[i]._source.doc.compiledRelease.tender.extra.sumContracts), $('<span>', { class: 'textoColorPrimario', text: ' HNL' })] : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
-
-
                 )
-
-
-
             )
-        )
+        );
     }
     if (!resultados.length) {
         $(selector).append(
             $('<tr>', { style: '' }).append(
                 $('<td>', { 'data-label': '', 'colspan': 8 }).append(
                     $('<h4>', { class: 'titularColor textoColorPrimario mt-3 mb-3' }).text('No se Encontraron Procesos')
-                )))
+                )));
     }
 }
 
-
+/**
+ * Agrega la paginación de una página
+ * @param {Object} datos -datos de la respuesta del metodo
+ * @param {string} selector -Contenedor donde se añadira la paginación
+ * @param {Object} funcion -Funcion que se ejecutara al hacer clic en una página
+ */
 function MostrarPaginacion(datos, selector, funcion) {
     var paginarPor = datos.parametros.paginarPor ? datos.parametros.paginarPor : (datos.parametros.pagianrPor ? datos.parametros.pagianrPor : 5);
     var pagina = datos.parametros.pagina ? datos.parametros.pagina : 1;
-    var paginacion = ObtenerPaginacion(datos.paginador.page, Math.ceil(ObtenerNumero(datos.paginador['total.items']) / ObtenerNumero(paginarPor)) /* datos.paginador.num_pages*/ )
+    var paginacion = ObtenerPaginacion(datos.paginador.page, Math.ceil(ObtenerNumero(datos.paginador['total.items']) / ObtenerNumero(paginarPor))  )
     $('.navegacionTablaGeneral' + selector).html('');
     if (datos.paginador.has_previous) {
         $('.navegacionTablaGeneral' + selector).append(
@@ -841,7 +869,6 @@ function MostrarPaginacion(datos, selector, funcion) {
             })
         );
     }
-
     for (var i = 0; i < paginacion.length; i++) {
         if (paginacion[i] == '...') {
             $('.navegacionTablaGeneral' + selector).append(
@@ -872,45 +899,91 @@ function MostrarPaginacion(datos, selector, funcion) {
 
 }
 
+/**
+ * Agrega la página con el filtrado que se hizo en los contratos
+ * @param {number} numero -numero de pagina que se desea agregar
+ */
 function PaginaContratosComprador(numero) {
     PushDireccionContratos(AccederUrlPagina({ paginaCon: numero }));
 }
 
+/**
+ * Agrega la página con el filtrado que se hizo en los pagos
+ * @param {number} numero -numero de pagina que se desea agregar
+ */
 function PaginaPagosComprador(numero) {
     PushDireccionPagos(AccederUrlPagina({ paginaPag: numero }));
 }
 
+/**
+ * Agrega la página con el filtrado que se hizo en los procesos
+ * @param {number} numero -numero de pagina que se desea agregar
+ */
 function PaginaProcesosComprador(numero) {
     PushDireccionProcesos(AccederUrlPagina({ paginaPro: numero }));
 }
 
+/**
+ * Agrega la página al historial con el filtrado que se hizo en los contratos
+ * @param {string} direccion -nueva direccion de la pagina
+ */
 function PushDireccionContratos(direccion) {
     window.history.pushState({}, document.title, direccion);
     CargarContratosComprador();
 }
 
+/**
+ * Agrega la página al historial con el filtrado que se hizo en los pagos
+ * @param {string} direccion -nueva direccion de la pagina
+ */
 function PushDireccionPagos(direccion) {
     window.history.pushState({}, document.title, direccion);
     CargarPagosComprador();
 }
 
+/**
+ * Agrega la página al historial con el filtrado que se hizo en los procesos
+ * @param {string} direccion -nueva direccion de la pagina
+ */
 function PushDireccionProcesos(direccion) {
     window.history.pushState({}, document.title, direccion);
     CargarProcesosComprador();
 }
 
+/**
+ * Agrega la página con el filtrado que se hizo en los contratos
+ * @param {Object} filtros -parametros ya agregados
+ * @param {boolean} desUrl -descarta agregar los valores actuales en la url
+ */
 function InputFiltroContratos(filtros, desUrl) {
     PushDireccionContratos(AccederUrlPagina(filtros, desUrl));
 }
 
+/**
+ * Agrega la página con el filtrado que se hizo en los pagos
+ * @param {Object} filtros -parametros ya agregados
+ * @param {boolean} desUrl -descarta agregar los valores actuales en la url
+ */
 function InputFiltroPagos(filtros, desUrl) {
     PushDireccionPagos(AccederUrlPagina(filtros, desUrl));
 }
 
+/**
+ * Agrega la página con el filtrado que se hizo en los procesos
+ * @param {Object} filtros -parametros ya agregados
+ * @param {boolean} desUrl -descarta agregar los valores actuales en la url
+ */
 function InputFiltroProcesos(filtros, desUrl) {
     PushDireccionProcesos(AccederUrlPagina(filtros, desUrl));
 }
 
+
+/**
+ * Regresa una dirección con los filtros aplicados
+ * @param {Object} opciones -parametros ya agregados
+ * @param {boolean} desUrl -descarta agregar los valores actuales en la url
+ * @return {string}
+ */
 function AccederUrlPagina(opciones, desUrl) {
     var direccion = ('/comprador/' + encodeURIComponent(compradorId) + '/?' +
 
@@ -970,146 +1043,182 @@ function AccederUrlPagina(opciones, desUrl) {
     return direccion;
 }
 
+/**
+ * Obtiene el valor de un parametro de orden
+ * @param {string} texto -filtro de orden aplicado
+ */
 function ObtenerOrdenConversion(texto) {
     texto = ObtenerTexto(texto);
     if (/desc\(/.test(texto)) {
         texto = texto.replace('desc(', '').replace(')', '')
-        return 'desc(' + filtrosAPropiedades[texto] + ')'
+        return 'desc(' + filtrosAPropiedades[texto] + ')';
     } else if (/asc\(/.test(texto)) {
         texto = texto.replace('asc(', '').replace(')', '')
-        return 'asc(' + filtrosAPropiedades[texto] + ')'
+        return 'asc(' + filtrosAPropiedades[texto] + ')';
     }
-    return texto
+    return texto;
 }
 
-function ObtenerFiltrosContratos(sufijo) {
+/**
+ * Obtiene un json con todos los filtros aplicados 
+ * @param {string} prefijo -si se desean obtener las propiedasdes con un prefijo
+ */
+function ObtenerFiltrosGenerales(prefijo){
+    if(!prefijo){
+      return Object.assign(ObtenerFiltrosPagos('Pag'),ObtenerFiltrosContratos('Con'),ObtenerFiltrosProcesos('Pro'));
+    }else{
+      switch(prefijo){
+        case 'Con':
+          return ObtenerFiltrosContratos(prefijo);
+        case 'Pag':
+          return ObtenerFiltrosPagos(prefijo);
+        case 'Pro':
+          return ObtenerFiltrosProcesos(prefijo);
+        default:
+          return {};
+      }
+    }
+  }
+
+/**
+ * Obtiene un json con los filtros aplicados de contratos
+ * @param {string} prefijo -si se desean obtener las propiedasdes con un prefijo
+ */
+function ObtenerFiltrosContratos(prefijo) {
     var parametros = {}
-    parametros[sufijo ? 'pagina' + sufijo : 'pagina'] = ObtenerNumero(ObtenerValor('paginaCon')) ? ObtenerNumero(ObtenerValor('paginaCon')) : 1;
-    parametros[sufijo ? 'paginarPor' + sufijo : 'paginarPor'] = ObtenerNumero(ObtenerValor('paginarPorCon')) ? ObtenerNumero(ObtenerValor('paginarPorCon')) : 5;
+    parametros[prefijo ? 'pagina' + prefijo : 'pagina'] = ObtenerNumero(ObtenerValor('paginaCon')) ? ObtenerNumero(ObtenerValor('paginaCon')) : 1;
+    parametros[prefijo ? 'paginarPor' + prefijo : 'paginarPor'] = ObtenerNumero(ObtenerValor('paginarPorCon')) ? ObtenerNumero(ObtenerValor('paginarPorCon')) : 5;
     if (Validar(ObtenerValor('proveedorCon'))) {
-        parametros[sufijo ? 'proveedor' + sufijo : 'proveedor'] = decodeURIComponent(ObtenerValor('proveedorCon'));
+        parametros[prefijo ? 'proveedor' + prefijo : 'proveedor'] = decodeURIComponent(ObtenerValor('proveedorCon'));
     }
     if (Validar(ObtenerValor('tituloCon'))) {
-        parametros[sufijo ? 'titulo' + sufijo : 'titulo'] = decodeURIComponent(ObtenerValor('tituloCon'));
+        parametros[prefijo ? 'titulo' + prefijo : 'titulo'] = decodeURIComponent(ObtenerValor('tituloCon'));
     }
     if (Validar(ObtenerValor('descripcionCon'))) {
-        parametros[sufijo ? 'descripcion' + sufijo : 'descripcion'] = decodeURIComponent(ObtenerValor('descripcionCon'));
+        parametros[prefijo ? 'descripcion' + prefijo : 'descripcion'] = decodeURIComponent(ObtenerValor('descripcionCon'));
     }
     if (Validar(ObtenerValor('categoriaCompraCon'))) {
-        parametros[sufijo ? 'categoriaCompra' + sufijo : 'categoriaCompra'] = decodeURIComponent(ObtenerValor('categoriaCompraCon'));
+        parametros[prefijo ? 'categoriaCompra' + prefijo : 'categoriaCompra'] = decodeURIComponent(ObtenerValor('categoriaCompraCon'));
     }
     if (Validar(ObtenerValor('fechaFirmaCon'))) {
-        parametros[sufijo ? 'fechaFirma' + sufijo : 'fechaFirma'] = decodeURIComponent(ObtenerValor('fechaFirmaCon'));
+        parametros[prefijo ? 'fechaFirma' + prefijo : 'fechaFirma'] = decodeURIComponent(ObtenerValor('fechaFirmaCon'));
     }
     if (Validar(ObtenerValor('fechaInicioCon'))) {
-        parametros[sufijo ? 'fechaInicio' + sufijo : 'fechaInicio'] = decodeURIComponent(ObtenerValor('fechaInicioCon'));
+        parametros[prefijo ? 'fechaInicio' + prefijo : 'fechaInicio'] = decodeURIComponent(ObtenerValor('fechaInicioCon'));
     }
     if (Validar(ObtenerValor('montoCon'))) {
-        parametros[sufijo ? 'monto' + sufijo : 'monto'] = decodeURIComponent(ObtenerValor('montoCon'));
+        parametros[prefijo ? 'monto' + prefijo : 'monto'] = decodeURIComponent(ObtenerValor('montoCon'));
     }
     if (Validar(ObtenerValor('estadoCon'))) {
-        parametros[sufijo ? 'estado' + sufijo : 'estado'] = decodeURIComponent(ObtenerValor('estadoCon'));
+        parametros[prefijo ? 'estado' + prefijo : 'estado'] = decodeURIComponent(ObtenerValor('estadoCon'));
     }
     if (Validar(ObtenerValor('tituloLicitacionCon'))) {
-        parametros[sufijo ? 'tituloLicitacion' + sufijo : 'tituloLicitacion'] = decodeURIComponent(ObtenerValor('tituloLicitacionCon'));
+        parametros[prefijo ? 'tituloLicitacion' + prefijo : 'tituloLicitacion'] = decodeURIComponent(ObtenerValor('tituloLicitacionCon'));
     }
     if (Validar(ObtenerValor('dependencias'))) {
         parametros['dependencias'] = decodeURIComponent(ObtenerValor('dependencias'));
     }
     if (Validar(ObtenerValor('ordenarPorCon'))) {
-        parametros[sufijo ? 'ordenarPor' + sufijo : 'ordenarPor'] = sufijo ? decodeURIComponent(ObtenerValor('ordenarPorCon')) : ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorCon')));
+        parametros[prefijo ? 'ordenarPor' + prefijo : 'ordenarPor'] = prefijo ? decodeURIComponent(ObtenerValor('ordenarPorCon')) : ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorCon')));
     }
-
-
-
-
     return parametros;
 }
 
-function ObtenerFiltrosPagos(sufijo) {
+/**
+ * Obtiene un json con los filtros aplicados de pagos
+ * @param {string} prefijo -si se desean obtener las propiedasdes con un prefijo
+ */
+function ObtenerFiltrosPagos(prefijo) {
     var parametros = {}
-    parametros[sufijo ? 'pagina' + sufijo : 'pagina'] = ObtenerNumero(ObtenerValor('paginaPag')) ? ObtenerNumero(ObtenerValor('paginaPag')) : 1;
-    parametros[sufijo ? 'paginarPor' + sufijo : 'paginarPor'] = ObtenerNumero(ObtenerValor('paginarPorPag')) ? ObtenerNumero(ObtenerValor('paginarPorPag')) : 5;
+    parametros[prefijo ? 'pagina' + prefijo : 'pagina'] = ObtenerNumero(ObtenerValor('paginaPag')) ? ObtenerNumero(ObtenerValor('paginaPag')) : 1;
+    parametros[prefijo ? 'paginarPor' + prefijo : 'paginarPor'] = ObtenerNumero(ObtenerValor('paginarPorPag')) ? ObtenerNumero(ObtenerValor('paginarPorPag')) : 5;
     if (Validar(ObtenerValor('compradorPag'))) {
-        parametros[sufijo ? 'comprador' + sufijo : 'comprador'] = decodeURIComponent(ObtenerValor('compradorPag'));
+        parametros[prefijo ? 'comprador' + prefijo : 'comprador'] = decodeURIComponent(ObtenerValor('compradorPag'));
     }
     if (Validar(ObtenerValor('proveedorPag'))) {
-        parametros[sufijo ? 'proveedor' + sufijo : 'proveedor'] = decodeURIComponent(ObtenerValor('proveedorPag'));
+        parametros[prefijo ? 'proveedor' + prefijo : 'proveedor'] = decodeURIComponent(ObtenerValor('proveedorPag'));
     }
     if (Validar(ObtenerValor('tituloPag'))) {
-        parametros[sufijo ? 'titulo' + sufijo : 'titulo'] = decodeURIComponent(ObtenerValor('tituloPag'));
+        parametros[prefijo ? 'titulo' + prefijo : 'titulo'] = decodeURIComponent(ObtenerValor('tituloPag'));
     }
     if (Validar(ObtenerValor('montoPag'))) {
-        parametros[sufijo ? 'monto' + sufijo : 'monto'] = decodeURIComponent(ObtenerValor('montoPag'));
+        parametros[prefijo ? 'monto' + prefijo : 'monto'] = decodeURIComponent(ObtenerValor('montoPag'));
     }
     if (Validar(ObtenerValor('pagosPag'))) {
-        parametros[sufijo ? 'pagos' + sufijo : 'pagos'] = decodeURIComponent(ObtenerValor('pagosPag'));
+        parametros[prefijo ? 'pagos' + prefijo : 'pagos'] = decodeURIComponent(ObtenerValor('pagosPag'));
     }
     if (Validar(ObtenerValor('fechaPag'))) {
-        parametros[sufijo ? 'fecha' + sufijo : 'fecha'] = decodeURIComponent(ObtenerValor('fechaPag'));
+        parametros[prefijo ? 'fecha' + prefijo : 'fecha'] = decodeURIComponent(ObtenerValor('fechaPag'));
     }
     if (Validar(ObtenerValor('dependencias'))) {
         parametros['dependencias'] = decodeURIComponent(ObtenerValor('dependencias'));
     }
     if (Validar(ObtenerValor('ordenarPorPag'))) {
-        parametros[sufijo ? 'ordenarPor' + sufijo : 'ordenarPor'] = sufijo ? decodeURIComponent(ObtenerValor('ordenarPorPag')) : ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPag')));
+        parametros[prefijo ? 'ordenarPor' + prefijo : 'ordenarPor'] = prefijo ? decodeURIComponent(ObtenerValor('ordenarPorPag')) : ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPag')));
     }
     return parametros;
 }
 
-function ObtenerFiltrosProcesos(sufijo) {
+/**
+ * Obtiene un json con los filtros aplicados de procesos
+ * @param {string} prefijo -si se desean obtener las propiedasdes con un prefijo
+ */
+function ObtenerFiltrosProcesos(prefijo) {
     var parametros = {}
-    parametros[sufijo ? 'pagina' + sufijo : 'pagina'] = ObtenerNumero(ObtenerValor('paginaPro')) ? ObtenerNumero(ObtenerValor('paginaPro')) : 1;
-    parametros[sufijo ? 'paginarPor' + sufijo : 'paginarPor'] = ObtenerNumero(ObtenerValor('paginarPorPro')) ? ObtenerNumero(ObtenerValor('paginarPorPro')) : 5;
+    parametros[prefijo ? 'pagina' + prefijo : 'pagina'] = ObtenerNumero(ObtenerValor('paginaPro')) ? ObtenerNumero(ObtenerValor('paginaPro')) : 1;
+    parametros[prefijo ? 'paginarPor' + prefijo : 'paginarPor'] = ObtenerNumero(ObtenerValor('paginarPorPro')) ? ObtenerNumero(ObtenerValor('paginarPorPro')) : 5;
     if (Validar(ObtenerValor('compradorPro'))) {
-        parametros[sufijo ? 'comprador' + sufijo : 'comprador'] = decodeURIComponent(ObtenerValor('compradorPro'));
+        parametros[prefijo ? 'comprador' + prefijo : 'comprador'] = decodeURIComponent(ObtenerValor('compradorPro'));
     }
     if (Validar(ObtenerValor('ocidPro'))) {
-        parametros[sufijo ? 'ocid' + sufijo : 'ocid'] = decodeURIComponent(ObtenerValor('ocidPro'));
+        parametros[prefijo ? 'ocid' + prefijo : 'ocid'] = decodeURIComponent(ObtenerValor('ocidPro'));
     }
     if (Validar(ObtenerValor('tituloPro'))) {
-        parametros[sufijo ? 'titulo' + sufijo : 'titulo'] = decodeURIComponent(ObtenerValor('tituloPro'));
+        parametros[prefijo ? 'titulo' + prefijo : 'titulo'] = decodeURIComponent(ObtenerValor('tituloPro'));
     }
     if (Validar(ObtenerValor('categoriaCompraPro'))) {
-        parametros[sufijo ? 'categoriaCompra' + sufijo : 'categoriaCompra'] = decodeURIComponent(ObtenerValor('categoriaCompraPro'));
+        parametros[prefijo ? 'categoriaCompra' + prefijo : 'categoriaCompra'] = decodeURIComponent(ObtenerValor('categoriaCompraPro'));
     }
     if (Validar(ObtenerValor('estadoPro'))) {
-        parametros[sufijo ? 'estado' + sufijo : 'estado'] = decodeURIComponent(ObtenerValor('estadoPro'));
+        parametros[prefijo ? 'estado' + prefijo : 'estado'] = decodeURIComponent(ObtenerValor('estadoPro'));
     }
     if (Validar(ObtenerValor('montoContratadoPro'))) {
-        parametros[sufijo ? 'montoContratado' + sufijo : 'montoContratado'] = decodeURIComponent(ObtenerValor('montoContratadoPro'));
+        parametros[prefijo ? 'montoContratado' + prefijo : 'montoContratado'] = decodeURIComponent(ObtenerValor('montoContratadoPro'));
     }
     if (Validar(ObtenerValor('fechaInicioPro'))) {
-        parametros[sufijo ? 'fechaInicio' + sufijo : 'fechaInicio'] = decodeURIComponent(ObtenerValor('fechaInicioPro'));
+        parametros[prefijo ? 'fechaInicio' + prefijo : 'fechaInicio'] = decodeURIComponent(ObtenerValor('fechaInicioPro'));
     }
     if (Validar(ObtenerValor('fechaRecepcionPro'))) {
-        parametros[sufijo ? 'fechaRecepcion' + sufijo : 'fechaRecepcion'] = decodeURIComponent(ObtenerValor('fechaRecepcionPro'));
+        parametros[prefijo ? 'fechaRecepcion' + prefijo : 'fechaRecepcion'] = decodeURIComponent(ObtenerValor('fechaRecepcionPro'));
     }
     if (Validar(ObtenerValor('fechaPublicacionPro'))) {
-        parametros[sufijo ? 'fechaPublicacion' + sufijo : 'fechaPublicacion'] = decodeURIComponent(ObtenerValor('fechaPublicacionPro'));
+        parametros[prefijo ? 'fechaPublicacion' + prefijo : 'fechaPublicacion'] = decodeURIComponent(ObtenerValor('fechaPublicacionPro'));
     }
     if (Validar(ObtenerValor('dependencias'))) {
         parametros['dependencias'] = decodeURIComponent(ObtenerValor('dependencias'));
     }
     if (Validar(ObtenerValor('ordenarPorPro'))) {
-        parametros[sufijo ? 'ordenarPor' + sufijo : 'ordenarPor'] = sufijo ? decodeURIComponent(ObtenerValor('ordenarPorPro')) : ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPro')));
+        parametros[prefijo ? 'ordenarPor' + prefijo : 'ordenarPor'] = prefijo ? decodeURIComponent(ObtenerValor('ordenarPorPro')) : ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPro')));
     }
     return parametros;
 }
 
 
+/**
+ * Agrega un filtrado de orden de contratos
+ * @param {string} filtro -filtro que se desea aplicar
+ * @param {string} orden -tipo de orden
+ */
 function OrdenFiltroContratos(filtro, orden) {
-    console.dir('filtro contratos')
-    console.dir(filtro)
     switch (orden) {
         case 'ascendente':
-            PushDireccionContratos(AccederUrlPagina({ paginaCon: 1, ordenarPorCon: 'asc(' + /*filtrosAPropiedades[*/ filtro /*]*/ + ')' }));
+            PushDireccionContratos(AccederUrlPagina({ paginaCon: 1, ordenarPorCon: 'asc(' + filtro + ')' }));
             break;
         case 'descendente':
-            PushDireccionContratos(AccederUrlPagina({ paginaCon: 1, ordenarPorCon: 'desc(' + /*filtrosAPropiedades[*/ filtro /*]*/ + ')' }));
+            PushDireccionContratos(AccederUrlPagina({ paginaCon: 1, ordenarPorCon: 'desc(' + filtro + ')' }));
             break;
         case 'neutro':
-            var filtros = ObtenerFiltrosContratos('Con');
+            var filtros = ObtenerFiltrosGenerales();
             if (filtros['ordenarPorCon']) {
                 delete filtros['ordenarPorCon'];
             }
@@ -1117,7 +1226,7 @@ function OrdenFiltroContratos(filtro, orden) {
             PushDireccionContratos(AccederUrlPagina(filtros, true));
             break;
         default:
-            var filtros = ObtenerFiltrosContratos('Con');
+            var filtros = ObtenerFiltrosGenerales();
             if (filtros['ordenarPorCon']) {
                 delete filtros['ordenarPorCon'];
             }
@@ -1128,16 +1237,21 @@ function OrdenFiltroContratos(filtro, orden) {
     }
 }
 
+/**
+ * Agrega un filtrado de orden de pagos
+ * @param {string} filtro -filtro que se desea aplicar
+ * @param {string} orden -tipo de orden
+ */
 function OrdenFiltroPagos(filtro, orden) {
     switch (orden) {
         case 'ascendente':
-            PushDireccionPagos(AccederUrlPagina({ paginaPag: 1, ordenarPorPag: 'asc(' + /*filtrosAPropiedades[*/ filtro /*]*/ + ')' }));
+            PushDireccionPagos(AccederUrlPagina({ paginaPag: 1, ordenarPorPag: 'asc(' + filtro + ')' }));
             break;
         case 'descendente':
-            PushDireccionPagos(AccederUrlPagina({ paginaPag: 1, ordenarPorPag: 'desc(' + /*filtrosAPropiedades[*/ filtro /*]*/ + ')' }));
+            PushDireccionPagos(AccederUrlPagina({ paginaPag: 1, ordenarPorPag: 'desc(' + filtro + ')' }));
             break;
         case 'neutro':
-            var filtros = ObtenerFiltrosPagos('Pag');
+            var filtros = ObtenerFiltrosGenerales();
             if (filtros['ordenarPorPag']) {
                 delete filtros['ordenarPorPag'];
             }
@@ -1145,7 +1259,7 @@ function OrdenFiltroPagos(filtro, orden) {
             PushDireccionPagos(AccederUrlPagina(filtros, true));
             break;
         default:
-            var filtros = ObtenerFiltrosPagos('Pag');
+            var filtros = ObtenerFiltrosGenerales();
             if (filtros['ordenarPorPag']) {
                 delete filtros['ordenarPorPag'];
             }
@@ -1156,16 +1270,21 @@ function OrdenFiltroPagos(filtro, orden) {
     }
 }
 
+/**
+ * Agrega un filtrado de orden de procesos
+ * @param {string} filtro -filtro que se desea aplicar
+ * @param {string} orden -tipo de orden
+ */
 function OrdenFiltroProcesos(filtro, orden) {
     switch (orden) {
         case 'ascendente':
-            PushDireccionProcesos(AccederUrlPagina({ paginaPro: 1, ordenarPorPro: 'asc(' + /*filtrosAPropiedades[*/ filtro /*]*/ + ')' }));
+            PushDireccionProcesos(AccederUrlPagina({ paginaPro: 1, ordenarPorPro: 'asc(' + filtro + ')' }));
             break;
         case 'descendente':
-            PushDireccionProcesos(AccederUrlPagina({ paginaPro: 1, ordenarPorPro: 'desc(' + /*filtrosAPropiedades[*/ filtro /*]*/ + ')' }));
+            PushDireccionProcesos(AccederUrlPagina({ paginaPro: 1, ordenarPorPro: 'desc(' + filtro + ')' }));
             break;
         case 'neutro':
-            var filtros = ObtenerFiltrosProcesos('Pro');
+            var filtros = ObtenerFiltrosGenerales();
             if (filtros['ordenarPorPro']) {
                 delete filtros['ordenarPorPro'];
             }
@@ -1173,7 +1292,7 @@ function OrdenFiltroProcesos(filtro, orden) {
             PushDireccionProcesos(AccederUrlPagina(filtros, true));
             break;
         default:
-            var filtros = ObtenerFiltrosProcesos('Pro');
+            var filtros = ObtenerFiltrosGenerales();
             if (filtros['ordenarPorPro']) {
                 delete filtros['ordenarPorPro'];
             }
@@ -1184,32 +1303,9 @@ function OrdenFiltroProcesos(filtro, orden) {
     }
 }
 
-
-/*
- $('.filaSubTabla.pagos').each(
-        function(llave,elemento){
-            $(elemento).on('click',function(e){
-                if(!$(e.currentTarget).hasClass('abierta')){
-                    $(e.currentTarget).after($('<tr class="subTabla">').append(
-                        $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
-                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Pagos</h6></div><table class="tablaGeneral " > <thead> <tr> <th toolTexto="contracts[n].implementation .transactions[n].payee">Descripción de la transacción</th> <th toolTexto="planning.budget.budgetBreakdown.[n].classifications.objeto">Objeto de gasto</th> <th toolTexto="contracts[n].implementation. transactions[n].value.amount">Monto del pago</th> <th toolTexto="contracts[n].implemntation .transactions[n].date">Fecha del pago</th> </tr></thead> <tbody> <tr> <td data-label="Descripción de la transacción">Lorem ipsum</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr><tr> <td data-label="Descripción de la transacción">Lorem ipsum</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr></tbody> </table></div>'
-                        )
-                        
-                    ));
-                    $(e.currentTarget).addClass('abierta');
-                }else{
-                    if($(e.currentTarget).next('.subTabla').length){
-                        $(e.currentTarget).next('.subTabla').remove();
-                        $(e.currentTarget).removeClass('abierta');
-                    }
-                    
-                }
-                AgregarToolTips();
-            })
-        }
-    );
-*/
-
+/**
+ * Inicializa las Descargas de las tablas
+ */
 function InicializarDescargas(){
 
     AbrirModalDescarga('descargaJsonCompradorProcesos','Descarga JSON',true);/*Crear Modal Descarga */
@@ -1249,6 +1345,12 @@ function InicializarDescargas(){
       AbrirModalDescarga('descargaXlsxCompradorPagos','Descarga XLSX');
     });
   }
+
+
+  /**
+   * Agrega la funcion de descarga de los procesos
+   * @param {Object} datos -datos de los procesos
+   */
   function ObtenerDescargaCompradorProcesos(datos){
     /*var parametros = ObtenerFiltrosProcesos();
     parametros['pagina']=1;
@@ -1259,17 +1361,7 @@ function InicializarDescargas(){
       console.dir(datos);
       AgregarEventoModalDescarga('descargaJsonCompradorProcesos',function(){
         var descarga=datos.resultados.map(function(e){
-          return e._source.doc.compiledRelease/*{
-            'Comprador':e.name,
-            //'Id':e.id,
-            'Procesos':e.procesos,
-            'TotalMontoContratado':e.total_monto_contratado,
-            'PromedioMontoContratado':e.promedio_monto_contratado,
-            'MayorMontoContratado':e.mayor_monto_contratado,
-            'MenorMontoContratado':e.menor_monto_contratado,
-            'FechaUltimoProceso':e.fecha_ultimo_proceso?((e.fecha_ultimo_proceso=='NaT')?'':e.fecha_ultimo_proceso):'',
-            'Enlace':url+'/comprador/'+encodeURIComponent(e.uri)
-          }*/;
+          return e._source.doc.compiledRelease;
         });
         DescargarJSON(descarga,'Comprador Procesos');
       });
@@ -1294,6 +1386,10 @@ function InicializarDescargas(){
     
   }
 
+ /**
+   * Agrega la funcion de descarga de los contratos
+   * @param {Object} datos -datos de los conratos
+   */
   function ObtenerDescargaCompradorContratos(datos){
       /*
     var parametros = ObtenerFiltrosContratos();
@@ -1329,6 +1425,10 @@ function InicializarDescargas(){
       });*/
   }
 
+ /**
+   * Agrega la funcion de descarga de los pagos
+   * @param {Object} datos -datos de los pagos
+   */
   function ObtenerDescargaCompradorPagos(datos){
     /*var parametros = ObtenerFiltrosPagos();
     parametros['pagina']=1;

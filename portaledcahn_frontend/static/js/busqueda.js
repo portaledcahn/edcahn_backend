@@ -1,3 +1,9 @@
+/**
+ * @file busqueda.js Este archivo se incluye en la sección de contrataciones del Portal de Contrataciones Abiertas de Honduras
+ * @author Bryant Marcelo Pérez
+ * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
+ */
+
 var filtrosAplicables={
   categorias:{titulo:'Categoría',parametro:'categoria',parametroOrden:'categoria'},
   monedas: {titulo:'Moneda',parametro:'moneda',parametroOrden:'moneda'},
@@ -1062,16 +1068,6 @@ function AgregarPropiedadesListaElastica(valor,llave){
             filtro.parent().find('.list-group-item.active').removeClass('active');
             filtro.addClass('active');
           }
-          /*
-          var filtros={
-            pagina:1
-          };
-          $('li.list-group-item.active').each(function(cla,val){
-            filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-          });
-
-*/
-
 
           var filtros={
           };
@@ -1083,13 +1079,6 @@ function AgregarPropiedadesListaElastica(valor,llave){
           else {
             delete filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:''];
           }
-          console.dir(JSON.stringify(filtros))
-          /*
-          $('li.list-group-item.active').each(function(cla,val){
-            filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-          });*/
-         
-          //delete filtros[$(e.currentTarget).parent().attr('llave')];
         
 
           window.history.pushState({}, document.title,AccederBusqueda(filtros,true) );
