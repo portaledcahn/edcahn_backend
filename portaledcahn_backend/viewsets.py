@@ -881,8 +881,8 @@ class Proveedores(APIView):
 
 		if nombre.replace(' ',''):
 			q_nombre = '*' + nombre + '*'
-			filtro = Q("wildcard", doc__compiledRelease__contracts__suppliers__name=q_nombre)
-			#filtro = Q("match",  doc__compiledRelease__contracts__suppliers__name=nombre)
+			# filtro = Q("wildcard", doc__compiledRelease__contracts__suppliers__name=q_nombre)
+			filtro = Q("match",  doc__compiledRelease__contracts__suppliers__name=nombre)
 			filtros.append(filtro)
 
 		if identificacion.replace(' ',''):
@@ -915,22 +915,22 @@ class Proveedores(APIView):
 		if tmc.replace(' ', ''):
 			q_tmc = 'params.tmc' + tmc
 			s.aggs['proveedores']['filtros']['id']['name']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "totales.total_monto_contratado"}, script=q_tmc)
+			.metric('filtro_totales_tmc', 'bucket_selector', buckets_path={"tmc": "totales.total_monto_contratado"}, script=q_tmc)
 
 		if pmc.replace(' ', ''):
 			q_pmc = 'params.pmc' + pmc
 			s.aggs['proveedores']['filtros']['id']['name']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "totales.promedio_monto_contratado"}, script=q_pmc)
+			.metric('filtro_totales_pmc', 'bucket_selector', buckets_path={"pmc": "totales.promedio_monto_contratado"}, script=q_pmc)
 
 		if mamc.replace(' ', ''):
 			q_mamc = 'params.mamc' + mamc
 			s.aggs['proveedores']['filtros']['id']['name']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "totales.mayor_monto_contratado"}, script=q_mamc)
+			.metric('filtro_totales_mamc', 'bucket_selector', buckets_path={"mamc": "totales.mayor_monto_contratado"}, script=q_mamc)
 
 		if memc.replace(' ', ''):
 			q_memc = 'params.memc' + memc
 			s.aggs['proveedores']['filtros']['id']['name']\
-			.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "totales.menor_monto_contratado"}, script=q_memc)
+			.metric('filtro_totales_memc', 'bucket_selector', buckets_path={"memc": "totales.menor_monto_contratado"}, script=q_memc)
 
 		search_results = SearchResults(s)
 
@@ -951,13 +951,10 @@ class Proveedores(APIView):
 				proveedor["mayor_monto_contratado"] = n["totales"]["mayor_monto_contratado"]["value"]
 				proveedor["menor_monto_contratado"] = n["totales"]["menor_monto_contratado"]["value"]
 
-				print(n["tender"]["fecha_ultimo_proceso"])
-
 				if n["tender"]["fecha_ultimo_proceso"]["value"] is None:
 					proveedor["fecha_ultimo_proceso"] = None
 				else:
 					proveedor["fecha_ultimo_proceso"] = n["tender"]["fecha_ultimo_proceso"]["value_as_string"]
-				# 	# print(n["tender"]["fecha_ultimo_proceso"])
 
 				proveedor["uri"] = urllib.parse.quote_plus(proveedor["id"] + '->' + proveedor["name"])
 				proveedores.append(copy.deepcopy(proveedor))
@@ -1113,8 +1110,7 @@ class ProveedoresSEFIN(APIView):
 			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if nombre.replace(' ',''):
-			q_nombre = '*' + nombre + '*'
-			filtro = Q("wildcard", payee__name__keyword=q_nombre)
+			filtro = Q("match", payee__name=nombre)
 			filtros.append(filtro)
 
 		if identificacion.replace(' ',''):
@@ -1129,8 +1125,8 @@ class ProveedoresSEFIN(APIView):
 		s.aggs['proveedores']['id'].metric('name', 'terms', field='payee.name.keyword', size=size)
 		s.aggs['proveedores']['id'].metric('total_monto_contratado', 'sum', field='value.amount')
 		s.aggs['proveedores']['id'].metric('promedio_monto_contratado', 'avg', field='value.amount')
-		s.aggs['proveedores']['id'].metric('mayor_monto_contratado', 'avg', field='value.amount')
-		s.aggs['proveedores']['id'].metric('menor_monto_contratado', 'avg', field='value.amount')
+		s.aggs['proveedores']['id'].metric('mayor_monto_contratado', 'max', field='value.amount')
+		s.aggs['proveedores']['id'].metric('menor_monto_contratado', 'min', field='value.amount')
 		s.aggs['proveedores']['id'].metric('fecha_ultimo_proceso', 'max', field='date')
 		s.aggs['proveedores']['id'].metric('procesos','cardinality', field='extra.ocid.keyword')
 
@@ -1144,7 +1140,7 @@ class ProveedoresSEFIN(APIView):
 				q_tmc = 'params.tmc' + val
 			
 				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales', 
+					'filtrar_totales_tmc', 
 					'bucket_selector', 
 					buckets_path={"tmc": "total_monto_contratado"}, 
 					script=q_tmc
@@ -1158,7 +1154,7 @@ class ProveedoresSEFIN(APIView):
 				q_pmc = 'params.pmc' + val
 			
 				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales', 
+					'filtrar_totales_pmc', 
 					'bucket_selector', 
 					buckets_path={"pmc": "promedio_monto_contratado"}, 
 					script=q_pmc
@@ -1172,7 +1168,7 @@ class ProveedoresSEFIN(APIView):
 				q_mamc = 'params.mamc' + val
 			
 				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales', 
+					'filtrar_totales_mamc', 
 					'bucket_selector', 
 					buckets_path={"mamc": "mayor_monto_contratado"}, 
 					script=q_mamc
@@ -1186,7 +1182,7 @@ class ProveedoresSEFIN(APIView):
 				q_memc = 'params.memc' + val
 			
 				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales', 
+					'filtrar_totales_memc', 
 					'bucket_selector', 
 					buckets_path={"memc": "menor_monto_contratado"}, 
 					script=q_memc
@@ -1200,7 +1196,7 @@ class ProveedoresSEFIN(APIView):
 				q_cp = 'params.cp' + val
 			
 				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales', 
+					'filtrar_totales_cp', 
 					'bucket_selector', 
 					buckets_path={"cp": "procesos"}, 
 					script=q_cp
@@ -1875,7 +1871,6 @@ class Compradores(APIView):
 		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 
 		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
-		
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
 
@@ -1926,27 +1921,27 @@ class Compradores(APIView):
 			if tmc.replace(' ', ''):
 				q_tmc = 'params.tmc' + tmc
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
+				.metric('filtro_totales_tmc', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
 
 			if pmc.replace(' ', ''):
 				q_pmc = 'params.pmc' + pmc
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
+				.metric('filtro_totales_pmc', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
 
 			if mamc.replace(' ', ''):
 				q_mamc = 'params.mamc' + mamc
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
+				.metric('filtro_totales_mamc', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
 
 			if memc.replace(' ', ''):
 				q_memc = 'params.memc' + memc
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
+				.metric('filtro_totales_memc', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
 
 			if cp.replace(' ', ''):
-				q_cp = 'params.memc' + cp
+				q_cp = 'params.cp' + cp
 				s.aggs['compradores']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "procesos"}, script=q_cp)
+				.metric('filtro_totales_cp', 'bucket_selector', buckets_path={"cp": "procesos"}, script=q_cp)
 
 			search_results = SearchResults(s)
 
@@ -2048,27 +2043,27 @@ class Compradores(APIView):
 			if tmc.replace(' ', ''):
 				q_tmc = 'params.tmc' + tmc
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
+				.metric('filtro_totales_tmc', 'bucket_selector', buckets_path={"tmc": "contratos.suma"}, script=q_tmc)
 
 			if pmc.replace(' ', ''):
 				q_pmc = 'params.pmc' + pmc
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
+				.metric('filtro_totales_pmc', 'bucket_selector', buckets_path={"pmc": "contratos.promedio"}, script=q_pmc)
 
 			if mamc.replace(' ', ''):
 				q_mamc = 'params.mamc' + mamc
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
+				.metric('filtro_totales_mamc', 'bucket_selector', buckets_path={"mamc": "contratos.maximo"}, script=q_mamc)
 
 			if memc.replace(' ', ''):
 				q_memc = 'params.memc' + memc
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
+				.metric('filtro_totales_memc', 'bucket_selector', buckets_path={"memc": "contratos.minimo"}, script=q_memc)
 
 			if cp.replace(' ', ''):
-				q_cp = 'params.memc' + cp
+				q_cp = 'params.cp' + cp
 				s.aggs['compradores']['nombre']\
-				.metric('filtro_totales', 'bucket_selector', buckets_path={"memc": "procesos"}, script=q_cp)
+				.metric('filtro_totales_cp', 'bucket_selector', buckets_path={"cp": "procesos"}, script=q_cp)
 
 			search_results = SearchResults(s)
 
