@@ -881,8 +881,8 @@ class Proveedores(APIView):
 
 		if nombre.replace(' ',''):
 			q_nombre = '*' + nombre + '*'
-			filtro = Q("wildcard", doc__compiledRelease__contracts__suppliers__name=q_nombre)
-			#filtro = Q("match",  doc__compiledRelease__contracts__suppliers__name=nombre)
+			# filtro = Q("wildcard", doc__compiledRelease__contracts__suppliers__name=q_nombre)
+			filtro = Q("match",  doc__compiledRelease__contracts__suppliers__name=nombre)
 			filtros.append(filtro)
 
 		if identificacion.replace(' ',''):
@@ -951,13 +951,10 @@ class Proveedores(APIView):
 				proveedor["mayor_monto_contratado"] = n["totales"]["mayor_monto_contratado"]["value"]
 				proveedor["menor_monto_contratado"] = n["totales"]["menor_monto_contratado"]["value"]
 
-				print(n["tender"]["fecha_ultimo_proceso"])
-
 				if n["tender"]["fecha_ultimo_proceso"]["value"] is None:
 					proveedor["fecha_ultimo_proceso"] = None
 				else:
 					proveedor["fecha_ultimo_proceso"] = n["tender"]["fecha_ultimo_proceso"]["value_as_string"]
-				# 	# print(n["tender"]["fecha_ultimo_proceso"])
 
 				proveedor["uri"] = urllib.parse.quote_plus(proveedor["id"] + '->' + proveedor["name"])
 				proveedores.append(copy.deepcopy(proveedor))
@@ -1113,8 +1110,7 @@ class ProveedoresSEFIN(APIView):
 			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if nombre.replace(' ',''):
-			q_nombre = '*' + nombre + '*'
-			filtro = Q("wildcard", payee__name__keyword=q_nombre)
+			filtro = Q("match", payee__name=nombre)
 			filtros.append(filtro)
 
 		if identificacion.replace(' ',''):
