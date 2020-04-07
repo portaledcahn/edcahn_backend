@@ -1,3 +1,8 @@
+/**
+ * @file tableroProcesosPago.js Este archivo se incluye en la sección de Tablero de Proceso de Pago del Portal de Contrataciones Abiertas de Honduras
+ * @author Bryant Marcelo Pérez
+ * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
+ */
 var filtrosAplicables={
     monedas: {titulo:'Moneda',parametro:'moneda'},
     instituciones: {titulo:'Institución Compradora',parametro:'institucion'},
@@ -35,6 +40,10 @@ function InicializarCantidadPagos(){
         console.dir('Cantidad de Pagos')
         console.dir(datos);
         OcultarReloj('#cantidadPagos');
+        if((datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadpagos)  && datos.resultados.cantidadpagos.length==0)||datos.resultados.cantidadpagos.map(function(e){return ObtenerNumero(e);}).reduce(function(a, b){return a + b;}, 0)==0){
+            MostrarSinDatos('#cantidadPagos',true);
+            return;
+        }
         var grafico=echarts.init(document.getElementById('cantidadPagos'));
         var opciones = {
             baseOption:{
@@ -47,7 +56,13 @@ function InicializarCantidadPagos(){
                         }
                     },
                     formatter:  function (e){
-                        return "{b0}<br>{a0} {s0} {c0} Pagos <br>{a1} {s1} {c1} %".replace('{c0}',e[0].value).replace('{c1}',e[1].value).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);;
+                        var cadena=e[0].name+'<br>';
+
+                        e.forEach(function(valor,indice){
+                            cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorNumerico(valor.value):valor.value) +' '+(valor.seriesIndex==0?'Pagos':'%')+'<br>'
+                        });
+                        return cadena;
+                        /*return "{b0}<br>{a0} {s0} {c0} Pagos <br>{a1} {s1} {c1} %".replace('{c0}',e[0].value).replace('{c1}',e[1].value).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);;*/
                     }
                 },
             legend: {
@@ -240,6 +255,10 @@ function InicializarMontoPagos(){
         console.dir('Monto Pagos');
         console.dir(datos);
         OcultarReloj('#montoPagos');
+        if((datos&&datos.resultados&&Array.isArray(datos.resultados.montopagos)  && datos.resultados.montopagos.length==0)||datos.resultados.montopagos.map(function(e){return ObtenerNumero(e);}).reduce(function(a, b){return a + b;}, 0)==0){
+            MostrarSinDatos('#montoPagos',true);
+            return;
+        }
         var grafico=echarts.init(document.getElementById('montoPagos'));
         var opciones = {
             baseOption:{
@@ -253,7 +272,14 @@ function InicializarMontoPagos(){
                     }
                 },
                 formatter:  function (e){
-                    return "{b0}<br>{a0} {s0} {c0} HNL <br>{a1} {s1} {c1} %".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);
+
+                    var cadena=e[0].name+'<br>';
+
+                e.forEach(function(valor,indice){
+                    cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorMoneda(valor.value):valor.value) +' '+(valor.seriesIndex==0?'HNL':'%')+'<br>'
+                });
+                return cadena;
+                   /* return "{b0}<br>{a0} {s0} {c0} HNL <br>{a1} {s1} {c1} %".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);*/
                 }
             },
             legend: {
@@ -462,195 +488,19 @@ function InicializarMontoPagos(){
 }
 
 
-/*
-function CantidadPagosEtapas(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('montoPagos'));
-    var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
-                }
-            }
-        },
-        toolbox: {
-                feature: {
-                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                    magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
-                    restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
-                }
-            }
-        xAxis: [
-            {
-                type: 'category',
-                data: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-                axisPointer: {
-                    type: 'shadow'
-                },
-                axisLabel:{
-                    interval:0,
-                    rotate:45,
-                    showMinLabel:false
-                }
-            }
-        ],
-        grid:{
-            containLabel:true
-        },
-        yAxis: [
-            {
-                type: 'value',
-                name: 'Monto',
-                min: 0,
-                max: 250,
-                interval: 50,
-                axisLabel: {
-                    formatter: '{value} HNL'
-                }
-            }
-        ],
-        series: [
-            {
-                name:'Monto Pagado',
-                type:'bar',
-                data:[6, 5, 10, 27, 28, 80, 200, 16, 39, 25, 7, 8],
-                itemStyle:{
-                    color: '#D9527B'
-                }
-            },
-            {
-                name:'Monto Devengado',
-                type:'bar',
-                data:[2, 4, 7, 23, 25, 76, 135, 162, 32, 20, 6, 3],
-                itemStyle:{
-                    color: '#F69A6B'
-                }
-            },
-            {
-                name:'Promedio Pagado',
-                type:'line',
-                data:[4, 4.5, 25, 26, 27, 80, 150, 35, 23.5, 23, 6.5, 6.2],
-                symbol: 'circle',
-                symbolSize: 10,
-                lineStyle: {
-                    normal: {
-                        color: '#6569CC',
-                        width: 4/
-                    }
-                },
-                itemStyle:{
-                    color: '#6569CC'
-                }
-            },
-            {
-                name:'Promedio Devengado',
-                type:'line',
-                data:[5, 8, 15, 35, 10, 70, 100, 20, 15, 10, 8, 9],
-                symbol: 'circle',
-                symbolSize: 10,
-                lineStyle: {
-                    normal: {
-                        color: '#FECB7E',
-                        width: 4
-                    }
-                },
-                itemStyle:{
-                    color: '#FECB7E'
-                }
-            }
-        ]
-    };
-    grafico.setOption(opciones, true);
-
-    
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
-}*/
-
-/*
-function CantidadPagosEtapas(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('cantidadPagosEtapas'));
-    var opciones = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#999'
-                }
-            }
-        },
-        toolbox: {
-            feature: {
-                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                magicType: {show: true, type: ['line', 'bar'],title:'Seleccionar'},
-                restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
-            }
-        },
-        xAxis: [
-            {
-                type: 'category',
-                data: ['Precompromiso','Compromiso','Devengado','Transacciones'],
-                axisPointer: {
-                    type: 'shadow'
-                },
-                axisLabel:{
-                    interval:0,
-                    rotate:45,
-                    showMinLabel:false
-                }
-            }
-        ],
-        grid:{
-            containLabel:true
-        },
-        yAxis: [
-            {
-                type: 'value',
-                name: 'Cantidad',
-                min: 0,
-                max: 250,
-                interval: 50,
-                axisLabel: {
-                    formatter: '{value}'
-                }
-            }
-        ],
-        series: [
-            {
-                name:'Pagos',
-                type:'bar',
-                data:[65, 97, 198, 150],
-                itemStyle:{
-                    color: '#F89A67'
-                }
-            }
-        ]
-    };
-    grafico.setOption(opciones, true);
-
-    
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
-}*/
 
 function MontoPagosEtapas(){
-    //app.title = '折柱混合';
-    var parametros={}
+    var parametros={};
         parametros=ObtenerJsonFiltrosAplicados(parametros);
         MostrarReloj('#montoPagosEtapas',true);
         $.get(api+"/dashboardsefin/etapaspago/",parametros).done(function( datos ) {
             console.dir('ETAPAS')
             console.dir(datos);
             OcultarReloj('#montoPagosEtapas');
+            if(datos&&datos.resultados&&Array.isArray(datos.resultados.montos)  && datos.resultados.montos.length==0){
+                MostrarSinDatos('#montoPagosEtapas',true);
+                return;
+            }
     var grafico=echarts.init(document.getElementById('montoPagosEtapas'));
     var opciones = {
         baseOption:{
@@ -663,7 +513,7 @@ function MontoPagosEtapas(){
                     }
                 },
                 formatter:  function (e){
-                    return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{p0}',ValorNumerico(datos.resultados.porcentajes[e[0].dataIndex].toFixed(2) ) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{c0}',ValorMoneda( e[0].value));
+                    return "{b0}<br>{a0} {c0} HNL ({p0}%)".replace('{p0}',ValorNumerico(datos.resultados.porcentajes[e[0].dataIndex].toFixed(2) ) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{c0}',ValorMoneda( e[0].value));
                     //return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(e[0].value) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',((ObtenerNumero( e[0].value)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
                 }
             },
@@ -840,153 +690,9 @@ function MontoPagosEtapas(){
 }
 
 
-function TiempoPromedioEtapas(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('tiempoPromedioEtapas'));
-    var opciones ={
-        tooltip : {
-            trigger: 'axis',
-            axisPointer : {           
-                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-            }
-        },/*
-        legend: {
-            data: ['Precompromiso','Compromiso','Devengado','Transacciones']
-        },*/
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
-        },
-        legend: {
-            plain: 'scroll',
-            orient: 'horizontal',
-            position:'bottom'
-            /*right: 10,
-            top: 20,
-            bottom: 20*//*,
-            data: ['lengend data 1','lengend data 2','lengend data 3'],
-    
-            selected: [false,false,true]*/
-        },
-        
-        xAxis:  {
-            type: 'value',
-            min: 0,
-            max: 810,
-            interval: 100,
-            axisLabel: {
-                formatter: '{value} Días'
-            }
-        },
-        yAxis: {
-            type: 'category',
-            data: ['']
-        },
-        series: [
-            {
-                name: 'Precompromiso',
-                type: 'bar',
-                stack: 'Etapa',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [320],
-                itemStyle:{
-                    color: ObtenerColores('Pastel1')[0]
-                }
-            },
-            {
-                name: 'Compromiso',
-                type: 'bar',
-                stack: 'Etapa',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [120],
-                itemStyle:{
-                    color: ObtenerColores('Pastel1')[3]
-                }
-
-                
-            },
-            {
-                name: 'Devengado',
-                type: 'bar',
-                stack: 'Etapa',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [220],
-                itemStyle:{
-                    color: ObtenerColores('Pastel1')[3]
-                }
-            },
-            {
-                name: 'Transacciones',
-                type: 'bar',
-                stack: 'Etapa',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideRight'
-                    }
-                },
-                data: [150],
-                itemStyle:{
-                    color: ObtenerColores('Pastel1')[2]
-                }
-            }
-        ],
-        label:{
-            show:true,
-            fontFamily:'Poppins',
-            fontWeight:700,
-            fontSize:25,
-            align:'right',
-            formatter:  function (e){
-                return "{c} Días".replace('{c}',e.value);
-            }
-            //formatter: '{c} Días'
-        },
-        media:[
-            {
-                query:{
-                    maxWidth:600
-                },
-                option:{
-                    tooltip: {
-                        position:['0%','50%']
-                    },
-                    grid:{
-                        left:0,
-                        right:0
-                    }
-                }
-            }
-        ]
-    };
-    grafico.setOption(opciones, true);
-
-    
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
-}
-
 
 function Top10Compradores(){
-    //app.title = '折柱混合';
+  
     var parametros={}
         parametros=ObtenerJsonFiltrosAplicados(parametros);
         MostrarReloj('#top10Compradores',true);
@@ -994,6 +700,10 @@ function Top10Compradores(){
             console.dir('COMPRADORES')
             console.dir(datos);
             OcultarReloj('#top10Compradores');
+            if(datos&&datos.resultados&&Array.isArray(datos.resultados.montos)  && datos.resultados.montos.length==0){
+                MostrarSinDatos('#top10Compradores',true);
+                return;
+            }
             var grafico=echarts.init(document.getElementById('top10Compradores'));
             var opciones = {
                 baseOption:{
@@ -1005,6 +715,17 @@ function Top10Compradores(){
                             crossStyle: {
                                 color: '#999'
                             }
+                        },
+                        formatter:  function (e){
+            
+            
+                            
+                            var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,'<br>')+'<br>';
+            
+                            e.forEach(function(valor,indice){
+                                cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorMoneda(valor.value) :valor.value) +' '+(valor.seriesIndex==0?'HNL':'')+'<br>'
+                            });
+                            return cadena;
                         }
                     },
                 
@@ -1055,7 +776,12 @@ function Top10Compradores(){
                             type: 'category',
                             data: datos.resultados.compradores.reverse(),
                             axisPointer: {
-                                type: 'shadow'
+                                type: 'shadow',
+                                label:{
+                                    formatter:function(params){
+                                        return  ObtenerParrafo(params.value,40);
+                                    }
+                                }
                             },
                             align: 'right',
                            
@@ -1114,11 +840,24 @@ function Top10Compradores(){
                                     type: 'category',
                                     data: datos.resultados.compradores.reverse(),
                                     axisPointer: {
-                                        type: 'shadow'
+                                        type: 'shadow',
+                                        label:{
+                                            formatter:function(params){
+                                                return  ObtenerParrafo(params.value,40);
+                                            }
+                                        }
                                     },
                                     align: 'right',
                                     axisLabel:{
-                                        rotate:90
+                                        showMinLabel:false,
+                                        padding:[0,0,0,0],
+                                        interval:0,
+                                        rotate:90,
+                                        
+                                        formatter:function(e){
+                                            return ObtenerParrafo(e,40);
+                                        }
+                                        
                                     }
                                 }
                             ],
@@ -1197,6 +936,11 @@ MostrarReloj('#top10Proveedores',true);
                     console.dir('PROVEEDORES')
                     console.dir(datos);
                     OcultarReloj('#top10Proveedores');
+                    
+                    if(datos&&datos.resultados&&Array.isArray(datos.resultados.montos)  && datos.resultados.montos.length==0){
+                        MostrarSinDatos('#top10Proveedores',true);
+                        return;
+                    }
                     var grafico=echarts.init(document.getElementById('top10Proveedores'));
                     var opciones ={
                         baseOption:{
@@ -1207,6 +951,14 @@ MostrarReloj('#top10Proveedores',true);
                                     crossStyle: {
                                         color: '#999'
                                     }
+                                },
+                                formatter:  function (e){
+                                    var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,'<br>')+'<br>';
+                    
+                                    e.forEach(function(valor,indice){
+                                        cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorMoneda(valor.value) :valor.value) +' '+(valor.seriesIndex==0?'HNL':'')+'<br>'
+                                    });
+                                    return cadena;
                                 }
                             },
                             toolbox: {
@@ -1279,7 +1031,8 @@ MostrarReloj('#top10Proveedores',true);
                                             position: 'right',
                                             formatter: function (e){
                                                 return "{c} HNL".replace('{c}',ValorMoneda(e.value));
-                                            }
+                                            },
+                                            color:'gray'
                                         }
                                     },
                                     data: datos.resultados.montos.reverse(),
@@ -1287,10 +1040,7 @@ MostrarReloj('#top10Proveedores',true);
                                         color: ObtenerColores('Pastel1')[0]
                                     }
                                 }
-                            ],
-                            label:{
-                                color:'gray'
-                            }
+                            ]
                         }
                         ,
                         media:[
@@ -1303,7 +1053,21 @@ MostrarReloj('#top10Proveedores',true);
                                         type: 'category',
                                         data: datos.resultados.proveedores.reverse(),
                                         axisLabel:{
-                                            rotate:90
+                                            rotate:90,
+                                            interval:0,
+                                            formatter:function(e){
+                                                return ObtenerParrafo(e,40);
+                                            },
+                                            showMinLabel:false,
+                                            padding:[0,0,0,0]
+                                        },
+                                        axisPointer:{
+                                            
+                                        label:{
+                                            formatter:function(params){
+                                                return  ObtenerParrafo(params.value,40);
+                                            }
+                                        }
                                         }
                                     },
                                     yAxis: {
@@ -1365,16 +1129,20 @@ MostrarReloj('#top10Proveedores',true);
                         });
     
 }
-function Top10MontosProcesos(){
+function Top10CantidadProcesosObjetosGasto(){
     
     var parametros={}
 parametros=ObtenerJsonFiltrosAplicados(parametros);
-MostrarReloj('#top10MontosProcesos',true);
+MostrarReloj('#Top10CantidadProcesosObjetosGasto',true);
                 $.get(api+"/dashboardsefin/topobjetosgasto/",parametros).done(function( datos ) {
                     console.dir('OBJETOS')
                     console.dir(datos);
-                    OcultarReloj('#top10MontosProcesos');
-                    var grafico=echarts.init(document.getElementById('top10MontosProcesos'));
+                    OcultarReloj('#Top10CantidadProcesosObjetosGasto');
+                    if(datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadProcesos)  && datos.resultados.cantidadProcesos.length==0){
+                        MostrarSinDatos('#Top10CantidadProcesosObjetosGasto',true);
+                        return;
+                    }
+                    var grafico=echarts.init(document.getElementById('Top10CantidadProcesosObjetosGasto'));
                     var opciones ={
                         baseOption:{
 
@@ -1386,6 +1154,17 @@ MostrarReloj('#top10MontosProcesos',true);
                                 crossStyle: {
                                     color: '#999'
                                 }
+                            },
+                            formatter:  function (e){
+                
+                
+                                
+                                var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,'<br>')+'<br>';
+                
+                                e.forEach(function(valor,indice){
+                                    cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorNumerico(valor.value) :valor.value) +' '+(valor.seriesIndex==0?' Procesos ':'')+'<br>'
+                                });
+                                return cadena;
                             }
                         },
                         toolbox: {
@@ -1405,10 +1184,7 @@ MostrarReloj('#top10MontosProcesos',true);
                                     textPosition:'top'
                                 }
                             }
-                        },/*
-                        legend: {
-                            data: ['Precompromiso','Compromiso','Devengado','Transacciones']
-                        },*/
+                        },
                         grid: {
                             left: '3%',
                             right:'15%',
@@ -1423,7 +1199,7 @@ MostrarReloj('#top10MontosProcesos',true);
                             axisLabel: {
                                 formatter: '{value}',
                                 rotate:45,
-                        showMinLabel:false
+                            showMinLabel:false
                             },
                             axisPointer: {
                                 label: {
@@ -1442,10 +1218,15 @@ MostrarReloj('#top10MontosProcesos',true);
                         },
                         showMinLabel:false,
                         padding:[0,0,0,0]
-                            }
-                        },
+                            },
+                            axisPointer:{
+                                
                         label:{
-                            color:'gray'
+                            formatter:function(params){
+                                return  ObtenerParrafo(params.value,40);
+                            }
+                        }
+                            }
                         },
                         series: [
                             {
@@ -1461,46 +1242,15 @@ MostrarReloj('#top10MontosProcesos',true);
                                         position: 'right',
                                         formatter: function (e){
                                             return "{c}".replace('{c}',ValorNumerico(e.value));
-                                        }
+                                        },
+                                        color:'gray'
                                     }
                                 },
                                 data: datos.resultados.montos.reverse(),
                                 itemStyle:{
                                     color: ObtenerColores('Pastel1')[2]
                                 }
-                            }/*,
-                            {
-                                name: 'Monto de Contrato, Pagados en USD',
-                                type: 'bar',
-                                stack: '总量',
-                                label: {
-                                    normal: {
-                                        show: true,
-                                        position: 'insideRight'
-                                    }
-                                },
-                                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                                itemStyle:{
-                                    color: '#F69A69'
-                                }
-                
-                                
-                            },
-                            {
-                                name: 'Monto de Contrato, Pagados en EUR',
-                                type: 'bar',
-                                stack: '总量',
-                                label: {
-                                    normal: {
-                                        show: true,
-                                        position: 'insideRight'
-                                    }
-                                },
-                                data: [150000,80444,69000,72000,64248,93734,99214,92792,48351,97934],
-                                itemStyle:{
-                                    color: '#FFCA7E'
-                                }
-                            }*/
+                            }
                         ]},
                         media:[
                             {
@@ -1513,7 +1263,21 @@ MostrarReloj('#top10MontosProcesos',true);
                                         type: 'category',
                                         data: datos.resultados.objetosGasto.reverse(),
                                         axisLabel:{
-                                            rotate:90
+                                            rotate:90,
+                                            showMinLabel:false,
+                                            padding:[0,0,0,0],
+                                            interval:0,
+                                            formatter:function(e){
+                                                return ObtenerParrafo(e,30);
+                                            }
+                                        },
+                                        axisPointer:{
+                                            
+                        label:{
+                            formatter:function(params){
+                                return  ObtenerParrafo(params.value,40);
+                            }
+                        }
                                         }
                                     },
                                     yAxis: {
@@ -1765,7 +1529,7 @@ function CargarGraficos(){
     CargarCajonesMontos();
     CargarCajonesCantidad();
     MontoPagosEtapas();
-    Top10MontosProcesos();
+    Top10CantidadProcesosObjetosGasto();
 }
 
 

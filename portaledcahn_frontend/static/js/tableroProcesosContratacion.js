@@ -1,3 +1,8 @@
+/**
+ * @file tableroProcesosContratacion.js Este archivo se incluye en la sección de Tablero de Procesos de Contratación del Portal de Contrataciones Abiertas de Honduras
+ * @author Bryant Marcelo Pérez
+ * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
+ */
 var filtrosAplicables={
     monedas: {titulo:'Moneda',parametro:'moneda'},
     instituciones: {titulo:'Institución Compradora',parametro:'idinstitucion'},
@@ -60,14 +65,6 @@ var filtrosAplicables={
     ObtenerFiltros();
     
     CargarGraficos();
-    //CantidadPagosEtapas()
-    
-    //TiempoPromedioEtapas();
-
-    
-    
- 
-    //SegregacionMontosContratos();
     $('#quitarFiltros, #quitarFiltros2').on('click',function(e){
         PushDireccionGraficos(AccederUrlPagina({},true));
       });
@@ -80,21 +77,21 @@ function CargarGraficos(){
             echarts.getInstanceByDom(elemento).clear();
         }
     });
+    
+    InicializarCantidadProcesos();
+    InicializarMontoProcesos();
     CargarCajonesCantidadProcesos();
     CargarCajonesCantidadContratos();
     CargarCajonesMontoContratos();
-    InicializarCantidadProcesos();
-    InicializarMontoProcesos();
-    CantidadProcesosCategoriaCompra();
-    CantidadProcesosMetodoContratacion();
-    MontoProcesosCategoriaCompra();
-    MontoProcesosMetodoContratacion();
+    CantidadProcesosTipoContrato();
+    CantidadProcesosModalidadContratacion();
+    MontoProcesosTipoContrato();
+    MontoContratosModalidadContratacion();
     TiempoPromedioEtapas();
     CantidadProcesosEtapas();
     Top10Proveedores();
     Top10Compradores();
-    SegregacionMontosContratos();
-    InicializarConteo()
+    InicializarConteo();
     
 }
 
@@ -401,11 +398,19 @@ function AgregarPropiedadesListaElastica(valor,llave){
   }
   
 function InicializarCantidadProcesos(){
-    var parametros={}
+    var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarReloj('#cantidadProcesos',true)
+    MostrarReloj('#cantidadProcesos',true);
     $.get(api+"/dashboardoncae/cantidaddeprocesos/",parametros).done(function( datos ) {
-        OcultarReloj('#cantidadProcesos')
+        console.dir('CANTIDAD')
+        console.dir(datos)
+    OcultarReloj('#cantidadProcesos');
+    if((datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadprocesos)  && datos.resultados.cantidadprocesos.length==0)||datos.resultados.cantidadprocesos.map(function(e){return ObtenerNumero(e);}).reduce(function(a, b){return a + b;}, 0)==0){
+        MostrarSinDatos('#cantidadProcesos',true);
+        return;
+    }
+
+    
     var grafico=echarts.init(document.getElementById('cantidadProcesos'));
     var opciones = {
         baseOption:{
@@ -418,7 +423,15 @@ function InicializarCantidadProcesos(){
                 }
             },
             formatter:  function (e){
-                return "{b0}<br>{a0} {s0} {c0} Procesos <br>{a1} {s1} {c1} %".replace('{c0}',e[0].value).replace('{c1}',e[1].value).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);;
+
+
+                
+                var cadena=e[0].name+'<br>';
+
+                e.forEach(function(valor,indice){
+                    cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+valor.value +' '+(valor.seriesIndex==0?'Procesos':'%')+'<br>'
+                });
+                return cadena;
             }
         },
     legend: {
@@ -615,13 +628,17 @@ function InicializarCantidadProcesos(){
 
 function InicializarMontoProcesos(){
     //app.title = '折柱混合';
-    var parametros={}
+    var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#montoProcesos',true);
     $.get(api+"/dashboardoncae/montosdecontratos/",parametros).done(function( datos ) {
-        console.dir('Monto Procesos')
+        console.dir('Monto Procesos');
         console.dir(datos);
-        OcultarReloj('#montoProcesos')
+        OcultarReloj('#montoProcesos');
+        if((datos&&datos.resultados&&Array.isArray(datos.resultados.monto_contratos_mes)  && datos.resultados.monto_contratos_mes.length==0)||datos.resultados.monto_contratos_mes.map(function(e){return ObtenerNumero(e);}).reduce(function(a, b){return a + b;}, 0)==0){
+            MostrarSinDatos('#montoProcesos',true);
+            return;
+        }
     var grafico=echarts.init(document.getElementById('montoProcesos'));
     var opciones = {
         baseOption:{
@@ -634,7 +651,13 @@ function InicializarMontoProcesos(){
                     }
                 },
                 formatter:  function (e){
-                    return "{b0}<br>{a0} {s0} {c0} % <br>{a1} {s1} {c1} HNL".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);
+                    var cadena=e[0].name+'<br>';
+
+                e.forEach(function(valor,indice){
+                    cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?valor.value:ValorMoneda(valor.value)) +' '+(valor.seriesIndex==0?'%':'HNL')+'<br>'
+                });
+                return cadena;/*
+                    return "{b0}<br>{a0} {s0} {c0} % <br>{a1} {s1} {c1} HNL".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);*/
                 }
             },
             legend: {
@@ -846,9 +869,13 @@ function CantidadProcesosEtapas(){
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#CantidadProcesosEtapas',true)
     $.get(api+"/dashboardoncae/procesosporetapa/",parametros).done(function( datos ) {
-    console.dir('PROCESOS POR ETAPA')
-    console.dir(datos)
-    OcultarReloj('#CantidadProcesosEtapas')
+    console.dir('PROCESOS POR ETAPA');
+    console.dir(datos);
+    OcultarReloj('#CantidadProcesosEtapas');
+    if(datos&&datos.resultados&&Array.isArray(datos.resultados.procesos)  && datos.resultados.procesos.length==0){
+        MostrarSinDatos('#CantidadProcesosEtapas',true);
+        return;
+    }
         //app.title = '折柱混合';
         var grafico=echarts.init(document.getElementById('CantidadProcesosEtapas'));
         var opciones = {
@@ -974,6 +1001,7 @@ function TiempoPromedioEtapas(){
     MostrarReloj('#tiempoPromedioEtapas',true);
     $.get(api+"/dashboardoncae/tiemposporetapa/",parametros).done(function( datos ) {
     OcultarReloj('#tiempoPromedioEtapas');
+    
     console.dir('TIEMPOS POR ETAPA');
     console.dir(datos);
     var resultados=[]
@@ -990,7 +1018,11 @@ function TiempoPromedioEtapas(){
         });
     }
     var seriesGrafico=[];
-    var ejeY=[]
+    var ejeY=[];
+    if(Array.isArray(resultados)  && resultados.length==0){
+        MostrarSinDatos('#tiempoPromedioEtapas',true);
+        return;
+    }
     resultados.forEach(function(valor){
         ejeY.push(
             (traducciones[valor.tipoContrato]?traducciones[valor.tipoContrato].titulo:valor.tipoContrato) +' | '+valor.modalidad
@@ -1029,7 +1061,6 @@ function TiempoPromedioEtapas(){
             data: [320, 302, 301, 334, 390, 330, 320]
         },
     */
-    console.dir(resultados);
     var grafico=echarts.init(document.getElementById('tiempoPromedioEtapas'));
     var opciones ={
         baseOption:{
@@ -1109,7 +1140,6 @@ function TiempoPromedioEtapas(){
                             position: 'insideLeft'
                             ,
                         formatter:function(e){
-                            console.dir(e)
                             if(e.value==0){
                                 return '';
                             }else{
@@ -1137,7 +1167,6 @@ function TiempoPromedioEtapas(){
                             show: true,
                             position: 'insideLeft',
                             formatter:function(e){
-                                console.dir(e)
                                 if(e.value==0){
                                     return '';
                                 }else{
@@ -1229,14 +1258,14 @@ function TiempoPromedioEtapas(){
     
 }
 
-function CantidadProcesosCategoriaCompra(){
+function CantidadProcesosTipoContrato(){
     var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
-    MostrarReloj('#CantidadProcesosCategoriaCompra',true);
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarReloj('#CantidadProcesosTipoContrato',true);
 $.get(api+"/dashboardoncae/procesosporcategoria/",parametros).done(function( datos ) {
-console.dir('PROCESOS POR CATEGORIA DE COMPRA')
+console.dir('PROCESOS POR CATEGORIA DE COMPRA');
 console.dir(datos)
-OcultarReloj('#CantidadProcesosCategoriaCompra');
+OcultarReloj('#CantidadProcesosTipoContrato');
 var datosPastel=[];
 datos.resultados.categorias.forEach(function(valor,indice){
     datosPastel.push(
@@ -1246,39 +1275,40 @@ datos.resultados.categorias.forEach(function(valor,indice){
         }
     )
 });
-var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompra'));
+if(Array.isArray(datosPastel)  && datosPastel.length==0){
+    MostrarSinDatos('#CantidadProcesosTipoContrato',true);
+    return;
+}
+var grafico=echarts.init(document.getElementById('CantidadProcesosTipoContrato'));
     var opciones = {
-        /*title : {
-            text: '同名数量统计',
-            subtext: '纯属虚构',
-            x:'center'
-        },*/
+        
         baseOption: {
             tooltip : {
                 trigger: 'item',
-                formatter: "{a} <br/>{b} : {c} ({d}%)"
+                
+                formatter:  function (valor){
+    
+                    var cadena=valor.name+'<br>';
+                   
+                    cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorNumerico(valor.value)+' '+'Procesos'+' ('+valor.percent+'%)'+'<br>';
+                    return cadena;
+                }
             },
             legend: {
                 type: 'scroll',
-                orient: 'horizontal',/*
-                right: 10,
-                top: 20,
-                bottom: 20,*/
-                position:'bottom'/*,
-                data: ['lengend data 1','lengend data 2','lengend data 3'],
-        
-                selected: [false,false,true]*/,
+                orient: 'horizontal',
+                
+                position:'bottom',
                 textStyle:{
                     color:'gray'
                 }
             },
             series : [
                 {
-                    name: 'Cantidad de Procesos por Categoría de Compra',
+                    name: 'Cantidad de Procesos por Tipo de Contrato',
                     type: 'pie',
                     radius : '45%',
-                    //center: ['40%', '50%'],
-                    data: datosPastel,//[{name:'Obras',value: 20},{name:'Bienes',value: 40},{name:'Servicios',value: 60}],
+                    data: datosPastel,
                     itemStyle: {
                         color: function(e){
                             var colores=ObtenerColores('Pastel1');
@@ -1328,14 +1358,14 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosCategoriaCompr
     
 }
 
-function MontoProcesosCategoriaCompra(){
-    var parametros={}
+function MontoProcesosTipoContrato(){
+    var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarReloj('#MontoProcesosCategoriaCompra',true);
+    MostrarReloj('#MontoProcesosTipoContrato',true);
     $.get(api+"/dashboardoncae/contratosporcategoria/",parametros).done(function( datos ) {
     console.dir('CONTRATOS POR CATEGORIA DE COMPRA')
     console.dir(datos)
-    OcultarReloj('#MontoProcesosCategoriaCompra');
+    OcultarReloj('#MontoProcesosTipoContrato');
     var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
         datosPastel.push(
@@ -1345,7 +1375,11 @@ function MontoProcesosCategoriaCompra(){
             }
         )
     });
-    var grafico=echarts.init(document.getElementById('MontoProcesosCategoriaCompra'));
+    if(Array.isArray(datosPastel)  && datosPastel==0){
+        MostrarSinDatos('#MontoProcesosTipoContrato',true);
+        return;
+    }
+    var grafico=echarts.init(document.getElementById('MontoProcesosTipoContrato'));
     var opciones = {
         /*title : {
             text: '同名数量统计',
@@ -1356,8 +1390,13 @@ function MontoProcesosCategoriaCompra(){
         baseOption:{
             tooltip : {
                 trigger: 'item',
-                formatter:  function (e){
-                    return "{a} <br/>{b}: {c} HNL ({d}%)".replace('{d}',e.percent).replace('{a}',e.seriesName).replace('{b}',e.name).replace('{c}',ValorMoneda(e.value));
+                
+                formatter:  function (valor){
+    
+                    var cadena=valor.name+'<br>';
+                   
+                    cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorMoneda(valor.value)+' '+'HNL'+' ('+valor.percent+'%)'+'<br>';
+                    return cadena;
                 }
             },
             legend: {
@@ -1423,14 +1462,14 @@ function MontoProcesosCategoriaCompra(){
     
 }
 
-function CantidadProcesosMetodoContratacion(){
-    var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
-    MostrarReloj('#CantidadProcesosMetodoContratacion',true);
+function CantidadProcesosModalidadContratacion(){
+    var parametros={};
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarReloj('#CantidadProcesosModalidadContratacion',true);
 $.get(api+"/dashboardoncae/procesospormodalidad/",parametros).done(function( datos ) {
-console.dir('PROCESOS POR MODALIDAD DE COMPRA')
-console.dir(datos)
-OcultarReloj('#CantidadProcesosMetodoContratacion');
+console.dir('PROCESOS POR MODALIDAD DE COMPRA');
+console.dir(datos);
+OcultarReloj('#CantidadProcesosModalidadContratacion');
 var datosPastel=[];
 datos.resultados.modalidades.forEach(function(valor,indice){
     datosPastel.push(
@@ -1440,7 +1479,11 @@ datos.resultados.modalidades.forEach(function(valor,indice){
         }
     )
 });
-var grafico=echarts.init(document.getElementById('CantidadProcesosMetodoContratacion'));
+if(Array.isArray(datosPastel)  && datosPastel.length==0){
+    MostrarSinDatos('#CantidadProcesosModalidadContratacion',true);
+    return;
+}
+var grafico=echarts.init(document.getElementById('CantidadProcesosModalidadContratacion'));
 var opciones = {
     baseOption:{
         /*title : {
@@ -1450,7 +1493,14 @@ var opciones = {
     },*/
     tooltip : {
         trigger: 'item',
-        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                
+        formatter:  function (valor){
+
+            var cadena=valor.name+'<br>';
+           
+            cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorNumerico(valor.value)+' '+'Procesos'+' ('+valor.percent+'%)'+'<br>';
+            return cadena;
+        }
     },
     legend: {
         type: 'scroll',
@@ -1584,14 +1634,14 @@ window.addEventListener("resize", function(){
 });
 
 }
-function MontoProcesosMetodoContratacion(){
-    var parametros={}
+function MontoContratosModalidadContratacion(){
+    var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarReloj('#MontoProcesosMetodoContratacion',true);
+    MostrarReloj('#MontoContratosModalidadContratacion',true);
 $.get(api+"/dashboardoncae/contratospormodalidad/",parametros).done(function( datos ) {
-console.dir('MONTO POR MODALIDAD DE CONTRATACION')
+console.dir('MONTO POR MODALIDAD DE CONTRATACION');
 console.dir(datos);
-OcultarReloj('#MontoProcesosMetodoContratacion');
+OcultarReloj('#MontoContratosModalidadContratacion');
 var datosPastel=[];
     datos.resultados.modalidades.forEach(function(valor,indice){
         datosPastel.push(
@@ -1601,7 +1651,11 @@ var datosPastel=[];
             }
         )
     });
-    var grafico=echarts.init(document.getElementById('MontoProcesosMetodoContratacion'));
+    if(Array.isArray(datosPastel)  && datosPastel.length==0){
+        MostrarSinDatos('#MontoContratosModalidadContratacion',true);
+        return;
+    }
+    var grafico=echarts.init(document.getElementById('MontoContratosModalidadContratacion'));
     var opciones = {
         /*title : {
             text: '同名数量统计',
@@ -1611,8 +1665,13 @@ var datosPastel=[];
         baseOption:{
         tooltip : {
             trigger: 'item',
-            formatter: function (e){
-                return "{a} <br/>{b}: {c} HNL ({d}%)".replace('{d}',e.percent).replace('{a}',e.seriesName).replace('{b}',e.name).replace('{c}',ValorMoneda(e.value));
+                
+            formatter:  function (valor){
+
+                var cadena=valor.name+'<br>';
+               
+                cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorMoneda(valor.value)+' '+'HNL'+' ('+valor.percent+'%)'+'<br>';
+                return cadena;
             }
         },
         legend: {
@@ -1756,13 +1815,17 @@ var datosPastel=[];
 }
 
 function Top10Compradores(){
-    var parametros={}
+    var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#top10Compradores',true);
 $.get(api+"/dashboardoncae/topcompradores/",parametros).done(function( datos ) {
-console.dir('TOP COMPRADORES')
+console.dir('TOP COMPRADORES');
 console.dir(datos);
 OcultarReloj('#top10Compradores');
+if(datos&&datos.resultados&&Array.isArray(datos.resultados.montoContratado)  && datos.resultados.montoContratado.length==0){
+    MostrarSinDatos('#top10Compradores',true);
+    return;
+}
 var grafico=echarts.init(document.getElementById('top10Compradores'));
     var opciones = {
         baseOption:{
@@ -1773,6 +1836,17 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                     crossStyle: {
                         color: '#999'
                     }
+                },
+                formatter:  function (e){
+    
+    
+                    
+                    var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,'<br>')+'<br>';
+    
+                    e.forEach(function(valor,indice){
+                        cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorMoneda(valor.value) :valor.value) +' '+(valor.seriesIndex==0?'HNL':'')+'<br>'
+                    });
+                    return cadena;
                 }
             },
             toolbox: {
@@ -1821,7 +1895,13 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                     type: 'category',
                     data: datos.resultados.nombreCompradores.reverse(),
                     axisPointer: {
-                        type: 'shadow'
+                        type: 'shadow',
+                        label:{
+                            formatter:function(params){
+                                return  ObtenerParrafo(params.value,40);
+                            }
+                        }
+                        
                     },
                     align: 'right',
                     axisLabel:{
@@ -1853,7 +1933,8 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                             position: 'right',
                             formatter: function (e){
                                 return "{c} HNL".replace('{c}',ValorMoneda(e.value));
-                            }
+                            },
+                            color:'gray'
                         }
                     },
                     barWidth:30,
@@ -1865,13 +1946,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                 containLabel:true,
                 right:'10%'
             },
-            label:{
-                show:true,
-                fontFamily:'Poppins',
-                fontWeight:700,
-                fontSize:15,
-                color:'gray'
-            }
+            label:{}
         },
         media:[
             {
@@ -1882,18 +1957,27 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                     xAxis: [
                         
                         {
-                            
+                            name:'Compradores',
                             type: 'category',
                             data: datos.resultados.nombreCompradores.reverse(),
                             axisPointer: {
-                                type: 'shadow'
+                                type: 'shadow',
+                                label:{
+                                    formatter:function(params){
+                                        return  ObtenerParrafo(params.value,40);
+                                    }
+                                }
+                                
                             },
                             align: 'right',
                             axisLabel:{
                                 interval:0,
                                 rotate:90,
                                 showMinLabel:false,
-                                padding:[0,0,0,0]
+                                padding:[0,0,0,0],
+                                formatter:function(e){
+                                    return ObtenerParrafo(e,50);
+                                }
                             }
                         }
                     ],
@@ -1967,7 +2051,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
 
 
 function Top10Proveedores(){
-    var parametros={}
+    var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     
     MostrarReloj('#top10Proveedores',true);
@@ -1975,6 +2059,10 @@ $.get(api+"/dashboardoncae/topproveedores/",parametros).done(function( datos ) {
 console.dir('TOP PROVEEDORES');
 console.dir(datos);
 OcultarReloj('#top10Proveedores');
+if(datos&&datos.resultados&&Array.isArray(datos.resultados.montoContratado)  && datos.resultados.montoContratado.length==0){
+    MostrarSinDatos('#top10Proveedores',true);
+    return;
+}
 var grafico=echarts.init(document.getElementById('top10Proveedores'));
 var opciones = {
     baseOption:{
@@ -1985,6 +2073,17 @@ var opciones = {
                 crossStyle: {
                     color: '#999'
                 }
+            },
+            formatter:  function (e){
+
+
+                
+                var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,'<br>')+'<br>';
+
+                e.forEach(function(valor,indice){
+                    cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorMoneda(valor.value) :valor.value) +' '+(valor.seriesIndex==0?'HNL':'')+'<br>'
+                });
+                return cadena;
             }
         },
         toolbox: {
@@ -2031,7 +2130,12 @@ var opciones = {
                 type: 'category',
                 data: datos.resultados.nombreProveedores.reverse(),
                 axisPointer: {
-                    type: 'shadow'
+                    type: 'shadow',
+                    label:{
+                        formatter:function(params){
+                            return  ObtenerParrafo(params.value,40);
+                        }
+                    }
                 },
                 axisLabel:{
                     interval:0,
@@ -2061,7 +2165,8 @@ var opciones = {
                         position: 'right',
                         formatter: function (e){
                             return "{c} HNL".replace('{c}',ValorMoneda(e.value));
-                        }
+                        },
+                        color:'gray'
                     }
                 },
                 barWidth:30,
@@ -2073,14 +2178,11 @@ var opciones = {
             containLabel:true,
             right:'15%',
             bottom:'10%'
-        },
+        }/*,
         label:{
-            show:true,
-            fontFamily:'Poppins',
-            fontWeight:700,
-            fontSize:15,
-            color:'gray'
-        }
+            formatter:'{value} hola'
+            
+        }*/
     },
     media:[
         {
@@ -2093,17 +2195,26 @@ var opciones = {
                 },
                 xAxis: [
                     {
-                        name:'Monto Contratado',
+                        name:'Proveedores',
                         type: 'category',
                         data: datos.resultados.nombreProveedores.reverse(),
                         axisPointer: {
-                            type: 'shadow'
+                            type: 'shadow',
+                            label:{
+                                formatter:function(params){
+                                    return  ObtenerParrafo(params.value,40);
+                                }
+                            }
+                            
                         },
                         axisLabel:{
                             interval:0,
                             rotate:90,
                             showMinLabel:false,
-                            padding:[0,0,0,0]
+                            padding:[0,0,0,0],
+                            formatter:function(e){
+                                return ObtenerParrafo(e,50);
+                            }
                         }
                     }
                    
@@ -2111,9 +2222,6 @@ var opciones = {
                 yAxis: [
                     {
                         type: 'value',
-                                        /*min: 0,
-                                        max: 810,*/
-                                        //interval: 100000,
                                         axisLabel: {
                                             formatter: '{value} HNL',
                                             rotate:65,
@@ -2175,149 +2283,6 @@ window.addEventListener("resize", function(){
 }
 
 
-
-
-function SegregacionMontosContratos(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('segregacionMontosContratos'));
-    var opciones ={
-        series: [{
-            type: 'treemap',
-            data: [
-            {
-            name:'Obras',
-            value:181827,
-            children: [
-                {
-                    name: 'Empresa Hondureña de Telecomunicaciones',            // First tree
-                    value: 40406,
-                    children: [{
-                        name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                        value: 4
-                    },{
-                        name: 'Energía Eléctrica',       // Son of first tree
-                        value: 20,
-                    },{
-                        name: 'Pasajes Nacionales',       // Son of first tree
-                        value: 20
-                    }]
-                },
-                {
-                    name: 'Secretaría de Defensa Nacional',            // Second tree
-                    value: 60609,
-                    children: [{
-                        name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                        value: 4
-                    },{
-                        name: 'Energía Eléctrica',       // Son of first tree
-                        value: 20,
-                    },{
-                        name: 'Pasajes Nacionales',       // Son of first tree
-                        value: 20
-                    }]
-                }, 
-                {
-                    name: 'Secretaria de Salud Pública',            // Second tree
-                    value: 80812,
-                    children: [{
-                        name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                        value: 4
-                    },{
-                        name: 'Energía Eléctrica',       // Son of first tree
-                        value: 20,
-                    },{
-                        name: 'Pasajes Nacionales',       // Son of first tree
-                        value: 20
-                    }]
-                }
-            ],
-            itemStyle: {
-                color: ObtenerColores('Pastel1')[2]/*function(e){
-                    var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
-                    return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
-                }*/
-            }
-            },
-            {
-            name:'Bienes',
-            value:90912,
-            children:[
-                {
-                    name: 'Instituto Hondureño de Seguridad Social',            // Second tree
-                    value: 90912,
-                    children: [{
-                        name: 'Energía Eléctrica',       // Son of first tree
-                        value: 20,
-                        children: [{
-                            name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                            value: 4
-                        },{
-                            name: 'Energía Eléctrica',       // Son of first tree
-                            value: 20,
-                        },{
-                            name: 'Pasajes Nacionales',       // Son of first tree
-                            value: 20
-                        }]
-                    }]
-                }
-            ],
-            itemStyle: {
-                color: '#DA517A'/*function(e){
-                    var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
-                    return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
-                }*/
-            }
-            },
-            {
-            name:'Servicios',
-            value:181825,
-            children:[
-                {
-                    name: 'Empresa Nacional de Energía Eléctrica',            // Second tree
-                    value: 181825,
-                    children: [{
-                        name: 'Energía Eléctrica',       // Son of first tree
-                        value: 20,
-                        children: [{
-                            name: 'Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                            value: 4
-                        },{
-                            name: 'Energía Eléctrica',       // Son of first tree
-                            value: 20,
-                        },{
-                            name: 'Pasajes Nacionales',       // Son of first tree
-                            value: 20
-                        }]
-                    }]
-                }
-            ],
-            itemStyle: {
-                color: '#57C5CB'}
-             
-            }
-        ]
-        }],
-        grid:{
-            containLabel:true
-        },
-        fontFamily:'Poppins',
-        fontWeight:700,
-        fontSize:15,
-        label:{
-            show:true,
-            fontFamily:'Poppins',
-            fontWeight:700,
-            fontSize:15
-        }
-    };
-    
-    grafico.setOption(opciones, true);
-
-    
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
-}
 function InicializarConteo(){
     $('.conteo.moneda').countTo({
         formatter: function (value, options) {

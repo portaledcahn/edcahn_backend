@@ -1,7 +1,24 @@
+/**
+ * @file general.js Este archivo de incluye en todas la páginas del sitio y contiene funciones que pueden ser utilizadas en todas las secciones
+ * @author Bryant Marcelo Pérez
+ * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
+ */
+/**
+ * variable url global
+ * @type {string} url
+ */
 var url=window.location.origin;
-//url='http://www.contratacionesabiertas.gob.hn'
+
+/**
+ * variable url de la api global
+ * @type {string} api
+ */
 var api=url+"/api";
-//api='http://200.13.162.86'+"/api";
+
+/**
+ * Objeto para traducir los estados de un contrato
+ * @type {Object} estadosContrato
+ */
 var estadosContrato={
     'pending':{titulo:'Pendiente',descripcion:'Este contrato se propuso pero aún no entra en vigor. Puede estar esperando ser firmado.'},
     'active':{titulo:'Activo',descripcion:'Este contrato se ha firmado por todas las partes y ahora está legalmente en proceso.'},
@@ -12,14 +29,24 @@ var estadosContrato={
         descripcion:'Este contrato se firmo y entro en vigor, ahora esta cerca de cerrarse. Esto puede ser debido a la terminación exitosa del contrato, o puede ser una terminación temprana debido a que no fue finalizado.'
     }
    };
+/**
+ * Moneda por defecto de a mostrar
+ * @type {string} defaultMoneda
+ */   
 var defaultMoneda='HNL';
 
+/**
+ * Nombres de meses en el transcurso de un año
+ * @type {string[]} meses
+ */   
 var meses=['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
 /**
  * Obtiene el nombre de un mes, recibiendo el numero del mes 
- * @constructor
  * @param {string} numero - El numero del mes empezando por 01 hasta 12.
+ * @return {string} El nombre de un mes
+ * @example 
+ *      ObtenerMesNombre('01')
  */
 function ObtenerMesNombre(numero){
     numero=ObtenerNumero(numero);
@@ -32,15 +59,17 @@ function ObtenerMesNombre(numero){
 }
 /**
  * Inicializa el tour con INTRO JS 
- * @constructor
+ * @example 
+ *      MostrarIntroduccion()
  */
 function MostrarIntroduccion(){
     introJs().setOption("nextLabel", "Siguiente").setOption("prevLabel", "Atras").setOption("skipLabel", "SALTAR").setOption("doneLabel", "LISTO").start();
 }
 
 /**
- * Imprime un momento de la fecha, util para verificar tiempos 
- * @constructor
+ * Imprime un momento de la fecha, util para verificar tiempos a la hora de hacer debug
+ * @example 
+ *       DebugFecha()
  */
 function DebugFecha(){
     let d =new Date();
@@ -50,8 +79,10 @@ function DebugFecha(){
 
 /**
  * Obtiene un arreglo de las paletas de colores creadas en base a un nombre 
- * @constructor
- * @param {string} paleta - El nombre de la plateta que se desea obtener.
+ * @param {string} paleta - El nombre de la plateta que se desea obtener. 
+ * @return {string[]}  ['#57C5CB','#DA517A','#FECB7E','#F79A6A','#ADA7FC','#B2F068','#6AECF4','#45B4E7','#AD61ED','#6569CC']
+ * @example 
+ *      ObtenerColores('Basica')
  */
 function ObtenerColores(paleta){
     var Paletas={
@@ -64,9 +95,12 @@ function ObtenerColores(paleta){
 }
 
 /**
- * Obtiene una de las paletas de colores creadas en base a un nombre 
- * @constructor
- * @param {string} paleta - El nombre de la plateta que se desea obtener.
+ * verifica si se puede mostrar la instroducción guía 
+ * @param {string} variable - nombre de la cookie para controlar las veces que se puede ejecutar una guía.
+ * @param {number} veces - veces permitidas que se puede repetir la guía.
+ * @example
+ *      VerificarIntroduccion('PAGINA_INICIO',3)
+ *      
  */
 function VerificarIntroduccion(variable,veces){
     var introduccion=ObtenerCookie(variable);
@@ -84,9 +118,11 @@ function VerificarIntroduccion(variable,veces){
 
 /**
  * Parte una cadena de texto por limite de caracteres, buscando el  ultimo espacio o el ultimo salto de linea 
- * @constructor
  * @param {string} cadena - La cadena que se desea obtener.
  * @param {string} limite - Limite de carácteres por linea.
+ * @return {string[]}  'hola \ncomo \nestas \nyo \nestoy\n bien \ny tu '
+ * @example 
+ *      ObtenerParrafo('hola como estas yo estoy bien y tu ',5)
  */
 function ObtenerParrafo(cadena,limite){
     var parrafo = ''; 
@@ -105,16 +141,19 @@ function ObtenerParrafo(cadena,limite){
 
 /**
  * Elimina una cookie
- * @constructor
  * @param {string} nombre - nombre de la cookie a eliminar.
+ * @example
+ *      EliminarCookie('MI_COOKIE')
  */
 function EliminarCookie(nombre){
     document.cookie=nombre+'=;path=/;Max-Age=0';
 }
 /**
  * Obtiene el valor de una cookie, si no se encuentra se devuelve null
- * @constructor
  * @param {string} nombre - nombre de la cookie a obtener.
+ * @return {string}  'hola \ncomo \nestas \nyo \nestoy\n bien \ny tu '
+ * @example
+ *      ObtenerCookie('MI_COOKIE')
  */
 function ObtenerCookie(nombre){
     var vs = document.cookie.split(';');
@@ -132,19 +171,29 @@ function ObtenerCookie(nombre){
 
 /**
  * Obtiene el valor de una cookie, si no se encuentra se devuelve null
- * @constructor
  * @param {string} nombre - nombre de la cookie a obtener.
+ * @example
+ *      DefinirCookie('MI_COOKIE','LISTO',2)
  */
 function DefinirCookie(nombre,valor,dias){
 
     document.cookie = nombre+'='+valor+'; path=/; expires='+ObtenerDuracionCookie(dias ? dias : 40);
 }
+
+/**
+ * Obtiene el valor de tiempo que debe setearse en una cookie
+ * @param {number} dia - cantidad de dias de duración.
+ * 
+ */
 function ObtenerDuracionCookie(dia) {
     var d = new Date();
     d.setTime(d.getTime() + (dia * 24 * 60 * 60 * 1000));
     return d.toUTCString();
 }
-
+/**
+ * Obtiene el valor de tiempo que debe setearse en una cookie
+ * @param {number} dia - cantidad de dias de duración.
+ */
 function ObtenerFecha(texto,tipo){
     if(texto){
         try {
@@ -165,7 +214,13 @@ function ObtenerFecha(texto,tipo){
         return '';
     }
 }
-
+/**
+ * Verifica si un año es biciesto
+ * @param {number} ano - Año.
+ * @return {boolean}
+ * @example
+ *      EsBiciesto('2020')
+ */
 function EsBiciesto(ano){
     if(ano){
         ano=Number(ano);
@@ -176,6 +231,11 @@ function EsBiciesto(ano){
     
 }
 
+/**
+ * Obtener nombre de un mes
+ * @param {string} texto - Numero del Mes en Base al Objeto del meses.
+ * @return {string}
+ */
 function ObtenerMes(texto){
     if(texto){
         try {
@@ -190,6 +250,14 @@ function ObtenerMes(texto){
     }
 }
 
+
+/**
+ * Obtiene un numero en base a un texto recibido
+ * @param {string} texto - texto a obtener el numero.
+ * @return {number}
+ * @example
+ *      ObtenerNumero('2000')
+ */
 function ObtenerNumero(texto){
     if(Number(texto)){
         return Number(texto);
@@ -198,6 +266,12 @@ function ObtenerNumero(texto){
     }
 }
 
+/**
+ * Obtiene un texto en base a una cadena recibida
+ * @param {string} texto - texto a obtener.
+ * @return {string}
+ *      ObtenerTexto(null)
+ */
 function ObtenerTexto(texto){
     if(Validar(texto)){
         return texto.toString();
@@ -206,6 +280,14 @@ function ObtenerTexto(texto){
     }
 }
 
+/**
+ * Verifica si un texto contiene una cadena determinada
+ * @param {string} texto - texto a obtener.
+ * @param {string} palabra - palabra a buscar.
+ * @return {boolean}
+ * @example
+ *      ContenerCadena('hola como estas','como')
+ */
 function ContenerCadena(texto,palabra){
     texto=ObtenerTexto(texto);
     palabra=ObtenerTexto(palabra);
@@ -216,10 +298,25 @@ function ContenerCadena(texto,palabra){
     return false;
     }
 }
+
+
+/**
+ * Reemplaza caracteres no validos para usar como identificiadores de documentos html
+ * @param {string} texto - texto a reemplazar.
+ * @return {string}
+ */
 function SanitizarId(texto){
     texto=ObtenerTexto(texto);
     return reemplazarValor(reemplazarValor(reemplazarValor(texto,'\\\\',''),'/',''),' ','');
 }
+
+/**
+ * Reemplaza una cadena dentro de un texto
+ * @param {string} texto - texto a buscar .
+ * @param {string} nombre - texto a reemplazar.
+ * @param {string} reemplazo - texto de reemplazo.
+ * @return {string}
+ */
 function reemplazarValor(texto,nombre,reemplazo)
 {   
     var regular=new RegExp(nombre, "g");
@@ -228,10 +325,21 @@ function reemplazarValor(texto,nombre,reemplazo)
     }
     return texto;
   }
-
+/**
+ * Verifica si en un identificador de un proveedor se encuentra un rtn válido.
+ * @param {string} texto - texto a buscar.
+ * @return {boolean}
+ */
 function VerificarCadenaRTN(texto){
     return /^HN-RTN-\d{14}$/.test(ObtenerTexto(texto));
 }
+
+/**
+ * Corta un texto a un máximo de carácteres.
+ * @param {string} texto - texto a buscar.
+ * @param {number} maximo - maximo de carácteres para buscar.
+ * @return {boolean}
+ */
 function ReducirTexto(texto,maximo){
     texto=ObtenerTexto(texto);
     if(texto.length>maximo){
@@ -240,6 +348,12 @@ function ReducirTexto(texto,maximo){
         return texto;
     }
 }
+
+/**
+ * Obtiene la Extensión de un archivo si cuenta con ella
+ * @param {string} texto - direccion a buscar.
+ * @return {string}
+ */
 function ObtenerExtension(direccion){
     var texto=ObtenerTexto(direccion);
     var extension=texto.match(/\.[^\.]+$/);
@@ -251,17 +365,36 @@ function ObtenerExtension(direccion){
     
 }
 
+/**
+ * Obtiene el formato en moneda de un numero a partir de un texto
+ * @param {string} texto - texto donde esta el numero 
+ * @return {string} 1,000.00
+ * @example
+ *      ValorMoneda('1000')
+ */
 function ValorMoneda(texto){
     var numero=ObtenerNumero(texto);
     numero=numero.toFixed(2);
     numero=numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return numero;
 }
+
+/**
+ * Obtiene el formato en numero a partir de un texto
+ * @param {string} texto - texto donde esta el numero 
+ * @return {number}
+ */
 function ValorNumerico(texto){
     var numero=ObtenerNumero(texto);
     numero=numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return numero;
 }
+
+/**
+ * Obtiene el texto traducido de un estado de contrato
+ * @param {string} texto - texto del codigo
+ * @return {string}
+ */
 function TraduceTexto(texto){
     switch(texto){
         case 'planned':
@@ -282,6 +415,13 @@ function TraduceTexto(texto){
     }
 }
 
+
+/**
+ * Obtiene un arreglo de obligaciones financieras que pertenecen a una transaccion
+ * @param {Object} transaccion - objeto de transaccion
+ * @param {Object[]} obligaciones - arreglo de obligaciones financieras
+ * @return {Object[]}
+ */
 function ObtenerObligacionesTransaccion(transaccion,obligaciones){
     var arregloObligaciones=[];
     if(transaccion.financialObligationIds && transaccion.financialObligationIds.length && obligaciones && obligaciones.length){
@@ -303,28 +443,67 @@ function DescargarElemento(direccion){
     enlace.click();
 }
 
+
+/**
+ * Muestra el elemento de cargando en  un determinado elemento html 
+ * @param {string} selector - selector de document query
+ * @param {boolean} elemento - si es en un elemento determinado o en general
+ */
 function MostrarEspera(selector,elemento){
     elemento=true;
     if($(selector+' .espera'+(elemento?'.elemento':'')).length){
-        $(selector+' .espera'+(elemento?'.elemento':'')).show();
-    }else{
-        $(selector).append(
-            $('<div>',{class:'espera'+(elemento?' elemento':'')}).append(
-                $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'}),
-                $('<div>',{text:'Cargando',class:'textoCargando'})
-            )
-        )
+        $(selector+' .espera'+(elemento?'.elemento':'')).remove();
     }
+    
+    $(selector).append(
+        $('<div>',{class:'espera'+(elemento?' elemento':'')}).append(
+            $('<img>',{class:'imagen',src:'/static/img/otros/loader.svg'}),
+            $('<div>',{text:'Cargando',class:'textoCargando'})
+        )
+    );
+    
 }
 
+/**
+ * Muestra el elemento de que no se pudo mostrar con datos el grafico en  un determinado elemento html 
+ * @param {string} selector - selector de document query
+ * @param {boolean} elemento - si es en un elemento determinado o en general
+ */
+function MostrarSinDatos(selector,elemento){
+    elemento=true;
+    if($(selector+' .espera'+(elemento?'.elemento':'')).length){
+        $(selector+' .espera'+(elemento?'.elemento':'')).remove();
+    }
+    $(selector).append(
+        $('<div>',{class:'espera'+(elemento?' elemento':'')}).append(
+            $('<div>',{class:'imagen textoCargando ',style:'top:40%'}).append(
+                $('<i>',{class:'far fa-frown animated rotateIn',style:'font-size:60px'})
+            ),
+            $('<div>',{text:'No hay datos para mostrar el gráfico con este filtrado.',class:'textoCargando',style:'font-size:20px;padding-left:10%;padding-right:10%'})
+        )
+    );
+    
+}
 
+/**
+ * Ocultar el elemento de cargando en  un determinado elemento html 
+ * @param {string} selector - selector de document query
+ */
 function OcultarEspera(selector){
     if($(selector+' .espera').length){
         $(selector+' .espera').hide();
     }
 }
 
+/**
+ * Muestra el elemento de un reloj mientras carga algo en  un determinado elemento html 
+ * @param {string} selector - selector de document query
+ * @param {boolean} elemento - si es en un elemento determinado o en general
+ */
 function MostrarReloj(selector,elemento){
+    if($(selector+' .espera'+(elemento?'.elemento':'')).length){
+        $(selector+' .espera'+(elemento?'.elemento':'')).remove();
+    }
     if($(selector+' .esperaReloj').length){
         $(selector+' .esperaReloj').show();
     }else{
@@ -340,6 +519,10 @@ function MostrarReloj(selector,elemento){
     }
 }
 
+/**
+ * Oculta el elemento de un reloj mientras carga algo en  un determinado elemento html 
+ * @param {string} selector - selector de document query
+ */
 function OcultarReloj(selector){
     if($(selector+' .esperaReloj').length){
         $(selector+' .esperaReloj').hide();
@@ -347,8 +530,10 @@ function OcultarReloj(selector){
 }
 
 
-/*Nuevos Plugins*/
-
+/**
+ * Cambia el la seleccion de muestra de un tipo de filtrado > < =
+ * @param {Object} elemento - elemento html
+ */
 function cambiarFiltroNumerico(elemento){
 if($(elemento).is(":checked")){
     $(elemento).parent().parent().parent().parent().parent().find('.btnFiltroNumerico').html(
@@ -362,6 +547,11 @@ if($(elemento).is(":checked")){
 
 }
 
+/**
+ * Valida si una valor es nulo o indefinido
+ * @param {Object} valor - valor a validad
+ * @return {boolean}
+ */
 function Validar(valor){
     if(valor!=null&&valor!=undefined){
         return true;
@@ -369,6 +559,13 @@ function Validar(valor){
         return false;
     }
 }
+
+
+/**
+ * Valida si una valor nos es vacío o nulo
+ * @param {Object} valor - valor a validad
+ * @return {boolean}
+ */
 function ValidarCadena(valor){
     if(valor!=null&&valor!=undefined&&valor!==''){
         return true;
@@ -376,6 +573,11 @@ function ValidarCadena(valor){
         return false;
     }
 }
+
+/**
+ * Muestra el  orden seleccionado de un campo
+ * @param {Object} evento - evento de cambio de un elemento html
+ */
 function cambiarOrden(evento){
     var elemento=$(evento.currentTarget);
     switch($(elemento).attr('opcion')){
@@ -402,6 +604,11 @@ function cambiarOrden(evento){
     }  
 }
 
+/**
+ * Muestra el  orden seleccionado de un campo y ejecuta una funcion
+ * @param {Object} evento - evento de cambio de un elemento html
+ * @param {Object} funcion - una funcion opcional a ser ejecutada
+ */
 function cambiarOrdenFiltro(evento,funcion){
     var elemento=$(evento.currentTarget);
     $('.ordenEncabezado').not($(elemento)).attr('opcion','neutro'); 
@@ -443,6 +650,10 @@ function cambiarOrdenFiltro(evento,funcion){
         break;
     }  
 }
+
+/**
+ * Agrega al evento click al hacer click a los botones de orden de una columna
+ */
 function AsignarOrdenTabla(){
     $('.ordenEncabezado').each(function(llave,elemento){
             $(elemento).on('click',
@@ -453,6 +664,13 @@ function AsignarOrdenTabla(){
         }
     )
 }
+
+/**
+ * Agrega al evento click al hacer click a los botones de orden de una columna
+ * @param {Object} funcion - una funcion opcional a ser ejecutada
+ * @param {Object} evento - evento de cambio de un elemento html
+ * 
+ */
 function AsignarOrdenTablaFiltros(funcion,selector){
     $(selector?selector:'.ordenEncabezado').each(function(llave,elemento){
             $(elemento).on('click',
@@ -464,6 +682,11 @@ function AsignarOrdenTablaFiltros(funcion,selector){
     )
 }
 
+
+/**
+ * Agrega el tooltip de la librería de tippy a todos los elementos que tengan el atributo toolTexto
+ * 
+ */
 function AgregarToolTips(){
     $('[toolTexto]').each(
         function(llave,elemento){
@@ -489,6 +712,12 @@ function AgregarToolTips(){
     )
 }
 
+/**
+ * Obtiene el valor de un parametro get
+ * @param {string} nombre - nombre del parametro get a buscar
+ * @param {string} url - dirección en la que se desea buscar el parámetro get
+ * @return {string}
+ */
 function ObtenerValor( nombre, url ) {
     if (!url) {url = location.href};
     nombre=encodeURIComponent(nombre);
@@ -500,80 +729,13 @@ function ObtenerValor( nombre, url ) {
 }
 
 
-function AnadirSubtabla(){
-    $('.filaSubTabla.procesos').each(
-        function(llave,elemento){
-            $(elemento).on('click',function(e){
-                if(!$(e.currentTarget).hasClass('abierta')){
-                    $(e.currentTarget).after($('<tr class="subTabla">').append(
-                        $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
-                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Contratos</h6></div><table class="tablaGeneral"> <thead> <tr> <th toolTexto="buyer.name">Comprador</th> <th toolTexto="contracts[n].title">Título del Contrato</th> <th toolTexto="contracts[n].value.amount">Monto del contrato</th> </tr></thead> <tbody> <tr><td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato" >1,200.00 <span class="textoColorPrimario">HNL</span></td></tr><tr> <td data-label="Comprador"><a href="/comprador/WDefef9" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td></tr></tbody> </table></div>'
-                        )
-                    ));
-                    $(e.currentTarget).addClass('abierta');
-                }else{
-                    if($(e.currentTarget).next('.subTabla').length){
-                        $(e.currentTarget).next('.subTabla').remove();
-                        $(e.currentTarget).removeClass('abierta');
-                    }
-                    
-                }
-                AgregarToolTips();
-            })
-        }
-    );
-    $('.filaSubTabla.contratos').each(
-        function(llave,elemento){
-            $(elemento).on('click',function(e){
-                if(!$(e.currentTarget).hasClass('abierta')){
-                    $(e.currentTarget).after($('<tr class="subTabla">').append(
-                        $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
-                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Contratos</h6></div><table class="tablaGeneral " > <thead> <tr> <th toolTexto="contracts[n].title">Título del Contrato</th> <th toolTexto="contracts[n].value.amount">Monto del contrato</th> <th toolTexto="contracts[n].dateSigned">Fecha del contrato</th> <th toolTexto="contracts[n].status">Estado</th> </tr></thead> <tbody> <tr> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del contrato">2019-02-02 01:01:01</td><td data-label="Estado">Firmado</td></tr><tr> <td data-label="Título del Contrato"><a href="/proceso/ocdi-1949-466226-1212/?contrato=C-2018-963-6" class="enlaceTablaGeneral">Lorem ipsum</a></td><td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del contrato">2019-02-02 01:01:01</td><td data-label="Estado">Firmado</td></tr></tbody> </table></div>'
-                        )
-                    ));
-                    $(e.currentTarget).addClass('abierta');
-                }else{
-                    if($(e.currentTarget).next('.subTabla').length){
-                        $(e.currentTarget).next('.subTabla').remove();
-                        $(e.currentTarget).removeClass('abierta');
-                    }
-                    
-                }
-                AgregarToolTips();
-            })
-        }
-    );
-    $('.filaSubTabla.pagos').each(
-        function(llave,elemento){
-            $(elemento).on('click',function(e){
-                if(!$(e.currentTarget).hasClass('abierta')){
-                    $(e.currentTarget).after($('<tr class="subTabla">').append(
-                        $('<td colspan="'+$(e.currentTarget).find('td').length+'">').html(
-                            '<div class="cajonSombreado"><div><h6 class="textoColorPrimario textoTitulo">Pagos</h6></div><table class="tablaGeneral " > <thead> <tr> <th toolTexto="contracts[n].implementation .transactions[n].payee">Descripción de la transacción</th> <th toolTexto="planning.budget.budgetBreakdown.[n].classifications.objeto">Objeto de gasto</th> <th toolTexto="contracts[n].implementation. transactions[n].value.amount">Monto del pago</th> <th toolTexto="contracts[n].implemntation .transactions[n].date">Fecha del pago</th> </tr></thead> <tbody> <tr> <td data-label="Descripción de la transacción">Lorem ipsum</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr><tr> <td data-label="Descripción de la transacción">Lorem ipsum</td><td data-label="Objeto de gasto">Compra de suminitros</td><td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td><td data-label="Fecha del pago">2019-02-02 01:01:01</td></tr></tbody> </table></div>'
-                        )
-                        
-                    ));
-                    $(e.currentTarget).addClass('abierta');
-                }else{
-                    if($(e.currentTarget).next('.subTabla').length){
-                        $(e.currentTarget).next('.subTabla').remove();
-                        $(e.currentTarget).removeClass('abierta');
-                    }
-                    
-                }
-                AgregarToolTips();
-            })
-        }
-    );
-    
-}
-
-/*Nuevo Codigo */
-/*Obtener partes involucradas*/
-function ConcatenarEnlace(partes){
-    var arregloNombres=partes.map(function(parte){return parte.name;}).reverse();
-    return arregloNombres.join(' - ');
-  }
+/**
+ * Obtiene el enlace de una parte ya sea un proveedor o un comprador
+ * @param {string} id - identificador de la parte
+ * @param {Object[]} arreglo - arreglo de partes
+ * @param {Object} fuente -fuente de datos de las partes
+ * @return {Object[]}
+ */
 function ObtenerEnlaceParte(id,arreglo,fuente){
     var elementos=[];
     if(arreglo){
@@ -593,12 +755,19 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     }
     return elementos;
   }
+
+/**
+ * Obtiene los elementos html de un enlace de una parte
+ * @param {string} id - identificador de la parte
+ * @param {Object} fuente -fuente de datos de las partes
+ * @return {Object[]}
+ */
   function ObtenerElementosParte(id,fuente){
     var parte=ObtenerEnlaceParte(id,false,fuente);
     var elementos=[];
     for(var i=0;i<parte.length;i++){
       elementos.push(
-        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent( parte[i].id/*ConcatenarEnlace(ObtenerEnlaceParte(parte[i].id,false,fuente))*//* parte[i].name*/)})):(parte[i].roles.includes('supplier')?(
+        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent( parte[i].id)})):(parte[i].roles.includes('supplier')?(
           $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
         ):(
           $('<span>',{text:parte[i].name})
@@ -611,6 +780,13 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     }
     return elementos;
   }
+
+/**
+ * Obtiene los elementos html de los proveedores enviados
+ * @param {Object[]} proveedores - arreglo de objetos proveedores
+ * @param {Object} fuente -fuente de datos de las partes
+ * @return {Object[]}
+ */
   function ObtenerProveedores(proveedores,fuente){
     var elementos=[];
     if(proveedores){
@@ -621,6 +797,13 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     
     return elementos;
   }
+
+/**
+ * Obtiene los elementos a mostrar en una paginacion
+ * @param {Object[]} paginaActual - pagina que se quiere mostrar
+ * @param {Object} ultimaPagina - ultima pagina disponible
+ * @return {string[]}
+ */
   function ObtenerPaginacion(paginaActual, ultimaPagina) {
     var paginas=[];
     var paginasPuntos=[];
@@ -645,56 +828,13 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     return paginasPuntos;
 }
 
-function convertirArregloObjetosCSV(args) {
-    var result, ctr, keys, columnDelimiter, lineDelimiter, data;
-
-    data = args.data || null;
-    if (data == null || !data.length) {
-        return null;
-    }
-
-    columnDelimiter = args.columnDelimiter || ',';
-    lineDelimiter = args.lineDelimiter || '\n';
-
-    keys = Object.keys(data[0]);
-
-    result = '';
-    result += keys.join(columnDelimiter);
-    result += lineDelimiter;
-
-    data.forEach(function(item) {
-        ctr = 0;
-        keys.forEach(function(key) {
-            if (ctr > 0) result += columnDelimiter;
-
-            result += item[key];
-            ctr++;
-        });
-        result += lineDelimiter;
-    });
-
-    return result;
-}
-function downloadCSV(args) {
-    var data, filename, link;
-
-    var csv = convertArrayOfObjectsToCSV({
-        data: stockData
-    });
-    if (csv == null) return;
-
-    filename = args.filename || 'export.csv';
-
-    if (!csv.match(/^data:text\/csv/i)) {
-        csv = 'data:text/csv;charset=utf-8,' + csv;
-    }
-    data = encodeURI(csv);
-
-    link = document.createElement('a');
-    link.setAttribute('href', data);
-    link.setAttribute('download', filename);
-    link.click();
-}
+/**
+ * Obtiene un arreglo de objetos cuyas prpiedades estan definidos por un delimitador
+ * @param {Object} json - objeto json
+ * @param {Object} resultado - objeto de resultados
+ * @param {string} delimitador - delimitador de las propiedades de un json
+ * @param {string} path - path anterior
+ */
 function ArregloJSON(json,resultado,delimitador,path){
     path=ValidarCadena(path)?path:'';
     $.each(json,function(indice,valor){
@@ -711,6 +851,11 @@ function ArregloJSON(json,resultado,delimitador,path){
     });
     return resultado;
 }
+/**
+ * Obtiene un arreglo de arreglos cuyos encabezados estan definidos por un delimitador
+ * @param {Object[]} arreglo - arreglo de objetos
+ * @return {string[][]}
+ */
 function ObtenerMatrizObjeto(arreglo){
     var encabezados=[];
     var cuerpo=[];
@@ -736,11 +881,17 @@ function ObtenerMatrizObjeto(arreglo){
     
     return cuerpo;
 }
+
+/**
+ * Guarda un archivo generado csv
+ * @param {string[]} arreglo - arreglo de cadenas
+ * @param {string} nombre - nombre opcional de archivo
+ */
 function DescargarCSV(arreglo,nombre){
 if(arreglo.length>1){
     var cadenaCSV='';
     arreglo.forEach(function(fila,indice){
-        fila=fila.map(function(e){return reemplazarValor(reemplazarValor(e,'\n',' '),',','.');});
+        fila=fila.map(function(e){return '"'+reemplazarValor(/*reemplazarValor(reemplazarValor(e,'\n',' '),',','.')*/e,'"',"'")+'"';});
         cadenaCSV+=fila.join(',')+((indice<arreglo.length-1)?'\n':'');
     });
 
@@ -749,12 +900,22 @@ if(arreglo.length>1){
 
 }
 }
+/**
+ * Guarda un archivo generado
+ * @param {string[]} arreglo - arreglo de cadenas
+ */
 function DescargarJSON(objeto,nombre){
     if(objeto){
         var blob = new Blob([JSON.stringify(objeto)], { type: "application/json" });
         saveAs(blob, nombre?('Portal de Contrataciones Abiertas de Honduras - '+nombre+'.json'):'Portal de Contrataciones Abiertas de Honduras.json');
     }
 }
+
+/**
+ * Guarda un archivo generado xlsx
+ * @param {string[]} arreglo - arreglo de cadenas
+ * @param {string} nombre - nombre opcional de archivo
+ */
 function DescargarXLSX(arreglo,nombre){
     if(arreglo.length>1){
         var wb = XLSX.utils.book_new();
@@ -778,6 +939,10 @@ function DescargarXLSX(arreglo,nombre){
     }
 }
 
+/**
+ * Obtiene un buffer para guardar un archivo
+ * @param {string[]} s - arreglo de cadenas
+ */
 function s2ab(s) { 
     var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
     var view = new Uint8Array(buf);  //create uint8array as viewer
@@ -785,6 +950,12 @@ function s2ab(s) {
     return buf;    
 }
 
+/**
+ * Abre una modal para descargar los archivos
+ * @param {string} selector - selector que hace referencia al modal
+ * @param {string} titulo - titulo que se desea que tenga el modal
+ * @param {boolean} creacion - booleano para identificar si se esta creando el modal
+ */
 function AbrirModalDescarga(selector,titulo,creacion){
     if(!$('body #'+selector).length){
         $('body').append(
@@ -824,6 +995,12 @@ function AbrirModalDescarga(selector,titulo,creacion){
     
 
 }
+
+
+/**
+ * Remove el evento del boton descargar de una modal
+ * @param {string} selector - selector que hace referencia al modal
+ */
 function EliminarEventoModalDescarga(selector){
     if($('body #'+selector).length){
         $('body #'+selector+' .descargaIcono').hide();
@@ -833,6 +1010,10 @@ function EliminarEventoModalDescarga(selector){
     }
     
 }
+/**
+ * Agrega el evento al boton descargar de una modal
+ * @param {string} selector - selector que hace referencia al modal
+ */
 function AgregarEventoModalDescarga(selector,funcion){
     if($('body #'+selector).length){
         $('body #'+selector+' .botonDescarga').removeClass('fondoColorGris').addClass('fondoColorPrimario');

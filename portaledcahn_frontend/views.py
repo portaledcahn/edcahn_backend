@@ -93,7 +93,7 @@ def Comprador(request,id=''):
     parametros['ordenfechaInicioCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'fechaInicioCon')
     parametros['ordenmontoCon'] = verificarOrden(request.GET.get('ordenarPorCon',''),'montoCon')
 
-
+    """Pagos"""
     parametros['operadormontoPag'] = verificarOperador(request.GET.get('montoPag',''))
     parametros['operadorfechaPag'] = verificarOperador(request.GET.get('fechaPag',''))
     parametros['operadorpagosPag'] = verificarOperador(request.GET.get('pagosPag',''))

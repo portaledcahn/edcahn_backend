@@ -1,6 +1,27 @@
+/**
+ * @file proveedor.js Este archivo se incluye en la sección de Proveedor del Portal de Contrataciones Abiertas de Honduras
+ * @author Bryant Marcelo Pérez
+ * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
+ */
+
+ /**
+ * Id del Proveedor
+ * @type {string}
+ */
 var proveedorId='';
+
+/**
+ * Objeto de datos del proveedor
+ * @type {Object}
+ */
 var datosProveedor={};
+
+/**
+ * Parametros dentro de la url con los parametros que corresponden a su método según la tabla
+ * @type {Object}
+ */
 var filtrosAPropiedades={
+  /*Tabla Contratos */
   "proveedorCon" : 'proveedor',
   "tituloCon" :"titulo" ,
   "tituloLicitacionCon" :"tituloLicitacion" ,
@@ -13,8 +34,7 @@ var filtrosAPropiedades={
   "fechaInicioCon" :"fechaInicio",
   "montoCon" :"monto" ,
   "dependencias" :"dependencias",
-  
-  
+  /*Tabla Pagos */
   "compradorPag" : "comprador" ,
   "proveedorPag" :"proveedor" ,
   "tituloPag" : "titulo",
@@ -22,7 +42,7 @@ var filtrosAPropiedades={
   "fechaPag" : "fecha",
   "montoPag" :  "monto",
   "pagosPag" : "pagos",
-
+  /*Tabla Productos */
   "compradorPro" : "comprador",
   "ocidPro" : "ocid",
   "tituloPro" :"titulo",
@@ -37,11 +57,22 @@ var filtrosAPropiedades={
   "fechaRecepcionPro" : "fechaRecepcion",
   "fechaPublicacionPro" : "fechaPublicacion"
 };
+
+/**
+ * Traducciones para la Categoría de Compra
+ * @type {Object}
+ */
 var categoriaCompra={
   'goods':{titulo:'Bienes y provisiones',descripcion:'El objeto primario de este proceso de contratación involucra bienes físicos o electrónicos o provisiones'},
   'works':{titulo:'Obras',descripcion:'El objeto primario de este proceso de contratación involucra construcción, reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
-  'services':{titulo:'Servicios',descripcion:'El objeto primario de este proceso de contratación involucra servicios profesionales de alguna manera, generalmente contratados en la forma de resultados medibles o entregables.'}
+  'services':{titulo:'Servicios',descripcion:'El objeto primario de este proceso de contratación involucra servicios profesionales de alguna manera, generalmente contratados en la forma de resultados medibles o entregables.'},
+  'goodsOrServices':{titulo:'Bienes y/o Servicios',descripcion:''},
+  'consultingServices':{titulo:'Consultorías',descripcion:''}
 }
+
+/**
+ * Inicializa los eventos de las tablas, obtiene los datos del proveedor.
+ */
 $(function(){
     proveedorId= decodeURIComponent($('#proveedorId').val());
     $.datepicker.regional['es'] = {
@@ -95,7 +126,7 @@ $(function(){
     $('#cajonContratos input.campoAzulBusqueda').on('change',function(evento){
       var elemento=$('#cajonContratos input.campoAzulBusqueda');
       var filtros={};
-      filtros=ObtenerFiltrosContratos();
+      filtros=ObtenerFiltrosGenerales();
       filtros[elemento.attr('filtro')]=(elemento.val());
       if(!ValidarCadena(filtros[elemento.attr('filtro')])){
         delete filtros[elemento.attr('filtro')];
@@ -106,7 +137,8 @@ $(function(){
     $('#cajonPagos input.campoAzulBusqueda').on('change',function(evento){
       var elemento=$('#cajonPagos input.campoAzulBusqueda');
       var filtros={};
-      filtros=ObtenerFiltrosPagos();
+      filtros=ObtenerFiltrosGenerales();
+      
       filtros[elemento.attr('filtro')]=(elemento.val());
       if(!ValidarCadena(filtros[elemento.attr('filtro')])){
         delete filtros[elemento.attr('filtro')];
@@ -117,7 +149,7 @@ $(function(){
     $('#cajonProductos input.campoAzulBusqueda').on('change',function(evento){
       var elemento=$('#cajonProductos input.campoAzulBusqueda');
       var filtros={};
-      filtros=ObtenerFiltrosProductos();
+      filtros=ObtenerFiltrosGenerales();
       filtros[elemento.attr('filtro')]=(elemento.val());
       if(!ValidarCadena(filtros[elemento.attr('filtro')])){
         delete filtros[elemento.attr('filtro')];
@@ -128,7 +160,7 @@ $(function(){
     $('#buscarInformacionContratos').on('click',function(evento){
       var elemento=$('#cajonContratos input.campoAzulBusqueda');
       var filtros={};
-      filtros=ObtenerFiltrosContratos();
+      filtros=ObtenerFiltrosGenerales();
       filtros[elemento.attr('filtro')]=(elemento.val());
       if(!ValidarCadena(filtros[elemento.attr('filtro')])){
         delete filtros[elemento.attr('filtro')];
@@ -139,7 +171,7 @@ $(function(){
     $('#buscarInformacionPagos').on('click',function(evento){
       var elemento=$('#cajonPagos input.campoAzulBusqueda');
       var filtros={};
-      filtros=ObtenerFiltrosPagos();
+      filtros=ObtenerFiltrosGenerales();
       filtros[elemento.attr('filtro')]=(elemento.val());
       if(!ValidarCadena(filtros[elemento.attr('filtro')])){
         delete filtros[elemento.attr('filtro')];
@@ -150,7 +182,7 @@ $(function(){
     $('#buscarInformacionProductos').on('click',function(evento){
       var elemento=$('#cajonProductos input.campoAzulBusqueda');
       var filtros={};
-      filtros=ObtenerFiltrosProductos();
+      filtros=ObtenerFiltrosGenerales();
       filtros[elemento.attr('filtro')]=(elemento.val());
       if(!ValidarCadena(filtros[elemento.attr('filtro')])){
         delete filtros[elemento.attr('filtro')];
@@ -158,9 +190,9 @@ $(function(){
       filtros['paginaPro']=1;
       InputFiltroProductos(filtros,true);
     });
-    AsignarEventosFiltro('#cajonContratos','Con',ObtenerFiltrosContratos,InputFiltroContratos);
-    AsignarEventosFiltro('#cajonPagos','Pag',ObtenerFiltrosPagos,InputFiltroPagos);
-    AsignarEventosFiltro('#cajonProductos','Pro',ObtenerFiltrosProductos,InputFiltroProductos);
+    AsignarEventosFiltro('#cajonContratos','Con',ObtenerFiltrosGenerales,InputFiltroContratos);
+    AsignarEventosFiltro('#cajonPagos','Pag',ObtenerFiltrosGenerales,InputFiltroPagos);
+    AsignarEventosFiltro('#cajonProductos','Pro',ObtenerFiltrosGenerales,InputFiltroProductos);
     AsignarOrdenTablaFiltros(OrdenFiltroContratos,'#cajonContratos .ordenEncabezado');
     AsignarOrdenTablaFiltros(OrdenFiltroPagos,'#cajonPagos .ordenEncabezado');
     AsignarOrdenTablaFiltros(OrdenFiltroProductos,'#cajonProductos .ordenEncabezado');
@@ -174,18 +206,41 @@ $(function(){
       CantidadResultadosProducto($('#paginacionBusquedaProducto').val()?$('#paginacionBusquedaProducto').val():5);
     });
     //paginacionBusquedaContrato
+    InicializarDescargas();
 });
 
+/**
+ * Agrega el cambio de dirección en la url cuando cambia la tabla de contratos
+ * @param {number} numero 
+ */
 function CantidadResultadosContrato(numero){
   PushDireccionContratos(AccederUrlPagina({paginaCon:1,paginarPorCon:numero}));
 }
+
+/**
+ * Agrega el cambio de dirección en la url cuando cambia la tabla de pagos
+ * @param {number} numero 
+ */
 function CantidadResultadosPago(numero){
   PushDireccionPagos(AccederUrlPagina({paginaPag:1,paginarPorPag:numero}));
 }
+
+/**
+ * Agrega el cambio de dirección en la url cuando cambia la tabla de producto
+ * @param {number} numero 
+ */
 function CantidadResultadosProducto(numero){
   PushDireccionProductos(AccederUrlPagina({paginaPro:1,paginarPorPro:numero}));
 }
-function AsignarEventosFiltro(selector,sufijo,funcionFiltros,funcionInput){
+
+/**
+ * Agrega los eventos a los campos una vez que cambien su valor
+ * @param {string} selector -Identifiador de la tabla
+ * @param {string} prefijo -Prefijo para Identificar la Tabla
+ * @param {Object} funcionFiltros -Funcion para obtener los filtros
+ * @param {funcionInput} funcionInput -Funcion a realizar posterior al cambio
+ */
+function AsignarEventosFiltro(selector,prefijo,funcionFiltros,funcionInput){
   $(selector+' .campoFiltrado input[type="text"], '+selector+' .campoFiltrado select.campoBlancoTextoSeleccion').on(
     {'change': function(e){
       var elemento=$(e.currentTarget);
@@ -198,7 +253,7 @@ function AsignarEventosFiltro(selector,sufijo,funcionFiltros,funcionInput){
             if(!ValidarCadena(filtros[elementoPadre.attr('filtro')])){
               delete filtros[elementoPadre.attr('filtro')];
             }
-            filtros['pagina'+sufijo]=1;
+            filtros['pagina'+prefijo]=1;
             funcionInput(filtros,true);
         break;
         case 'numero':
@@ -206,7 +261,7 @@ function AsignarEventosFiltro(selector,sufijo,funcionFiltros,funcionInput){
             if(!ValidarCadena(filtros[elementoPadre.attr('filtro')])){
               delete filtros[elementoPadre.attr('filtro')];
             }
-            filtros['pagina'+sufijo]=1;
+            filtros['pagina'+prefijo]=1;
             funcionInput(filtros,true);
         break;
         default:
@@ -214,7 +269,7 @@ function AsignarEventosFiltro(selector,sufijo,funcionFiltros,funcionInput){
             if(!ValidarCadena(filtros[elementoPadre.attr('filtro')])){
               delete filtros[elementoPadre.attr('filtro')];
             }
-            filtros['pagina'+sufijo]=1;
+            filtros['pagina'+prefijo]=1;
             funcionInput(filtros,true);
         break;
       }
@@ -222,13 +277,16 @@ function AsignarEventosFiltro(selector,sufijo,funcionFiltros,funcionInput){
     }}
   )
 }
+
+/**
+ * Funcion para obtener los datos del proveedor y cargar las tablas del mismo
+ */
 function ObtenerProveedor(){
     DebugFecha();
     MostrarEspera('body .tamanoMinimo',true);
-    $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)/*url+"/static/"+procesoOcid+".json"*/,function(datos){
+    $.get(api+"/proveedores/"+encodeURIComponent(proveedorId),function(datos){
         DebugFecha();
         datosProveedor=datos;
-        console.dir(datos)
         OcultarEspera('body .tamanoMinimo');
         if(datos.id){
             
@@ -252,6 +310,9 @@ function ObtenerProveedor(){
   });
 }
 
+/**
+ * Añade los datos del proveedor
+*/
 function AnadirDatosProveedor(){
     $('#nombreProveedor').text(datosProveedor.name);
     $('.contenedorInformacion').append(
@@ -359,8 +420,12 @@ function AnadirDatosProveedor(){
 
 
 
-    )
+    );
 }
+
+/**
+ * Obtiene los datos de los contratos del proveedor
+ */
 function CargarContratosProveedor(){
     $('#resultadosContratosProveedor').html(
       $('<tr>').append(
@@ -396,6 +461,10 @@ function CargarContratosProveedor(){
         
       });
     }
+
+/**
+ * Obtiene los datos de los pagos del proveedor
+ */
     function CargarPagosProveedor(){
       $('#resultadosPagosProveedor').html(
         $('<tr>').append(
@@ -414,7 +483,7 @@ function CargarContratosProveedor(){
        AgregarResultadosPagosProveedor(datos,'#resultadosPagosProveedor')
         MostrarPaginacion(datos,'.PagosProveedor',
         function(e){
-          PaginaPagosProveedor($(e.currentTarget).attr('pagina'))
+          PaginaPagosProveedor($(e.currentTarget).attr('pagina'));
         });
         
         
@@ -426,12 +495,16 @@ function CargarContratosProveedor(){
       }).fail(function() {
           /*Error de Conexion al servidor */
           console.dir('error de api');
-          AgregarResultadosPagosProveedor({ resultados: [] },'#resultadosPagosProveedor')
+          AgregarResultadosPagosProveedor({ resultados: [] },'#resultadosPagosProveedor');
           AgregarToolTips();
           //VerificarIntroduccion('INTROJS_PROVEEDOR',1);
           
         });
       }
+
+ /**
+ * Obtiene los datos de los productos del proveedor
+ */     
       function CargarProductosProveedor(){
         $('#resultadosProductosProveedor').html(
           $('<tr>').append(
@@ -468,22 +541,18 @@ function CargarContratosProveedor(){
             
           });
         }
-/*
 
-$('<div>',{class:''})
-
-*/
-
+/**
+ * Agrega los resultados a la tabla de contratos
+ * @param {Object} datos -Datos de los resultados
+ * @param {string} selector -Identificador donde se encuentra 
+ */
   function AgregarResultadosContratosProveedor(datos,selector){
     var resultados=datos.resultados;
     $(selector).html('');
     for(var i=0;i<resultados.length;i++){
       $(selector).append(
         $('<tr>').append(
-          /*$('<td>',{'data-label':'Comprador'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyerFullName)}).text( resultados[i]._source.buyer&&resultados[i]._source.buyer.name?resultados[i]._source.buyer.name:resultados[i]._source.extra.buyerFullName):''
-          ),*/
-          /*pilas */
           $('<td>',{'data-label':'Comprador'}).append(
             resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyer&&resultados[i]._source.extra.buyer.id?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyer.id)}).text( resultados[i]._source.extra.buyerFullName):''
           ),
@@ -531,16 +600,22 @@ $('<div>',{class:''})
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.status ?(estadosContrato[resultados[i]._source.status]? estadosContrato[resultados[i]._source.status].titulo:resultados[i]._source.status):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 )
         )
-      )
+      );
     }
     if(!resultados.length){
       $(selector).append(
         $('<tr>',{style:''}).append(
           $('<td>',{'data-label':'','colspan':8}).append(
             $('<h4>',{class:'titularColor textoColorPrimario mt-3 mb-3'}).text('No se Encontraron Contratos')
-          )))
+          )));
     }
   }
+
+/**
+ * Obtiene la Subtabla de pagos
+ * @param {Object} datos -Obtiene datos de la subtabla
+ * @return {Object[]} -Retorna un arreglo de objetos html correspondientes a cada pago
+ */  
   function ObtenerFilasSubTablaPagos(datos){
     var elementos = [];
     if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
@@ -574,10 +649,17 @@ $('<div>',{class:''})
             $('<tr>', { style: '' }).append(
                 $('<td>', { 'data-label': '', 'colspan': 4 }).append(
                     $('<h4>', { class: 'titularColor textoColorPrimario mt-3 mb-3' }).text('No hay pagos disponibles')
-                )))
+                )));
     }
     return elementos;
 }
+
+/**
+ * Agrega una fila en la tabla de pagos
+ * @param {Object} resultados -Fila de resultados
+ * @param {string} selector -Contendor donde se agregara la fila
+ * @param {number} i -Indice
+ */
 function AgregarFilaPago(resultados,selector,i){
   $(selector).append(
     $('<tr>',{
@@ -603,8 +685,118 @@ function AgregarFilaPago(resultados,selector,i){
                                     $('<tbody>').append(
                                         ObtenerFilasSubTablaPagos(resultados[i]._source)
                                     )
-                                )
+                                ),
+                                $('<div>',{class:'col-md-12 textoAlineadoDerecha mb-5'}).append(
+                                  $('<h4>',{class:'textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba',style:'margin-top:18px'}).append(
+                                    $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',on:{click:function(e){
+                                      var datos=resultados[i]._source;
+                                      var pagos=[];
+                                      if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
+                                        for (let i = 0; i < datos.implementation.transactions.length; i++) {
+                                          var obligaciones=ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations);
+                                          pagos.push(
+                                            {
+                                              'descripcion':(obligaciones&& obligaciones.length ?obligaciones.map(function(e){return Validar(e.description)?e.description:'';}).join(', '): ''),
+                                              'objetoGasto':(
+                                                datos && datos.extra && datos.extra.objetosGasto && datos.extra.objetosGasto.length ? datos.extra.objetosGasto.join(', ') :''
+                                              ),
+                                              'montoPago':(
+                                                datos.implementation.transactions[i].value && Validar(datos.implementation.transactions[i].value.amount) ?( 
+                                                  ValorMoneda(datos.implementation.transactions[i].value.amount)+ ' '+ (datos.implementation.transactions[i].date.currency?datos.implementation.transactions[i].date.currency:'HNL') ): ''
+                                              ),
+                                              'fechaPago':(
+                                                datos.implementation.transactions[i].date && datos.implementation.transactions[i].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[i].date, 'fecha') : ''
+                                              )
+                                            }
+                                          );
 
+                                        }
+                                      }
+                                      DescargarJSON(pagos,'Pagos de '+resultados[i]._source.extra.buyerFullName);
+
+                                    
+
+
+                                    }}}).append(
+                                      $('<i>',{class:'fas fa-file-download'}),
+                                      '&nbsp;.JSON'
+                                    ),
+                                    $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',on:{click:function(e){
+                                      var datos=resultados[i]._source;
+                                      var pagos=[];
+                                      if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
+                                        for (let i = 0; i < datos.implementation.transactions.length; i++) {
+                                          var obligaciones=ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations);
+                                          pagos.push(
+                                            {
+                                              'descripcion':(obligaciones&& obligaciones.length ?obligaciones.map(function(e){return Validar(e.description)?e.description:'';}).join(', '): ''),
+                                              'objetoGasto':(
+                                                datos && datos.extra && datos.extra.objetosGasto && datos.extra.objetosGasto.length ? datos.extra.objetosGasto.join(', ') :''
+                                              ),
+                                              'montoPago':(
+                                                datos.implementation.transactions[i].value && Validar(datos.implementation.transactions[i].value.amount) ?( 
+                                                  ValorMoneda(datos.implementation.transactions[i].value.amount)+ ' '+ (datos.implementation.transactions[i].date.currency?datos.implementation.transactions[i].date.currency:'HNL') ): ''
+                                              ),
+                                              'fechaPago':(
+                                                datos.implementation.transactions[i].date && datos.implementation.transactions[i].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[i].date, 'fecha') : ''
+                                              )
+                                            }
+                                          );
+
+                                        }
+                                      }
+                                      DescargarCSV(ObtenerMatrizObjeto(pagos) ,'Pagos de '+resultados[i]._source.extra.buyerFullName);
+
+                                    
+
+
+                                    }}}).append(
+                                      $('<i>',{class:'fas fa-file-download'}),
+                                      '&nbsp;.CSV'
+                                    ),
+                                    $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',on:{click:function(e){
+                                      var datos=resultados[i]._source;
+                                      var pagos=[];
+                                      if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
+                                        for (let i = 0; i < datos.implementation.transactions.length; i++) {
+                                          var obligaciones=ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations);
+                                          pagos.push(
+                                            {
+                                              'descripcion':(obligaciones&& obligaciones.length ?obligaciones.map(function(e){return Validar(e.description)?e.description:'';}).join(', '): ''),
+                                              'objetoGasto':(
+                                                datos && datos.extra && datos.extra.objetosGasto && datos.extra.objetosGasto.length ? datos.extra.objetosGasto.join(', ') :''
+                                              ),
+                                              'montoPago':(
+                                                datos.implementation.transactions[i].value && Validar(datos.implementation.transactions[i].value.amount) ?( 
+                                                  ValorMoneda(datos.implementation.transactions[i].value.amount)+ ' '+ (datos.implementation.transactions[i].date.currency?datos.implementation.transactions[i].date.currency:'HNL') ): ''
+                                              ),
+                                              'fechaPago':(
+                                                datos.implementation.transactions[i].date && datos.implementation.transactions[i].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[i].date, 'fecha') : ''
+                                              )
+                                            }
+                                          );
+
+                                        }
+                                      }
+                                      DescargarXLSX(ObtenerMatrizObjeto(pagos) ,'Pagos de '+resultados[i]._source.extra.buyerFullName);
+
+                                    
+
+
+                                    }}}).append(
+                                      $('<i>',{class:'fas fa-file-download'}),
+                                      '&nbsp;.XLSX'
+                                    )
+                                  ),
+                                  $('<h4>',{class:'enLinea mb-0 mt-3 enLinea alineadoArriba',style:'margin-top:18px',on:{
+                                    click:function(e){location.href='/preguntas';}
+                                  }}).append(
+                                    $('<div>',{class:'textoAlineadoCentrado cursorMano botonAyuda transicion'}).append(
+                                      $('<i>',{class:'fas fa-question'})
+                                    )
+                                  )
+                                  
+                                )
                             )
                         )
                         
@@ -650,6 +842,13 @@ function AgregarFilaPago(resultados,selector,i){
     )
   );
 }
+
+
+/**
+ * Agrega las filas de resultados en los pagos de un proveedor
+ * @param {Object} datos -datos en la respuesta del metodo de pagos
+ * @param {string} selector -contenedor HTML de resultados de pagos
+ */
   function AgregarResultadosPagosProveedor(datos,selector){
     var resultados=datos.resultados;
     $(selector).html('');
@@ -665,6 +864,11 @@ function AgregarFilaPago(resultados,selector,i){
     }
   }
 
+  /**
+ * Agrega los resultados en la tabla de procesos del proveedor
+ * @param {Object} datos -datos de la respuesta
+ * @param {string} selector -contenedor donde se desean agregar
+ */
   function AgregarResultadosProductosProveedor(datos,selector){
     var resultados=datos.resultados;
     $(selector).html('');
@@ -685,18 +889,23 @@ function AgregarFilaPago(resultados,selector,i){
                 )
             
         )
-      )
+      );
     }
     if(!resultados.length){
       $(selector).append(
         $('<tr>',{style:''}).append(
           $('<td>',{'data-label':'','colspan':3}).append(
             $('<h4>',{class:'titularColor textoColorPrimario mt-3 mb-3'}).text('No se Encontraron Productos')
-          )))
+          )));
     }
   }
 
-
+/**
+ * Agrega la paginación de una página
+ * @param {Object} datos -datos de la respuesta del metodo
+ * @param {string} selector -Contenedor donde se añadira la paginación
+ * @param {Object} funcion -Funcion que se ejecutara al hacer clic en una página
+ */
   function MostrarPaginacion(datos,selector,funcion){
     var paginarPor=datos.parametros.paginarPor?datos.parametros.paginarPor:datos.parametros.pagianrPor?datos.parametros.pagianrPor:5;
     var pagina=datos.parametros.pagina?datos.parametros.pagina:1
@@ -739,38 +948,91 @@ function AgregarFilaPago(resultados,selector,i){
     
     
   }
+
+  /**
+ * Agrega la página con el filtrado que se hizo en los contratos
+ * @param {number} numero -numero de pagina que se desea agregar
+ */
   function PaginaContratosProveedor(numero){
     PushDireccionContratos(AccederUrlPagina({paginaCon:numero}));
   }
+
+  /**
+ * Agrega la página con el filtrado que se hizo en los pagos
+ * @param {number} numero -numero de pagina que se desea agregar
+ */
   function PaginaPagosProveedor(numero){
     PushDireccionPagos(AccederUrlPagina({paginaPag:numero}));
   }
+
+  /**
+ * Agrega la página con el filtrado que se hizo en los productos
+ * @param {number} numero -numero de pagina que se desea agregar
+ */
   function PaginaProductosProveedor(numero){
     PushDireccionProductos(AccederUrlPagina({paginaPro:numero}));
   }
 
+/**
+ * Agrega la página al historial con el filtrado que se hizo en los contratos
+ * @param {string} direccion -nueva direccion de la pagina
+ */
   function PushDireccionContratos(direccion){
     window.history.pushState({}, document.title,direccion);
     CargarContratosProveedor();
   }
+
+  /**
+ * Agrega la página al historial con el filtrado que se hizo en los pagos
+ * @param {string} direccion -nueva direccion de la pagina
+ */
   function PushDireccionPagos(direccion){
     window.history.pushState({}, document.title,direccion);
     CargarPagosProveedor();
   }
+
+  /**
+ * Agrega la página al historial con el filtrado que se hizo en los productos
+ * @param {string} direccion -nueva direccion de la pagina
+ */
   function PushDireccionProductos(direccion){
     window.history.pushState({}, document.title,direccion);
     CargarProductosProveedor();
   }
+
+  /**
+ * Agrega la página con el filtrado que se hizo en los contratos
+ * @param {Object} filtros -parametros ya agregados
+ * @param {boolean} desUrl -descarta agregar los valores actuales en la url
+ */
   function InputFiltroContratos(filtros,desUrl){
     PushDireccionContratos(AccederUrlPagina(filtros,desUrl));
   }
+
+  /**
+ * Agrega la página con el filtrado que se hizo en los pagos
+ * @param {Object} filtros -parametros ya agregados
+ * @param {boolean} desUrl -descarta agregar los valores actuales en la url
+ */
   function InputFiltroPagos(filtros,desUrl){
     PushDireccionPagos(AccederUrlPagina(filtros,desUrl));
   }
+
+/**
+ * Agrega la página con el filtrado que se hizo en los productos
+ * @param {Object} filtros -parametros ya agregados
+ * @param {boolean} desUrl -descarta agregar los valores actuales en la url
+ */
   function InputFiltroProductos(filtros,desUrl){
     PushDireccionProductos(AccederUrlPagina(filtros,desUrl));
   }
 
+/**
+ * Regresa una dirección con los filtros aplicados
+ * @param {Object} opciones -parametros ya agregados
+ * @param {boolean} desUrl -descarta agregar los valores actuales en la url
+ * @return {string}
+ */
   function AccederUrlPagina(opciones,desUrl){
     var direccion=('/proveedor/'+encodeURIComponent(proveedorId)+'/?'+
   
@@ -813,6 +1075,10 @@ function AgregarFilaPago(resultados,selector,i){
     return direccion;
   }
 
+/**
+ * Obtiene el valor de un parametro de orden
+ * @param {string} texto -filtro de orden aplicado
+ */
   function ObtenerOrdenConversion(texto){
     texto=ObtenerTexto(texto);
     if(/desc\(/.test(texto)){
@@ -824,99 +1090,138 @@ function AgregarFilaPago(resultados,selector,i){
     }
     return texto
   }
-  function ObtenerFiltrosContratos(sufijo){
+
+/**
+ * Obtiene un json con todos los filtros aplicados 
+ * @param {string} prefijo -si se desean obtener las propiedasdes con un prefijo
+ */
+function ObtenerFiltrosGenerales(prefijo){
+  if(!prefijo){
+    return Object.assign(ObtenerFiltrosPagos('Pag'),ObtenerFiltrosContratos('Con'),ObtenerFiltrosProductos('Pro'));
+  }else{
+    switch(prefijo){
+      case 'Con':
+        return ObtenerFiltrosContratos(prefijo);
+      case 'Pag':
+        return ObtenerFiltrosPagos(prefijo);
+      case 'Pro':
+        return ObtenerFiltrosProductos(prefijo);
+      default:
+        return {};
+    }
+  }
+}
+
+/**
+ * Obtiene un json con los filtros aplicados de contratos
+ * @param {string} prefijo -si se desean obtener las propiedasdes con un prefijo
+ */
+  function ObtenerFiltrosContratos(prefijo){
     var parametros={}
-    parametros[sufijo?'pagina'+sufijo:'pagina']= ObtenerNumero(ObtenerValor('paginaCon')) ? ObtenerNumero(ObtenerValor('paginaCon')) : 1;
-    parametros[sufijo?'paginarPor'+sufijo:'paginarPor']= ObtenerNumero(ObtenerValor('paginarPorCon')) ? ObtenerNumero(ObtenerValor('paginarPorCon')) : 5;
+    parametros[prefijo?'pagina'+prefijo:'pagina']= ObtenerNumero(ObtenerValor('paginaCon')) ? ObtenerNumero(ObtenerValor('paginaCon')) : 1;
+    parametros[prefijo?'paginarPor'+prefijo:'paginarPor']= ObtenerNumero(ObtenerValor('paginarPorCon')) ? ObtenerNumero(ObtenerValor('paginarPorCon')) : 5;
     if(Validar(ObtenerValor('compradorCon'))){
-      parametros[sufijo?'comprador'+sufijo:'comprador']=decodeURIComponent(ObtenerValor('compradorCon'));
+      parametros[prefijo?'comprador'+prefijo:'comprador']=decodeURIComponent(ObtenerValor('compradorCon'));
     }
     if(Validar(ObtenerValor('tituloCon'))){
-      parametros[sufijo?'titulo'+sufijo:'titulo']= decodeURIComponent(ObtenerValor('tituloCon'));
+      parametros[prefijo?'titulo'+prefijo:'titulo']= decodeURIComponent(ObtenerValor('tituloCon'));
     }
     if(Validar(ObtenerValor('descripcionCon'))){
-      parametros[sufijo?'descripcion'+sufijo:'descripcion']=decodeURIComponent(ObtenerValor('descripcionCon')) ;
+      parametros[prefijo?'descripcion'+prefijo:'descripcion']=decodeURIComponent(ObtenerValor('descripcionCon')) ;
     }
     if(Validar(ObtenerValor('tituloLicitacionCon'))){
-      parametros[sufijo?'tituloLicitacion'+sufijo:'tituloLicitacion']= decodeURIComponent(ObtenerValor('tituloLicitacionCon'));
+      parametros[prefijo?'tituloLicitacion'+prefijo:'tituloLicitacion']= decodeURIComponent(ObtenerValor('tituloLicitacionCon'));
     }
     if(Validar(ObtenerValor('categoriaCompraCon'))){
-      parametros[sufijo?'categoriaCompra'+sufijo:'categoriaCompra']=decodeURIComponent(ObtenerValor('categoriaCompraCon')) ;
+      parametros[prefijo?'categoriaCompra'+prefijo:'categoriaCompra']=decodeURIComponent(ObtenerValor('categoriaCompraCon')) ;
     }
     if(Validar(ObtenerValor('fechaFirmaCon'))){
-      parametros[sufijo?'fechaFirma'+sufijo:'fechaFirma']=decodeURIComponent(ObtenerValor('fechaFirmaCon'));
+      parametros[prefijo?'fechaFirma'+prefijo:'fechaFirma']=decodeURIComponent(ObtenerValor('fechaFirmaCon'));
     }
     if(Validar(ObtenerValor('fechaInicioCon'))){
-      parametros[sufijo?'fechaInicio'+sufijo:'fechaInicio']=decodeURIComponent(ObtenerValor('fechaInicioCon'));
+      parametros[prefijo?'fechaInicio'+prefijo:'fechaInicio']=decodeURIComponent(ObtenerValor('fechaInicioCon'));
     }
     if(Validar(ObtenerValor('montoCon'))){
-      parametros[sufijo?'monto'+sufijo:'monto']=decodeURIComponent(ObtenerValor('montoCon'));
+      parametros[prefijo?'monto'+prefijo:'monto']=decodeURIComponent(ObtenerValor('montoCon'));
     }
     if(Validar(ObtenerValor('estadoCon'))){
-      parametros[sufijo?'estado'+sufijo:'estado']=decodeURIComponent(ObtenerValor('estadoCon'));
+      parametros[prefijo?'estado'+prefijo:'estado']=decodeURIComponent(ObtenerValor('estadoCon'));
     }
     if(Validar(ObtenerValor('ordenarPorCon'))){
-      parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=sufijo?decodeURIComponent(ObtenerValor('ordenarPorCon')):ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorCon')));
+      parametros[prefijo?'ordenarPor'+prefijo:'ordenarPor']=prefijo?decodeURIComponent(ObtenerValor('ordenarPorCon')):ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorCon')));
     }
 
     
     return parametros;
   }
-  function ObtenerFiltrosPagos(sufijo){
+
+  /**
+ * Obtiene un json con los filtros aplicados de pagos
+ * @param {string} prefijo -si se desean obtener las propiedasdes con un prefijo
+ */
+  function ObtenerFiltrosPagos(prefijo){
     var parametros={}
-    parametros[sufijo?'pagina'+sufijo:'pagina']= ObtenerNumero(ObtenerValor('paginaPag')) ? ObtenerNumero(ObtenerValor('paginaPag')) : 1;
-    parametros[sufijo?'paginarPor'+sufijo:'paginarPor']= ObtenerNumero(ObtenerValor('paginarPorPag')) ? ObtenerNumero(ObtenerValor('paginarPorPag')) : 5;
+    parametros[prefijo?'pagina'+prefijo:'pagina']= ObtenerNumero(ObtenerValor('paginaPag')) ? ObtenerNumero(ObtenerValor('paginaPag')) : 1;
+    parametros[prefijo?'paginarPor'+prefijo:'paginarPor']= ObtenerNumero(ObtenerValor('paginarPorPag')) ? ObtenerNumero(ObtenerValor('paginarPorPag')) : 5;
     if(Validar(ObtenerValor('compradorPag'))){
-      parametros[sufijo?'comprador'+sufijo:'comprador']=decodeURIComponent(ObtenerValor('compradorPag'));
+      parametros[prefijo?'comprador'+prefijo:'comprador']=decodeURIComponent(ObtenerValor('compradorPag'));
     }
     if(Validar(ObtenerValor('tituloPag'))){
-      parametros[sufijo?'titulo'+sufijo:'titulo']= decodeURIComponent(ObtenerValor('tituloPag'));
+      parametros[prefijo?'titulo'+prefijo:'titulo']= decodeURIComponent(ObtenerValor('tituloPag'));
     }
     if(Validar(ObtenerValor('montoPag'))){
-      parametros[sufijo?'monto'+sufijo:'monto']=decodeURIComponent(ObtenerValor('montoPag'));
+      parametros[prefijo?'monto'+prefijo:'monto']=decodeURIComponent(ObtenerValor('montoPag'));
     }
     if(Validar(ObtenerValor('pagosPag'))){
-      parametros[sufijo?'pagos'+sufijo:'pagos']=decodeURIComponent(ObtenerValor('pagosPag'));
+      parametros[prefijo?'pagos'+prefijo:'pagos']=decodeURIComponent(ObtenerValor('pagosPag'));
     }
     if(Validar(ObtenerValor('fechaPag'))){
-      parametros[sufijo?'fecha'+sufijo:'fecha']=decodeURIComponent(ObtenerValor('fechaPag'));
+      parametros[prefijo?'fecha'+prefijo:'fecha']=decodeURIComponent(ObtenerValor('fechaPag'));
     }
     if(Validar(ObtenerValor('ordenarPorPag'))){
-      parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=sufijo?decodeURIComponent(ObtenerValor('ordenarPorPag')):ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPag')));
+      parametros[prefijo?'ordenarPor'+prefijo:'ordenarPor']=prefijo?decodeURIComponent(ObtenerValor('ordenarPorPag')):ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPag')));
     }
     return parametros;
   }
 
-  function ObtenerFiltrosProductos(sufijo){
+  /**
+ * Obtiene un json con los filtros aplicados de productos
+ * @param {string} prefijo -si se desean obtener las propiedasdes con un prefijo
+ */
+  function ObtenerFiltrosProductos(prefijo){
     var parametros={}
-    parametros[sufijo?'pagina'+sufijo:'pagina']= ObtenerNumero(ObtenerValor('paginaPro')) ? ObtenerNumero(ObtenerValor('paginaPro')) : 1;
-    parametros[sufijo?'paginarPor'+sufijo:'paginarPor']= ObtenerNumero(ObtenerValor('paginarPorPro')) ? ObtenerNumero(ObtenerValor('paginarPorPro')) : 5;
+    parametros[prefijo?'pagina'+prefijo:'pagina']= ObtenerNumero(ObtenerValor('paginaPro')) ? ObtenerNumero(ObtenerValor('paginaPro')) : 1;
+    parametros[prefijo?'paginarPor'+prefijo:'paginarPor']= ObtenerNumero(ObtenerValor('paginarPorPro')) ? ObtenerNumero(ObtenerValor('paginarPorPro')) : 5;
     if(Validar(ObtenerValor('clasificacionPro'))){
-      parametros[sufijo?'clasificacion'+sufijo:'clasificacion']=decodeURIComponent(ObtenerValor('clasificacionPro'));
+      parametros[prefijo?'clasificacion'+prefijo:'clasificacion']=decodeURIComponent(ObtenerValor('clasificacionPro'));
     }
     if(Validar(ObtenerValor('montoPro'))){
-      parametros[sufijo?'monto'+sufijo:'monto']=decodeURIComponent(ObtenerValor('montoPro'));
+      parametros[prefijo?'monto'+prefijo:'monto']=decodeURIComponent(ObtenerValor('montoPro'));
     }
     if(Validar(ObtenerValor('cantidadContratosPro'))){
-      parametros[sufijo?'cantidadContratos'+sufijo:'cantidadContratos']=decodeURIComponent(ObtenerValor('cantidadContratosPro'));
+      parametros[prefijo?'cantidadContratos'+prefijo:'cantidadContratos']=decodeURIComponent(ObtenerValor('cantidadContratosPro'));
     }
     if(Validar(ObtenerValor('ordenarPorPro'))){
-      parametros[sufijo?'ordenarPor'+sufijo:'ordenarPor']=sufijo?decodeURIComponent(ObtenerValor('ordenarPorPro')):ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPro')));
+      parametros[prefijo?'ordenarPor'+prefijo:'ordenarPor']=prefijo?decodeURIComponent(ObtenerValor('ordenarPorPro')):ObtenerOrdenConversion(decodeURIComponent(ObtenerValor('ordenarPorPro')));
     }
     return parametros;
   }
 
-
+/**
+ * Agrega un filtrado de orden de contratos
+ * @param {string} filtro -filtro que se desea aplicar
+ * @param {string} orden -tipo de orden
+ */
   function OrdenFiltroContratos(filtro,orden){
     switch(orden){
       case 'ascendente':
-          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'asc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
+          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'asc('+filtro+')'}));
         break;
       case 'descendente':
-          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'desc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
+          PushDireccionContratos(AccederUrlPagina({paginaCon:1,ordenarPorCon:'desc('+filtro+')'}));
         break;
       case 'neutro':
-          var filtros=ObtenerFiltrosContratos('Con');
+          var filtros=ObtenerFiltrosGenerales();
           if(filtros['ordenarPorCon']){
             delete filtros['ordenarPorCon'];
           }
@@ -924,7 +1229,7 @@ function AgregarFilaPago(resultados,selector,i){
           PushDireccionContratos(AccederUrlPagina(filtros,true));
         break;
       default:
-          var filtros=ObtenerFiltrosContratos('Con');
+          var filtros=ObtenerFiltrosGenerales();
           if(filtros['ordenarPorCon']){
             delete filtros['ordenarPorCon'];
           }
@@ -934,16 +1239,23 @@ function AgregarFilaPago(resultados,selector,i){
   
     }
   }
+
+
+/**
+ * Agrega un filtrado de orden de pagos
+ * @param {string} filtro -filtro que se desea aplicar
+ * @param {string} orden -tipo de orden
+ */
   function OrdenFiltroPagos(filtro,orden){
     switch(orden){
       case 'ascendente':
-          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'asc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
+          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'asc('+ filtro +')'}));
         break;
       case 'descendente':
-          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'desc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
+          PushDireccionPagos(AccederUrlPagina({paginaPag:1,ordenarPorPag:'desc('+ filtro +')'}));
         break;
       case 'neutro':
-          var filtros=ObtenerFiltrosPagos('Pag');
+          var filtros=ObtenerFiltrosGenerales();
           if(filtros['ordenarPorPag']){
             delete filtros['ordenarPorPag'];
           }
@@ -951,7 +1263,7 @@ function AgregarFilaPago(resultados,selector,i){
           PushDireccionPagos(AccederUrlPagina(filtros,true));
         break;
       default:
-          var filtros=ObtenerFiltrosPagos('Pag');
+          var filtros=ObtenerFiltrosGenerales();
           if(filtros['ordenarPorPag']){
             delete filtros['ordenarPorPag'];
           }
@@ -962,16 +1274,21 @@ function AgregarFilaPago(resultados,selector,i){
     }
   }
 
+/**
+ * Agrega un filtrado de orden de productos
+ * @param {string} filtro -filtro que se desea aplicar
+ * @param {string} orden -tipo de orden
+ */
   function OrdenFiltroProductos(filtro,orden){
     switch(orden){
       case 'ascendente':
-          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'asc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
+          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'asc('+ filtro +')'}));
         break;
       case 'descendente':
-          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'desc('+/*filtrosAPropiedades[*/filtro/*]*/+')'}));
+          PushDireccionProductos(AccederUrlPagina({paginaPro:1,ordenarPorPro:'desc('+ filtro +')'}));
         break;
       case 'neutro':
-          var filtros=ObtenerFiltrosProductos('Pro');
+          var filtros=ObtenerFiltrosGenerales();
           if(filtros['ordenarPorPro']){
             delete filtros['ordenarPorPro'];
           }
@@ -979,7 +1296,7 @@ function AgregarFilaPago(resultados,selector,i){
           PushDireccionProductos(AccederUrlPagina(filtros,true));
         break;
       default:
-          var filtros=ObtenerFiltrosProductos('Pro');
+          var filtros=ObtenerFiltrosGenerales();
           if(filtros['ordenarPorPro']){
             delete filtros['ordenarPorPro'];
           }
@@ -990,7 +1307,10 @@ function AgregarFilaPago(resultados,selector,i){
     }
   }
 
-  
+
+/**
+ * Inicializa las Descargas de las tablas
+ */
 function InicializarDescargas(){
 
   AbrirModalDescarga('descargaJsonProveedorProductos','Descarga JSON',true);/*Crear Modal Descarga */
@@ -1009,7 +1329,7 @@ function InicializarDescargas(){
   AbrirModalDescarga('descargaCsvProveedorContratos','Descarga CSV',true);/*Crear Modal Descarga */
   AbrirModalDescarga('descargaXlsxProveedorContratos','Descarga XLSX',true);/*Crear Modal Descarga */
   $('#descargaJSONContratos').on('click',function(e){
-    AbrirModalDescarga('descargaJsoProveedorContratos','Descarga JSON');
+    AbrirModalDescarga('descargaJsonProveedorContratos','Descarga JSON');
   });
   $('#descargaCSVContratos').on('click',function(e){
     AbrirModalDescarga('descargaCsvProveedorContratos','Descarga CSV');
@@ -1030,6 +1350,11 @@ function InicializarDescargas(){
     AbrirModalDescarga('descargaXlsxProveedorPagos','Descarga XLSX');
   });
 }
+
+  /**
+   * Agrega la funcion de descarga de los productos
+   * @param {Object} datos -datos de los productos
+   */
 function ObtenerDescargaProveedorProductos(datos){
  /* var parametros = ObtenerFiltrosProductos();
   parametros['pagina']=1;
@@ -1074,6 +1399,10 @@ function ObtenerDescargaProveedorProductos(datos){
   
 }
 
+ /**
+   * Agrega la funcion de descarga de los contratos
+   * @param {Object} datos -datos de los conratos
+   */
 function ObtenerDescargaProveedorContratos(datos){
   /*var parametros = ObtenerFiltrosContratos();
   parametros['pagina']=1;
@@ -1107,12 +1436,16 @@ function ObtenerDescargaProveedorContratos(datos){
     });*/
 }
 
+ /**
+   * Agrega la funcion de descarga de los pagos
+   * @param {Object} datos -datos de los pagos
+   */
 function ObtenerDescargaProveedorPagos(datos){
  /* var parametros = ObtenerFiltrosPagos();
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
   $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/pagos',parametros).done(function( datos ) {*/
-    console.dir('Descargas Proveedor Pagos')
+    console.dir('Descargas Proveedor Pagos');
     console.dir(datos);
     AgregarEventoModalDescarga('descargaJsonProveedorPagos',function(){
       var descarga=datos.resultados.map(function(e){
