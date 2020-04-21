@@ -3059,7 +3059,9 @@ class FiltrosDashboardSEFIN(APIView):
 		years = resultsYears.aggregations.to_dict()
 
 		if "años" in resultados:
-			resultados["años"] = years["años"]
+			if 'buckets' in years["años"]:
+				years["años"]['buckets'] = sorted(years["años"]['buckets'], key=lambda k: k['key_as_string'], reverse=True)
+			resultados["años"] = years["años"] 
 
 		context = {
 			"parametros": parametros,
