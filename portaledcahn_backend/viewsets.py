@@ -4593,8 +4593,6 @@ class FiltrosDashboardONCAE(APIView):
 				'ocids': valor["doc_count"]
 			})
 
-		print("Institucines::::", len(instituciones))
-
 		resultados = {}
 		resultados["años"] = years
 		resultados["monedas"] = monedas
