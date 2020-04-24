@@ -4481,6 +4481,8 @@ class FiltrosDashboardONCAE(APIView):
 
 			instituciones = dfInstituciones.to_dict('records')
 
+			instituciones = instituciones[0:cantidadInstituciones]
+
 		#Valores para filtros por moneda del contrato.
 		monedas = [] 
 		for valor in monedasContratosPC["buckets"]:
@@ -4590,6 +4592,8 @@ class FiltrosDashboardONCAE(APIView):
 				'id': valor["key"],
 				'ocids': valor["doc_count"]
 			})
+
+		print("Institucines::::", len(instituciones))
 
 		resultados = {}
 		resultados["años"] = years
