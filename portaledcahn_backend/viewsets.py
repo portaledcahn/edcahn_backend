@@ -5036,6 +5036,14 @@ class EstadisticaCantidadDeProcesos(APIView):
 		for m in meses:
 			cantidad_por_meses.append(meses[m]["cantidad_procesos"])			
 
+		fechaActual = datetime.date.today()
+
+		anioActual = str(fechaActual.year)
+		mesActual = fechaActual.month
+
+		if anio == anioActual:
+			cantidad_por_meses = cantidad_por_meses[0:mesActual - 1]
+
 		resultados = {
 			"promedio": statistics.mean(cantidad_por_meses),
 			"mayor": max(cantidad_por_meses),
@@ -5047,9 +5055,6 @@ class EstadisticaCantidadDeProcesos(APIView):
 		parametros["institucion"] = institucion
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
-		# parametros["objetogasto"] = objetogasto
-		# parametros["fuentefinanciamiento"] = fuentefinanciamiento
-		# parametros["proveedor"] = proveedor
 
 		context = {
 			"resultados": resultados,
