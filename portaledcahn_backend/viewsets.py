@@ -4919,13 +4919,13 @@ class GraficarMontosDeContratosMes(APIView):
 		s.aggs.metric(
 			'suma_total_contratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'suma_total_contratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		s.aggs.metric(
@@ -4961,13 +4961,13 @@ class GraficarMontosDeContratosMes(APIView):
 		s.aggs["procesosPorMesFechaFirma"].metric(
 			'suma_contratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs["procesosPorMesFechaInicio"].metric(
 			'suma_contratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		contratosPC = s.execute()
@@ -5347,13 +5347,13 @@ class EstadisticaMontosDeContratos(APIView):
 		s.aggs.metric(
 			'suma_total_contratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'suma_total_contratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		s.aggs.metric(
@@ -5389,13 +5389,13 @@ class EstadisticaMontosDeContratos(APIView):
 		s.aggs["procesosPorMesFechaFirma"].metric(
 			'suma_contratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs["procesosPorMesFechaInicio"].metric(
 			'suma_contratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		contratosPC = s.execute()
@@ -5858,13 +5858,13 @@ class TopCompradoresPorMontoContratado(APIView):
 		s.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		s.aggs.metric(
@@ -5902,13 +5902,13 @@ class TopCompradoresPorMontoContratado(APIView):
 		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)		
 
 		contratosPC = s.execute()
@@ -6050,13 +6050,13 @@ class TopProveedoresPorMontoContratado(APIView):
 		s.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		s.aggs.metric(
@@ -6094,13 +6094,13 @@ class TopProveedoresPorMontoContratado(APIView):
 		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)		
 
 		contratosPC = s.execute()
@@ -6418,13 +6418,13 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 		s.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		s.aggs.metric(
@@ -6444,13 +6444,13 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 		s.aggs["contratosPorCategorias"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs["contratosPorCategorias"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)		
 
 		contratosPC = s.execute()
@@ -6581,13 +6581,13 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 		s.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		s.aggs.metric(
@@ -6751,13 +6751,13 @@ class IndicadorTopCompradores(APIView):
 		s.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		s.aggs.metric(
@@ -6795,13 +6795,13 @@ class IndicadorTopCompradores(APIView):
 		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
@@ -7258,13 +7258,13 @@ class IndicadorContratosPorModalidad(APIView):
 		s.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		s.aggs.metric(
@@ -7286,13 +7286,13 @@ class IndicadorContratosPorModalidad(APIView):
 		s.aggs["contratosPorModalidades"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs["contratosPorModalidades"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)		
 
 		contratosPC = s.execute()
