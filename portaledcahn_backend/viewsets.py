@@ -19,7 +19,6 @@ import json, copy, urllib.parse, datetime, operator, statistics, csv
 import pandas as pd 
 import mimetypes, os.path, math
 
-
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
 from portaledcahn_backend import serializers as articles_serializers  
@@ -57,16 +56,7 @@ class SearchResults(LazyObject):
             search_results = list(search_results)
         return search_results
 
-# class ReleaseViewSet(viewsets.ModelViewSet):
-# 	queryset = Release.objects.all()
-# 	serializer_class = ReleaseSerializer
-# 	http_method_names = ['get']
-
-# 	def retrieve(self, request, pk=None):
-# 		queryset = Release.objects.all()
-# 		release = get_object_or_404(queryset, release_id=pk)
-# 		serializer = ReleaseSerializer(release)
-# 		return Response(serializer.data)
+# API releases y records
 
 class PublicAPI(APIView, PaginationHandlerMixin):
 
@@ -79,9 +69,6 @@ class PublicAPI(APIView, PaginationHandlerMixin):
 
 		return Response(endpoints)
 
-"""
-	Retorna un paquete de releases
-"""
 class Releases(APIView, PaginationHandlerMixin):
 	pagination_class = BasicPagination
 	serializer_class = ReleaseSerializer
@@ -138,9 +125,6 @@ class Releases(APIView, PaginationHandlerMixin):
 
 		return Response(respuesta, status=status.HTTP_200_OK)
 
-"""
-	Retorna un release en incluido en su paquete.
-"""
 class GetRelease(APIView):
 	def get(self, request, pk=None, format=None):
 		queryset = Release.objects.filter(release_id=pk)
@@ -234,163 +218,7 @@ class GetRecord(APIView):
 		else:
 			raise Http404
 
-# class RecordViewSet(viewsets.ModelViewSet):
-# 	queryset = Record.objects.all()
-# 	serializer_class = RecordSerializer
-# 	http_method_names = ['get']
-
-# 	def retrieve(self, request, pk=None):
-# 		queryset = Record.objects.all()
-# 		record = get_object_or_404(queryset, ocid=pk)
-# 		serializer = RecordSerializer(record)
-# 		return Response(serializer.data)
-
-# class BuyerList(APIView):
-
-# 	def get(self, request, format=None):
-
-# 		contador = 0
-
-# 		data = articles_documents.DataDocument.search()
-
-# 		results = data.aggs\
-# 					.metric('distinct_suppliers', 'cardinality', field='data.compiledRelease.contracts.suppliers.id.keyword')\
-# 					.aggs\
-# 					.metric('distinct_buyers', 'cardinality', field='data.compiledRelease.contracts.buyer.id.keyword')\
-# 					.aggs\
-# 					.metric('distinct_contracts', 'cardinality', field='data.compiledRelease.contracts.id.keyword')\
-# 					.execute()
-
-# 		# for r in results.aggregations:
-# 		# 	print(r)
-
-# 		context = {
-# 			"distinct_contracts": results.aggregations.distinct_contracts.value,
-# 			"distinct_buyers": results.aggregations.distinct_buyers.value,
-# 			"distinct_suppliers": results.aggregations.distinct_suppliers.value
-# 		}
-
-# 		# contador = data.count()
-
-# 		# for r in results:
-# 			# contador += 1
-
-# 		# for d in data: 
-# 			# contador += 1
-
-# 		# serializer = articles_serializers.DataDocumentSerializer(data, many=True)		
-
-# 		# contratos = Contrato.objects.all()
-# 		# data = Data.objects.all()
-
-# 		# serializer = DataSerializer(data, many=True)
-# 		# for d in data.iterator(chunk_size=10):
-
-# 		# for d in data:
-# 		# 	if contador%10 == 0:
-# 		# 		print("ok", contador)
-
-# 		# 	contador += 1 
-
-# 		# return Response(contador)
-# 		return Response(context)
-
-# class ContractsViewSet(viewsets.ModelViewSet):
-# 	sql = '''
-# 		SELECT
-# 			concat(d.data->'compiledRelease'->>'ocid', '-', contract->>'id') as "id"
-# 			,contract->'value'->>'amount' as "amount"
-# 			,contract->'value'->>'currency' as "currency"
-# 			,case
-# 				when 
-# 					contract->>'dateSigned' is not null 
-# 					and contract->'period'->>'startDate' is not null 
-# 					then contract->>'dateSigned'
-# 				when 
-# 					contract->>'dateSigned' is not null 
-# 					then contract->>'dateSigned'
-# 				when 
-# 					contract->'period'->>'startDate' is not null 
-# 					then contract->'period'->>'startDate'
-# 				else
-# 					d.data->'compiledRelease'->>'date' 		
-# 			end as "date"
-# 			,contract->'buyer'->>'id' as "buyerId"
-# 			,contract->'buyer'->>'name' as "buyerName"
-# 			,partie->'memberOf' as "buyerMemberOf"
-# 		FROM 
-# 			"data" d 
-# 			,jsonb_array_elements(d.data->'compiledRelease'->'contracts') as contract
-# 			,jsonb_array_elements(d.data->'compiledRelease'->'parties') as partie
-# 		WHERE 
-# 			exists (select * from record where data_id= d.id)
-# 			and partie->'id' = contract->'buyer'->'id'
-# 			and contract->'value'->'amount' is not null
-# 	'''
-
-# 	queryset = Contract.objects.raw(sql)
-# 	serializer_class = ContractSerializer
-# 	http_method_names = ['get']
-
-# 	def list(self, request):
-
-# 		localCurrency = "HNL" #Definir en config
-
-# 		queryset = Contract.objects.filter(currency="USD")
-
-# 		tasasDeCambio = TasasDeCambio.objects.all()
-
-# 		serializer = ContractSerializer(queryset, many=True)
-
-# 		return Response(serializer.data)
-
-# class BuyerViewSet(viewsets.ModelViewSet):
-# 	queryset = Buyer.objects.all()
-# 	serializer_class = BuyerSerializer
-# 	http_method_names = ['get']
-
-# class ContratoViewSet(viewsets.ModelViewSet):
-# 	queryset = Contrato.objects.all()
-# 	serializer_class = ContratoSerializer
-# 	http_method_names = ['get']
-
-# class DataViewSet(DocumentViewSet):
-# 	document = articles_documents.DataDocument
-# 	serializer_class = articles_serializers.DataDocumentSerializer
-
-# class DataRecordViewSet(DocumentViewSet):
-#     document = articles_documents.RecordDocument
-#     serializer_class = articles_serializers.RecordDocumentSerializer
-
-class RecordAPIView(APIView):
-
-	def get(self, request, format=None):
-		cliente = ElasticSearchDefaultConnection()
-		s = Search(using=cliente, index='edca')
-		results = s[0:10].execute()
-
-		context = results.hits.hits
-
-		return Response(context)
-
-class RecordDetail(APIView):
-
-	def get(self, request, pk=None, format=None):
-		cliente = ElasticSearchDefaultConnection()
-		s = Search(using=cliente, index='edca')
-		s = s.filter('match_phrase', doc__ocid__keyword=pk)
-
-		results = s[0:1].execute()
-
-		context = results.hits.hits
-
-		if context:
-			response = context[0]["_source"]["doc"]
-			return Response(response)
-		else:
-			raise Http404
-
-# Endpoints para el buscador. 
+# Buscador de contrataciones. 
 
 class Index(APIView):
 
@@ -788,6 +616,36 @@ class Buscador(APIView):
 		}
 
 		return Response(context)
+
+class RecordAPIView(APIView):
+
+	def get(self, request, format=None):
+		cliente = ElasticSearchDefaultConnection()
+		s = Search(using=cliente, index='edca')
+		results = s[0:10].execute()
+
+		context = results.hits.hits
+
+		return Response(context)
+
+class RecordDetail(APIView):
+
+	def get(self, request, pk=None, format=None):
+		cliente = ElasticSearchDefaultConnection()
+		s = Search(using=cliente, index='edca')
+		s = s.filter('match_phrase', doc__ocid__keyword=pk)
+
+		results = s[0:1].execute()
+
+		context = results.hits.hits
+
+		if context:
+			response = context[0]["_source"]["doc"]
+			return Response(response)
+		else:
+			raise Http404
+
+# Proveedores
 
 class FiltroAniosProveedoresSEFIN(APIView):
 
@@ -1851,6 +1709,8 @@ class ProductosDelProveedor(APIView):
 		}
 
 		return Response(context)
+
+# Compradores
 
 class Compradores(APIView):
 
@@ -7687,39 +7547,6 @@ class IndicadorContratosPorModalidad(APIView):
 
 		return Response(context)
 
-class Descargas(APIView):
-
-	def get(self, request, format=None):
-
-		listaArchivos = []
-		urlDescargas = '/api/v1/descargas/'
-
-		with connections['portaledcahn_admin'].cursor() as cursor:
-			cursor.execute("SELECT file FROM descargas ORDER BY createddate DESC LIMIT 1")
-			row = cursor.fetchone()
-		
-
-		if row:
-			for value in row[0].values():
-				for extension in value["urls"]:
-					value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
-					
-				listaArchivos.append(value)
-	
-			return Response(listaArchivos)
-		else:
-			return Response([])
-
-class Descargar(APIView):
-
-	def get(self, request, pk=None, format=None):
-		file_name = pk
-		response = HttpResponse()
-		response['Content-Type'] = ''
-		response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
-		response['X-Accel-Redirect'] = '/protectedMedia/' + file_name
-		return response
-
 # Visualizaciones de ONCAE
 
 class CompradoresPorCantidadDeContratos(APIView):
@@ -8030,3 +7857,38 @@ class FiltrosVisualizacionesONCAE(APIView):
 		}
 
 		return Response(context)
+
+# Descargas
+
+class Descargas(APIView):
+
+	def get(self, request, format=None):
+
+		listaArchivos = []
+		urlDescargas = '/api/v1/descargas/'
+
+		with connections['portaledcahn_admin'].cursor() as cursor:
+			cursor.execute("SELECT file FROM descargas ORDER BY createddate DESC LIMIT 1")
+			row = cursor.fetchone()
+		
+
+		if row:
+			for value in row[0].values():
+				for extension in value["urls"]:
+					value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
+					
+				listaArchivos.append(value)
+	
+			return Response(listaArchivos)
+		else:
+			return Response([])
+
+class Descargar(APIView):
+
+	def get(self, request, pk=None, format=None):
+		file_name = pk
+		response = HttpResponse()
+		response['Content-Type'] = ''
+		response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
+		response['X-Accel-Redirect'] = '/protectedMedia/' + file_name
+		return response
