@@ -219,6 +219,9 @@ def validateNumberParam(val):
 
 	return value
 
+"""
+	Generando datos para el paquete de registros. 
+"""
 def paqueteRegistros(paquetes, request):
 
 	uri = ''
@@ -256,3 +259,165 @@ def paqueteRegistros(paquetes, request):
 	metaDatosPaquete["publicationPolicy"] = publicationPolicy
 
 	return metaDatosPaquete
+
+# Descargas ES a CSV
+
+proceso_csv = dict([
+	("OCID", "doc.compiledRelease.ocid"),
+	("Código Entidad","extra.parentTop.id"),
+	("Entidad","extra.parentTop.name"),
+	("Código Unidad Ejecutora","doc.compiledRelease.buyer.id"),
+	("Unidad Ejecutora","doc.compiledRelease.buyer.name"),
+	("Expediente", "doc.compiledRelease.tender.title"),
+	("Tipo Adquisición", "doc.compiledRelease.tender.localProcurementCategory"),
+	("Modalidad", "doc.compiledRelease.tender.procurementMethodDetails"),
+	("Fecha de Inicio", "doc.compiledRelease.tender.tenderPeriod.startDate"),
+	("Fecha Recepción Ofertas", "doc.compiledRelease.tender.tenderPeriod.endDate"),
+	("Fecha de publicación", "doc.compiledRelease.tender.datePublished"),
+	("Fuente de datos", "doc.compiledRelease.sources.0.name"),
+])
+
+contrato_csv = dict([
+	("OCID","extra.ocid"),
+	("Número Gestion","id"),
+	("Código institución","extra.parentTop.id"),
+	("Institución de Compra","extra.parentTop.name"),
+	("Código GA","extra.parent1.id"),
+	("Gerencia Administrativa","extra.parent1.name"),
+	("Código unidad de compra","extra.buyer.id"),
+	("Unidad de Compra","extra.buyer.name"),
+	("Número de Contrato","title"),
+	("Estado","status"),
+	("RTN","suppliers.0.id"),
+	("Proveedor","suppliers.0.name"),
+	("Monto", "value.amount"),
+	("Moneda", "value.currency"),
+	("Monto HNL","extra.LocalCurrency.amount"),
+	("Moneda local","extra.LocalCurrency.currency"),
+	("Fecha de Ingreso","period.startDate"),
+	("Fecha de Inicio", "dateSigned"),
+	("Fuente de datos","extra.sources.0.name"),
+	("Número de Expediente", "extra.tenderTitle"),
+	("Tipo Adquisición", "localProcurementCategory"),
+	("Tipo Adquisición adicional", "extra.tenderAdditionalProcurementCategories"),
+	("Modalidad", "extra.tenderProcurementMethodDetails"),
+])
+
+producto_csv = dict([
+	("OCID","extra.ocid"),
+	("Número Gestion","extra.contratoId"),
+	("producto Id","id"),
+	("Producto","description"),
+	("Cantidad solicitada","quantity"),
+	("Monto por unidad","unit.value.amount"),
+	("Total","extra.total"),
+	("Moneda","unit.value.currency"),
+	("UNSPSC código","classification.id"),
+	("UNSPSC nombre","classification.description"),
+	("Código del covenio marco","attributes.0.id"),
+	("Nombre del convenio marco","attributes.0.value"),
+	("Fuente de datos","extra.sources.0.name"),
+])
+
+proceso_csv_titulos = list(proceso_csv.keys())
+proceso_csv_paths = list(proceso_csv.values())
+
+contrato_csv_titulos = list(contrato_csv.keys())
+contrato_csv_paths = list(contrato_csv.values())
+
+producto_csv_titulos = list(producto_csv.keys())
+producto_csv_paths = list(producto_csv.values())
+
+class Echo(object):
+	def write(self, value):
+		return value
+
+def get_data_from_path(path, data):
+	current_pos = data
+
+	for part in path.split("."):
+		try:
+			part = int(part)
+		except ValueError:
+			pass
+		try:
+			current_pos = current_pos[part]
+		except (KeyError, IndexError, TypeError):
+			return ""
+	return current_pos
+
+def generador_proceso_csv(search):
+	yield proceso_csv_titulos
+
+	# Todos los procesos
+	for result in search.scan():
+		line = []
+		for path in proceso_csv_paths:
+			line.append(get_data_from_path(path, result))
+		yield line
+
+	# results = search[0:500].execute()
+
+	# for result in results:
+	# 	line = []
+	# 	for path in proceso_csv_paths:
+	# 		line.append(get_data_from_path(path, result))
+	# 	yield line
+
+def generador_contrato_csv(search):
+	yield contrato_csv_titulos
+
+	# Todos los contratos
+	for result in search.scan():
+		line = []
+		for path in contrato_csv_paths:
+			line.append(get_data_from_path(path, result))
+		yield line
+
+	# results = search[0:10].execute()
+
+	# for result in results:
+	# 	# print(result)
+	# 	line = []
+	# 	for path in contrato_csv_paths:
+	# 		line.append(get_data_from_path(path, result))
+	# 	yield line
+
+	# print("")
+
+def generador_producto_csv(search):
+	yield producto_csv_titulos
+
+	# Todos los contratos
+	for result in search.scan():
+		if 'items' in result:
+			for item in result["items"]:
+				if 'extra' in item:
+					item["extra"]["sources"] = result["extra"]["sources"]
+					item["extra"]["ocid"] = result["extra"]["ocid"]
+					item["extra"]["contratoId"] = result["id"]
+				else:
+					item["extra"] = result["extra"]
+
+				line = []
+				for path in producto_csv_paths:
+					line.append(get_data_from_path(path, item))
+				yield line
+
+	# results = search[0:10].execute()
+
+	# for result in results:
+	# 	for item in result["items"]:
+	# 		if 'extra' in item:
+	# 			item["extra"]["sources"] = result["extra"]["sources"]
+	# 			item["extra"]["ocid"] = result["extra"]["ocid"]
+	# 			item["extra"]["contratoId"] = result["id"]
+	# 		else:
+	# 			item["extra"] = result["extra"]
+
+	# 		line = []
+	# 		for path in producto_csv_paths:
+	# 			line.append(get_data_from_path(path, item))
+	# 		yield line
+
+	# print("")

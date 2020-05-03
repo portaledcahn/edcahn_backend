@@ -384,7 +384,7 @@ class Buscador(APIView):
 		if metodo == 'pago' or metodo == 'contrato':
 			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.date', interval='year', format='yyyy', min_doc_count=1)
 		else:
-			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.datePublished', interval='year', format='yyyy', min_doc_count=1)
+			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy', min_doc_count=1)
 
 		#resumen
 		s.aggs["contratos"].metric(
@@ -422,6 +422,9 @@ class Buscador(APIView):
 
 		if metodo == 'proceso':
 			s = s.filter('exists', field='doc.compiledRelease.tender.id')
+
+			# Temporal
+			s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
 			s.aggs.metric(
 				'procesos_total', 
@@ -3713,191 +3716,6 @@ class EtapasPagoProcesoDeCompra(APIView):
 
 # Dashboard ONCAE
 
-proceso_csv = dict([
-		("OCID", "doc.compiledRelease.ocid"),
-		("Código Entidad","extra.parentTop.id"),
-		("Entidad","extra.parentTop.name"),
-		("Código Unidad Ejecutora","doc.compiledRelease.buyer.id"),
-		("Unidad Ejecutora","doc.compiledRelease.buyer.name"),
-		("Expediente", "doc.compiledRelease.tender.title"),
-		("Tipo Adquisición", "doc.compiledRelease.tender.localProcurementCategory"),
-		("Tipo Adquisición adicional", "doc.compiledRelease.tender.additionalProcurementCategories.0"),
-		("Modalidad", "doc.compiledRelease.tender.procurementMethodDetails"),
-		("Fecha de Inicio", "doc.compiledRelease.tender.tenderPeriod.startDate"),
-		("Fecha Recepción Ofertas", "doc.compiledRelease.tender.tenderPeriod.endDate"),
-		("Fecha de publicación", "doc.compiledRelease.tender.datePublished"),
-		("Fuente de datos", "doc.compiledRelease.sources.0.name"),
-	])
-
-contrato_csv = dict([
-		("OCID","extra.ocid"),
-		("Número Gestion","id"),
-		("Código institución","extra.parentTop.id"),
-		("Institución de Compra","extra.parentTop.name"),
-		("Código GA","extra.parent1.id"),
-		("Gerencia Administrativa","extra.parent1.name"),
-		("Código unidad de compra","extra.buyer.id"),
-		("Unidad de Compra","extra.buyer.name"),
-		("Número de Contrato","title"),
-		("Estado","status"),
-		("RTN","suppliers.0.id"),
-		("Proveedor","suppliers.0.name"),
-		("Monto", "value.amount"),
-		("Moneda", "value.currency"),
-		("Monto HNL","extra.LocalCurrency.amount"),
-		("Moneda local","extra.LocalCurrency.currency"),
-		("Fecha de Ingreso","period.startDate"),
-		("Fecha de Inicio", "dateSigned"),
-		("Fuente de datos","extra.sources.0.name"),
-		("Número de Expediente", "extra.tenderTitle"),
-		("Tipo Adquisición", "localProcurementCategory"),
-		("Tipo Adquisición adicional", "extra.tenderAdditionalProcurementCategories"),
-		("Modalidad", "extra.tenderProcurementMethodDetails"),
-	])
-
-producto_csv = dict([
-		("OCID","extra.ocid"),
-		("Número Gestion","extra.contratoId"),
-		("producto Id","id"),
-		("Producto","description"),
-		("Cantidad solicitada","quantity"),
-		("Monto por unidad","unit.value.amount"),
-		("Total","extra.total"),
-		("Moneda","unit.value.currency"),
-		("UNSPSC código","classification.id"),
-		("UNSPSC nombre","classification.description"),
-		("Código del covenio marco","attributes.0.id"),
-		("Nombre del convenio marco","attributes.0.value"),
-		("Fuente de datos","extra.sources.0.name"),
-	])
-
-proceso_csv_titulos = list(proceso_csv.keys())
-proceso_csv_paths = list(proceso_csv.values())
-
-contrato_csv_titulos = list(contrato_csv.keys())
-contrato_csv_paths = list(contrato_csv.values())
-
-producto_csv_titulos = list(producto_csv.keys())
-producto_csv_paths = list(producto_csv.values())
-
-class Echo(object):
-	def write(self, value):
-		return value
-
-def get_data_from_path(path, data):
-	current_pos = data
-
-	for part in path.split("."):
-		try:
-			part = int(part)
-		except ValueError:
-			pass
-		try:
-			current_pos = current_pos[part]
-		except (KeyError, IndexError, TypeError):
-			return ""
-	return current_pos
-
-def generador_proceso_csv(search):
-	yield proceso_csv_titulos
-
-	# Todos los procesos
-	for result in search.scan():
-		line = []
-		for path in proceso_csv_paths:
-			line.append(get_data_from_path(path, result))
-		yield line
-
-	# results = search[0:500].execute()
-
-	# for result in results:
-	# 	line = []
-	# 	for path in proceso_csv_paths:
-	# 		line.append(get_data_from_path(path, result))
-	# 	yield line
-
-def generador_contrato_csv(search):
-	yield contrato_csv_titulos
-
-	# Todos los contratos
-	for result in search.scan():
-		line = []
-		for path in contrato_csv_paths:
-			line.append(get_data_from_path(path, result))
-		yield line
-
-	# results = search[0:10].execute()
-
-	# for result in results:
-	# 	# print(result)
-	# 	line = []
-	# 	for path in contrato_csv_paths:
-	# 		line.append(get_data_from_path(path, result))
-	# 	yield line
-
-	# print("")
-
-def generador_producto_csv(search):
-	yield producto_csv_titulos
-
-	# Todos los contratos
-	for result in search.scan():
-		if 'items' in result:
-			for item in result["items"]:
-				if 'extra' in item:
-					item["extra"]["sources"] = result["extra"]["sources"]
-					item["extra"]["ocid"] = result["extra"]["ocid"]
-					item["extra"]["contratoId"] = result["id"]
-				else:
-					item["extra"] = result["extra"]
-
-				line = []
-				for path in producto_csv_paths:
-					line.append(get_data_from_path(path, item))
-				yield line
-
-	# results = search[0:10].execute()
-
-	# for result in results:
-	# 	for item in result["items"]:
-	# 		if 'extra' in item:
-	# 			item["extra"]["sources"] = result["extra"]["sources"]
-	# 			item["extra"]["ocid"] = result["extra"]["ocid"]
-	# 			item["extra"]["contratoId"] = result["id"]
-	# 		else:
-	# 			item["extra"] = result["extra"]
-
-	# 		line = []
-	# 		for path in producto_csv_paths:
-	# 			line.append(get_data_from_path(path, item))
-	# 		yield line
-
-	# print("")
-
-def descargar_procesos_csv(request, search):
-	nombreArchivo = 'portaledcahn-procesos-'
-	pseudo_buffer = Echo()
-	writer = csv.writer(pseudo_buffer)
-	response = StreamingHttpResponse((writer.writerow(row) for row in generador_proceso_csv(search)), content_type='text/csv')
-	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'-{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
-	return response
-
-def descargar_contratos_csv(request, search):
-	nombreArchivo = 'portaledcahn-contratos-'
-	pseudo_buffer = Echo()
-	writer = csv.writer(pseudo_buffer)
-	response = StreamingHttpResponse((writer.writerow(row) for row in generador_contrato_csv(search)), content_type='text/csv')
-	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
-	return response
-
-def descargar_productos_csv(request, search):
-	nombreArchivo = 'portaledcahn-productos-'
-	pseudo_buffer = Echo()
-	writer = csv.writer(pseudo_buffer)
-	response = StreamingHttpResponse((writer.writerow(row) for row in generador_producto_csv(search)), content_type='text/csv')
-	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
-	return response
-
 class FiltrosDashboardONCAE(APIView):
 
 	def get(self, request, format=None):
@@ -3932,13 +3750,12 @@ class FiltrosDashboardONCAE(APIView):
 		ssFecha = ssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 		sssFecha = sssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
-		# Filtros
-
 		#Temporal
 		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 		sFecha = sFecha.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 		ssss = ssss.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
+		# Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
@@ -3958,7 +3775,7 @@ class FiltrosDashboardONCAE(APIView):
 			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 			sss = sss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
@@ -4197,7 +4014,7 @@ class FiltrosDashboardONCAE(APIView):
 		sFecha.aggs.metric(
 			'aniosProcesos', 
 			'date_histogram', 
-			field='doc.compiledRelease.tender.datePublished', 
+			field='doc.compiledRelease.tender.tenderPeriod.startDate', 
 			interval='year', 
 			format='yyyy',
 			min_doc_count=1
@@ -4508,7 +4325,7 @@ class GraficarProcesosPorCategorias(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -4549,7 +4366,7 @@ class GraficarProcesosPorCategorias(APIView):
 		)
 		#Borrar estas lineas
 		# print("Resultados")
-		# return descargar_procesos_csv(request, s)
+		# return DescargarProcesosCSV(request, s)
 
 		results = s.execute()
 
@@ -4613,7 +4430,7 @@ class GraficarProcesosPorModalidad(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -4724,7 +4541,7 @@ class GraficarCantidadDeProcesosMes(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -4847,7 +4664,7 @@ class EstadisticaCantidadDeProcesos(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -4955,7 +4772,7 @@ class GraficarProcesosPorEtapa(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -6394,7 +6211,7 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
 
 		if moneda.replace(' ', ''):
@@ -7892,3 +7709,27 @@ class Descargar(APIView):
 		response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
 		response['X-Accel-Redirect'] = '/protectedMedia/' + file_name
 		return response
+
+def DescargarProcesosCSV(request, search):
+	nombreArchivo = 'portaledcahn-procesos-'
+	pseudo_buffer = Echo()
+	writer = csv.writer(pseudo_buffer)
+	response = StreamingHttpResponse((writer.writerow(row) for row in generador_proceso_csv(search)), content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'-{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+	return response
+
+def DescargarContratosCSV(request, search):
+	nombreArchivo = 'portaledcahn-contratos-'
+	pseudo_buffer = Echo()
+	writer = csv.writer(pseudo_buffer)
+	response = StreamingHttpResponse((writer.writerow(row) for row in generador_contrato_csv(search)), content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+	return response
+
+def DescargarProductosCSV(request, search):
+	nombreArchivo = 'portaledcahn-productos-'
+	pseudo_buffer = Echo()
+	writer = csv.writer(pseudo_buffer)
+	response = StreamingHttpResponse((writer.writerow(row) for row in generador_producto_csv(search)), content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+	return response
