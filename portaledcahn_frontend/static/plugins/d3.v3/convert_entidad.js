@@ -1,44 +1,7 @@
 function getEntidadNoAbreviada(entidad) {
-	//console.log(entidad);
-	// casos especificos
-	if (entidad.match(/^EMP. DE SERV. SAN./)) {
- 		return entidad.replace(/^EMP. DE SERV. SAN./, 'EMPRESA DE SERVICIOS SANITARIOS');
-	}
- 	else if (entidad.match(/^CÑIA. PYA./)) {
- 		return entidad.replace(/^CÑIA. PYA./, 'COMPAÑÍA PARAGUAYA');
-	}
- 	else if (entidad.match(/^SEC. DE DEF. DEL CONS./)) {
- 		return entidad.replace(/^SEC. DE DEF. DEL CONS./, 'SECRETARIA DE DEFENSA DEL CONSUMIDOR');
-	}
- 	else if (entidad.match(/^SECR. DE TRANS. ÁREA METROP./)) {
- 		return entidad.replace(/^SEC. DE TRANS. ÁREA METROP./, 'SECRETARÍA DE TRANSPORTE ÁREA METROPOLITANA');
-	}
- 	else if (entidad.match(/^AG. NAC. DE EVAL. Y AC. DE LA ED. SUPERIOR/)) {
- 		return entidad.replace(/^AG. NAC. DE EVAL. Y AC. DE LA ED. SUPERIOR/, 'AGENCIA NAC. DE EVAL. Y ACREDITACIÓN DE LA EDUCACIÓN SUP.');
-	}
- 	else if (entidad.match(/^INST. NAC. DE DES. RURAL Y DE LA TIERRA/)) {
- 		return entidad.replace(/^INST. NAC. DE DES. RURAL Y DE LA TIERRA/, 'INSTITUTO NACIONAL DE DESARROLLO RURAL Y DE LA TIERRA');
-	}
- 	else if (entidad.match(/^INST. NAC. DE TEC, NORM. Y METEOROLOGIA/)) {
- 		return entidad.replace(/^INST. NAC. DE TEC, NORM. Y METEOROLOGIA/, 'INSTITUTO NACIONAL DE TECNOLOGÍA, NORMALIZACIÓN Y METROLOGIA');
-	}
- 	else if (entidad.match(/^SER. NAC. DE CALIDAD Y SANIDAD VEG. Y DE SEM./)) {
- 		return entidad.replace(/^SER. NAC. DE CALIDAD Y SANIDAD VEG. Y DE SEM./, 'SERVICIO NACIONAL DE CALIDAD Y SANIDAD VEGETAL Y DE SEMILLAS');
-	}
- 	else if (entidad.match(/^CAJA DE SEG. SOC. DE EMP. Y OBR. FERROV./)) {
- 		return entidad.replace(/^CAJA DE SEG. SOC. DE EMP. Y OBR. FERROV./, 'CAJA DE SEGURIDAD SOCIAL DE EMPLEADOS Y OBREROS FERROVIARIOS');
-	}
- 	else if (entidad.match(/^CAJA DE JUB. DE EMPL. DE BANCOS Y AFINES/)) {
- 		return entidad.replace(/^CAJA DE JUB. DE EMPL. DE BANCOS Y AFINES/, 'CAJA DE JUBILACIONES Y PENSIONES DE EMPL. DE BANCOS Y AFINES');
-	}
-	else if (entidad.match(/^CAJA DE PRES. DEL MIN. DE DEFENSA NAC./)) {
- 		return entidad.replace(/^CAJA DE PRES. DEL MIN. DE DEFENSA NAC./, 'CAJA DE PRÉSTAMOS DEL MINISTERIO DE DEFENSA NACIONAL');
-	}
- 	else if (entidad.match(/^ADM. NAC. DE NAV. Y PUERTOS (ANNP)/)) {
- 		return entidad.replace(/^ADM. NAC. DE NAV. Y PUERTOS (ANNP)/, 'ADMINISTRACIÓN NACIONAL DE NAVEGACIÓN Y PUERTOS (ANNP)');
-	}
+
 	// casos genericos
- 	else if (entidad.match(/^MIN./)) {
+ 	if (entidad.match(/^MIN./)) {
  		return  entidad.replace(/^MIN./, 'MINISTERIO');
  	}
  	else if (entidad.match(/^MUN./)) {
@@ -91,45 +54,7 @@ function getEntidadNoAbreviada(entidad) {
 
 function getEntidadAbreviada(entidad) {
 	//console.log(entidad);
-	// casos especificos
- 	if (entidad.match(/^EMPRESA DE SERVICIOS SANITARIOS/)) {
- 		return entidad.replace(/^EMPRESA DE SERVICIOS SANITARIOS/, 'EMP. DE SERV. SAN.');
-	}
- 	else if (entidad.match(/^COMPAÑÍA PARAGUAYA/)) {
- 		return entidad.replace(/^COMPAÑÍA PARAGUAYA/, 'CÑIA. PYA.');
-	}
- 	else if (entidad.match(/^SECRETARIA DE DEFENSA DEL CONSUMIDOR/)) {
- 		return entidad.replace(/^SECRETARIA DE DEFENSA DEL CONSUMIDOR/, 'SEC. DE DEF. DEL CONS.');
-	}
- 	else if (entidad.match(/^SECRETARÍA DE TRANSPORTE ÁREA METROPOLITANA/)) {
- 		return entidad.replace(/^SECRETARÍA DE TRANSPORTE ÁREA METROPOLITANA/, 'SECR. DE TRANS. ÁREA METROP.');
-	}
- 	else if (entidad.match(/^AGENCIA NAC. DE EVAL. Y ACREDITACIÓN DE LA EDUCACIÓN SUP./)) {
- 		return entidad.replace(/^AGENCIA NAC. DE EVAL. Y ACREDITACIÓN DE LA EDUCACIÓN SUP./, 'AG. NAC. DE EVAL. Y AC. DE LA ED. SUPERIOR');
-	}
- 	else if (entidad.match(/^INSTITUTO NACIONAL DE DESARROLLO RURAL Y DE LA TIERRA/)) {
- 		return entidad.replace(/^INSTITUTO NACIONAL DE DESARROLLO RURAL Y DE LA TIERRA/, 'INST. NAC. DE DES. RURAL Y DE LA TIERRA');
-	}
- 	else if (entidad.match(/^INSTITUTO NACIONAL DE TECNOLOGÍA, NORMALIZACIÓN Y METROLOGIA/)) {
- 		return entidad.replace(/^INSTITUTO NACIONAL DE TECNOLOGÍA, NORMALIZACIÓN Y METROLOGIA/, 'INST. NAC. DE TEC, NORM. Y METEOROLOGIA');
-	}
- 	else if (entidad.match(/^SERVICIO NACIONAL DE CALIDAD Y SANIDAD VEGETAL Y DE SEMILLAS/)) {
- 		return entidad.replace(/^SERVICIO NACIONAL DE CALIDAD Y SANIDAD VEGETAL Y DE SEMILLAS/, 'SER. NAC. DE CALIDAD Y SANIDAD VEG. Y DE SEM.');
-	}
- 	else if (entidad.match(/^CAJA DE SEGURIDAD SOCIAL DE EMPLEADOS Y OBREROS FERROVIARIOS/)) {
- 		return entidad.replace(/^CAJA DE SEGURIDAD SOCIAL DE EMPLEADOS Y OBREROS FERROVIARIOS/, 'CAJA DE SEG. SOC. DE EMP. Y OBR. FERROV.');
-	}
- 	else if (entidad.match(/^CAJA DE JUBILACIONES Y PENSIONES DE EMPL. DE BANCOS Y AFINES/)) {
- 		return entidad.replace(/^CAJA DE JUBILACIONES Y PENSIONES DE EMPL. DE BANCOS Y AFINES/, 'CAJA DE JUB. DE EMPL. DE BANCOS Y AFINES');
-	}
-	else if (entidad.match(/^CAJA DE PRÉSTAMOS DEL MINISTERIO DE DEFENSA NACIONAL/)) {
- 		return entidad.replace(/^CAJA DE PRÉSTAMOS DEL MINISTERIO DE DEFENSA NACIONAL/, 'CAJA DE PRES. DEL MIN. DE DEFENSA NAC.');
-	}
- 	else if (entidad.match(/^ADMINISTRACIÓN NACIONAL DE NAVEGACIÓN Y PUERTOS (ANNP)/)) {
- 		return entidad.replace(/^ADMINISTRACIÓN NACIONAL DE NAVEGACIÓN Y PUERTOS (ANNP)/, 'ADM. NAC. DE NAV. Y PUERTOS (ANNP)');
-	}
-	// casos genéricos
- 	else if (entidad.match(/^MINISTERIO/)) {
+	if (entidad.match(/^MINISTERIO/)) {
  		return entidad.replace(/^MINISTERIO/, 'MIN.');
  	}
  	else if (entidad.match(/^MUNICIPALIDAD/)) {
