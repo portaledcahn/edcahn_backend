@@ -275,35 +275,34 @@ proceso_csv = dict([
 	("Fecha Recepción Ofertas", "doc.compiledRelease.tender.tenderPeriod.endDate"),
 	("Fecha de publicación", "doc.compiledRelease.tender.datePublished"),
 	("Estado del proceso", "doc.compiledRelease.tender.statusDetails"),
-	("Periodo de invitación - Recepción de ofertas", "extra.lastSection"),
-	("Etapa OCDS", "extra.daysTenderPeriod"),
+	("Periodo de invitación - Recepción de ofertas", "extra.daysTenderPeriod"),
+	("Etapa OCDS", "extra.lastSection"),
 	("Fuente de datos", "doc.compiledRelease.sources.0.name"),
 ])
 
 contrato_csv = dict([
 	("OCID","extra.ocid"),
-	("Número Gestion","id"),
 	("Código institución","extra.parentTop.id"),
 	("Institución de Compra","extra.parentTop.name"),
 	("Código GA","extra.parent1.id"),
 	("Gerencia Administrativa","extra.parent1.name"),
 	("Código unidad de compra","extra.buyer.id"),
 	("Unidad de Compra","extra.buyer.name"),
-	("Número de Contrato","title"),
-	("Estado","status"),
 	("RTN","suppliers.0.id"),
 	("Proveedor","suppliers.0.name"),
+	("Expediente","extra.tenderTitle"),
+	("Número de Contrato","title"),
 	("Monto", "value.amount"),
 	("Moneda", "value.currency"),
 	("Monto HNL","extra.LocalCurrency.amount"),
-	("Moneda local","extra.LocalCurrency.currency"),
-	("Fecha de Ingreso","period.startDate"),
-	("Fecha de Inicio", "dateSigned"),
-	("Fuente de datos","extra.sources.0.name"),
-	("Número de Expediente", "extra.tenderTitle"),
+	("Moneda HNL","extra.LocalCurrency.currency"),
+	("Fecha de Inicio","period.startDate"),
+	("Fecha de Firma", "dateSigned"),
+	("Periodo de Evaluación - Adjudicación y Contratación", "extra.tiempoContrato"),
+	("Estado","statusDetails"),
 	("Tipo Adquisición", "localProcurementCategory"),
-	("Tipo Adquisición adicional", "extra.tenderAdditionalProcurementCategories"),
 	("Modalidad", "extra.tenderProcurementMethodDetails"),
+	("Fuente de datos","extra.sources.0.name"),
 ])
 
 producto_csv = dict([
@@ -319,6 +318,7 @@ producto_csv = dict([
 	("UNSPSC nombre","classification.description"),
 	("Código del covenio marco","attributes.0.id"),
 	("Nombre del convenio marco","attributes.0.value"),
+	("Estado OC","extra.statusDetails"),
 	("Fuente de datos","extra.sources.0.name"),
 ])
 
@@ -399,6 +399,7 @@ def generador_producto_csv(search):
 					item["extra"]["sources"] = result["extra"]["sources"]
 					item["extra"]["ocid"] = result["extra"]["ocid"]
 					item["extra"]["contratoId"] = result["id"]
+					item["extra"]["statusDetails"] = result["statusDetails"]
 				else:
 					item["extra"] = result["extra"]
 
