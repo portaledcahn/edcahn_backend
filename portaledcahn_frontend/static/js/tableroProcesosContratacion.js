@@ -1657,11 +1657,6 @@ var datosPastel=[];
     }
     var grafico=echarts.init(document.getElementById('MontoContratosModalidadContratacion'));
     var opciones = {
-        /*title : {
-            text: '同名数量统计',
-            subtext: '纯属虚构',
-            x:'center'
-        },*/
         baseOption:{
         tooltip : {
             trigger: 'item',
@@ -1683,10 +1678,6 @@ var datosPastel=[];
             textStyle:{
                 color:'gray'
             }
-            /*,
-            data: ['lengend data 1','lengend data 2','lengend data 3'],
-    
-            selected: [false,false,true]*/
         },
         calculable:true,
         series : [
