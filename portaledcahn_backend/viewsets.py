@@ -476,7 +476,7 @@ class Buscador(APIView):
 			if metodo == 'pago' or metodo == 'contrato':
 				s = s.filter('range', doc__compiledRelease__date={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
 			else:
-				s = s.filter('range', doc__compiledRelease__tender__datePublished={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
+				s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
 
 		if term: 
 			if metodo == 'proceso':
