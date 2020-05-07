@@ -154,13 +154,13 @@ if (!Array.prototype.filter)
         // checks to see if the key was set
         if (i in this)
           if (func(t[i], i, t))
-            res[c++] = t[i];
+            res[parseInt(c++)] = t[i];
     else
       while (++i !== len)
         // checks to see if the key was set
         if (i in this)
           if (func.call(thisArg, t[i], i, t))
-            res[c++] = t[i];
+            res[parseInt(c++)] = t[i];
 
     res.length = c; // shrink down array to proper size
     return res;
@@ -198,8 +198,8 @@ if (!Array.prototype.filter)
   
         if (hasDontEnumBug) {
           for (i = 0; i < dontEnumsLength; i++) {
-            if (hasOwnProperty.call(obj, dontEnums[i])) {
-              result.push(dontEnums[i]);
+            if (hasOwnProperty.call(obj, dontEnums[parseInd(i)])) {
+              result.push(dontEnums[parseInt(i)]);
             }
           }
         }

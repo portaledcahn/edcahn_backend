@@ -21,15 +21,24 @@
 {% block container %}
 <div class="container-fluid tamanoMinimo" style="max-width: 1600px">
    <div class="row">
-      <div class="col-md-6 col-lg-6">
-         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso">Proveedores, Secretaría de Finanzas</h1>
+      <div class="col-md-12">
+         <h1 class="textoColorPrimario mt-3 tituloDetalleProceso textoAlineadoCentrado">Proveedores</h1>
       </div>
+<!--
       <div class="col-md-6 col-lg-6 pt-3 textoAlineadoDerecha">
             <label class="switchEdca" style="vertical-align:middle" >
                   <input type="checkbox" checked id="cambioProveedores">
                   <span class="sliderEdca circular"></span>
                   </label>
                   <span style="padding: 5px;padding-top:10px;font-size: 15px;font-weight:900;font-family: poppins" class="textoColorGrisOscuro">Proveedores SEFIN</span>
+      </div>-->
+      <div class="col-md-12">
+         <div class="metodoBusquedaContenedor anchoTotal mt-0 mb-0 textoAlineadoCentrado " data-step="2" data-intro="Puedes seleccionar un método de búsqueda para realizar un filtrado por procesos de contratación, contratos y procesos de pagos." style="max-width: 500px;margin:0 auto">
+            <div class="btn-group sombraBasica" role="group" aria-label="Metodo de Busqueda">
+               <a href="/proveedores_sefin/?pagina=1&paginarPor=5"  name="metodoBusqueda"  toolTexto="<div style='text-align:left'><b>Fuente de Datos</b><br>- Sistema de Administración Financiera Integrada (SIAFI).<div>"  class="btn btn-primary fondoColorSecundario activo" style="outline: 0px;"><span>Sistemas de SEFIN</span></a>
+               <a href="/proveedores/?pagina=1&paginarPor=5" name="metodoBusqueda" toolTexto="<div style='text-align:left'><b>Fuente de Datos</b><br>- HonduCompras 1.0 - Módulo de Difusión de Compras y Contrataciones.<br>- Módulo de Difusión Directa de Contratos.<br>- Catálogo Electrónico.<div>" metodo="contrato" class="btn btn-primary fondoColorSecundario " style="outline: 0px;"><span>Sistemas de ONCAE</span></a>
+           </div>
+      </div>
       </div>
    </div>
    <div class="row mt-3 mb-3 ">
@@ -60,7 +69,7 @@
    <div class="row">
       <div class="col-md-12">
          <div class=" cajonSombreado ">
-            <table class="tablaGeneral fondoColorBlanco mostrarEncabezados" data-step="2" data-intro="Los resultados aparecerán en esta tabla."  >
+            <table class="tablaGeneral fondoColorBlanco mostrarEncabezados" data-step="3" data-intro="Los resultados aparecerán en esta tabla."  >
                <thead class="">
                   <tr>
                      <th class="textoAlineadoCentrado campoFiltrado" filtro="nombre" tipo="texto">
@@ -351,91 +360,13 @@
          
       </div>
       <div class="col-md-12 textoAlineadoCentrado">
-         <nav class="navegacionTablaGeneral" data-step="3" data-intro="Puedes navegar entre los diversos resultados aquí.">
+         <nav class="navegacionTablaGeneral" data-step="4" data-intro="Puedes navegar entre los diversos resultados aquí.">
            </nav>
       </div>
    </div>
 </div>
 <div id="dtBox"></div>
-<!--
 
-      <table class="tablaGeneral" style="background: white">
-            <thead>
-               <tr>
-                  <th>Descripción de la transacción</th>
-                  <th>Objeto de gasto</th>
-                  <th>Monto del pago</th>
-                  <th>Fecha del pago</th>
-               </tr>
-            </thead>
-            <tbody>
-               <tr>
-                  <td data-label="Descripción de la transacción">paga mensual</td>
-                  <td data-label="Objeto de gasto">Compra de suminitros</td>
-                  <td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td>
-                  <td data-label="Fecha del pago">2019-02-02 01:01:01</td>
-               </tr>
-               <tr>
-                     <td data-label="Descripción de la transacción">paga mensual</td>
-                     <td data-label="Objeto de gasto">Compra de suminitros</td>
-                     <td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Fecha del pago">2019-02-02 01:01:01</td>
-                  </tr>
-            </tbody>
-         </table>
-
-
-         <table class="tablaGeneral cajonSombreado" >
-               <thead>
-                  <tr>
-                     <th>Descripción de la transacción</th>
-                     <th>Objeto de gasto</th>
-                     <th>Monto del pago</th>
-                     <th>Fecha del pago</th>
-                  </tr>
-               </thead>
-               <tbody>
-                  <tr>
-                     <td data-label="Descripción de la transacción">paga mensual</td>
-                     <td data-label="Objeto de gasto">Compra de suminitros</td>
-                     <td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Fecha del pago">2019-02-02 01:01:01</td>
-                  </tr>
-                  <tr>
-                        <td data-label="Descripción de la transacción">paga mensual</td>
-                        <td data-label="Objeto de gasto">Compra de suminitros</td>
-                        <td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td>
-                        <td data-label="Fecha del pago">2019-02-02 01:01:01</td>
-                     </tr>
-               </tbody>
-            </table>
-
-            <table class="tablaGeneral cajonSombreado" >
-                  <thead>
-                     <tr>
-                        <th>Titulo</th>
-                        <th>Monto del contrato</th>
-                        <th>Fecha del contrato</th>
-                        <th>Estado</th>
-                     </tr>
-                  </thead>
-                  <tbody>
-                     <tr>
-                        <td data-label="Titulo">Paga mensual</td>
-                        <td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td>
-                        <td data-label="Fecha del contrato">2019-02-02 01:01:01</td>
-                        <td data-label="Estado">Firmado</td>
-                     </tr>
-                     <tr>
-                           <td data-label="Titulo">Paga mensual</td>
-                           <td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td>
-                           <td data-label="Fecha del contrato">2019-02-02 01:01:01</td>
-                           <td data-label="Estado">Firmado</td>
-                        </tr>
-                  </tbody>
-               </table>
-
-            -->
 {% endblock %}
 
 {% block script_content %}<!--

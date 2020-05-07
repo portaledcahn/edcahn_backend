@@ -29,13 +29,13 @@
     $('.fecha').datepicker({
            "dateFormat": 'yy-mm-dd'
        });*/
-       $('#cambioProveedores').change(function(evento){
+       /*$('#cambioProveedores').change(function(evento){
         if(evento.currentTarget.checked){
           location.href='/proveedores_sefin/?pagina=1&paginarPor=5&anio='+ObtenerAnio();
         }else{
           location.href='/proveedores/?pagina=1&paginarPor=5&anio='+ObtenerAnio();
         }
-      });
+      });*/
     var configuracionNumerica={ 
       decimalCharacter:'.',
       decimalPlaces:0,

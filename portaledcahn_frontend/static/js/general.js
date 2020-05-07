@@ -694,7 +694,8 @@ function AgregarToolTips(){
             var parametros={
                 arrow: true,
                 arrowType: 'round',
-                content:$(elemento).attr('toolTexto')
+                content:$(elemento).attr('toolTexto'),
+                allowHTML: true
               };
             if($(elemento).attr('toolPosicion')){
                 parametros['placement']=$(elemento).attr('toolPosicion');
