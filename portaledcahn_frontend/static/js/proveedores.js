@@ -479,3 +479,4 @@ function InicializarDescargas(){
      AbrirModalDescarga('descargaXlsxProveedores','Descarga XLSX');
    });
  }
+
