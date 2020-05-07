@@ -4886,6 +4886,16 @@ class GraficarMontosDeContratosMes(APIView):
 		s = s.exclude('match_phrase', extra__sources__id__keyword=settings.SOURCE_SEFIN_ID)
 		ss = ss.exclude('match_phrase', extra__sources__id__keyword=settings.SOURCE_SEFIN_ID)
 
+		## Solo contratos de ordenes de compra en estado impreso. 
+		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
+		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
+		ss = ss.exclude(sistemaCE & estadoOC)
+
+		## Quitando contratos cancelados en difusion directa. 
+		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
+		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
+		ss = ss.exclude(sistemaDC & estadoContrato)
+
 		# # Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
@@ -5374,6 +5384,7 @@ class EstadisticaMontosDeContratos(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+		
 		# Agregados
 
 		s.aggs.metric(
@@ -5584,17 +5595,18 @@ class GraficarContratosPorCategorias(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+		
 		# Agregados
 		s.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		s.aggs.metric(
@@ -5614,13 +5626,13 @@ class GraficarContratosPorCategorias(APIView):
 		s.aggs["contratosPorCategorias"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs["contratosPorCategorias"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)		
 
 		#Borrar estas lineas
@@ -5755,13 +5767,13 @@ class GraficarContratosPorModalidad(APIView):
 		s.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 		
 		s.aggs.metric(
@@ -5783,13 +5795,13 @@ class GraficarContratosPorModalidad(APIView):
 		s.aggs["contratosPorModalidades"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)
 
 		ss.aggs["contratosPorModalidades"].metric(
 			'sumaContratos',
 			'sum',
-			field='value.amount'
+			field='extra.LocalCurrency.amount'
 		)		
 
 		contratosPC = s.execute()
