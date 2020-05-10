@@ -84,7 +84,7 @@ class Releases(APIView, PaginationHandlerMixin):
 		if publisher == 'oncae':
 			instance = Release.objects.filter(package_data__data__publisher__name=oncae)
 		elif publisher == 'sefin':
-			instance = Release.objects.filter(package_data__data__publisher__name=sefin)	
+			instance = Release.objects.filter(package_data__data__publisher__name=sefin)
 		else:
 			instance = Release.objects.all()
 
@@ -151,7 +151,6 @@ class Records(APIView, PaginationHandlerMixin):
 		
 		respuesta = {}
 		currentPage = request.GET.get('page', "1")
-		publisher = request.GET.get('publisher', "")
 
 		instance = Record.objects.all()
 
@@ -169,8 +168,6 @@ class Records(APIView, PaginationHandlerMixin):
 		results = serializer.data["results"]
 
 		for d in results:
-			print(d)
-
 			for r in d["releases"]:
 				release = Release.objects.filter(release_id=r["id"])
 				paquete = release[0].package_data
@@ -178,17 +175,17 @@ class Records(APIView, PaginationHandlerMixin):
 
 		metadataPaquete = paqueteRegistros(paquetes, request)
 
-		respuesta["releases"] = serializer.data["count"]
+		respuesta["records"] = serializer.data["count"]
 		respuesta["pages"] = math.ceil(serializer.data["count"] / 10)
 		respuesta["page"] = currentPage
 		respuesta["next"] = serializer.data["next"]
 		respuesta["previous"] = serializer.data["previous"]
+
 		if serializer.data["count"] > 0:
 			respuesta["recordPackage"] = metadataPaquete
 			respuesta["recordPackage"]["records"] = results
 		else:
 			respuesta["recordPackage"] = {}
-
 
 		return Response(respuesta, status=status.HTTP_200_OK)
 
@@ -7829,7 +7826,16 @@ class Descargas(APIView):
 			for value in row[0].values():
 				for extension in value["urls"]:
 					value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
-					
+
+				if 'finalizo' in value: 
+					del value['finalizo']
+
+				if 'md5_hash' in value: 
+					del value['md5_hash']
+
+				if 'md5_json' in value: 
+					del value['md5_json']
+
 				listaArchivos.append(value)
 	
 			return Response(listaArchivos)
