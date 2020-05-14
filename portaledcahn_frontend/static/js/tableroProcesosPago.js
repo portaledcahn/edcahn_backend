@@ -3,7 +3,12 @@
  * @author Bryant Marcelo Pérez
  * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
  */
-var filtrosAplicables={
+
+/**
+ * Variable de filtros aplicables con su  titulo y parametro
+ * @type {Object} 
+ */
+ var filtrosAplicables={
     monedas: {titulo:'Moneda',parametro:'moneda'},
     instituciones: {titulo:'Institución Compradora',parametro:'institucion'},
     años: {titulo:'Año',parametro:'año'},
@@ -11,6 +16,11 @@ var filtrosAplicables={
     fuentes: {titulo:'Fuente de Financiamiento',parametro:'fuentefinanciamiento'},
     objetosGasto : {titulo:'Objeto de Gasto',parametro:'objetosgasto'}
   };
+
+/**
+ * Variable de filtros aplicables con su  titulo y parametro con su parametro como llave
+ * @type {Object} 
+ */
   var filtrosAplicablesR={
     moneda: {titulo:'Moneda',parametro:'monedas'},
     institucion: {titulo:'Institución Compradora',parametro:'instituciones'},
@@ -20,25 +30,442 @@ var filtrosAplicables={
     objetosgasto : {titulo:'Objeto de Gasto',parametro:'objetosGasto'}
     
   };
+
+/**
+ * Arreglo para definir el orden en el que se presentan los filtros
+ * @type {string[]} 
+ */
   var ordenFiltros=['años','monedas','instituciones','proveedores','fuentes'];
+/**
+ * Objeto para obtener traducciones e informacion de algunos códigos el OCDS
+ * @type {Object} 
+ */
   var traducciones={
     'goods':{titulo:'Bienes y provisiones',descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
     'services':{titulo:'Servicios',descripcion:'El proceso de contratación involucra servicios profesionales de algún tipo, generalmente contratado con base de resultados medibles y entregables. Cuando el código de consultingServices está disponible o es usado por datos en algún conjunto da datos en particular, el código de servicio sólo debe usarse para servicios no de consultoría.'},
     'consultingServices':{titulo:'Servicios de consultoría',descripcion:'Este proceso de contratación involucra servicios profesionales provistos como una consultoría.'}
   }
+
   window.onpopstate = function(e){
     location.reload();
   }
+
+/**
+ * Obtiene los filtros e inicializa los graficos
+ */  
+$(function(){
+    $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
+        $('.contenedorFiltrosBusqueda').toggle('slide');
+      });
+      $( window ).resize(function() {
+       if($(window).width()>767){
+        $('.contenedorFiltrosBusqueda').show();
+       }
+      });
+    PanelInicialFiltros('#elastic-list');
+    ObtenerFiltros();
+    
+    CargarGraficos();
+    
+    $('#quitarFiltros, #quitarFiltros2').on('click',function(e){
+        PushDireccionGraficos(AccederUrlPagina({},true));
+      });
+
+});
+
+/**
+ * Ejecuta la carga de todos los gráficos
+ */
+function CargarGraficos(){
+
+    $('.contenedorGrafico > .grafico').each(function(i,elemento){
+        if(echarts.getInstanceByDom(elemento)){
+            echarts.getInstanceByDom(elemento).clear();
+        }
+    });
+
+    
+    InicializarCantidadPagos();
+    InicializarMontoPagos();
+    Top10Proveedores();
+    Top10Compradores();
+    CargarCajonesMontos();
+    CargarCajonesCantidad();
+    MontoPagosEtapas();
+    Top10CantidadProcesosObjetosGasto();
+}
+
+
+/**
+ * Obtiene los datos de los filtros a mostrar
+ */
+function ObtenerFiltros(){
+    
+    var parametros=ObtenerJsonFiltrosAplicados({});
+    $.get(api+"/dashboardsefin/filtros/",parametros).done(function( datos ) {
+
+        if(datos.respuesta.objetosGasto){
+            delete datos.respuesta.objetosGasto;
+        }
+      
+       
+  
+    MostrarListaElastica(datos,'#elastic-list');
+    MostrarEtiquetaListaElasticaAplicada();
+    MostrarListaElasticaAplicados();
+  
+  
+      
+        
+      }).fail(function() {
+          
+          
+        });
+
+}
+
+
+
+
+function ObtenerJsonFiltrosAplicados(parametros){
+    if(Validar(ObtenerValor('moneda'))){
+        parametros['moneda']=decodeURIComponent(ObtenerValor('moneda'));
+    }
+    if(Validar(ObtenerValor('institucion'))){
+    parametros['institucion']=decodeURIComponent(ObtenerValor('institucion'));
+    }
+    if(Validar(ObtenerValor('año'))){
+      parametros['año']=decodeURIComponent(ObtenerValor('año'));
+    }
+    if(Validar(ObtenerValor('proveedor'))){
+        parametros['proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
+    }
+    if(Validar(ObtenerValor('fuentefinanciamiento'))){
+      parametros['fuentefinanciamiento']=decodeURIComponent(ObtenerValor('fuentefinanciamiento'));
+    }
+    if(Validar(ObtenerValor('objetosgasto'))){
+        parametros['objetosgasto']=decodeURIComponent(ObtenerValor('objetosgasto'));
+    }
+    if(Validar(ObtenerValor('masinstituciones'))){
+        parametros['masinstituciones']=decodeURIComponent(ObtenerValor('masinstituciones'));
+    }
+    if(Validar(ObtenerValor('masproveedores'))){
+        parametros['masproveedores']=decodeURIComponent(ObtenerValor('masproveedores'));
+    }
+
+    return parametros;
+  }
+
+/**
+ * Obtiene los datos de los filtros a mostrar
+ * @param {Object} opciones - objeto de filtros aplicados
+ * @param {boolean} desUrl - descartar parametro de la url en caso de que este y no se haya recibido un json de opciones
+ * @return {string}
+ */
+  function AccederUrlPagina(opciones,desUrl){
+    var direccion=('/tableroProcesosPago/?'+
+    (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
+    (ValidarCadena(opciones.institucion)? '&institucion='+encodeURIComponent(opciones.institucion): (ValidarCadena(ObtenerValor('institucion'))&&!desUrl?'&institucion='+ObtenerValor('institucion'):''))+
+   
+    (ValidarCadena(opciones.año)? '&año='+encodeURIComponent(opciones.año): (ValidarCadena(ObtenerValor('año'))&&!desUrl?'&año='+ObtenerValor('año'):''))+
+    (ValidarCadena(opciones.proveedor)? '&proveedor='+encodeURIComponent(opciones.proveedor): (ValidarCadena(ObtenerValor('proveedor'))&&!desUrl?'&proveedor='+ObtenerValor('proveedor'):''))+
+    (ValidarCadena(opciones.fuentefinanciamiento)? '&fuentefinanciamiento='+encodeURIComponent(opciones.fuentefinanciamiento): (ValidarCadena(ObtenerValor('fuentefinanciamiento'))&&!desUrl?'&fuentefinanciamiento='+ObtenerValor('fuentefinanciamiento'):''))+
+    (ValidarCadena(opciones.objetosgasto) ? '&objetosgasto='+encodeURIComponent(opciones.objetosgasto):(ValidarCadena(ObtenerValor('objetosgasto'))&&!desUrl?'&objetosgasto='+ObtenerValor('objetosgasto'):''))+
+    (ValidarCadena(opciones.masproveedores) ? '&masproveedores='+encodeURIComponent(opciones.masproveedores):(ValidarCadena(ObtenerValor('masproveedores'))&&!desUrl?'&masproveedores='+ObtenerValor('masproveedores'):''))+
+    (ValidarCadena(opciones.masinstituciones) ? '&masinstituciones='+encodeURIComponent(opciones.masinstituciones):(ValidarCadena(ObtenerValor('masinstituciones'))&&!desUrl?'&masinstituciones='+ObtenerValor('masinstituciones'):''))
+  
+    );
+    return direccion;
+  }
+
+/**
+ * Agrega la dirección al historial de búsqueda del navegador
+ */
+  function PushDireccionGraficos(direccion){
+    window.history.pushState({}, document.title,direccion);
+    ObtenerFiltros();
+    CargarGraficos();
+  }
+
+/**
+ * Muestra las etiquetas con los filtros aplicados
+ * @param {Object} parametros 
+ */
+  function MostrarEtiquetasFiltrosAplicados(parametros){
+    delete parametros.masinstituciones;
+    delete parametros.masproveedores;
+    if(!$.isEmptyObject(parametros)){
+      $('#contenedorSinFiltros').hide();
+      $('#contenedorFiltros').show();
+    }else{
+      $('#contenedorFiltros').hide();
+      $('#contenedorSinFiltros').show();
+    }
+    $('#listaFiltrosAplicados,#extencionFiltrosAplicados').html('');
+    $.each(parametros,function(llave,filtro){
+      $('#listaFiltrosAplicados,#extencionFiltrosAplicados').append(
+        $('<div>',{class:'grupoEtiquetaFiltro col-md-12x mb-1x',style:'display:inline-block'}).append(
+          $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
+          $('<div>',{class:'filtrosAplicados'}).append(
+            $('<div>',{class:'etiquetaFiltro','llave':llave,'valor':filtro}).append(
+                (traducciones[filtro]?traducciones[filtro].titulo:filtro),
+              '&nbsp;',
+              $('<i>',{class:'fas fa-times'}).on('click',function(e){
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
+
+                PushDireccionGraficos(AccederUrlPagina(filtros,true));
+                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().prev().remove();
+                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().remove();
+              })
+            )
+          )
+        )
+      );
+    });
+    $('.filtrosContenedoFiltrosBusqueda').attr('style','height:calc(100vh - '+($('#extencionFiltrosAplicados').height()?123:110)+'px - '+($('#extencionFiltrosAplicados').height() + ($('#extencionFiltrosAplicados').height()?4:0))+'px)');
+
+  }
+
+/**
+ * Envia un Json cono los parametros de los filtros aplicados a la función que muestra las etiquetas de filtros aplicados
+ */
+  function MostrarEtiquetaListaElasticaAplicada(){
+  
+    var parametros={
+    };
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
+    MostrarEtiquetasFiltrosAplicados(parametros);
+  }
+
+/**
+ * Muestra la Seleccion aplicada en la lista de filtros.
+ */
+  function MostrarListaElasticaAplicados(){
+    var filtros={
+    };
+    filtros=ObtenerJsonFiltrosAplicados(filtros);
+    $.each(filtros,function(llave,valor){
+        if(filtrosAplicablesR[llave]){
+            $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
+                'li[valor="'+(valor).toString()+'"]'
+              ).addClass('active');
+        }
+      
+    });
+  }
+
+
+/**
+ * Muestra el contenido de los filtros aplicados, las opciones de selección
+ */
+  function MostrarListaElastica(datos,selector){
+    $(selector).html('');
+    var arregloFiltros=[];
+    $.each(datos.respuesta,function(llave,valor){
+        arregloFiltros.push({
+            'posicion':ordenFiltros.includes(llave)?ordenFiltros.indexOf(llave):99,
+            'llave':llave,
+            'valor':valor
+        });
+    });
+    arregloFiltros=arregloFiltros.sort(function(a, b){return a.posicion - b.posicion;});
+    $.each(arregloFiltros,function(indice,elemento){
+
+      $(selector).append(
+        $('<div class="list-container col-md-12 2">').append(
+          $('<div class="panel panel-default ">').append(
+            $('<div class="panel-heading">').text(
+              filtrosAplicables[elemento.llave]?filtrosAplicables[elemento.llave].titulo:elemento.llave
+            ),
+            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento.llave]?filtrosAplicables[elemento.llave].titulo:elemento.llave ,filtro:elemento.llave,on:{
+              keyup:function(e){
+                var texto=$(e.currentTarget).val();
+                if (texto.length > 0) {
+                  texto = texto.toLocaleLowerCase();
+                  var regla = " ul#" + 'ul'+elemento.llave + ' li[formato*="' + texto + '"]{display:block;} ';
+                  regla += " ul#" + 'ul'+elemento.llave + ' li:not([formato*="' + texto + '"]){display:none;}';
+                  $('#style'+elemento.llave).html(regla);
+                } else {
+                  $('#style'+elemento.llave).html('');
+                }
+              }
+            }}),
+            $('<style>',{id:'style'+elemento.llave}),
+            $('<ul >',{class:'list-group',id:'ul'+elemento.llave}).append(
+              AgregarPropiedadesListaElastica(elemento.valor,elemento.llave)
+            ),
+            ['instituciones','proveedores'].includes(elemento.llave)&&elemento.valor&&elemento.valor.buckets&&elemento.valor.buckets.length>=50?
+              $('<a>',{
+                class:'enlaceTablaGeneral ptextoColorPrimario pcursorMano',
+                href:'javascript:void(0)',
+                style:'width:150px;padding:5px 15px',
+                text: elemento.valor.buckets.length==50? 'Mostrar Todos...':'Mostrar Menos...',
+                toolTexto:elemento.valor.buckets.length==50?'Mostrar más resultados':'Mostrar menos resultados',
+                toolCursor:'true',
+                llave:elemento.llave,
+                on:{
+                  click:MostrarMasResultados
+                }
+              })
+            :null
+              
+            
+          )
+        )
+      );
+      
+      
+    });
+    AgregarToolTips();
+    
+    
+  }
+
+
+/**
+ * Ejecuta la acción al ahcer click en eun botón
+ * @param {Object} e - evento de un click
+ */
+function MostrarMasResultados(e){
+    switch($(e.currentTarget).attr('llave')){
+        case 'instituciones':
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                if(filtros.masinstituciones){
+                    delete filtros.masinstituciones;
+                }else{
+                    filtros['masinstituciones']=1;
+                }
+                PushDireccionGraficos(AccederUrlPagina(filtros,true));
+
+            break;
+        case 'proveedores':
+                var filtros=ObtenerJsonFiltrosAplicados({});
+                if(filtros.masproveedores){
+                    delete filtros.masproveedores;
+                }else{
+                    filtros['masproveedores']=1;
+                }
+                PushDireccionGraficos(AccederUrlPagina(filtros,true));
+            break;
+        default:
+            break;
+    }
+}
+
+
+/**
+ * Agrega los elementos que pueden ser seleccionados en un categoría
+ * @param {Object[]} valor - arreglo de valores seleccionables en un filtro
+ * @param {string} llave - llave de un filtro 
+ */
+function AgregarPropiedadesListaElastica(valor,llave){
+    var elementos=[]
+    $.each(valor.buckets,function(i,propiedades){
+
+      elementos.push(
+        $('<li >',{
+        class:'list-group-item',
+        valor:propiedades.key_as_string?propiedades.key_as_string:propiedades.key, 
+        formato: (propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)).toString().toLowerCase(),'llave':llave,
+        toolTexto:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key),
+        toolCursor:'true',
+        on:{
+          click:function(e){
+            var filtro=$(e.currentTarget);
+            if(filtro.hasClass('active')){
+              filtro.removeClass('active')
+            }else{
+              filtro.parent().find('.list-group-item.active').removeClass('active');
+              filtro.addClass('active');
+            }
+
+            $('li.list-group-item').not('.active').remove();
+            $( '.list-group' ).not(':has(li)').append(
+                $('<li >',{
+                    class:'list-group-item animated fadeIn noEncima'
+                }
+                ).append(
+                    $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
+                    $('<div>',{
+                    class:'elastic-data cargandoElementoLista',
+                    text:'Cargando'}
+                    )
+                  )
+            );
+
+
+            var filtros=ObtenerJsonFiltrosAplicados({});
+            if(filtro.hasClass('active')){
+                filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:'']=$(e.currentTarget).attr('valor');
+              }else{
+                delete filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:''];
+              }
+            PushDireccionGraficos(AccederUrlPagina(filtros,true));
+          }
+        }}).append(
+          $('<div class="badge">').text( ValorNumerico(propiedades.doc_count)),
+          $('<div >',{
+          class:'elastic-data',
+          
+          text:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)}
+          )
+        )
+      )
+    });
+    return elementos;
+  }
+
+/**
+ * Agrega los elementos que pueden ser seleccionados en un categoría
+ * @param {Object[]} valor - arreglo de valores seleccionables en un filtro
+ * @param {string} llave - llave de un filtro 
+ */
+  function PanelInicialFiltros(selector){
+      $(selector).html('')
+    $.each(ordenFiltros,function(indice,elemento){
+
+        $(selector).append(
+          $('<div class="list-container col-md-12 2 animated fadeIn">').append(
+            $('<div class="panel panel-default ">').append(
+              $('<div class="panel-heading">').text(
+                filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento
+              ),
+              $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento ,filtro:elemento}),
+              $('<ul >',{class:'list-group',id:'ul'+elemento}).append(
+                $('<li >',{
+                    class:'list-group-item animated fadeIn noEncima'
+                }
+                ).append(
+                    $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
+                    $('<div>',{
+                    class:'elastic-data cargandoElementoLista',
+                    text:'Cargando'}
+                    )
+                  )
+              )
+                
+              
+            )
+          )
+        );
+        
+        
+      });
+  }
+
+
+/**
+ * Obtiene los datos e inicializa el gráfico de Cantidad de Pagos por Mes
+ */
 function InicializarCantidadPagos(){
-    //app.title = '折柱混合';
 
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#cantidadPagos',true);
     $.get(api+"/dashboardsefin/cantidaddepagos/",parametros).done(function( datos ) {
-        console.dir('Cantidad de Pagos')
-        console.dir(datos);
+        
         OcultarReloj('#cantidadPagos');
         if((datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadpagos)  && datos.resultados.cantidadpagos.length==0)||datos.resultados.cantidadpagos.map(function(e){return ObtenerNumero(e);}).reduce(function(a, b){return a + b;}, 0)==0){
             MostrarSinDatos('#cantidadPagos',true);
@@ -62,7 +489,6 @@ function InicializarCantidadPagos(){
                             cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorNumerico(valor.value):valor.value) +' '+(valor.seriesIndex==0?'Pagos':'%')+'<br>'
                         });
                         return cadena;
-                        /*return "{b0}<br>{a0} {s0} {c0} Pagos <br>{a1} {s1} {c1} %".replace('{c0}',e[0].value).replace('{c1}',e[1].value).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);;*/
                     }
                 },
             legend: {
@@ -91,7 +517,7 @@ function InicializarCantidadPagos(){
                 xAxis: [
                     {
                         type: 'category',
-                        data: datos.resultados.meses,//['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+                        data: datos.resultados.meses,
                         axisPointer: {
                             type: 'shadow'
                         },
@@ -111,8 +537,6 @@ function InicializarCantidadPagos(){
                         type: 'value',
                         name: 'Cantidad',
                         min: 0,
-                        /*max: 250,*/
-                      //  interval: 50,
                         axisLabel: {
                             formatter: '{value}'
                         },
@@ -125,12 +549,9 @@ function InicializarCantidadPagos(){
                     },
                     {
                         type: 'value',
-                        //name: 'Cantidad de Pagos en Porcentaje',
                         min: 0,
-                        max: 100,/*
-                        interval: 5,*/
+                        max: 100,
                         axisLabel: {
-                            //formatter: '{value} %'
                             show:false
                         },
                         position:'right',
@@ -156,15 +577,13 @@ function InicializarCantidadPagos(){
                     {
                         name:'Porcentaje en Relación al Año',
                         type:'line',
-                        //yAxisIndex: 1,
                         data:datos.resultados.promediopagos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
                         symbol: 'circle',
                         symbolSize: 10,
                         lineStyle: {
                             normal: {
                                 color: ObtenerColores('Pastel1')[9],
-                                width: 4/*,
-                                type: 'dashed'*/
+                                width: 4
                             }
                         },
                         itemStyle:{
@@ -185,8 +604,6 @@ function InicializarCantidadPagos(){
                                 type: 'value',
                                 name: 'Cantidad',
                                 min: 0,
-                                /*max: 250,*/
-                              //  interval: 50,
                                 axisLabel: {
                                     formatter: '{value}',
                                     rotate:65
@@ -200,12 +617,9 @@ function InicializarCantidadPagos(){
                             },
                             {
                                 type: 'value',
-                                //name: 'Cantidad de Pagos en Porcentaje',
                                 min: 0,
-                                max: 100,/*
-                                interval: 5,*/
+                                max: 100,
                                 axisLabel: {
-                                    //formatter: '{value} %'
                                     show:false
                                 },
                                 position:'right',
@@ -244,16 +658,15 @@ function InicializarCantidadPagos(){
     
 }
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Monto de Pagos por Mes
+ */
 function InicializarMontoPagos(){
-    //app.title = '折柱混合';
 
-    var parametros={}
+    var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#montoPagos',true);
     $.get(api+"/dashboardsefin/montosdepagos/",parametros).done(function( datos ) {
-        console.dir('Monto Pagos');
-        console.dir(datos);
         OcultarReloj('#montoPagos');
         if((datos&&datos.resultados&&Array.isArray(datos.resultados.montopagos)  && datos.resultados.montopagos.length==0)||datos.resultados.montopagos.map(function(e){return ObtenerNumero(e);}).reduce(function(a, b){return a + b;}, 0)==0){
             MostrarSinDatos('#montoPagos',true);
@@ -279,7 +692,6 @@ function InicializarMontoPagos(){
                     cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?ValorMoneda(valor.value):valor.value) +' '+(valor.seriesIndex==0?'HNL':'%')+'<br>'
                 });
                 return cadena;
-                   /* return "{b0}<br>{a0} {s0} {c0} HNL <br>{a1} {s1} {c1} %".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);*/
                 }
             },
             legend: {
@@ -308,10 +720,7 @@ function InicializarMontoPagos(){
                         textPosition:'top'
                     }
                 }
-            },/*
-            legend: {
-                data:['蒸发量1','降水量','平均温度3']
-            },*/
+            },
             xAxis: [
                 {
                     type: 'category',
@@ -331,8 +740,6 @@ function InicializarMontoPagos(){
                     type: 'value',
                     name: 'Monto',
                     min: 0,
-                   /* max: 250,*/
-                  //  interval: 10000000,
                     axisLabel: {
                         formatter: '{value} HNL'
                     },
@@ -345,12 +752,9 @@ function InicializarMontoPagos(){
                 },
                 {
                     type: 'value',
-                    //name: '',
                     min: 0,
-                    max: 100,/*
-                    interval: 5,*/
+                    max: 100,
                     axisLabel: {
-                        //formatter: '{value} %'
                         show:false
                     },
                     position:'right',
@@ -372,15 +776,7 @@ function InicializarMontoPagos(){
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[1]
                     }
-                },/*
-                {
-                    name:'Monto Devengado',
-                    type:'bar',
-                    data:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    itemStyle:{
-                        color: ObtenerColores('Pastel1')[3]
-                    }
-                },*/
+                },
                 {
                     name:'Porcentaje en Relación al Año',
                     type:'line',
@@ -390,31 +786,14 @@ function InicializarMontoPagos(){
                     lineStyle: {
                         normal: {
                             color: ObtenerColores('Pastel1')[9],
-                            width: 4/*,
-                            type: 'dashed'*/
+                            width: 4
                         }
                     },
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[9]
                     },
                     yAxisIndex:1
-                }/*,
-                {
-                    name:'Promedio Devengado',
-                    type:'line',
-                    data:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    symbol: 'circle',
-                    symbolSize: 10,
-                    lineStyle: {
-                        normal: {
-                            color:ObtenerColores('Pastel1')[2],
-                            width: 4
-                        }
-                    },
-                    itemStyle:{
-                        color: ObtenerColores('Pastel1')[2]
-                    }
-                }*/
+                }
             ]
         },
             media:[
@@ -428,8 +807,6 @@ function InicializarMontoPagos(){
                                 type: 'value',
                                 name: 'Monto',
                                 min: 0,
-                               /* max: 250,*/
-                              //  interval: 10000000,
                                 axisLabel: {
                                     formatter: '{value} HNL',
                                     rotate:65
@@ -443,12 +820,9 @@ function InicializarMontoPagos(){
                             },
                             {
                                 type: 'value',
-                                //name: '',
                                 min: 0,
-                                max: 100,/*
-                                interval: 5,*/
+                                max: 100,
                                 axisLabel: {
-                                    //formatter: '{value} %'
                                     show:false
                                 },
                                 position:'right',
@@ -474,7 +848,6 @@ function InicializarMontoPagos(){
             ]
         };
         grafico.setOption(opciones, true);
-        console.dir(grafico)
     
         
         window.addEventListener("resize", function(){
@@ -487,15 +860,16 @@ function InicializarMontoPagos(){
     
 }
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Etapas de Pagos Realizados en un Proceso de Compra
+ */
 
 function MontoPagosEtapas(){
     var parametros={};
         parametros=ObtenerJsonFiltrosAplicados(parametros);
         MostrarReloj('#montoPagosEtapas',true);
         $.get(api+"/dashboardsefin/etapaspago/",parametros).done(function( datos ) {
-            console.dir('ETAPAS')
-            console.dir(datos);
+            
             OcultarReloj('#montoPagosEtapas');
             if(datos&&datos.resultados&&Array.isArray(datos.resultados.montos)  && datos.resultados.montos.length==0){
                 MostrarSinDatos('#montoPagosEtapas',true);
@@ -514,7 +888,6 @@ function MontoPagosEtapas(){
                 },
                 formatter:  function (e){
                     return "{b0}<br>{a0} {c0} HNL ({p0}%)".replace('{p0}',ValorNumerico(datos.resultados.porcentajes[e[0].dataIndex].toFixed(2) ) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{c0}',ValorMoneda( e[0].value));
-                    //return "{b0}<br>{a0} {c0} HNL, {p0}%".replace('{c0}',ValorMoneda(e[0].value) ).replace('{a0}',e[0].marker).replace('{b0}',e[0].name).replace('{p0}',((ObtenerNumero( e[0].value)/ObtenerNumero(Math.max.apply(null, [150000,80444,69000,72000])) *100)).toFixed(2));
                 }
             },
             grid: {
@@ -553,12 +926,10 @@ function MontoPagosEtapas(){
                                 formatter: function (e){
                                     
                                     return "{c} HNL ".replace('{c}',ValorMoneda( e) );
-                                    //return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, datos.resultados.montos)) *100)).toFixed(2));
                                     
                                 },rotate:45,
                                 showMinLabel:false
-                            },/*
-                            max:100,*/
+                            },
                             
                         axisPointer: {
                             label: {
@@ -579,7 +950,6 @@ function MontoPagosEtapas(){
             ],
             series: [
                 {
-                   // name:'Etapa',
                     type:'bar',
                     data:datos.resultados.montos,
                     itemStyle:{
@@ -595,7 +965,6 @@ function MontoPagosEtapas(){
                         formatter:  function (e){
                             return "{c} HNL".replace('{c}',ValorMoneda( e.value));
                         }
-                        //formatter: '{c} Días'
                     }
                 }
             ]
@@ -616,13 +985,11 @@ function MontoPagosEtapas(){
                                         formatter: function (e){
                                             
                                             return "{c} HNL ".replace('{c}',ValorMoneda( e) );
-                                            //return "{c} %".replace('{c}',((ObtenerNumero( e)/ObtenerNumero(Math.max.apply(null, datos.resultados.montos)) *100)).toFixed(2));
                                             
                                         },
                                         rotate:90,
                                         showMinLabel:false
-                                    },/*
-                                    max:100,*/
+                                    },
                                     
                                 axisPointer: {
                                     label: {
@@ -649,7 +1016,6 @@ function MontoPagosEtapas(){
                     ],
                     series: [
                         {
-                           // name:'Etapa',
                             type:'bar',
                             data:datos.resultados.montos,
                             itemStyle:{
@@ -665,7 +1031,6 @@ function MontoPagosEtapas(){
                                 formatter:  function (e){
                                     return "{c} HNL".replace('{c}',ValorMoneda( e.value));
                                 }
-                                //formatter: '{c} Días'
                             }
                         }
                     ],
@@ -690,15 +1055,16 @@ function MontoPagosEtapas(){
 }
 
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Top 10 Compradores por Monto Pagado
+ */
 function Top10Compradores(){
   
-    var parametros={}
+    var parametros={};
         parametros=ObtenerJsonFiltrosAplicados(parametros);
         MostrarReloj('#top10Compradores',true);
         $.get(api+"/dashboardsefin/topcompradores/",parametros).done(function( datos ) {
-            console.dir('COMPRADORES')
-            console.dir(datos);
+            
             OcultarReloj('#top10Compradores');
             if(datos&&datos.resultados&&Array.isArray(datos.resultados.montos)  && datos.resultados.montos.length==0){
                 MostrarSinDatos('#top10Compradores',true);
@@ -746,10 +1112,7 @@ function Top10Compradores(){
                             textPosition:'top'
                         }
                     }
-                },/*
-                    legend: {
-                        data:['蒸发量1','降水量','平均温度3']
-                    },*/
+                },
                     xAxis: [
                         {
                             type: 'value',
@@ -767,7 +1130,6 @@ function Top10Compradores(){
                     ],
                     grid:{
                         containLabel:true,
-                        //top:10,
                         right:'15%'
                     },
                     yAxis: [
@@ -926,15 +1288,14 @@ function Top10Compradores(){
 }
 
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Top 10 Proveedores por Monto Pagado y Moneda
+ */
 function Top10Proveedores(){
-    //app.title = '折柱混合';
-    var parametros={}
+    var parametros={};
 parametros=ObtenerJsonFiltrosAplicados(parametros);
 MostrarReloj('#top10Proveedores',true);
                 $.get(api+"/dashboardsefin/topproveedores/",parametros).done(function( datos ) {
-                    console.dir('PROVEEDORES')
-                    console.dir(datos);
                     OcultarReloj('#top10Proveedores');
                     
                     if(datos&&datos.resultados&&Array.isArray(datos.resultados.montos)  && datos.resultados.montos.length==0){
@@ -978,10 +1339,7 @@ MostrarReloj('#top10Proveedores',true);
                                         textPosition:'top'
                                     }
                                 }
-                            },/*
-                            legend: {
-                                data: ['Precompromiso','Compromiso','Devengado','Transacciones']
-                            },*/
+                            },
                             grid: {
                                 left: '3%',
                                 right:'15%',
@@ -990,9 +1348,6 @@ MostrarReloj('#top10Proveedores',true);
                             },
                             xAxis:  {
                                 type: 'value',
-                                /*min: 0,
-                                max: 810,*/
-                                //interval: 100000,
                                 axisLabel: {
                                     formatter: '{value} HNL',
                                     rotate:45,
@@ -1009,7 +1364,6 @@ MostrarReloj('#top10Proveedores',true);
                                 data: datos.resultados.proveedores.reverse(),
                                 axisLabel:{
                                     interval:0,
-                        //rotate:45,
                         formatter:function(e){
                             return ObtenerParrafo(e,30);
                         },
@@ -1129,14 +1483,16 @@ MostrarReloj('#top10Proveedores',true);
                         });
     
 }
+
+/**
+ * Obtiene los datos e inicializa el gráfico de Top 10 de Objetos de Gasto por Cantidad de Procesos
+ */
 function Top10CantidadProcesosObjetosGasto(){
     
-    var parametros={}
+    var parametros={};
 parametros=ObtenerJsonFiltrosAplicados(parametros);
 MostrarReloj('#Top10CantidadProcesosObjetosGasto',true);
                 $.get(api+"/dashboardsefin/topobjetosgasto/",parametros).done(function( datos ) {
-                    console.dir('OBJETOS')
-                    console.dir(datos);
                     OcultarReloj('#Top10CantidadProcesosObjetosGasto');
                     if(datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadProcesos)  && datos.resultados.cantidadProcesos.length==0){
                         MostrarSinDatos('#Top10CantidadProcesosObjetosGasto',true);
@@ -1193,9 +1549,6 @@ MostrarReloj('#Top10CantidadProcesosObjetosGasto',true);
                         },
                         xAxis:  {
                             type: 'value',
-                            /*min: 0,
-                            max: 810,*/
-                            //interval: 100000,
                             axisLabel: {
                                 formatter: '{value}',
                                 rotate:45,
@@ -1212,7 +1565,6 @@ MostrarReloj('#Top10CantidadProcesosObjetosGasto',true);
                             data: datos.resultados.objetosGasto.reverse(),
                             axisLabel:{
                                 interval:0,
-                        //rotate:45,
                         formatter:function(e){
                             return ObtenerParrafo(e,30);
                         },
@@ -1282,9 +1634,6 @@ MostrarReloj('#Top10CantidadProcesosObjetosGasto',true);
                                     },
                                     yAxis: {
                                         type: 'value',
-                                        /*min: 0,
-                                        max: 810,*/
-                                        //interval: 100000,
                                         axisLabel: {
                                             formatter: '{value}',
                                             rotate:65,
@@ -1343,213 +1692,20 @@ MostrarReloj('#Top10CantidadProcesosObjetosGasto',true);
                         });
 }
 
-function SegregacionMontosContratos(){
-    //app.title = '折柱混合';
-    var grafico=echarts.init(document.getElementById('segregacionMontosContratos'));
-    var opciones ={
-        series: [{
-            type: 'treemap',
-            data: [
-            {
-                name: 'Empresa Hondureña de Telecomunicaciones',            // First tree
-                value: 40406,
-                children: [{
-                    name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                    value: 4
-                },{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
-                },{
-                    name: '26110-Pasajes Nacionales',       // Son of first tree
-                    value: 20
-                }],
-                itemStyle:{
-                    color: ObtenerColores('Pastel1')[9]
-                }
-            },
-            {
-                name: 'Secretaría de Defensa Nacional',            // Second tree
-                value: 60609,
-                children: [{
-                    name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                    value: 4
-                },{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
-                },{
-                    name: '26110-Pasajes Nacionales',       // Son of first tree
-                    value: 20
-                }],
-                itemStyle: {
-                    color: ObtenerColores('Pastel1')[3]
-                }
-            }, 
-            {
-                name: 'Secretaria de Salud Pública',            // Second tree
-                value: 80812,
-                children: [{
-                    name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                    value: 4
-                },{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
-                },{
-                    name: '26110-Pasajes Nacionales',       // Son of first tree
-                    value: 20
-                }],
-                itemStyle: {
-                    color: ObtenerColores('Pastel1')[2]/*function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
-                        return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
-                    }*/
-                }
-            }, {
-                name: 'Instituto Hondureño de Seguridad Social',            // Second tree
-                value: 90912,
-                children: [{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
-                    children: [{
-                        name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                        value: 4
-                    },{
-                        name: '21100-Energía Eléctrica',       // Son of first tree
-                        value: 20,
-                    },{
-                        name: '26110-Pasajes Nacionales',       // Son of first tree
-                        value: 20
-                    }]
-                }],
-                itemStyle: {
-                    color: ObtenerColores('Pastel1')[1]/*function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
-                        return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
-                    }*/
-                }
-            }, {
-                name: 'Empresa Nacional de Energía Eléctrica',            // Second tree
-                value: 181825,
-                children: [{
-                    name: '21100-Energía Eléctrica',       // Son of first tree
-                    value: 20,
-                    children: [{
-                        name: '23200-Mantenimiento y Reparación de Equipos y Medios de Transporte',       // First leaf of first tree
-                        value: 4
-                    },{
-                        name: '21100-Energía Eléctrica',       // Son of first tree
-                        value: 20,
-                    },{
-                        name: '26110-Pasajes Nacionales',       // Son of first tree
-                        value: 20
-                    }]
-                }],
-                itemStyle: {
-                    color: ObtenerColores('Pastel1')[0]/*function(e){
-                        var colores=['#57C5CB','#DA517A','#FECB7E','#F79A6A'];
-                        return e.dataIndex<colores.length?colores[e.dataIndex]:colores[0];
-                    }*/
-                }
-            }],
-            label:{
-                show:true,
-                fontFamily:'Poppins',
-                fontWeight:700,
-                fontSize:15
-            }
-            
-        }],
-        fontFamily:'Poppins',
-        fontWeight:700,
-        fontSize:15,
-        label:{
-            show:true,
-            fontFamily:'Poppins',
-            fontWeight:700,
-            fontSize:15
-        }
-    };
-    
-    grafico.setOption(opciones, true);
 
-    
-    window.addEventListener("resize", function(){
-        grafico.resize();
-    });
-}
-$(function(){
-    $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
-        $('.contenedorFiltrosBusqueda').toggle('slide');
-        /*
-        if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
-          $('.contenedorFiltrosBusqueda').removeClass('cerrado');
-          //$('.contenedorFiltrosBusqueda').show('slide', {direction: 'right'}, 1000);
-          
-        }else{
-          $('.contenedorFiltrosBusqueda').addClass('cerrado');
-          //$('.contenedorFiltrosBusqueda').hide('slide', {direction: 'left'}, 1000);
-        }*/
-      });
-      $( window ).resize(function() {
-       if($(window).width()>767){
-        $('.contenedorFiltrosBusqueda').show();
-       }
-      });
-    PanelInicialFiltros('#elastic-list');
-    ObtenerFiltros();
-    
-    CargarGraficos();
-    //CantidadPagosEtapas()
-    
-    //TiempoPromedioEtapas();
-
-    
-    
- 
-    //SegregacionMontosContratos();
-    $('#quitarFiltros, #quitarFiltros2').on('click',function(e){
-        PushDireccionGraficos(AccederUrlPagina({},true));
-      });
-
-   // VerificarIntroduccion('INTROJS_BUSQUEDA',1);
-})
-function CargarGraficos(){
-    //$('.contenedorGrafico > .grafico').html('');
-
-    $('.contenedorGrafico > .grafico').each(function(i,elemento){
-        if(echarts.getInstanceByDom(elemento)){
-            echarts.getInstanceByDom(elemento).clear();
-        }
-    });
-
-    
-    InicializarCantidadPagos();
-    InicializarMontoPagos();
-    Top10Proveedores();
-    Top10Compradores();
-    CargarCajonesMontos();
-    CargarCajonesCantidad();
-    MontoPagosEtapas();
-    Top10CantidadProcesosObjetosGasto();
-}
-
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Montos de Pagos por Año
+ */
 function CargarCajonesMontos(){
-    var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    var parametros={};
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
 $.get(api+"/dashboardsefin/estadisticamontosdepagos/",parametros).done(function( datos ) {
-console.dir(datos);
+    
     $('#MontoPagosPromedio').attr('data-to',datos.resultados.promedio);
     $('#MontoPagosMenor').attr('data-to',datos.resultados.menor);
     $('#MontoPagosMayor').attr('data-to',datos.resultados.mayor);
     $('#MontoPagosTotal').attr('data-to',datos.resultados.total);
-/*
-$('.conteo.moneda').countTo({
-    formatter: function (value, options) {
-      value = value.toFixed(2);
-      value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-      return value;
-  }
-  });*/
+
 
   $('.conteo.moneda').each(function(index,elemento){
     $(elemento).countTo({
@@ -1567,12 +1723,13 @@ $('.conteo.moneda').countTo({
     });
 }
 
+/**
+ * Obtiene los datos e inicializa el gráfico de Cantidad de Pagos por Año
+ */
 function CargarCajonesCantidad(){
-    var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    var parametros={};
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
 $.get(api+"/dashboardsefin/estadisticacantidaddepagos/",parametros).done(function( datos ) {
-    console.dir('cantidad***')
-console.dir(datos);
     $('#CantidadPagosPromedio').attr('data-to',datos.resultados.promedio);
     $('#CantidadPagosPromedio').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadPagosMenor').attr('data-to',datos.resultados.menor);
@@ -1581,15 +1738,7 @@ console.dir(datos);
     $('#CantidadPagosMayor').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadPagosTotal').attr('data-to',datos.resultados.total);
     $('#CantidadPagosTotal').parent().css({'color':ObtenerColores('Pastel1')[1]});
-/*
-    $('.conteo').not('.moneda').countTo({
-        formatter: function (value, options) {
-            value = value.toFixed(options.decimals);
-            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            return value;
-        },
-        from: 0, to: 500
-      });*/
+
       $('.conteo').not('.moneda').each(function(index,elemento){
         $(elemento).countTo({
             formatter: function (value, options) {
@@ -1605,349 +1754,3 @@ console.dir(datos);
       
     });
 }
-
-
-function ObtenerFiltros(){
-    
-    var parametros=ObtenerJsonFiltrosAplicados({});
-    $.get(api+"/dashboardsefin/filtros/",parametros).done(function( datos ) {
-        console.dir('FILTROS')
-        console.dir(datos)
-/*
-        if(datos.respuesta.pagos){
-            datos.respuesta['años']=datos.respuesta.pagos['años'];
-            datos.respuesta['monedas']=datos.respuesta.pagos['monedas'];
-            datos.respuesta['proveedores']=datos.respuesta.pagos['proveedores'];
-            delete datos.respuesta.pagos;
-            delete datos.respuesta.objetosGasto;
-            //delete datos.respuesta.instituciones;
-            //delete datos.respuesta.fuentes;
-
-        }*/
-        if(datos.respuesta.objetosGasto){
-            delete datos.respuesta.objetosGasto;
-        }
-      
-       
-  
-    MostrarListaElastica(datos,'#elastic-list');
-    MostrarEtiquetaListaElasticaAplicada();
-    MostrarListaElasticaAplicados();
- // }
-  
-  
-      
-        
-      }).fail(function() {
-          
-          
-        });
-
-}
-
-
-
-
-function ObtenerJsonFiltrosAplicados(parametros){
-    if(Validar(ObtenerValor('moneda'))){
-        parametros['moneda']=decodeURIComponent(ObtenerValor('moneda'));
-    }
-    if(Validar(ObtenerValor('institucion'))){
-    parametros['institucion']=decodeURIComponent(ObtenerValor('institucion'));
-    }
-    if(Validar(ObtenerValor('año'))){
-      parametros['año']=decodeURIComponent(ObtenerValor('año'));
-    }
-    if(Validar(ObtenerValor('proveedor'))){
-        parametros['proveedor']=decodeURIComponent(ObtenerValor('proveedor'));
-    }
-    if(Validar(ObtenerValor('fuentefinanciamiento'))){
-      parametros['fuentefinanciamiento']=decodeURIComponent(ObtenerValor('fuentefinanciamiento'));
-    }
-    if(Validar(ObtenerValor('objetosgasto'))){
-        parametros['objetosgasto']=decodeURIComponent(ObtenerValor('objetosgasto'));
-    }
-    if(Validar(ObtenerValor('masinstituciones'))){
-        parametros['masinstituciones']=decodeURIComponent(ObtenerValor('masinstituciones'));
-    }
-    if(Validar(ObtenerValor('masproveedores'))){
-        parametros['masproveedores']=decodeURIComponent(ObtenerValor('masproveedores'));
-    }
-
-    return parametros;
-  }
-
-  function AccederUrlPagina(opciones,desUrl){
-    var direccion=('/tableroProcesosPago/?'+
-    (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
-    (ValidarCadena(opciones.institucion)? '&institucion='+encodeURIComponent(opciones.institucion): (ValidarCadena(ObtenerValor('institucion'))&&!desUrl?'&institucion='+ObtenerValor('institucion'):''))+
-   
-    (ValidarCadena(opciones.año)? '&año='+encodeURIComponent(opciones.año): (ValidarCadena(ObtenerValor('año'))&&!desUrl?'&año='+ObtenerValor('año'):''))+
-    (ValidarCadena(opciones.proveedor)? '&proveedor='+encodeURIComponent(opciones.proveedor): (ValidarCadena(ObtenerValor('proveedor'))&&!desUrl?'&proveedor='+ObtenerValor('proveedor'):''))+
-    (ValidarCadena(opciones.fuentefinanciamiento)? '&fuentefinanciamiento='+encodeURIComponent(opciones.fuentefinanciamiento): (ValidarCadena(ObtenerValor('fuentefinanciamiento'))&&!desUrl?'&fuentefinanciamiento='+ObtenerValor('fuentefinanciamiento'):''))+
-    (ValidarCadena(opciones.objetosgasto) ? '&objetosgasto='+encodeURIComponent(opciones.objetosgasto):(ValidarCadena(ObtenerValor('objetosgasto'))&&!desUrl?'&objetosgasto='+ObtenerValor('objetosgasto'):''))+
-    (ValidarCadena(opciones.masproveedores) ? '&masproveedores='+encodeURIComponent(opciones.masproveedores):(ValidarCadena(ObtenerValor('masproveedores'))&&!desUrl?'&masproveedores='+ObtenerValor('masproveedores'):''))+
-    (ValidarCadena(opciones.masinstituciones) ? '&masinstituciones='+encodeURIComponent(opciones.masinstituciones):(ValidarCadena(ObtenerValor('masinstituciones'))&&!desUrl?'&masinstituciones='+ObtenerValor('masinstituciones'):''))
-  
-    );
-    return direccion;
-  }
-  function PushDireccionGraficos(direccion){
-    window.history.pushState({}, document.title,direccion);
-    ObtenerFiltros();
-    CargarGraficos();
-  }
-  
-  function MostrarEtiquetasFiltrosAplicados(parametros){
-    delete parametros.masinstituciones;
-    delete parametros.masproveedores;
-    if(!$.isEmptyObject(parametros)){
-      $('#contenedorSinFiltros').hide();
-      $('#contenedorFiltros').show();
-    }else{
-      $('#contenedorFiltros').hide();
-      $('#contenedorSinFiltros').show();
-    }
-    $('#listaFiltrosAplicados,#extencionFiltrosAplicados').html('');
-    $.each(parametros,function(llave,filtro){
-      $('#listaFiltrosAplicados,#extencionFiltrosAplicados').append(
-        $('<div>',{class:'grupoEtiquetaFiltro col-md-12x mb-1x',style:'display:inline-block'}).append(
-          $('<div>',{class:'grupoEtiquetaTitulo mr-1',text:filtrosAplicablesR[llave].titulo +':'}),
-          $('<div>',{class:'filtrosAplicados'}).append(
-            $('<div>',{class:'etiquetaFiltro','llave':llave,'valor':filtro}).append(
-                (traducciones[filtro]?traducciones[filtro].titulo:filtro),
-              '&nbsp;',
-              $('<i>',{class:'fas fa-times'}).on('click',function(e){
-                var filtros=ObtenerJsonFiltrosAplicados({});
-                //$('li.list-group-item.active')
-                /*$.each(filtros,function(cla,val){
-                  filtros[filtrosAplicablesR[$(val).attr('llave')]?filtrosAplicablesR[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-                });*/
-                delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
-
-                PushDireccionGraficos(AccederUrlPagina(filtros,true));
-                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().prev().remove();
-                $('.etiquetaFiltro[llave="'+$(e.currentTarget).parent().attr('llave')+'"]').parent().remove();
-              })
-            )
-          )
-        )
-      );
-    });
-    $('.filtrosContenedoFiltrosBusqueda').attr('style','height:calc(100vh - '+($('#extencionFiltrosAplicados').height()?123:110)+'px - '+($('#extencionFiltrosAplicados').height() + ($('#extencionFiltrosAplicados').height()?4:0))+'px)')
-
-  }
-
-  function MostrarEtiquetaListaElasticaAplicada(){
-  
-    var parametros={
-    };
-    parametros=ObtenerJsonFiltrosAplicados(parametros);
-    MostrarEtiquetasFiltrosAplicados(parametros);
-  }
-
-  function MostrarListaElasticaAplicados(){
-    var filtros={
-    };
-    filtros=ObtenerJsonFiltrosAplicados(filtros);
-    $.each(filtros,function(llave,valor){
-        if(filtrosAplicablesR[llave]){
-            $('ul#ul'+ filtrosAplicablesR[llave].parametro ).find(
-                'li[valor="'+(valor).toString()+'"]'
-                //'li[formato="'+((traducciones[valor]?traducciones[valor].titulo:valor)).toString().toLowerCase()+'"]'
-              ).addClass('active');
-        }
-      
-    });
-  }
-
-  function MostrarListaElastica(datos,selector){
-    $(selector).html('');
-    var arregloFiltros=[];
-    $.each(datos.respuesta,function(llave,valor){
-        arregloFiltros.push({
-            'posicion':ordenFiltros.includes(llave)?ordenFiltros.indexOf(llave):99,
-            'llave':llave,
-            'valor':valor
-        });
-    });
-    arregloFiltros=arregloFiltros.sort(function(a, b){return a.posicion - b.posicion;});
-    $.each(arregloFiltros,function(indice,elemento){
-
-      $(selector).append(
-        $('<div class="list-container col-md-12 2">').append(
-          $('<div class="panel panel-default ">').append(
-            $('<div class="panel-heading">').text(
-              filtrosAplicables[elemento.llave]?filtrosAplicables[elemento.llave].titulo:elemento.llave
-            ),
-            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento.llave]?filtrosAplicables[elemento.llave].titulo:elemento.llave ,filtro:elemento.llave,on:{
-              keyup:function(e){
-                var texto=$(e.currentTarget).val();
-                if (texto.length > 0) {
-                  texto = texto.toLocaleLowerCase();
-                  var regla = " ul#" + 'ul'+elemento.llave + ' li[formato*="' + texto + '"]{display:block;} ';
-                  regla += " ul#" + 'ul'+elemento.llave + ' li:not([formato*="' + texto + '"]){display:none;}';
-                  $('#style'+elemento.llave).html(regla);
-                } else {
-                  $('#style'+elemento.llave).html('');
-                }
-              }
-            }}),
-            $('<style>',{id:'style'+elemento.llave}),
-            $('<ul >',{class:'list-group',id:'ul'+elemento.llave}).append(
-              AgregarPropiedadesListaElastica(elemento.valor,elemento.llave)
-            ),
-            ['instituciones','proveedores'].includes(elemento.llave)&&elemento.valor&&elemento.valor.buckets&&elemento.valor.buckets.length>=50?
-              $('<a>',{
-                class:'enlaceTablaGeneral ptextoColorPrimario pcursorMano',
-                href:'javascript:void(0)',
-                style:'width:150px;padding:5px 15px',
-                text: elemento.valor.buckets.length==50? 'Mostrar Todos...':'Mostrar Menos...',
-                toolTexto:elemento.valor.buckets.length==50?'Mostrar más resultados':'Mostrar menos resultados',
-                toolCursor:'true',
-                llave:elemento.llave,
-                on:{
-                  click:MostrarMasResultados
-                }
-              })
-            :null
-              
-            
-          )
-        )
-      );
-      
-      
-    });
-    AgregarToolTips();
-    
-    
-  }
-function MostrarMasResultados(e){
-    switch($(e.currentTarget).attr('llave')){
-        case 'instituciones':
-                var filtros=ObtenerJsonFiltrosAplicados({});
-                if(filtros.masinstituciones){
-                    delete filtros.masinstituciones;
-                }else{
-                    filtros['masinstituciones']=1;
-                }
-                PushDireccionGraficos(AccederUrlPagina(filtros,true));
-
-            break;
-        case 'proveedores':
-                var filtros=ObtenerJsonFiltrosAplicados({});
-                if(filtros.masproveedores){
-                    delete filtros.masproveedores;
-                }else{
-                    filtros['masproveedores']=1;
-                }
-                PushDireccionGraficos(AccederUrlPagina(filtros,true));
-            break;
-        default:
-            break;
-    }
-}
-
-
-  
-function AgregarPropiedadesListaElastica(valor,llave){
-    var elementos=[]
-    $.each(valor.buckets,function(i,propiedades){
-      //resultadosElastic=AsignarValor(resultadosElastic,llave,,propiedades.doc_count);
-      elementos.push(
-        $('<li >',{
-        class:'list-group-item',
-        valor:propiedades.key_as_string?propiedades.key_as_string:propiedades.key, 
-        formato: (propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)).toString().toLowerCase(),'llave':llave,
-        toolTexto:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key),
-        toolCursor:'true',
-        on:{
-          click:function(e){
-            var filtro=$(e.currentTarget);
-            if(filtro.hasClass('active')){
-              filtro.removeClass('active')
-            }else{
-              filtro.parent().find('.list-group-item.active').removeClass('active');
-              filtro.addClass('active');
-            }
-            /*
-            var filtros={
-            };
-            $('li.list-group-item.active').each(function(cla,val){
-              filtros[filtrosAplicables[$(val).attr('llave')]?filtrosAplicables[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-            });*/
-            $('li.list-group-item').not('.active').remove();
-            $( '.list-group' ).not(':has(li)').append(
-                $('<li >',{
-                    class:'list-group-item animated fadeIn noEncima'
-                }
-                ).append(
-                    $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
-                    $('<div>',{
-                    class:'elastic-data cargandoElementoLista',
-                    text:'Cargando'}
-                    )
-                  )
-            );
-            //PushDireccionGraficos(AccederUrlPagina(filtros,true));
-
-
-
-            var filtros=ObtenerJsonFiltrosAplicados({});
-            if(filtro.hasClass('active')){
-                filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:'']=$(e.currentTarget).attr('valor');
-                console.dir(filtrosAplicables[$(e.currentTarget).attr('llave')])
-                console.dir($(e.currentTarget).attr('valor'));
-                console.dir(JSON.stringify(filtros))
-              }else{
-                delete filtros[filtrosAplicables[$(e.currentTarget).attr('llave')]?filtrosAplicables[$(e.currentTarget).attr('llave')].parametro:''];
-              }
-            PushDireccionGraficos(AccederUrlPagina(filtros,true));
-          }
-        }}).append(
-          $('<div class="badge">').text(/*(Validar(propiedades.pagos)&&Validar(propiedades.pagos.doc_count))?propiedades.pagos&&propiedades.pagos.doc_count:*/ ValorNumerico(propiedades.doc_count)),
-          $('<div >',{
-          class:'elastic-data',
-          
-          text:propiedades.key_as_string?propiedades.key_as_string:(traducciones[propiedades.key]?traducciones[propiedades.key].titulo:propiedades.key)}
-          )
-        )
-      )
-    });
-    return elementos;
-  }
-  
-  function PanelInicialFiltros(selector){
-      $(selector).html('')
-    $.each(ordenFiltros,function(indice,elemento){
-
-        $(selector).append(
-          $('<div class="list-container col-md-12 2 animated fadeIn">').append(
-            $('<div class="panel panel-default ">').append(
-              $('<div class="panel-heading">').text(
-                filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento
-              ),
-              $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento ,filtro:elemento}),
-              //$('<style>',{id:'style'+elemento.llave}),
-              $('<ul >',{class:'list-group',id:'ul'+elemento}).append(
-                $('<li >',{
-                    class:'list-group-item animated fadeIn noEncima'
-                }
-                ).append(
-                    $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
-                    $('<div>',{
-                    class:'elastic-data cargandoElementoLista',
-                    text:'Cargando'}
-                    )
-                  )
-              )
-                
-              
-            )
-          )
-        );
-        
-        
-      });
-  }

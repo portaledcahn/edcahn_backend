@@ -28,6 +28,9 @@ def Proceso(request,ocid=''):
 def Api(request):
     return render(request,'api/api.html')
 
+def ManualApi(request):
+    return render(request,'manualApi/manualApi.html')
+
 def Acerca(request):
     return render(request,'acerca/acerca.html')
 
@@ -307,8 +310,6 @@ def TableroProcesosPago(request):
 def IndicadoresProcesosContratacion(request):
     return render(request,'indicadoresProcesosContratacion/indicadoresProcesosContratacion.html')
 
-def IndicadoresProcesosPago(request):
-    return render(request,'indicadoresProcesosPago/indicadoresProcesosPago.html')
 def pesosContratos(request):
     return render(request,'pesosContratos/pesosContratos.html')
 def pesosContratosEmbed(request):
