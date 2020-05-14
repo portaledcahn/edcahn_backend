@@ -941,146 +941,221 @@ class ProveedoresSEFIN(APIView):
 		memc = request.GET.get('memc', '')
 		fua = request.GET.get('fua', '')
 		cp = request.GET.get('cp', '')
-		anio = request.GET.get('anio','')
 		ordenarPor = request.GET.get('ordenarPor', '')
-		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
+		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
 
-		start = (page-1) * settings.PAGINATE_BY
-		end = start + settings.PAGINATE_BY
-
-		size = 60000
+		start = (page-1) * paginarPor
+		end = start + paginarPor
 
 		cliente = ElasticSearchDefaultConnection()
 
-		s = Search(using=cliente, index='transaction')
+		s = Search(using=cliente, index='supplier')
 
-		filtro = Q()
+		campos = [
+			'id', 
+			'name', 
+			'procesos', 
+			'total_monto_pagado', 
+			'promedio_monto_pagado', 
+			'mayor_monto_pagado', 
+			'menor_monto_pagado', 
+			'fecha_ultimo_proceso'
+		]
+
+		s = s.source(campos)
+
 		filtros = []
 
-		anioActual = str(datetime.date.today().year)
-
-		try:
-			int(anio)
-		except Exception as e:
-			anio = anioActual
-
-		if anio.replace(' ',''):
-			s = s.filter('range', date={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-
 		if nombre.replace(' ',''):
-			filtro = Q("match", payee__name=nombre)
+			filtro = Q("match", name=nombre)
 			filtros.append(filtro)
 
 		if identificacion.replace(' ',''):
 			q_id = '*' + identificacion + '*'
-			filtro = Q("wildcard", payee__id__keyword=q_id)
+			filtro = Q("wildcard", id__keyword=q_id)
 			filtros.append(filtro)
 
-		filtro = Q('bool', must=filtros)
-
-		s.aggs.metric('proveedores', 'filter', filter=filtro)
-		s.aggs['proveedores'].metric('id', 'terms', field='payee.id.keyword', size=size, order={"total_monto_contratado": "desc"})
-		s.aggs['proveedores']['id'].metric('name', 'terms', field='payee.name.keyword', size=size)
-		s.aggs['proveedores']['id'].metric('total_monto_contratado', 'sum', field='value.amount')
-		s.aggs['proveedores']['id'].metric('promedio_monto_contratado', 'avg', field='value.amount')
-		s.aggs['proveedores']['id'].metric('mayor_monto_contratado', 'max', field='value.amount')
-		s.aggs['proveedores']['id'].metric('menor_monto_contratado', 'min', field='value.amount')
-		s.aggs['proveedores']['id'].metric('fecha_ultimo_proceso', 'max', field='date')
-		s.aggs['proveedores']['id'].metric('procesos','cardinality', field='extra.ocid.keyword')
-
-		# s.aggs['proveedores']['id'].metric('truncate', 'top_hits', size=10, sort=[{'_doc': 'desc'}])
-
 		if tmc.replace(' ', ''):
+			validarMonto = getOperator(tmc)
 
-			val = validateNumberParam(tmc)
+			if validarMonto is not None:
+				operador = validarMonto["operador"]
+				valor = validarMonto["valor"]
 
-			if val is not None:
-				q_tmc = 'params.tmc' + val
-			
-				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales_tmc', 
-					'bucket_selector', 
-					buckets_path={"tmc": "total_monto_contratado"}, 
-					script=q_tmc
-				)
+				if operador == "==":
+					filtro = Q('match', total_monto_pagado=valor)
+				elif operador == "<":
+					filtro = Q('range', total_monto_pagado={'lt': valor})
+				elif operador == "<=":
+					filtro = Q('range', total_monto_pagado={'lte': valor})
+				elif operador == ">":
+					filtro = Q('range', total_monto_pagado={'gt': valor})
+				elif operador == ">=":
+					filtro = Q('range', total_monto_pagado={'gte': valor})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
 
 		if pmc.replace(' ', ''):
+			validarMonto = getOperator(pmc)
 
-			val = validateNumberParam(pmc)
+			if validarMonto is not None:
+				operador = validarMonto["operador"]
+				valor = validarMonto["valor"]
 
-			if val is not None:
-				q_pmc = 'params.pmc' + val
-			
-				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales_pmc', 
-					'bucket_selector', 
-					buckets_path={"pmc": "promedio_monto_contratado"}, 
-					script=q_pmc
-				)
+				if operador == "==":
+					filtro = Q('match', promedio_monto_pagado=valor)
+				elif operador == "<":
+					filtro = Q('range', promedio_monto_pagado={'lt': valor})
+				elif operador == "<=":
+					filtro = Q('range', promedio_monto_pagado={'lte': valor})
+				elif operador == ">":
+					filtro = Q('range', promedio_monto_pagado={'gt': valor})
+				elif operador == ">=":
+					filtro = Q('range', promedio_monto_pagado={'gte': valor})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
 
 		if mamc.replace(' ', ''):
+			validarMonto = getOperator(mamc)
 
-			val = validateNumberParam(mamc)
+			if validarMonto is not None:
+				operador = validarMonto["operador"]
+				valor = validarMonto["valor"]
 
-			if val is not None:
-				q_mamc = 'params.mamc' + val
-			
-				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales_mamc', 
-					'bucket_selector', 
-					buckets_path={"mamc": "mayor_monto_contratado"}, 
-					script=q_mamc
-				)
+				if operador == "==":
+					filtro = Q('match', mayor_monto_pagado=valor)
+				elif operador == "<":
+					filtro = Q('range', mayor_monto_pagado={'lt': valor})
+				elif operador == "<=":
+					filtro = Q('range', mayor_monto_pagado={'lte': valor})
+				elif operador == ">":
+					filtro = Q('range', mayor_monto_pagado={'gt': valor})
+				elif operador == ">=":
+					filtro = Q('range', mayor_monto_pagado={'gte': valor})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
 
 		if memc.replace(' ', ''):
+			validarMonto = getOperator(memc)
 
-			val = validateNumberParam(memc)
+			if validarMonto is not None:
+				operador = validarMonto["operador"]
+				valor = validarMonto["valor"]
 
-			if val is not None:
-				q_memc = 'params.memc' + val
-			
-				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales_memc', 
-					'bucket_selector', 
-					buckets_path={"memc": "menor_monto_contratado"}, 
-					script=q_memc
-				)
+				if operador == "==":
+					filtro = Q('match', menor_monto_pagado=valor)
+				elif operador == "<":
+					filtro = Q('range', menor_monto_pagado={'lt': valor})
+				elif operador == "<=":
+					filtro = Q('range', menor_monto_pagado={'lte': valor})
+				elif operador == ">":
+					filtro = Q('range', menor_monto_pagado={'gt': valor})
+				elif operador == ">=":
+					filtro = Q('range', menor_monto_pagado={'gte': valor})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
 
 		if cp.replace(' ', ''):
+			validarMonto = getOperator(cp)
 
-			val = validateNumberParam(cp)
+			if validarMonto is not None:
+				operador = validarMonto["operador"]
+				valor = validarMonto["valor"]
 
-			if val is not None:
-				q_cp = 'params.cp' + val
+				if operador == "==":
+					filtro = Q('match', procesos=valor)
+				elif operador == "<":
+					filtro = Q('range', procesos={'lt': valor})
+				elif operador == "<=":
+					filtro = Q('range', procesos={'lte': valor})
+				elif operador == ">":
+					filtro = Q('range', procesos={'gt': valor})
+				elif operador == ">=":
+					filtro = Q('range', procesos={'gte': valor})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
+
+		if fua.replace(' ', ''):
+			validarFecha = getDateParam(fua)
 			
-				s.aggs['proveedores']['id'].metric(
-					'filtrar_totales_cp', 
-					'bucket_selector', 
-					buckets_path={"cp": "procesos"}, 
-					script=q_cp
-				)
+			if validarFecha is not None:
+				operador = validarFecha["operador"]
+				valor = validarFecha["valor"]
+
+				if operador == "==":
+					filtro = Q('match', fecha_ultimo_proceso=valor)
+				elif operador == "<":
+					filtro = Q('range', fecha_ultimo_proceso={'lt': valor, "format": "yyyy-MM-dd"})
+				elif operador == "<=":
+					filtro = Q('range', fecha_ultimo_proceso={'lte': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">":
+					filtro = Q('range', fecha_ultimo_proceso={'gt': valor, "format": "yyyy-MM-dd"})
+				elif operador == ">=":
+					filtro = Q('range', fecha_ultimo_proceso={'gte': valor, "format": "yyyy-MM-dd"})
+				else:
+					filtro = None
+
+				if filtro is not None:
+					filtros.append(filtro)
+
+		s = s.query('bool', filter=filtros)
+
+		# Ordenar resultados.
+		mappingSort = {
+			"id": "id.keyword",
+			"name": "name.keyword",
+			"procesos": "procesos",
+			"total_monto_pagado": "total_monto_pagado",
+			"promedio_monto_pagado": "promedio_monto_pagado",
+			"mayor_monto_pagado": "mayor_monto_pagado",
+			"menor_monto_pagado": "menor_monto_pagado",
+			"fecha_ultimo_proceso": "fecha_ultimo_proceso",
+		}
+
+		if not ordenarPor:
+			ordenarPor = 'asc(name)'
+
+		#ordenarPor = 'asc(comprador),desc(monto)
+		ordenarES = {}
+		if ordenarPor.replace(' ',''):
+			ordenar = getSortES(ordenarPor)
+
+			for parametro in ordenar:
+				columna = parametro["valor"]
+				orden = parametro["orden"]
+
+				if columna in mappingSort:
+					ordenarES[mappingSort[columna]] = {"order": orden}
+
+		s = s.sort(ordenarES)
 
 		search_results = SearchResults(s)
-
 		results = s[start:end].execute()
+		paginator = Paginator(search_results, paginarPor)
 
-		proveedores = []
+		proveedores =  [hit["_source"] for hit in results.hits.hits]
 
-		ProveedoresSEFIN = results.aggregations.proveedores.id.to_dict()["buckets"]
-
-		for p in ProveedoresSEFIN:
-			proveedor = {}
-			proveedor["id"] = p["key"]
-			proveedor["name"] = p["name"]["buckets"][0]["key"]
-	
-			proveedor["procesos"] = p["procesos"]["value"]
-			proveedor["total_monto_pagado"] = p["total_monto_contratado"]["value"]
-			proveedor["promedio_monto_pagado"] = p["promedio_monto_contratado"]["value"]
-			proveedor["mayor_monto_pagado"] = p["mayor_monto_contratado"]["value"]
-			proveedor["menor_monto_pagado"] = p["menor_monto_contratado"]["value"]
-			proveedor["fecha_ultimo_proceso"] = p["fecha_ultimo_proceso"]["value_as_string"]
-
-			proveedores.append(copy.deepcopy(proveedor))
+		try:
+			posts = paginator.page(page)
+		except PageNotAnInteger:
+			posts = paginator.page(1)
+		except EmptyPage:
+			posts = paginator.page(paginator.num_pages)
 
 		parametros = {}
 		parametros["pagina"] = page
@@ -1092,76 +1167,8 @@ class ProveedoresSEFIN(APIView):
 		parametros["memc"] = memc 
 		parametros["fua"] = fua 
 		parametros["cp"] = cp
-		parametros["anio"] = anio
 		parametros["orderBy"] = ordenarPor
 		parametros["paginarPor"] = paginarPor
-
-		#Ordenamiento
-		#Ejemplo: /proveedores?ordenarPor=asc(total_monto_contratado),desc(promedio_monto_contratado),asc(name)
-	
-		if not ordenarPor:
-			ordenarPor = 'asc(name)'
-
-		dfProveedores = pd.DataFrame(proveedores)
-		ordenar = getSortBy(ordenarPor)
-
-		if not dfProveedores.empty:
-			dfProveedores['fecha_ultimo_proceso'] = pd.to_datetime(dfProveedores['fecha_ultimo_proceso'], errors='coerce')
-			# dfProveedores['name'] = dfProveedores['name'].apply(lambda x : x.strip().replace('"', ''))
-
-		for indice, columna in enumerate(ordenar["columnas"]):
-			if not columna in dfProveedores:
-				ordenar["columnas"].pop(indice)
-				ordenar["ascendentes"].pop(indice)
-
-		if ordenar["columnas"]:
-			dfProveedores = dfProveedores.sort_values(by=ordenar["columnas"], ascending=ordenar["ascendentes"])
-
-		# # Ejemplo: fua==2018-03-02
-		if fua.replace(' ', ''):
-			if len(fua)>1:
-				if fua[0:2] in ['!=', '>=', '<=', '==']:
-					operador = fua[0:2]
-					fecha = fua[2:len(fua)]
-				elif fua[0:1] in ['>', '<']:
-					operador = fua[0:1]
-					fecha = fua[1:len(fua)]
-				else:
-					operador = ''
-					fecha = ''	
-			else:
-				operador = ''
-				fecha = ''
-
-			if operador == "==":
-				mask = (dfProveedores['fecha_ultimo_proceso'].dt.date.astype(str) == fecha) 
-			elif operador == "!=":
-				mask = (dfProveedores['fecha_ultimo_proceso'] != fecha)
-			elif operador == "<":
-				mask = (dfProveedores['fecha_ultimo_proceso'] < fecha)
-			elif operador == "<=":
-				mask = (dfProveedores['fecha_ultimo_proceso'] <= fecha)
-			elif operador == ">":
-				mask = (dfProveedores['fecha_ultimo_proceso'] > fecha)
-			elif operador == ">=":
-				mask = (dfProveedores['fecha_ultimo_proceso'] >= fecha)
-			else:
-				mask = None
-
-			if mask is not None:
-				dfProveedores = dfProveedores.loc[mask]
-
-
-		proveedores = dfProveedores.to_dict('records')
-
-		paginator = Paginator(proveedores, paginarPor)
-
-		try:
-			posts = paginator.page(page)
-		except PageNotAnInteger:
-			posts = paginator.page(1)
-		except EmptyPage:
-			posts = paginator.page(paginator.num_pages)
 
 		pagination = {
 			"has_previous": posts.has_previous(),
@@ -1170,15 +1177,13 @@ class ProveedoresSEFIN(APIView):
 			"page": posts.number,
 			"next_page_number": posts.next_page_number() if posts.has_next() else None,
 			"num_pages": paginator.num_pages,
-			"total.items": len(proveedores)
+			"total.items": results.hits.total
 		}
 
 		context = {
-			# "response": ProveedoresSEFIN
 			"paginador": pagination,
 			"parametros": parametros,
-			"resultados": posts.object_list,
-			# "elastic": results.aggregations.proveedores.to_dict(),
+			"resultados": proveedores
 		}
 
 		return Response(context)
