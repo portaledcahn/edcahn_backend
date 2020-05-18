@@ -92,8 +92,8 @@ function ModalidadMontoCantidad(){
     parametros=ObtenerJsonFiltrosAplicados(parametros)
     MostrarReloj('#modalidadMontoCantidad',true)
     $.get(api+"/indicadoresoncae/contratospormodalidad/",parametros).done(function( datos ) {
-    console.dir('PROCESOS POR MODALIDAD DE COMPRA');
-    console.dir(datos);
+
+        
     OcultarReloj('#modalidadMontoCantidad');
     if(datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadContratos)  && datos.resultados.cantidadContratos.length==0){
         MostrarSinDatos('#modalidadMontoCantidad',true)
@@ -426,8 +426,8 @@ function CantidadContratosTipoContrato(){
     parametros=ObtenerJsonFiltrosAplicados(parametros)
     MostrarReloj('#CantidadContratosTipoContrato',true)
 $.get(api+"/indicadoresoncae/cantidadcontratosporcategoria/",parametros).done(function( datos ) {
-console.dir('CANTIDAD CONTRATOS POR TIPO CONTRATO');
-console.dir(datos);
+
+    
 OcultarReloj('#CantidadContratosTipoContrato',true)
 var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
@@ -580,8 +580,8 @@ function MontoContratosTipoContrato(){
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#MontoContratosTipoContrato',true);
 $.get(api+"/indicadoresoncae/montoporcategoria/",parametros).done(function( datos ) {
-console.dir('MONTOS POR TIPO CONTRATO');
-console.dir(datos);
+
+    
 OcultarReloj('#MontoContratosTipoContrato',true);
 var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
@@ -740,8 +740,8 @@ function Top10InstitucionesMontos(){
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#top10InstitucionesMontos',true);
 $.get(api+"/indicadoresoncae/topcompradores/",parametros).done(function( datos ) {
-console.dir('TOP COMPRADORES');
-console.dir(datos);
+
+    
 OcultarReloj('#top10InstitucionesMontos',true);
 
 if(datos&&datos.resultados&&Array.isArray(datos.resultados.montoContratado)  && datos.resultados.montoContratado.length==0){
@@ -1032,8 +1032,6 @@ function MontoCatalogoElectronico(){
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#montoCatalogoElectronico',true);
 $.get(api+"/indicadoresoncae/catalogos/",parametros).done(function( datos ) {
-console.dir('MONTO CATALOGO ELECTRONICO');
-console.dir(datos);
 OcultarReloj('#montoCatalogoElectronico',true);
 if(datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadProcesos)  && datos.resultados.cantidadProcesos.length==0){
     MostrarSinDatos('#montoCatalogoElectronico',true)
@@ -1322,7 +1320,7 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
 
 
 /**
- * Obtiene los datos e inicializa el gráfico de Top 10 Compradores por Monto Contratado
+ * Obtiene los filtros e inicializa los graficos
  */
 $(function(){
     $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
@@ -1340,6 +1338,10 @@ $(function(){
         PushDireccionGraficos(AccederUrlPagina({},true));
       });
 })
+
+window.onpopstate = function(e){
+    location.reload();
+  }
 
 /**
  * Ejecuta la carga de todos los gráficos
@@ -1401,16 +1403,10 @@ function ObtenerJsonFiltrosAplicados(parametros){
 function ObtenerFiltros(){
     var parametros=ObtenerJsonFiltrosAplicados({});
     $.get(api+"/dashboardoncae/filtros/",parametros).done(function( datos ) {
-
-    console.dir('filtros')
-    console.dir(datos);
-      
-       
   
     MostrarListaElastica(datos,'#elastic-list');
     MostrarEtiquetaListaElasticaAplicada();
     MostrarListaElasticaAplicados();
- // }
   
   
       
@@ -1480,10 +1476,6 @@ function AccederUrlPagina(opciones,desUrl){
               '&nbsp;',
               $('<i>',{class:'fas fa-times'}).on('click',function(e){
                 var filtros=ObtenerJsonFiltrosAplicados({});
-                //$('li.list-group-item.active')
-                /*$.each(filtros,function(cla,val){
-                  filtros[filtrosAplicablesR[$(val).attr('llave')]?filtrosAplicablesR[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-                });*/
                 delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
 
                 PushDireccionGraficos(AccederUrlPagina(filtros,true));
@@ -1511,6 +1503,9 @@ function AccederUrlPagina(opciones,desUrl){
     MostrarEtiquetasFiltrosAplicados(parametros);
   }
 
+/**
+ * Muestra la Seleccion aplicada en la lista de filtros.
+ */
   function MostrarListaElasticaAplicados(){
     var filtros={
     };
@@ -1727,8 +1722,8 @@ function MontoCompraConjunta(){
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#montoCompraConjunta',true);
 $.get(api+"/indicadoresoncae/comprasconjuntas/",parametros).done(function( datos ) {
-console.dir('MONTO COMPRA CONJUNTA');
-console.dir(datos);
+
+    
 OcultarReloj('#montoCompraConjunta',true);
 if(datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadProcesos)  && datos.resultados.cantidadProcesos.length==0){
     MostrarSinDatos('#montoCompraConjunta',true)

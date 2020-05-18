@@ -3,6 +3,11 @@
  * @author Bryant Marcelo Pérez
  * @see <a href="https://github.com/portaledcahn/edcahn_backend/tree/frontend">GitHub</a>
  */
+
+/**
+ * Variable de filtros aplicables con su  titulo y parametro
+ * @type {Object} 
+ */
 var filtrosAplicables={
     monedas: {titulo:'Moneda',parametro:'moneda'},
     instituciones: {titulo:'Institución Compradora',parametro:'idinstitucion'},
@@ -13,6 +18,11 @@ var filtrosAplicables={
     sistemas :{titulo:'Sistema de Origen', parametro: 'sistema'}
     
   };
+
+/**
+ * Variable de filtros aplicables con su  titulo y parametro con su parametro como llave
+ * @type {Object} 
+ */
   var filtrosAplicablesR={
     moneda: {titulo:'Moneda',parametro:'monedas'},
     idinstitucion: {titulo:'Institución Compradora',parametro:'instituciones'},
@@ -23,7 +33,17 @@ var filtrosAplicables={
     sistema: {titulo:'Sistema de Origen', parametro:'sistemas'}
     
   };
+
+/**
+ * Arreglo para definir el orden en el que se presentan los filtros
+ * @type {string[]} 
+ */
   var ordenFiltros=['años','monedas','instituciones','categorias','modalidades','sistemas'];
+
+  /**
+ * Objeto para obtener traducciones e informacion de algunos códigos el OCDS
+ * @type {Object} 
+ */
   var traducciones={
     'goods':{titulo: 'Suministro de Bienes y/o Servicios'/*'Bienes y provisiones'*/,descripcion:'El proceso de contrataciones involucra bienes o suministros físicos o electrónicos.'},
     'works':{titulo:'Obras',descripcion:'El proceso de contratación involucra construcción reparación, rehabilitación, demolición, restauración o mantenimiento de algún bien o infraestructura.'},
@@ -42,19 +62,13 @@ var filtrosAplicables={
   window.onpopstate = function(e){
     location.reload();
   }
-
+/**
+ * Obtiene los filtros e inicializa los graficos
+ */
   $(function(){
     $('.botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda').on('click',function(e){
         $('.contenedorFiltrosBusqueda').toggle('slide');
-        /*
-        if($('.contenedorFiltrosBusqueda').hasClass('cerrado')){
-          $('.contenedorFiltrosBusqueda').removeClass('cerrado');
-          //$('.contenedorFiltrosBusqueda').show('slide', {direction: 'right'}, 1000);
-          
-        }else{
-          $('.contenedorFiltrosBusqueda').addClass('cerrado');
-          //$('.contenedorFiltrosBusqueda').hide('slide', {direction: 'left'}, 1000);
-        }*/
+     
       });
       $( window ).resize(function() {
        if($(window).width()>767){
@@ -69,8 +83,11 @@ var filtrosAplicables={
         PushDireccionGraficos(AccederUrlPagina({},true));
       });
 
-    //VerificarIntroduccion('INTROJS_BUSQUEDA',1);
-})
+});
+
+/**
+ * Ejecuta la carga de todos los gráficos
+ */
 function CargarGraficos(){
     $('.contenedorGrafico > .grafico').each(function(i,elemento){
         if(echarts.getInstanceByDom(elemento)){
@@ -94,22 +111,16 @@ function CargarGraficos(){
     InicializarConteo();
     
 }
-
+/**
+ * Obtiene los datos de los filtros a mostrar
+ */
 function ObtenerFiltros(){
     var parametros=ObtenerJsonFiltrosAplicados({});
     $.get(api+"/dashboardoncae/filtros/",parametros).done(function( datos ) {
 
-        console.dir('filtros')
-    console.dir(datos);
-      
-       
-  
     MostrarListaElastica(datos,'#elastic-list');
     MostrarEtiquetaListaElasticaAplicada();
     MostrarListaElasticaAplicados();
- // }
-  
-  
       
         
       }).fail(function() {
@@ -121,7 +132,9 @@ function ObtenerFiltros(){
 
 
 
-
+/**
+ * Obtiene un Json con los filtros aplicados según la url, recibe un json inicial por si se quiere setear el valor de algun grafico que no este todavía en la url
+ */
 function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor('moneda'))){
         parametros['moneda']=decodeURIComponent(ObtenerValor('moneda'));
@@ -155,6 +168,12 @@ function ObtenerJsonFiltrosAplicados(parametros){
     return parametros;
   }
 
+/**
+ * Obtiene los datos de los filtros a mostrar
+ * @param {Object} opciones - objeto de filtros aplicados
+ * @param {boolean} desUrl - descartar parametro de la url en caso de que este y no se haya recibido un json de opciones
+ * @return {string}
+ */
   function AccederUrlPagina(opciones,desUrl){
     var direccion=('/tableroProcesosContratacion/?'+
     (ValidarCadena(opciones.moneda)? '&moneda='+encodeURIComponent(opciones.moneda): (ValidarCadena(ObtenerValor('moneda'))&&!desUrl?'&moneda='+ObtenerValor('moneda'):''))+
@@ -171,12 +190,19 @@ function ObtenerJsonFiltrosAplicados(parametros){
     );
     return direccion;
   }
+/**
+ * Agrega la dirección al historial de búsqueda del navegador
+ */
   function PushDireccionGraficos(direccion){
     window.history.pushState({}, document.title,direccion);
     ObtenerFiltros();
     CargarGraficos();
   }
   
+/**
+  * Muestra las etiquetas con los filtros aplicados
+  * @param {Object} parametros 
+  */
   function MostrarEtiquetasFiltrosAplicados(parametros){
     delete parametros.masinstituciones;
     delete parametros.masproveedores;
@@ -198,10 +224,6 @@ function ObtenerJsonFiltrosAplicados(parametros){
               '&nbsp;',
               $('<i>',{class:'fas fa-times'}).on('click',function(e){
                 var filtros=ObtenerJsonFiltrosAplicados({});
-                //$('li.list-group-item.active')
-                /*$.each(filtros,function(cla,val){
-                  filtros[filtrosAplicablesR[$(val).attr('llave')]?filtrosAplicablesR[$(val).attr('llave')].parametro:'' ]=$(val).attr('valor');
-                });*/
                 delete filtros[filtrosAplicablesR[$(e.currentTarget).parent().attr('llave')]?$(e.currentTarget).parent().attr('llave'):''];
                 
                 PushDireccionGraficos(AccederUrlPagina(filtros,true));
@@ -217,6 +239,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
 
   }
 
+/**
+   * Envia un Json cono los parametros de los filtros aplicados a la función que muestra las etiquetas de filtros aplicados
+   */
   function MostrarEtiquetaListaElasticaAplicada(){
   
     var parametros={
@@ -225,6 +250,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
     MostrarEtiquetasFiltrosAplicados(parametros);
   }
 
+  /**
+   * Muestra la Seleccion aplicada en la lista de filtros.
+   */
   function MostrarListaElasticaAplicados(){
     var filtros={
     };
@@ -236,6 +264,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
     });
   }
 
+  /**
+   * Muestra el contenido de los filtros aplicados, las opciones de selección
+   */
   function MostrarListaElastica(datos,selector){
     $(selector).html('');
     $.each(datos.respuesta,function(llave,valor){
@@ -288,7 +319,10 @@ function ObtenerJsonFiltrosAplicados(parametros){
     
     
   }
-
+/**
+ * Ejecuta la acción al ahcer click en eun botón
+ * @param {Object} e - evento de un click
+ */
   function MostrarMasResultados(e){
     switch($(e.currentTarget).attr('llave')){
         case 'instituciones':
@@ -315,6 +349,10 @@ function ObtenerJsonFiltrosAplicados(parametros){
     }
 }
 
+/**
+ * Devuelve información de un filtro como ser que valor usar para mostrar la cantidad en el badge y que valor usar a la hora de que sea seleccionado
+ * @param {string} llave - llave de un filtro 
+ */
 function ValoresLlaves(llave){
     switch(llave){
         case 'años':
@@ -333,11 +371,16 @@ function ValoresLlaves(llave){
             return {valor:'key_as_string',cantidad:'procesos',codigo:'key_as_string'};
     }
 }
+
+/**
+ * Agrega los elementos que pueden ser seleccionados en un categoría
+ * @param {Object[]} valor - arreglo de valores seleccionables en un filtro
+ * @param {string} llave - llave de un filtro 
+ */
 function AgregarPropiedadesListaElastica(valor,llave){
     var elementos=[]
     $.each(valor,function(i,propiedades){
-      //resultadosElastic=AsignarValor(resultadosElastic,llave,,propiedades.doc_count);
-      elementos.push(
+       elementos.push(
         $('<li >',{
         class:'list-group-item',
         valor:propiedades[ValoresLlaves(llave).codigo]?propiedades[ValoresLlaves(llave).codigo]:propiedades.key, 
@@ -396,14 +439,65 @@ function AgregarPropiedadesListaElastica(valor,llave){
     });
     return elementos;
   }
-  
+
+/**
+ * Agrega los elementos que pueden ser seleccionados en un categoría
+ * @param {Object[]} valor - arreglo de valores seleccionables en un filtro
+ * @param {string} llave - llave de un filtro 
+ */
+function PanelInicialFiltros(selector){
+    $(selector).html('')
+  $.each(ordenFiltros,function(indice,elemento){
+
+      $(selector).append(
+        $('<div class="list-container col-md-12 2 animated fadeIn">').append(
+          $('<div class="panel panel-default ">').append(
+            $('<div class="panel-heading">').text(
+              filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento
+            ),
+            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento ,filtro:elemento/*,on:{
+              keyup:function(e){
+                var texto=$(e.currentTarget).val();
+                if (texto.length > 0) {
+                  texto = texto.toLocaleLowerCase();
+                  var regla = " ul#" + 'ul'+elemento.llave + ' li[formato*="' + texto + '"]{display:block;} ';
+                  regla += " ul#" + 'ul'+elemento.llave + ' li:not([formato*="' + texto + '"]){display:none;}';
+                  $('#style'+elemento.llave).html(regla);
+                } else {
+                  $('#style'+elemento.llave).html('');
+                }
+              }
+            }*/}),
+            $('<ul >',{class:'list-group',id:'ul'+elemento}).append(
+              $('<li >',{
+                  class:'list-group-item animated fadeIn noEncima'
+              }
+              ).append(
+                  $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
+                  $('<div>',{
+                  class:'elastic-data cargandoElementoLista',
+                  text:'Cargando'}
+                  )
+                )
+            )
+              
+            
+          )
+        )
+      );
+      
+      
+    });
+}
+
+/**
+ * Obtiene los datos e inicializa el gráfico de Cantidad y Porcentaje de Procesos de Contratación Iniciados con Relación al Total por Mes
+ */
 function InicializarCantidadProcesos(){
     var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#cantidadProcesos',true);
     $.get(api+"/dashboardoncae/cantidaddeprocesos/",parametros).done(function( datos ) {
-        console.dir('CANTIDAD')
-        console.dir(datos)
     OcultarReloj('#cantidadProcesos');
     if((datos&&datos.resultados&&Array.isArray(datos.resultados.cantidadprocesos)  && datos.resultados.cantidadprocesos.length==0)||datos.resultados.cantidadprocesos.map(function(e){return ObtenerNumero(e);}).reduce(function(a, b){return a + b;}, 0)==0){
         MostrarSinDatos('#cantidadProcesos',true);
@@ -423,9 +517,6 @@ function InicializarCantidadProcesos(){
                 }
             },
             formatter:  function (e){
-
-
-                
                 var cadena=e[0].name+'<br>';
 
                 e.forEach(function(valor,indice){
@@ -440,12 +531,6 @@ function InicializarCantidadProcesos(){
         position:'bottom',
         bottom:0,
         right:'center'
-        /*right: 10,
-        top: 20,
-        bottom: 20*//*,
-        data: ['lengend data 1','lengend data 2','lengend data 3'],
-
-        selected: [false,false,true]*/
     },
     toolbox: {
         orient:'horizontal',
@@ -488,8 +573,6 @@ function InicializarCantidadProcesos(){
                 type: 'value',
                 name: 'Cantidad',
                 min: 0,
-                /*max: 250,*/
-              //  interval: 50,
                 axisLabel: {
                     formatter: '{value}'
                 },
@@ -502,12 +585,9 @@ function InicializarCantidadProcesos(){
             },
             {
                 type: 'value',
-                //name: 'Cantidad de Pagos en Porcentaje',
                 min: 0,
-                max: 100,/*
-                interval: 5,*/
+                max: 100,
                 axisLabel: {
-                    //formatter: '{value} %'
                     show:false
                 },
                 position:'right',
@@ -540,15 +620,13 @@ function InicializarCantidadProcesos(){
             {
                 name:'Porcentaje de la Cantidad de Procesos de Contratación en Relación a los Demás Meses',
                 type:'line',
-                //yAxisIndex: 1,
                 data:datos.resultados.promedioprocesos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
                 symbol: 'circle',
                 symbolSize: 10,
                 lineStyle: {
                     normal: {
                         color: ObtenerColores('Pastel1')[9],
-                        width: 4/*,
-                        type: 'dashed'*/
+                        width: 4
                     }
                 },
                 itemStyle:{
@@ -568,13 +646,12 @@ function InicializarCantidadProcesos(){
         grid:{
             containLabel:true
         }},
-        media: [ // each rule of media query is defined here
+        media: [ 
             {
                 query: {
-                    //minWidth: 200,
                     maxWidth: 700
-                },   // write rule here
-                option: {       // write options accordingly
+                },   
+                option: {       
                     series: [
                         {
                             name:'Cantidad de Procesos de Contratación',
@@ -587,15 +664,13 @@ function InicializarCantidadProcesos(){
                         {
                             name:'Porcentaje de la Cantidad de Procesos de\nContratación en Relación a los Demás Meses',
                             type:'line',
-                            //yAxisIndex: 1,
                             data:datos.resultados.promedioprocesos.map(function(e){return ObtenerNumero((ObtenerNumero(e)*100).toFixed(2))}),
                             symbol: 'circle',
                             symbolSize: 10,
                             lineStyle: {
                                 normal: {
                                     color: ObtenerColores('Pastel1')[9],
-                                    width: 4/*,
-                                    type: 'dashed'*/
+                                    width: 4
                                 }
                             },
                             itemStyle:{
@@ -625,15 +700,15 @@ function InicializarCantidadProcesos(){
     
 }
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Monto de Contratos por Mes
+ */
 function InicializarMontoProcesos(){
-    //app.title = '折柱混合';
     var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#montoProcesos',true);
     $.get(api+"/dashboardoncae/montosdecontratos/",parametros).done(function( datos ) {
-        console.dir('Monto Procesos');
-        console.dir(datos);
+       
         OcultarReloj('#montoProcesos');
         if((datos&&datos.resultados&&Array.isArray(datos.resultados.monto_contratos_mes)  && datos.resultados.monto_contratos_mes.length==0)||datos.resultados.monto_contratos_mes.map(function(e){return ObtenerNumero(e);}).reduce(function(a, b){return a + b;}, 0)==0){
             MostrarSinDatos('#montoProcesos',true);
@@ -656,9 +731,8 @@ function InicializarMontoProcesos(){
                 e.forEach(function(valor,indice){
                     cadena=cadena+' '+valor.marker+' '+valor.seriesName+' '+(valor.seriesIndex==0?valor.value:ValorMoneda(valor.value)) +' '+(valor.seriesIndex==0?'%':'HNL')+'<br>'
                 });
-                return cadena;/*
-                    return "{b0}<br>{a0} {s0} {c0} % <br>{a1} {s1} {c1} HNL".replace('{c0}',ValorMoneda(e[0].value) ).replace('{c1}',ValorMoneda(e[1].value) ).replace('{a0}',e[0].marker).replace('{a1}',e[1].marker).replace('{b0}',e[0].name).replace('{b1}',e[1].name).replace('{s0}',e[0].seriesName).replace('{s1}',e[1].seriesName);*/
-                }
+                return cadena;
+            }
             },
             legend: {
                 plain: 'scroll',
@@ -666,12 +740,6 @@ function InicializarMontoProcesos(){
                 position:'bottom',
                 bottom:0,
                 right:'center'
-                /*right: 10,
-                top: 20,
-                bottom: 20*//*,
-                data: ['lengend data 1','lengend data 2','lengend data 3'],
-        
-                selected: [false,false,true]*/
             },
             grid:{
                 containLabel:true
@@ -693,10 +761,7 @@ function InicializarMontoProcesos(){
                         textPosition:'top'
                     }
                 }
-            },/*
-            legend: {
-                data:['蒸发量1','降水量','平均温度3']
-            },*/
+            },
             xAxis: [
                 {
                     type: 'category',
@@ -716,12 +781,9 @@ function InicializarMontoProcesos(){
                 
                 {
                     type: 'value',
-                    //name: '',
                     min: 0,
-                    max: 100,/*
-                    interval: 5,*/
+                    max: 100,
                     axisLabel: {
-                        //formatter: '{value} %'
                         show:false
                     },
                     position:'right',
@@ -738,8 +800,6 @@ function InicializarMontoProcesos(){
                     type: 'value',
                     name: 'Monto',
                     min: 0,
-                   /* max: 250,*/
-                  //  interval: 10000000,
                     axisLabel: {
                         formatter: '{value} HNL'
                     },
@@ -769,15 +829,6 @@ function InicializarMontoProcesos(){
                     itemStyle:{
                         color: ObtenerColores('Pastel1')[9]
                     }
-                    /*,
-                    
-                label:{
-                    show:true,
-                    color:'grey',
-                    formatter:function (e){
-                        return ValorMoneda(e.value)  +' %'
-                    }
-                }*/
                 
                 },{
                     name:'Monto de Procesos de Contratación',
@@ -863,20 +914,20 @@ function InicializarMontoProcesos(){
 
 
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Cantidad de Procesos de Contratación por Etapas
+ */
 function CantidadProcesosEtapas(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#CantidadProcesosEtapas',true)
     $.get(api+"/dashboardoncae/procesosporetapa/",parametros).done(function( datos ) {
-    console.dir('PROCESOS POR ETAPA');
-    console.dir(datos);
+        
     OcultarReloj('#CantidadProcesosEtapas');
     if(datos&&datos.resultados&&Array.isArray(datos.resultados.procesos)  && datos.resultados.procesos.length==0){
         MostrarSinDatos('#CantidadProcesosEtapas',true);
         return;
     }
-        //app.title = '折柱混合';
         var grafico=echarts.init(document.getElementById('CantidadProcesosEtapas'));
         var opciones = {
             baseOption:{
@@ -906,10 +957,7 @@ function CantidadProcesosEtapas(){
                         textPosition:'top'
                     }
                 }
-            },/*
-            legend: {
-                data:['蒸发量1','降水量','平均温度3']
-            },*/
+            },
             xAxis: [
                 {
                     type: 'category',
@@ -928,23 +976,11 @@ function CantidadProcesosEtapas(){
                 {
                     type: 'value',
                     name: 'Cantidad',
-                    min: 0,/*
-                    max: 250,
-                    interval: 50,*/
+                    min: 0,
                     axisLabel: {
                         formatter: '{value}'
                     }
-                }/*,
-                {
-                    type: 'value',
-                    name: 'Cantidad de Pagos Promedio',
-                    min: 0,
-                    max: 25,
-                    interval: 5,
-                    axisLabel: {
-                        formatter: '{value} HNL'
-                    }
-                }*/
+                }
             ],
             series: [
                 {
@@ -958,7 +994,7 @@ function CantidadProcesosEtapas(){
                     label:{
                         show:true,
                         formatter:function (e){
-                            return ValorNumerico(e.value)  +''
+                            return ValorNumerico(e.value)  
                         },
                         fontFamily:'Poppins',
                         fontWeight:700,
@@ -994,17 +1030,17 @@ function CantidadProcesosEtapas(){
     
 }
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Tiempo Promedio por Etapas de Procesos de Contratación
+ */
 function TiempoPromedioEtapas(){
-    var parametros={}
+    var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#tiempoPromedioEtapas',true);
     $.get(api+"/dashboardoncae/tiemposporetapa/",parametros).done(function( datos ) {
     OcultarReloj('#tiempoPromedioEtapas');
     
-    console.dir('TIEMPOS POR ETAPA');
-    console.dir(datos);
-    var resultados=[]
+    var resultados=[];
     if(datos&&datos.resultados){
         $.each(datos.resultados,function(tipocontrato,modalidad){
             $.each(modalidad,function(llave,valor){
@@ -1048,31 +1084,15 @@ function TiempoPromedioEtapas(){
         );
     });
 
-
-    /*
-    {
-            name: '直接访问',
-            type: 'bar',
-            stack: '总量',
-            label: {
-                show: true,
-                position: 'insideRight'
-            },
-            data: [320, 302, 301, 334, 390, 330, 320]
-        },
-    */
     var grafico=echarts.init(document.getElementById('tiempoPromedioEtapas'));
     var opciones ={
         baseOption:{
             tooltip : {
                 trigger: 'axis',
                 axisPointer : {           
-                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                    type : 'shadow'    
                 }
-            },/*
-            legend: {
-                data: ['Precompromiso','Compromiso','Devengado','Transacciones']
-            },*/
+            },
             grid: {
                 left: '3%',
                 right: '4%',
@@ -1080,31 +1100,9 @@ function TiempoPromedioEtapas(){
                 containLabel: true
             },
             legend: {
-                /*plain: 'scroll',
-                orient: 'horizontal',
-                position:'bottom',*/
-                //data: ['Periodo de invitación – recepción de ofertas', 'Periodo de Evaluación – Adjudicación - Contratación']
-                /*
-                formatter:function(e){
-                    valores={
-                        'Período de Licitación':Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion)),
-                        'Período de Inicio Contrato':Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))
-
-                    }
-                    return e+', '+valores[e]+' Días';
-                }*/
-                /*right: 10,
-                top: 20,
-                bottom: 20*//*,
-                data: ['lengend data 1','lengend data 2','lengend data 3'],
-        
-                selected: [false,false,true]*/
             },
             xAxis:  {
                 type: 'value',
-               /* min: 0,
-                max: 810,
-                interval: 100,*/
                 axisLabel: {
                     formatter: '{value} Días'
                 }
@@ -1192,58 +1190,11 @@ function TiempoPromedioEtapas(){
                 fontFamily:'Poppins',
                 fontWeight:600,
                 fontSize:13,
-                //align:'right',
                 formatter: function (e){
                     return "{c} Días".replace('{c}',e.value);
                 }
             }
-        }/*,
-        media:[
-            {
-                query:{
-                    maxWidth:600
-                },
-                option:{
-                    series: [
-                        {
-                            name: 'Licitación',
-                            type: 'bar',
-                            stack: 'Tiempo',
-                            label: {
-                                normal: {
-                                    show: false,
-                                    position:'insideRight'
-                                }
-                            },
-                            data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasLicitacion))],
-                            itemStyle:{
-                                color: ObtenerColores('Pastel1')[3]
-                            }
-            
-                            
-                        },
-                        {
-                            name: 'Contrato',
-                            type: 'bar',
-                            stack: 'Tiempo',
-                            label: {
-                                normal: {
-                                    show: false,
-                                    position: 'insideRight'
-                                }
-                            },
-                            data: [Math.round( ObtenerNumero(datos.resultados.promedioDiasIniciarContrato))],
-                            itemStyle:{
-                                color: ObtenerColores('Pastel1')[1]
-                            }
-                        }
-                    ],
-                    tooltip: {
-                        position:['0%','50%']
-                    }
-                }
-            }
-        ]*/
+        }
         
     };
     grafico.setOption(opciones, true);
@@ -1258,13 +1209,16 @@ function TiempoPromedioEtapas(){
     
 }
 
+/**
+ * Obtiene los datos e inicializa el gráfico de Cantidad de Procesos de Contratación por Tipo de Contrato
+ */
 function CantidadProcesosTipoContrato(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#CantidadProcesosTipoContrato',true);
 $.get(api+"/dashboardoncae/procesosporcategoria/",parametros).done(function( datos ) {
-console.dir('PROCESOS POR CATEGORIA DE COMPRA');
-console.dir(datos)
+
+    
 OcultarReloj('#CantidadProcesosTipoContrato');
 var datosPastel=[];
 datos.resultados.categorias.forEach(function(valor,indice){
@@ -1290,7 +1244,7 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosTipoContrato')
     
                     var cadena=valor.name+'<br>';
                    
-                    cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorNumerico(valor.value)+' '+'Procesos'+' ('+valor.percent+'%)'+'<br>';
+                    cadena=cadena+' '+valor.marker+' '+ValorNumerico(valor.value)+' '+'Procesos'+' ('+valor.percent+'%)'+'<br>';
                     return cadena;
                 }
             },
@@ -1358,13 +1312,16 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosTipoContrato')
     
 }
 
+/**
+ * Obtiene los datos e inicializa el gráfico de Monto de Contratos por Tipo de Contrato
+ */
 function MontoProcesosTipoContrato(){
     var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#MontoProcesosTipoContrato',true);
     $.get(api+"/dashboardoncae/contratosporcategoria/",parametros).done(function( datos ) {
-    console.dir('CONTRATOS POR CATEGORIA DE COMPRA')
-    console.dir(datos)
+    
+        
     OcultarReloj('#MontoProcesosTipoContrato');
     var datosPastel=[];
     datos.resultados.categorias.forEach(function(valor,indice){
@@ -1381,11 +1338,7 @@ function MontoProcesosTipoContrato(){
     }
     var grafico=echarts.init(document.getElementById('MontoProcesosTipoContrato'));
     var opciones = {
-        /*title : {
-            text: '同名数量统计',
-            subtext: '纯属虚构',
-            x:'center'
-        },*/
+        
 
         baseOption:{
             tooltip : {
@@ -1395,7 +1348,7 @@ function MontoProcesosTipoContrato(){
     
                     var cadena=valor.name+'<br>';
                    
-                    cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorMoneda(valor.value)+' '+'HNL'+' ('+valor.percent+'%)'+'<br>';
+                    cadena=cadena+' '+valor.marker+' '+ValorMoneda(valor.value)+' '+'HNL'+' ('+valor.percent+'%)'+'<br>';
                     return cadena;
                 }
             },
@@ -1462,13 +1415,16 @@ function MontoProcesosTipoContrato(){
     
 }
 
+/**
+ * Obtiene los datos e inicializa el gráfico de Cantidad de Procesos de Contratación por Modalidad de Contratación
+ */
 function CantidadProcesosModalidadContratacion(){
     var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#CantidadProcesosModalidadContratacion',true);
 $.get(api+"/dashboardoncae/procesospormodalidad/",parametros).done(function( datos ) {
-console.dir('PROCESOS POR MODALIDAD DE COMPRA');
-console.dir(datos);
+
+    
 OcultarReloj('#CantidadProcesosModalidadContratacion');
 var datosPastel=[];
 datos.resultados.modalidades.forEach(function(valor,indice){
@@ -1486,11 +1442,6 @@ if(Array.isArray(datosPastel)  && datosPastel.length==0){
 var grafico=echarts.init(document.getElementById('CantidadProcesosModalidadContratacion'));
 var opciones = {
     baseOption:{
-        /*title : {
-        text: '同名数量统计',
-        subtext: '纯属虚构',
-        x:'center'
-    },*/
     tooltip : {
         trigger: 'item',
                 
@@ -1498,7 +1449,7 @@ var opciones = {
 
             var cadena=valor.name+'<br>';
            
-            cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorNumerico(valor.value)+' '+'Procesos'+' ('+valor.percent+'%)'+'<br>';
+            cadena=cadena+' '+valor.marker+' '+ValorNumerico(valor.value)+' '+'Procesos'+' ('+valor.percent+'%)'+'<br>';
             return cadena;
         }
     },
@@ -1518,7 +1469,7 @@ var opciones = {
             type: 'pie',
             radius : '40%',
             center: ['50%', '50%'],
-            data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
+            data: datosPastel,
             itemStyle: {
                 color: function(e){
                     var colores=ObtenerColores('Pastel1');
@@ -1546,13 +1497,13 @@ var opciones = {
         containLabel:true
     }
     },
-    media: [ // each rule of media query is defined here
+    media: [ 
         {
             query: {
-                //minWidth: 200,
+                
                 maxWidth: 600
-            },   // write rule here
-            option: {       // write options accordingly
+            },   
+            option: {     
                 legend: {
                     type:'plain',
                     orient:'horizontal',
@@ -1569,7 +1520,6 @@ var opciones = {
         },
         {
         query: {
-            //minWidth: 200,
             maxWidth: 500
         }, 
         option:{
@@ -1580,7 +1530,7 @@ var opciones = {
                     type: 'pie',
                     radius : '40%',
                     center: ['50%', '30%'],
-                    data: datosPastel,//[{name:'Compra Menor',value: 20},{name:'Licitación Privada',value: 40},{name:'Licitación Pública Nacional',value: 60},{name:'Concurso Público Nacional',value: 60}],
+                    data: datosPastel,
                     itemStyle: {
                         color: function(e){
                             var colores=ObtenerColores('Pastel1');
@@ -1590,9 +1540,7 @@ var opciones = {
                             shadowBlur: 10,
                             shadowOffsetX: 0,
                             shadowColor: 'rgba(0, 0, 0, 0.5)'
-                        }/*,
-                        normal:{
-                        }*/
+                        }
                         
                     },
                     grid:{
@@ -1634,13 +1582,17 @@ window.addEventListener("resize", function(){
 });
 
 }
+
+/**
+ * Obtiene los datos e inicializa el gráfico de Monto de Contratos por Modalidad de Contratación
+ */
 function MontoContratosModalidadContratacion(){
     var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#MontoContratosModalidadContratacion',true);
 $.get(api+"/dashboardoncae/contratospormodalidad/",parametros).done(function( datos ) {
-console.dir('MONTO POR MODALIDAD DE CONTRATACION');
-console.dir(datos);
+
+    
 OcultarReloj('#MontoContratosModalidadContratacion');
 var datosPastel=[];
     datos.resultados.modalidades.forEach(function(valor,indice){
@@ -1665,7 +1617,7 @@ var datosPastel=[];
 
                 var cadena=valor.name+'<br>';
                
-                cadena=cadena+' '+valor.marker/*+' '+valor.seriesName+*/+' '+ValorMoneda(valor.value)+' '+'HNL'+' ('+valor.percent+'%)'+'<br>';
+                cadena=cadena+' '+valor.marker+' '+ValorMoneda(valor.value)+' '+'HNL'+' ('+valor.percent+'%)'+'<br>';
                 return cadena;
             }
         },
@@ -1710,16 +1662,13 @@ var datosPastel=[];
         ],
         grid:{
             containLabel:false,
-            /*right:'15%',
-            left:'15%',*/
         }},
-        media: [ // each rule of media query is defined here
+        media: [ 
             {
                 query: {
-                    //minWidth: 200,
                     maxWidth: 600
-                },   // write rule here
-                option: {       // write options accordingly
+                },  
+                option: {      
                     legend: {
                         type:'plain',
                         orient:'horizontal',
@@ -1784,19 +1733,6 @@ var datosPastel=[];
 
     
     window.addEventListener("resize", function(){
-        /*if($( window ).width()<768){
-            grafico.setOption({
-                legend:{
-                    show:false
-                }
-            })
-        }else{
-            grafico.setOption({
-                legend:{
-                    show:true
-                }
-            })
-        }*/
         grafico.resize();
     });
 }).fail(function() {
@@ -1805,13 +1741,16 @@ var datosPastel=[];
     
 }
 
+/**
+ * Obtiene los datos e inicializa el gráfico de Top 10 Compradores por Montos de Contrato
+ */
 function Top10Compradores(){
     var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     MostrarReloj('#top10Compradores',true);
 $.get(api+"/dashboardoncae/topcompradores/",parametros).done(function( datos ) {
-console.dir('TOP COMPRADORES');
-console.dir(datos);
+
+    
 OcultarReloj('#top10Compradores');
 if(datos&&datos.resultados&&Array.isArray(datos.resultados.montoContratado)  && datos.resultados.montoContratado.length==0){
     MostrarSinDatos('#top10Compradores',true);
@@ -1857,10 +1796,7 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                         textPosition:'top'
                     }
                 }
-            },/*
-            legend: {
-                data:['蒸发量1','降水量','平均温度3']
-            },*/
+            },
             xAxis: [
                 {
                     type: 'value',
@@ -2040,15 +1976,17 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
 }
 
 
-
+/**
+ * Obtiene los datos e inicializa el gráfico de Top 10 Proveedores por Montos de Contrato
+ */
 function Top10Proveedores(){
     var parametros={};
     parametros=ObtenerJsonFiltrosAplicados(parametros);
     
     MostrarReloj('#top10Proveedores',true);
 $.get(api+"/dashboardoncae/topproveedores/",parametros).done(function( datos ) {
-console.dir('TOP PROVEEDORES');
-console.dir(datos);
+
+    
 OcultarReloj('#top10Proveedores');
 if(datos&&datos.resultados&&Array.isArray(datos.resultados.montoContratado)  && datos.resultados.montoContratado.length==0){
     MostrarSinDatos('#top10Proveedores',true);
@@ -2094,10 +2032,7 @@ var opciones = {
                     textPosition:'top'
                 }
             }
-        },/*
-        legend: {
-            data:['蒸发量1','降水量','平均温度3']
-        },*/
+        },
         xAxis: [
             {
                 type: 'value',
@@ -2169,11 +2104,7 @@ var opciones = {
             containLabel:true,
             right:'15%',
             bottom:'10%'
-        }/*,
-        label:{
-            formatter:'{value} hola'
-            
-        }*/
+        }
     },
     media:[
         {
@@ -2227,7 +2158,6 @@ var opciones = {
                 ],
                 series: [
                     {
-                        //name:'Monto Contratado',
                         type:'bar',
                         data:datos.resultados.montoContratado.reverse(),
                         itemStyle:{
@@ -2273,7 +2203,9 @@ window.addEventListener("resize", function(){
    
 }
 
-
+/**
+ * Anima el conteo de los gráficos númericos
+ */
 function InicializarConteo(){
     $('.conteo.moneda').countTo({
         formatter: function (value, options) {
@@ -2281,22 +2213,16 @@ function InicializarConteo(){
           value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
           return value;
       }
-      });/*
-      $('.conteo').not('.moneda').countTo({
-        formatter: function (value, options) {
-            value = value.toFixed(options.decimals);
-            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            return value;
-        }
-      });*/
+      });
 }
 
+/**
+ * Obtiene los datos e inicializa el gráfico de Cantidad de Procesos de Contratación
+ */
 function CargarCajonesCantidadProcesos(){
-    var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    var parametros={};
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
 $.get(api+"/dashboardoncae/estadisticacantidaddeprocesos/",parametros).done(function( datos ) {
-    console.dir('cantidad***')
-console.dir(datos);
     $('#CantidadProcesosPromedio').attr('data-to',datos.resultados.promedio);
     $('#CantidadProcesosPromedio').parent().css({'color':ObtenerColores('Pastel1')[0]});
     $('#CantidadProcesosMenor').attr('data-to',datos.resultados.menor);
@@ -2305,15 +2231,6 @@ console.dir(datos);
     $('#CantidadProcesosMayor').parent().css({'color':ObtenerColores('Pastel1')[0]});
     $('#CantidadProcesosTotal').attr('data-to',datos.resultados.total);
     $('#CantidadProcesosTotal').parent().css({'color':ObtenerColores('Pastel1')[0]});
-/*
-    $('.conteo').not('.moneda').countTo({
-        formatter: function (value, options) {
-            value = value.toFixed(options.decimals);
-            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            return value;
-        },
-        from: 0, to: 500
-      });*/
       $('.cantidadProcesos .conteo').not('.moneda').each(function(index,elemento){
         $(elemento).countTo({
             formatter: function (value, options) {
@@ -2329,12 +2246,15 @@ console.dir(datos);
       
     });
 }
+
+/**
+ * Obtiene los datos e inicializa el gráfico de Cantidad de Contratos
+ */
 function CargarCajonesCantidadContratos(){
-    var parametros={}
-    parametros=ObtenerJsonFiltrosAplicados(parametros)
+    var parametros={};
+    parametros=ObtenerJsonFiltrosAplicados(parametros);
 $.get(api+"/dashboardoncae/estadisticacantidaddecontratos/",parametros).done(function( datos ) {
-    console.dir('cantidad***')
-console.dir(datos);
+    
     $('#CantidadContratosPromedio').attr('data-to',datos.resultados.promedio);
     $('#CantidadContratosPromedio').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadContratosMenor').attr('data-to',datos.resultados.menor);
@@ -2343,15 +2263,7 @@ console.dir(datos);
     $('#CantidadContratosMayor').parent().css({'color':ObtenerColores('Pastel1')[1]});
     $('#CantidadContratosTotal').attr('data-to',datos.resultados.total);
     $('#CantidadContratosTotal').parent().css({'color':ObtenerColores('Pastel1')[1]});
-/*
-    $('.conteo').not('.moneda').countTo({
-        formatter: function (value, options) {
-            value = value.toFixed(options.decimals);
-            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            return value;
-        },
-        from: 0, to: 500
-      });*/
+
       $('.cantidadContratos .conteo').not('.moneda').each(function(index,elemento){
         $(elemento).countTo({
             formatter: function (value, options) {
@@ -2367,26 +2279,19 @@ console.dir(datos);
       
     });
 }
+
+/**
+ * Obtiene los datos e inicializa el gráfico de Montos de Contratos
+ */
 function CargarCajonesMontoContratos(){
     var parametros={}
     parametros=ObtenerJsonFiltrosAplicados(parametros)
 $.get(api+"/dashboardoncae/estadisticamontosdecontratos/",parametros).done(function( datos ) {
-    console.dir('cantidad***')
-    console.dir(datos);
     $('#MontoContratosPromedio').attr('data-to',datos.resultados.promedio);
     
     $('#MontoContratosMenor').attr('data-to',datos.resultados.menor);
     $('#MontoContratosMayor').attr('data-to',datos.resultados.mayor);
     $('#MontoContratosTotal').attr('data-to',datos.resultados.total);
-/*
-    $('.conteo').not('.moneda').countTo({
-        formatter: function (value, options) {
-            value = value.toFixed(options.decimals);
-            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            return value;
-        },
-        from: 0, to: 500
-      });*/
       $('.montoContratos .conteo.moneda').each(function(index,elemento){
         $(elemento).countTo({
             formatter: function (value, options) {
@@ -2403,48 +2308,3 @@ $.get(api+"/dashboardoncae/estadisticamontosdecontratos/",parametros).done(funct
     });
 }
 
-function PanelInicialFiltros(selector){
-    $(selector).html('')
-  $.each(ordenFiltros,function(indice,elemento){
-
-      $(selector).append(
-        $('<div class="list-container col-md-12 2 animated fadeIn">').append(
-          $('<div class="panel panel-default ">').append(
-            $('<div class="panel-heading">').text(
-              filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento
-            ),
-            $('<input>',{type:'text', class:'elastic-filter',placeholder:filtrosAplicables[elemento]?filtrosAplicables[elemento].titulo:elemento ,filtro:elemento/*,on:{
-              keyup:function(e){
-                var texto=$(e.currentTarget).val();
-                if (texto.length > 0) {
-                  texto = texto.toLocaleLowerCase();
-                  var regla = " ul#" + 'ul'+elemento.llave + ' li[formato*="' + texto + '"]{display:block;} ';
-                  regla += " ul#" + 'ul'+elemento.llave + ' li:not([formato*="' + texto + '"]){display:none;}';
-                  $('#style'+elemento.llave).html(regla);
-                } else {
-                  $('#style'+elemento.llave).html('');
-                }
-              }
-            }*/}),
-            //$('<style>',{id:'style'+elemento.llave}),
-            $('<ul >',{class:'list-group',id:'ul'+elemento}).append(
-              $('<li >',{
-                  class:'list-group-item animated fadeIn noEncima'
-              }
-              ).append(
-                  $('<div>',{class:'badge',style:'background:transparent'}).append($('<img>',{src:'/static/img/otros/loaderFiltros.svg',style:'height:20px'})),
-                  $('<div>',{
-                  class:'elastic-data cargandoElementoLista',
-                  text:'Cargando'}
-                  )
-                )
-            )
-              
-            
-          )
-        )
-      );
-      
-      
-    });
-}
