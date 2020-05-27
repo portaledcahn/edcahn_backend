@@ -36,14 +36,13 @@ function MostrarContratosInstitucion(todos,inicio) {
 						codigo_institucion:filtros.institucion,
 						tipo_procedimiento: elemento._source.extra&&elemento._source.extra.tenderProcurementMethodDetails?elemento._source.extra.tenderProcurementMethodDetails:'Sin Modalidad',
                         objeto_licitacion:elemento._source.localProcurementCategory?(traducciones[elemento._source.localProcurementCategory]?traducciones[elemento._source.localProcurementCategory].titulo:elemento._source.localProcurementCategory):'Sin Categoría',
-                        
+                        /*
                         "ruc":"80013889-9",
                         "categoria_codigo":"24",
-                        "categoria":"Equipos, accesorios y programas computacionales, de oficina, educativos, de imprenta, de comunicación y señalamiento",
+                        "categoria":" ",
                         "tipo_procedimiento_codigo":"ND",
                         "_objeto_licitacion":"BIEN",
-                        "_moneda":"PYG",
-						"id_llamado":"360669"
+						"id_llamado":"360669"*/
                     }
 				);
 				if(!elemento._source.period){
@@ -92,7 +91,7 @@ function MostrarContratosGenerales(){
     });
     
 }
-var anioActual = ((new Date().getFullYear())), nivelActual = "poder-ejecutivo", entidadActual, chart = null, popactual = null, data, height;
+var anioActual = ((new Date().getFullYear())), nivelActual = "", entidadActual, chart = null, popactual = null, data, height;
 var es_ES = {
 	"decimal" : ".",
 	"thousands" : "\xa0",
@@ -271,22 +270,12 @@ var initForce = function(datos) {
 		
 		// escalar el monto segun la moneda
 		var montoEscalable;
-		//if (datos.contratos[j]._moneda == "PYG") {
-			montoEscalable = datos.contratos[j].monto_adjudicado;
-		/*} else {
-			var anio = m.year();
-			montoEscalable = datos.contratos[j].monto_adjudicado * anioCambio[anio];
-		}*/
-		
-		//datos.contratos[j].r = rScale(datos.contratos[j].monto_adjudicado);
+		montoEscalable = datos.contratos[j].monto_adjudicado;
 		datos.contratos[j].r = rScale(montoEscalable);
 		datos.contratos[j].x = day;
 		datos.contratos[j].y = Math.random() * height2;
 		datos.contratos[j].dia = day; //seterle el dia segun la fecha
 		datos.contratos[j].mes = m.month(); //setearle el mes segun la fecha
-		//console.log(datos.contratos[j].monto_adjudicado);
-		//console.log(datos.contratos[j]._moneda);
-		//console.log(datos.contratos[j].monto_escalable);
     }
 	
 	chart = d3.select("#"+selector+'Grafico')
@@ -321,7 +310,7 @@ var initForce = function(datos) {
 		.style({ 'stroke-width': '0.1', 'fill': '#000'});
 
     drawLines(1, width2);
-    drawLegend(chart, totalHeight);
+    drawLegend(chart, totalHeight,datos);
     
 	nodes = chart.selectAll("circle").data(datos.contratos);
 	nodes.enter().append("circle")
@@ -420,15 +409,22 @@ function drawLines(number, newWidth, esAgrupacion){
 }
 
 /* Leyenda de colores */
-function drawLegend(chart, chartHeight){
+function drawLegend(chart, chartHeight,datos){
 	var hor = -100;
 	var ver = chartHeight - 50;
-	var legend = chart.selectAll('.legend').data(function(){var arreglo=[];$.each(traducciones,function(llave,valor){arreglo.push(valor.titulo);}); return arreglo;}).enter()
+	var legend = chart.selectAll('.legend').data(
+		
+		distingirArreglo(datos.contratos.map(function(e){return e.objeto_licitacion;}))/*Categorias de Compra de los contratos en los resultados */
+		/*function(){
+		var arreglo=[];
+		$.each(traducciones,function(llave,valor){arreglo.push(valor.titulo);}); 
+		return arreglo;
+	}*/).enter()
 			.append('g').attr('class', 'legend').attr('transform',
 					function(d, i) {
 						hor = hor + 150;
 						return 'translate(' + hor + ',' + ver + ')';
-					});
+					});/*.attr('text-anchor', 'middle').attr('width', '100%');*/
 
 	legend.append('rect')
 	  	.attr('width', legendRectSize)
@@ -854,7 +850,7 @@ function groupBy(vname,datos){
     drawLines(groups.length, newWidth, true);
     
     chart.selectAll('.legend').remove();
-    drawLegend(chart, totalHeight);
+    drawLegend(chart, totalHeight,datos);
     
     centers = getCenters(vname, [newWidth + 105, linesHeight],datos);
     

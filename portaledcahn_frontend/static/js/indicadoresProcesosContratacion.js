@@ -132,7 +132,14 @@ function ModalidadMontoCantidad(){
                     dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                     magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
                 },
                 emphasis:{
                     iconStyle:{
@@ -468,6 +475,31 @@ var opciones = {
             color:'gray'
         }
     },
+    toolbox: {
+        orient:'horizontal',
+        itemsize:20,
+        itemGap:15,
+        right:20,
+        top:25,
+        feature: {
+            dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+            magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+            restore: {show: true,title:'Restaurar'},
+            myDescarga: {
+                show: true,
+                title: 'Descargar',
+                icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                onclick: function (e,o){
+                    descargaImagen(e,o,opciones)
+                }
+            }
+        },
+        emphasis:{
+            iconStyle:{
+                textPosition:'top'
+            }
+        }
+    },
     label:{
         color:'gray'
     },
@@ -621,6 +653,31 @@ var datosPastel=[];
                 selected: [false,false,true]*/,
                 textStyle:{
                     color:'gray'
+                }
+            },
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
                 }
             },
             series : [
@@ -781,7 +838,14 @@ var grafico=echarts.init(document.getElementById('top10InstitucionesMontos'));
                     dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                     magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
                 },
                 emphasis:{
                     iconStyle:{
@@ -1070,7 +1134,14 @@ var grafico=echarts.init(document.getElementById('montoCatalogoElectronico'));
                     dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                     magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
                 },
                 emphasis:{
                     iconStyle:{
@@ -1762,7 +1833,14 @@ var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
                     dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                     magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
                 },
                 emphasis:{
                     iconStyle:{
@@ -2002,4 +2080,48 @@ var grafico=echarts.init(document.getElementById('montoCompraConjunta'));
     
 });
     
+}
+
+
+function descargaImagen(e,o,opciones){
+    var tituloGrafico= $(o.getDom()).parent().parent().find('.tituloGrafico .titularCajonSombreado ').text().trim();
+    var fuenteDatos=$(o.getDom()).parent().find('.fuenteDatos').text().trim();
+    var preConfiguracion=o.getOption();
+    e.scheduler.ecInstance.clear();
+    preConfiguracion['title']={
+        text:ObtenerParrafo(tituloGrafico,50),
+        subtext: ObtenerParrafo(fuenteDatos,50),
+        textAlign:'center',
+        x:'50%',
+        textStyle:{
+            fontWeight:'bolder',
+            fontFamily:'Poppins',
+            color:'gray',
+            fontSize:14
+        }
+    }
+    if(!preConfiguracion['grid']){
+        preConfiguracion['grid']={};
+    }
+    preConfiguracion['grid']['top']=150;
+    preConfiguracion['grid']['bottom']=20;
+    preConfiguracion['animation']=false;
+    var tamanoAdicion=600;
+    $(o.getDom()).height($(o.getDom()).height()+tamanoAdicion);
+    e.scheduler.ecInstance.setOption(preConfiguracion,true);
+    var imagen =e.scheduler.ecInstance.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents:['toolbox']
+    });
+    var byteString = atob(imagen.split(',')[1]);
+    var arregloBuffer = new ArrayBuffer(byteString.length);
+    var iArreglo = new Uint8Array(arregloBuffer);
+    for (var i = 0; i < byteString.length; i++) {
+        iArreglo[i] = byteString.charCodeAt(i);
+    }
+    saveAs(new Blob([arregloBuffer], {type: 'image/png'}),(tituloGrafico+'.png'));
+    $(o.getDom()).height($(o.getDom()).height()-tamanoAdicion);
+    e.scheduler.ecInstance.clear();
+    e.scheduler.ecInstance.setOption(opciones,true);
 }
