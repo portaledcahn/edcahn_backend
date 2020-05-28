@@ -1,7 +1,6 @@
 #Funciones compartidas. 
-import re 
-import datetime
-import dateutil
+import re, datetime, dateutil, io, csv, os, flattentool, shutil
+from zipfile import ZipFile, ZIP_DEFLATED
 
 def validateSortParam(param):
 	pattern = '^desc\(([^)]+)\)$|^asc\(([^)]+)\)$'
@@ -425,3 +424,58 @@ def generador_producto_csv(search):
 	# 		yield line
 
 	# print("")
+
+def aplanarArchivoReleases(ubicacionArchivoJson, directorioSalida):
+	directorioSalida = getRootPath(directorioSalida)
+
+	ubicacionArchivoJson = getRootPath(ubicacionArchivoJson)
+
+	flattentool.flatten(
+		ubicacionArchivoJson,
+		output_name=directorioSalida,
+		main_sheet_name='releases',
+		root_list_path='releases',
+		root_id='ocid',
+		# schema=carpetaArchivos + 'release-schema.json',
+		disable_local_refs=True,
+		remove_empty_schema_columns=True,
+		root_is_list=False
+	)
+
+	with ZipFile(directorioSalida + '.zip', 'w', compression=ZIP_DEFLATED) as zipfile:
+		for filename in os.listdir(directorioSalida):
+			zipfile.write(os.path.join(directorioSalida, filename), filename)
+
+	shutil.rmtree(directorioSalida)
+
+def getRootPath(directorio):
+	raiz = os.path.dirname(os.path.realpath(__file__))
+	archivoSalida = os.path.join(raiz, directorio)
+	return archivoSalida
+
+def crearDirectorio(directorio):
+	directorio = getRootPath(directorio)
+
+	try:
+		os.stat(directorio)
+	except:
+		os.mkdir(directorio)
+
+def listaATexto(lista):
+	output = io.StringIO()
+	writer = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
+	writer.writerow(lista)
+	return output.getvalue()
+
+def textoALista(texto):
+	lista = []
+	f = io.StringIO(texto)
+	reader = csv.reader(f, delimiter=',')
+	contador1 = 0
+	contador2 = 0
+	for row in reader:
+		contador1 = contador1 + 1
+		for column in row:
+			lista.append(column)
+
+	return lista

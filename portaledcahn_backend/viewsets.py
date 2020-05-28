@@ -15,18 +15,17 @@ from .functions import *
 from .pagination import PaginationHandlerMixin
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 from urllib.request import urlretrieve
-import json, copy, urllib.parse, datetime, operator, statistics, csv
+import json, copy, urllib.parse, datetime, operator, statistics, csv, flattentool, uuid, shutil
 import pandas as pd 
 import mimetypes, os.path, math
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
-from portaledcahn_backend import serializers as articles_serializers  
+from portaledcahn_backend import serializers as articles_serializers
 
 from django.utils.functional import LazyObject
 from django.conf import settings
-from django.http import Http404, StreamingHttpResponse, HttpResponse, HttpResponseServerError
-from itertools import chain
+from django.http import Http404, StreamingHttpResponse, HttpResponse
 
 import ocds_bulk_download
 
@@ -7905,3 +7904,118 @@ def DescargarProductosCSV(request, search):
 	response = StreamingHttpResponse((writer.writerow(row) for row in generador_producto_csv(search)), content_type='text/csv')
 	response['Content-Disposition'] = 'attachment; filename="'+ nombreArchivo +'{0}.csv"'.format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
 	return response
+
+### Funcion para descargar procesos del buscador en json estandarizado
+
+# "\"ocds-lcuori-PGJALo-CM-ENEE-460-65-2016-1\",\"ocds-lcuori-DL9JqG-CM-077-EMC-C42016-1\",\"ocds-lcuori-gRNqYG-CM-025-MUNIESPARTA-2018-1\"\r\n"
+class DescargarBuscador(APIView):
+
+	def get(self, request, format=None):
+		formato = request.GET.get('formato', '')
+		ocids = request.GET.get('ocids',"")
+
+		if formato not in ('json', 'xlsx', 'csv'):
+			raise Http404
+
+		# lista de ocids en texto = listaATexto(ocids) asd
+		ocidsLista = textoALista(ocids)
+
+		#-1-Obtener Records 
+		records = Record.objects.filter(ocid__in=ocidsLista)
+		serializador = RecordSerializer(records, many=True)
+
+		if not ocids.replace(" ",""):
+			return Response({"Error":"El parámetro ocids es obligatorio"}, status.HTTP_400_BAD_REQUEST)
+
+		if len(records) > 100:
+			return Response({"Error":"No se permite aplanar mas de 100 ocids"}, status.HTTP_400_BAD_REQUEST)
+
+		results = serializador.data
+		paquetes = []
+
+		for d in results:
+			for r in d["releases"]:
+				release = Release.objects.filter(release_id=r["id"])
+				paquete = release[0].package_data
+				paquetes.append(paquete)
+
+		metadataPaquete = paqueteRegistros(paquetes, request)
+
+		paqueteRecords = metadataPaquete
+		paqueteRecords["records"] = results
+
+		#0-Directorio de descargas
+		carpetaArchivosRelativa = "archivos_estaticos/descargas_temporales/"
+		carpetaArchivosAbsoluta = getRootPath(carpetaArchivosRelativa)
+		crearDirectorio(carpetaArchivosAbsoluta)
+
+		#1-Identificador para los archivos.
+		uuiiDescarga = str(uuid.uuid4())
+
+		#2-Generar archivos temporales.
+
+		## 2.1 Generar archivo paquete de records .json
+		nombreArchivoJson = uuiiDescarga + ".json"
+
+		with open(carpetaArchivosAbsoluta + nombreArchivoJson, 'w') as outfile:
+			json.dump(paqueteRecords, outfile)
+
+		## 2.1.2 Generar paquete te compiled releases
+
+		###Obtener un listado de releases 
+		copiledReleases = []
+		for r in paqueteRecords["records"]:
+			copiledReleases.append(r["compiledRelease"])
+
+		###Obtener el paquete de releases
+		PaqueteCopileReleases = {}
+		for key, value in paqueteRecords.items():
+			if key != 'records':
+				PaqueteCopileReleases[key] = value
+
+		### Unir paquete mas listado
+		PaqueteCopileReleases["releases"] = copiledReleases
+		nombreArchivoCopiledReleases = uuiiDescarga + "_copiledReleases.json"
+
+		## Guardar paquete de copiledRelease.
+		with open(carpetaArchivosAbsoluta + nombreArchivoCopiledReleases, 'w') as outfile:
+			json.dump(PaqueteCopileReleases, outfile)
+
+		## 2.2 Generar archivo .xlsx y .csv
+		if formato in ('xlsx', 'csv'):
+			aplanarArchivoReleases(carpetaArchivosRelativa + nombreArchivoCopiledReleases, carpetaArchivosRelativa + uuiiDescarga)
+
+		contentType = ''
+
+		try:
+			if formato == 'json':
+				nombreArchivo = uuiiDescarga + '.json'
+				contentType = 'application/json'
+			elif formato == 'xlsx':
+				nombreArchivo = uuiiDescarga + '.xlsx'
+				contentType == 'application/vnd.ms-excel'
+			elif formato == 'csv':
+				nombreArchivo = uuiiDescarga + '.zip'
+				contentType = 'application/zip'
+			else:
+				nombreArchivo = ''
+
+			filePath = os.path.join(carpetaArchivosAbsoluta, nombreArchivo)
+
+			if os.path.exists(filePath):
+				with open(filePath, 'rb') as fh:
+					response = HttpResponse(fh.read(), content_type=contentType)
+					response['Content-Disposition'] = 'attachment; filename={}'.format(nombreArchivo)
+					return response
+		
+		except Exception as e:
+			print("Error:",e)
+			raise Http404
+		
+		finally:
+			os.remove(carpetaArchivosAbsoluta + nombreArchivoCopiledReleases)
+			os.remove(carpetaArchivosAbsoluta + uuiiDescarga + '.json')
+
+			if formato in ('xlsx', 'csv'):
+				os.remove(carpetaArchivosAbsoluta + uuiiDescarga + '.zip' )
+				os.remove(carpetaArchivosAbsoluta + uuiiDescarga + '.xlsx')

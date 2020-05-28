@@ -70,4 +70,5 @@ urlpatterns = [
 	path('visualizacionesoncae/filtros/', viewsets.FiltrosVisualizacionesONCAE.as_view()),
 	path('visualizacionesoncae/instituciones/', viewsets.CompradoresPorCantidadDeContratos.as_view()),
 
+	path('descargar/', viewsets.DescargarBuscador.as_view()),
 ]
