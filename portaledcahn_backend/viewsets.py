@@ -521,6 +521,12 @@ class Buscador(APIView):
 
 		results = s[start:end].execute()
 
+		ocidsLista = []
+		for r in results.hits.hits:
+			ocidsLista.append(r["_id"])
+		ocids = listaATexto(ocidsLista)
+		ocidsEncoding = urllib.parse.quote_plus(ocids)
+
 		monedas = results.aggregations.contratos.monedas.buckets
 
 		if results.hits.total > 0:
@@ -610,8 +616,8 @@ class Buscador(APIView):
 			"parametros": parametros,
 			"resumen": resumen,
 			"filtros": filtros,
-			"resultados": results.hits.hits
-			# "agregados": results.aggregations.to_dict(),
+			"resultados": results.hits.hits,
+			"ocids": ocidsEncoding
 		}
 
 		return Response(context)
@@ -7906,8 +7912,6 @@ def DescargarProductosCSV(request, search):
 	return response
 
 ### Funcion para descargar procesos del buscador en json estandarizado
-
-# "\"ocds-lcuori-PGJALo-CM-ENEE-460-65-2016-1\",\"ocds-lcuori-DL9JqG-CM-077-EMC-C42016-1\",\"ocds-lcuori-gRNqYG-CM-025-MUNIESPARTA-2018-1\"\r\n"
 class DescargarBuscador(APIView):
 
 	def get(self, request, format=None):
@@ -7917,7 +7921,6 @@ class DescargarBuscador(APIView):
 		if formato not in ('json', 'xlsx', 'csv'):
 			raise Http404
 
-		# lista de ocids en texto = listaATexto(ocids) asd
 		ocidsLista = textoALista(ocids)
 
 		#-1-Obtener Records 
