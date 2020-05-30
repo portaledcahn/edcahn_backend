@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from portaledcahn_backend import documents
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
+import os
+from django.http import HttpResponse, Http404
+from django.conf import settings
 
 class DSEPaginator(Paginator):
     """

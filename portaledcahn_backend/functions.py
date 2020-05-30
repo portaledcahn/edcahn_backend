@@ -1,7 +1,6 @@
 #Funciones compartidas. 
-import re 
-import datetime
-import dateutil
+import re, datetime, dateutil, io, csv, os, flattentool, shutil
+from zipfile import ZipFile, ZIP_DEFLATED
 
 def validateSortParam(param):
 	pattern = '^desc\(([^)]+)\)$|^asc\(([^)]+)\)$'
@@ -219,6 +218,9 @@ def validateNumberParam(val):
 
 	return value
 
+"""
+	Generando datos para el paquete de registros. 
+"""
 def paqueteRegistros(paquetes, request):
 
 	uri = ''
@@ -256,3 +258,224 @@ def paqueteRegistros(paquetes, request):
 	metaDatosPaquete["publicationPolicy"] = publicationPolicy
 
 	return metaDatosPaquete
+
+# Descargas ES a CSV
+
+proceso_csv = dict([
+	("OCID", "doc.compiledRelease.ocid"),
+	("Código Entidad","extra.parentTop.id"),
+	("Entidad","extra.parentTop.name"),
+	("Código Unidad Ejecutora","doc.compiledRelease.buyer.id"),
+	("Unidad Ejecutora","doc.compiledRelease.buyer.name"),
+	("Expediente", "doc.compiledRelease.tender.title"),
+	("Tipo Adquisición", "doc.compiledRelease.tender.localProcurementCategory"),
+	("Modalidad", "doc.compiledRelease.tender.procurementMethodDetails"),
+	("Fecha de Inicio", "doc.compiledRelease.tender.tenderPeriod.startDate"),
+	("Fecha Recepción Ofertas", "doc.compiledRelease.tender.tenderPeriod.endDate"),
+	("Fecha de publicación", "doc.compiledRelease.tender.datePublished"),
+	("Estado del proceso", "doc.compiledRelease.tender.statusDetails"),
+	("Periodo de invitación - Recepción de ofertas", "extra.daysTenderPeriod"),
+	("Etapa OCDS", "extra.lastSection"),
+	("Fuente de datos", "doc.compiledRelease.sources.0.name"),
+])
+
+contrato_csv = dict([
+	("OCID","extra.ocid"),
+	("Código institución","extra.parentTop.id"),
+	("Institución de Compra","extra.parentTop.name"),
+	("Código GA","extra.parent1.id"),
+	("Gerencia Administrativa","extra.parent1.name"),
+	("Código unidad de compra","extra.buyer.id"),
+	("Unidad de Compra","extra.buyer.name"),
+	("RTN","suppliers.0.id"),
+	("Proveedor","suppliers.0.name"),
+	("Expediente","extra.tenderTitle"),
+	("Número de Contrato","title"),
+	("Monto", "value.amount"),
+	("Moneda", "value.currency"),
+	("Monto HNL","extra.LocalCurrency.amount"),
+	("Moneda HNL","extra.LocalCurrency.currency"),
+	("Fecha de Inicio","period.startDate"),
+	("Fecha de Firma", "dateSigned"),
+	("Periodo de Evaluación - Adjudicación y Contratación", "extra.tiempoContrato"),
+	("Estado","statusDetails"),
+	("Tipo Adquisición", "localProcurementCategory"),
+	("Modalidad", "extra.tenderProcurementMethodDetails"),
+	("Fuente de datos","extra.sources.0.name"),
+])
+
+producto_csv = dict([
+	("OCID","extra.ocid"),
+	("Número Gestion","extra.contratoId"),
+	("producto Id","id"),
+	("Producto","description"),
+	("Cantidad solicitada","quantity"),
+	("Monto por unidad","unit.value.amount"),
+	("Total","extra.total"),
+	("Moneda","unit.value.currency"),
+	("UNSPSC código","classification.id"),
+	("UNSPSC nombre","classification.description"),
+	("Código del covenio marco","attributes.0.id"),
+	("Nombre del convenio marco","attributes.0.value"),
+	("Estado OC","extra.statusDetails"),
+	("Fuente de datos","extra.sources.0.name"),
+])
+
+proceso_csv_titulos = list(proceso_csv.keys())
+proceso_csv_paths = list(proceso_csv.values())
+
+contrato_csv_titulos = list(contrato_csv.keys())
+contrato_csv_paths = list(contrato_csv.values())
+
+producto_csv_titulos = list(producto_csv.keys())
+producto_csv_paths = list(producto_csv.values())
+
+class Echo(object):
+	def write(self, value):
+		return value
+
+def get_data_from_path(path, data):
+	current_pos = data
+
+	for part in path.split("."):
+		try:
+			part = int(part)
+		except ValueError:
+			pass
+		try:
+			current_pos = current_pos[part]
+		except (KeyError, IndexError, TypeError):
+			return ""
+	return current_pos
+
+def generador_proceso_csv(search):
+	yield proceso_csv_titulos
+
+	# Todos los procesos
+	for result in search.scan():
+		line = []
+		for path in proceso_csv_paths:
+			line.append(get_data_from_path(path, result))
+		yield line
+
+	# results = search[0:500].execute()
+
+	# for result in results:
+	# 	line = []
+	# 	for path in proceso_csv_paths:
+	# 		line.append(get_data_from_path(path, result))
+	# 	yield line
+
+def generador_contrato_csv(search):
+	yield contrato_csv_titulos
+
+	# Todos los contratos
+	for result in search.scan():
+		line = []
+		for path in contrato_csv_paths:
+			line.append(get_data_from_path(path, result))
+		yield line
+
+	# results = search[0:10].execute()
+
+	# for result in results:
+	# 	# print(result)
+	# 	line = []
+	# 	for path in contrato_csv_paths:
+	# 		line.append(get_data_from_path(path, result))
+	# 	yield line
+
+	# print("")
+
+def generador_producto_csv(search):
+	yield producto_csv_titulos
+
+	# Todos los contratos
+	for result in search.scan():
+		if 'items' in result:
+			for item in result["items"]:
+				if 'extra' in item:
+					item["extra"]["sources"] = result["extra"]["sources"]
+					item["extra"]["ocid"] = result["extra"]["ocid"]
+					item["extra"]["contratoId"] = result["id"]
+					item["extra"]["statusDetails"] = result["statusDetails"]
+				else:
+					item["extra"] = result["extra"]
+
+				line = []
+				for path in producto_csv_paths:
+					line.append(get_data_from_path(path, item))
+				yield line
+
+	# results = search[0:10].execute()
+
+	# for result in results:
+	# 	for item in result["items"]:
+	# 		if 'extra' in item:
+	# 			item["extra"]["sources"] = result["extra"]["sources"]
+	# 			item["extra"]["ocid"] = result["extra"]["ocid"]
+	# 			item["extra"]["contratoId"] = result["id"]
+	# 		else:
+	# 			item["extra"] = result["extra"]
+
+	# 		line = []
+	# 		for path in producto_csv_paths:
+	# 			line.append(get_data_from_path(path, item))
+	# 		yield line
+
+	# print("")
+
+def aplanarArchivoReleases(ubicacionArchivoJson, directorioSalida):
+	directorioSalida = getRootPath(directorioSalida)
+
+	ubicacionArchivoJson = getRootPath(ubicacionArchivoJson)
+
+	flattentool.flatten(
+		ubicacionArchivoJson,
+		output_name=directorioSalida,
+		main_sheet_name='releases',
+		root_list_path='releases',
+		root_id='ocid',
+		# schema=carpetaArchivos + 'release-schema.json',
+		disable_local_refs=True,
+		remove_empty_schema_columns=True,
+		root_is_list=False
+	)
+
+	with ZipFile(directorioSalida + '.zip', 'w', compression=ZIP_DEFLATED) as zipfile:
+		for filename in os.listdir(directorioSalida):
+			zipfile.write(os.path.join(directorioSalida, filename), filename)
+
+	shutil.rmtree(directorioSalida)
+
+def getRootPath(directorio):
+	raiz = os.path.dirname(os.path.realpath(__file__))
+	archivoSalida = os.path.join(raiz, directorio)
+	return archivoSalida
+
+def crearDirectorio(directorio):
+	directorio = getRootPath(directorio)
+
+	try:
+		os.stat(directorio)
+	except:
+		os.mkdir(directorio)
+
+def listaATexto(lista):
+	output = io.StringIO()
+	writer = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
+	writer.writerow(lista)
+	return output.getvalue()
+
+def textoALista(texto):
+	lista = []
+	f = io.StringIO(texto)
+	reader = csv.reader(f, delimiter=',')
+	contador1 = 0
+	contador2 = 0
+	for row in reader:
+		contador1 = contador1 + 1
+		for column in row:
+			lista.append(column)
+
+	return lista
