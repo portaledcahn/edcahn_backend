@@ -320,18 +320,22 @@
                            </div>
                            <!--<input id="adjudicacionColumna" class="campoBlancoTextoSeleccion fecha" placeholder="Fecha">-->
                         </th>
-                        <th class="textoAlineadoCentrado  campoFiltrado" filtro="anio" tipo="texto">
+                         <!--
+<th class="textoAlineadoCentrado  campoFiltrado" filtro="anio" tipo="texto">
                               <table class="alineado">
                                     <tr><td> <span toolTexto="">Año</span></td></tr>
                                  </table>
          
                               
-                              <!--<input  class="campoBlancoTextoSeleccion" placeholder="Nombre"  type="text" value="{% if estadoCon %}{{estadoCon}}{% endif %}">-->
+                             
                               <select class="campoBlancoTextoSeleccion" placeholder="Nombre"  type="text" >
                                  
                               </select>
                                  
                            </th>
+                                 
+                              -->
+                        
                         
                   </tr>
                </thead>
@@ -366,85 +370,7 @@
    </div>
 </div>
 <div id="dtBox"></div>
-<!--
 
-      <table class="tablaGeneral" style="background: white">
-            <thead>
-               <tr>
-                  <th>Descripción de la transacción</th>
-                  <th>Objeto de gasto</th>
-                  <th>Monto del pago</th>
-                  <th>Fecha del pago</th>
-               </tr>
-            </thead>
-            <tbody>
-               <tr>
-                  <td data-label="Descripción de la transacción">paga mensual</td>
-                  <td data-label="Objeto de gasto">Compra de suminitros</td>
-                  <td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td>
-                  <td data-label="Fecha del pago">2019-02-02 01:01:01</td>
-               </tr>
-               <tr>
-                     <td data-label="Descripción de la transacción">paga mensual</td>
-                     <td data-label="Objeto de gasto">Compra de suminitros</td>
-                     <td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Fecha del pago">2019-02-02 01:01:01</td>
-                  </tr>
-            </tbody>
-         </table>
-
-
-         <table class="tablaGeneral cajonSombreado" >
-               <thead>
-                  <tr>
-                     <th>Descripción de la transacción</th>
-                     <th>Objeto de gasto</th>
-                     <th>Monto del pago</th>
-                     <th>Fecha del pago</th>
-                  </tr>
-               </thead>
-               <tbody>
-                  <tr>
-                     <td data-label="Descripción de la transacción">paga mensual</td>
-                     <td data-label="Objeto de gasto">Compra de suminitros</td>
-                     <td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td>
-                     <td data-label="Fecha del pago">2019-02-02 01:01:01</td>
-                  </tr>
-                  <tr>
-                        <td data-label="Descripción de la transacción">paga mensual</td>
-                        <td data-label="Objeto de gasto">Compra de suminitros</td>
-                        <td data-label="Monto del pago">146.00 <span class="textoColorPrimario">HNL</span></td>
-                        <td data-label="Fecha del pago">2019-02-02 01:01:01</td>
-                     </tr>
-               </tbody>
-            </table>
-
-            <table class="tablaGeneral cajonSombreado" >
-                  <thead>
-                     <tr>
-                        <th>Titulo</th>
-                        <th>Monto del contrato</th>
-                        <th>Fecha del contrato</th>
-                        <th>Estado</th>
-                     </tr>
-                  </thead>
-                  <tbody>
-                     <tr>
-                        <td data-label="Titulo">Paga mensual</td>
-                        <td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td>
-                        <td data-label="Fecha del contrato">2019-02-02 01:01:01</td>
-                        <td data-label="Estado">Firmado</td>
-                     </tr>
-                     <tr>
-                           <td data-label="Titulo">Paga mensual</td>
-                           <td data-label="Monto del contrato">1,200.00 <span class="textoColorPrimario">HNL</span></td>
-                           <td data-label="Fecha del contrato">2019-02-02 01:01:01</td>
-                           <td data-label="Estado">Firmado</td>
-                        </tr>
-                  </tbody>
-               </table>
-
-            -->
 {% endblock %}
 
 {% block script_content %}<!--

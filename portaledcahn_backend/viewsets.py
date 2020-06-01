@@ -3766,7 +3766,6 @@ class FiltrosDashboardONCAE(APIView):
 		s = Search(using=cliente, index='edca')
 		ss = Search(using=cliente, index='contract')
 		sss = Search(using=cliente, index='contract')
-		ssss = Search(using=cliente, index='edca')
 
 		sFecha = Search(using=cliente, index='edca')
 		ssFecha = Search(using=cliente, index='contract')
@@ -3776,7 +3775,6 @@ class FiltrosDashboardONCAE(APIView):
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 		sss = sss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
-		ssss = ssss.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 
 		sFecha = sFecha.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		ssFecha = ssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
@@ -3797,7 +3795,6 @@ class FiltrosDashboardONCAE(APIView):
 		#Temporal
 		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 		sFecha = sFecha.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
-		ssss = ssss.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
 		# Filtros
 		if institucion.replace(' ', ''):
@@ -3819,9 +3816,10 @@ class FiltrosDashboardONCAE(APIView):
 			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			sss = sss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			dateFilter = {'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)}
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=dateFilter)
+			ss = ss.filter('range', dateSigned=dateFilter)
+			sss = sss.filter('range', period__startDate=dateFilter)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':			
@@ -4039,20 +4037,36 @@ class FiltrosDashboardONCAE(APIView):
 			precision_threshold=40000
 		)
 
-		ssss.aggs.metric(
+		s.aggs.metric(
 			'sources', 
 			'terms', 
 			missing='No Definido',
 			field='doc.compiledRelease.sources.id.keyword', 
-			size=10000
+			size=10
 		)
 
-		ssss.aggs["sources"].metric(
+		s.aggs["sources"].metric(
 			'name', 
 			'terms', 
 			missing='No Definido',
-			field='doc.compiledRelease.sources.name.keyword', 
-			size=10000
+			field='doc.compiledRelease.sources.name.keyword',
+			size=1
+		)
+
+		ss.aggs.metric(
+			'sources', 
+			'terms', 
+			missing='No Definido',
+			field='extra.sources.id.keyword', 
+			size=10
+		)
+
+		sss.aggs.metric(
+			'sources', 
+			'terms', 
+			missing='No Definido',
+			field='extra.sources.id.keyword', 
+			size=10
 		)
 
 		sFecha.aggs.metric(
@@ -4085,7 +4099,6 @@ class FiltrosDashboardONCAE(APIView):
 		procesos = s.execute()
 		contratosPC = ss.execute()
 		contratosDD = sss.execute()
-		filtroSource = ssss.execute()
 		
 		sFechaResultados = sFecha.execute()
 		ssFechaResultados = ssFecha.execute()
@@ -4110,7 +4123,9 @@ class FiltrosDashboardONCAE(APIView):
 		monedasContratosPC = contratosPC.aggregations.monedasContratoFechaFirma.to_dict()
 		monedasContratosDD = contratosDD.aggregations.monedasContratoFechaInicio.to_dict()
 
-		sourcesES = filtroSource.aggregations.sources.to_dict()
+		sistemasContratosPC = contratosPC.aggregations.sources.to_dict()
+		sistemasContratosDD = contratosDD.aggregations.sources.to_dict()
+		sistemasProcesos = procesos.aggregations.sources.to_dict()
 
 		#Valores para filtros por anio
 		anios = {}
@@ -4308,11 +4323,43 @@ class FiltrosDashboardONCAE(APIView):
 			modalidades = dfModalidades.to_dict('records')
 
 		sources = []
-		for valor in sourcesES["buckets"]:
+
+		for valor in sistemasProcesos["buckets"]:
 			sources.append({
 				'id': valor["key"],
-				'ocids': valor["doc_count"]
+				'ocids': valor["doc_count"],
+				'procesos': valor["doc_count"],
+				'contratos': 0
 			})
+
+		for v in sistemasContratosDD["buckets"]:
+			sources.append({
+				'id': v["key"],
+				'ocids': 0,
+				'contratos': v["doc_count"],
+				'procesos':0
+			})
+
+		for v in sistemasContratosPC["buckets"]:
+			sources.append({
+				'id': v["key"],
+				'ocids': 0,
+				'contratos': v["doc_count"],
+				'procesos': 0
+			})
+
+		if sources:
+			dfSistemas = pd.DataFrame(sources)
+
+			agregaciones = {
+				"ocids": 'sum',
+				"contratos": 'sum',
+				"procesos": 'sum'
+			}
+
+			dfSistemas = dfSistemas.groupby('id', as_index=True).agg(agregaciones).reset_index().sort_values("ocids", ascending=False)
+
+			sources = dfSistemas.to_dict('records')
 
 		resultados = {}
 		resultados["años"] = years
@@ -4351,6 +4398,7 @@ class GraficarProcesosPorCategorias(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -4393,6 +4441,9 @@ class GraficarProcesosPorCategorias(APIView):
 				s = s.filter('bool', must_not=qModalidad)			
 			else:
 				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
 		# Agregados
 		s.aggs.metric(
@@ -4455,6 +4506,7 @@ class GraficarProcesosPorModalidad(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -4499,6 +4551,9 @@ class GraficarProcesosPorModalidad(APIView):
 				s = s.filter('bool', must_not=qModalidad)			
 			else:
 				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
 		# Agregados
 		s.aggs.metric(
@@ -4558,6 +4613,7 @@ class GraficarCantidadDeProcesosMes(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -4610,6 +4666,9 @@ class GraficarCantidadDeProcesosMes(APIView):
 				s = s.filter('bool', must_not=qModalidad)			
 			else:
 				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
 		# Agregados
 		s.aggs.metric(
@@ -4682,6 +4741,7 @@ class EstadisticaCantidadDeProcesos(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -4733,6 +4793,9 @@ class EstadisticaCantidadDeProcesos(APIView):
 				s = s.filter('bool', must_not=qModalidad)			
 			else:
 				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
 		#Agregados
 		s.aggs.metric(
@@ -4797,6 +4860,7 @@ class GraficarProcesosPorEtapa(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -4841,6 +4905,9 @@ class GraficarProcesosPorEtapa(APIView):
 				s = s.filter('bool', must_not=qModalidad)			
 			else:
 				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=modalidad)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
 		# Agregados
 		s.aggs.metric(
@@ -4902,6 +4969,7 @@ class GraficarMontosDeContratosMes(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -4967,6 +5035,10 @@ class GraficarMontosDeContratosMes(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
+			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 
 		# Agregados
 
@@ -5128,6 +5200,7 @@ class EstadisticaCantidadDeContratos(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -5193,6 +5266,11 @@ class EstadisticaCantidadDeContratos(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+		
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
+			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
 		# Agregados
 
 		s.aggs.metric(
@@ -5351,6 +5429,7 @@ class EstadisticaMontosDeContratos(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -5417,6 +5496,10 @@ class EstadisticaMontosDeContratos(APIView):
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 		
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
+			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
 		# Agregados
 
 		s.aggs.metric(
@@ -5569,6 +5652,7 @@ class GraficarContratosPorCategorias(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -5627,6 +5711,10 @@ class GraficarContratosPorCategorias(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
+			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 		
 		# Agregados
 		s.aggs.metric(
@@ -5737,6 +5825,7 @@ class GraficarContratosPorModalidad(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -5795,6 +5884,11 @@ class GraficarContratosPorModalidad(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
+			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+		
 		# Agregados
 		s.aggs.metric(
 			'sumaTotalContratos',
@@ -5906,6 +6000,7 @@ class TopCompradoresPorMontoContratado(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -5964,6 +6059,11 @@ class TopCompradoresPorMontoContratado(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
+			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
 		# Agregados
 		s.aggs.metric(
 			'sumaTotalContratos',
@@ -6107,6 +6207,7 @@ class TopProveedoresPorMontoContratado(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -6165,6 +6266,10 @@ class TopProveedoresPorMontoContratado(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
+			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 
 		# Agregados
 		s.aggs.metric(
@@ -6308,6 +6413,7 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		moneda = request.GET.get('moneda', '')
 		pcategoria = request.GET.get('categoria', '')
 		pmodalidad = request.GET.get('modalidad', '')
+		sistema = request.GET.get('sistema', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -6379,6 +6485,10 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 			else:
 				s = s.filter('match_phrase', doc__compiledRelease__tender__procurementMethodDetails__keyword=pmodalidad)
 				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=pmodalidad)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
+			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 
 		# Agregados
 
@@ -7122,6 +7232,9 @@ class IndicadorCatalogoElectronico(APIView):
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
 
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
+
 		# Agregados
 		s.aggs.metric(
 			'items', 
@@ -7267,6 +7380,9 @@ class IndicadorCompraConjunta(APIView):
 				s = s.filter('bool', must_not=qqMoneda)
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
+
+		if sistema.replace(' ', ''):
+			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 
 		# Agregados
 		s.aggs.metric(
