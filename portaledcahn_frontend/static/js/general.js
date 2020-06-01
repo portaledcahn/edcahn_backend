@@ -1029,3 +1029,21 @@ function AgregarEventoModalDescarga(selector,funcion){
     
     
 }
+
+/**
+ * Funcion para obtener elementos unicos en un filtro
+ * @param {Object} valor - valor actual en la iteración
+ * @param {number} indice - posición actual en la iteración
+ * @param {elemento} indice - arreglo de la iteración
+ */
+function distinto(valor, indice, elemento) {
+    return elemento.indexOf(valor) === indice;
+}
+
+/**
+ * Funcion para obtener elementos unicos en un arreglo
+ * @param {Object} arreglo - arreglo a iterar
+ */
+function distingirArreglo(arreglo) {
+    return arreglo.filter(distinto);
+}

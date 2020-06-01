@@ -532,6 +532,20 @@ function InicializarCantidadProcesos(){
         bottom:0,
         right:'center'
     },
+    /*
+    title:{
+        text:ObtenerParrafo('Cantidad y Porcentaje de Procesos de Contratación Iniciados con Relación al Total por Mes',50),
+        subtext: ObtenerParrafo('Fuente de Datos: HonduCompras 1.0 - Módulo de Difusión de Compras y Contrataciones. Módulo de Difusión Directa de Contratos. ',50),
+        textAlign:'center',
+        x:'50%',
+        textStyle:{
+            fontWeight:'bolder',
+            fontFamily:'Poppins',
+            color:'gray',
+            fontSize:14,
+            align:'center'
+        }
+    },*/
     toolbox: {
         orient:'horizontal',
         itemsize:20,
@@ -542,7 +556,14 @@ function InicializarCantidadProcesos(){
             dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
             magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
             restore: {show: true,title:'Restaurar'},
-            saveAsImage: {show: true,title:'Descargar'}
+            myDescarga: {
+                show: true,
+                title: 'Descargar',
+                icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                onclick: function (e,o){
+                    descargaImagen(e,o,opciones)
+                }
+            }
         },
         emphasis:{
             iconStyle:{
@@ -691,7 +712,9 @@ function InicializarCantidadProcesos(){
 
     
     window.addEventListener("resize", function(){
-        grafico.resize();
+	grafico.resize();
+        grafico.clear();
+        grafico.setOption(opciones, true);
     });
     }).fail(function() {
             
@@ -754,7 +777,14 @@ function InicializarMontoProcesos(){
                     dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                     magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
                 },
                 emphasis:{
                     iconStyle:{
@@ -902,7 +932,9 @@ function InicializarMontoProcesos(){
 
     
     window.addEventListener("resize", function(){
-        grafico.resize();
+	grafico.resize();
+        grafico.clear();
+        grafico.setOption(opciones, true);
     });
     }).fail(function() {
           
@@ -950,7 +982,14 @@ function CantidadProcesosEtapas(){
                     dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                     magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
                 },
                 emphasis:{
                     iconStyle:{
@@ -1099,7 +1138,37 @@ function TiempoPromedioEtapas(){
                 bottom: '3%',
                 containLabel: true
             },
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
+                }
+            },
             legend: {
+                plain: 'scroll',
+                orient: 'horizontal',
+                position:'bottom',
+                bottom:0,
+                right:'center'
             },
             xAxis:  {
                 type: 'value',
@@ -1201,7 +1270,9 @@ function TiempoPromedioEtapas(){
 
     
     window.addEventListener("resize", function(){
-        grafico.resize();
+	grafico.resize();
+        grafico.clear();
+        grafico.setOption(opciones, true);
     });
     }).fail(function() {
     
@@ -1248,6 +1319,32 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosTipoContrato')
                     return cadena;
                 }
             },
+            
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
+                }
+            },
             legend: {
                 type: 'scroll',
                 orient: 'horizontal',
@@ -1255,7 +1352,8 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosTipoContrato')
                 position:'bottom',
                 textStyle:{
                     color:'gray'
-                }
+                },
+                bottom: 0
             },
             series : [
                 {
@@ -1304,7 +1402,9 @@ var grafico=echarts.init(document.getElementById('CantidadProcesosTipoContrato')
 
     
     window.addEventListener("resize", function(){
-        grafico.resize();
+	grafico.resize();
+        grafico.clear();
+        grafico.setOption(opciones, true);
     });
 }).fail(function() {
     
@@ -1357,6 +1457,32 @@ function MontoProcesosTipoContrato(){
                 orient: 'horizontal',
                 textStyle:{
                     color:'gray'
+                },bottom: 0
+            },
+            
+            toolbox: {
+                orient:'horizontal',
+                itemsize:20,
+                itemGap:15,
+                right:20,
+                top:25,
+                feature: {
+                    dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                    restore: {show: true,title:'Restaurar'},
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
+                },
+                emphasis:{
+                    iconStyle:{
+                        textPosition:'top'
+                    }
                 }
             },
             series : [
@@ -1407,7 +1533,9 @@ function MontoProcesosTipoContrato(){
 
     
     window.addEventListener("resize", function(){
-        grafico.resize();
+	grafico.resize();
+        grafico.clear();
+        grafico.setOption(opciones, true);
     });
     }).fail(function(e) {
         
@@ -1457,10 +1585,36 @@ var opciones = {
         type: 'scroll',
         orient: 'vertical',
         right: 10,
-        top: 20,
+        top: '10%',
         bottom: 20,
         textStyle:{
             color:'gray'
+        }
+    },
+    
+    toolbox: {
+        orient:'horizontal',
+        itemsize:20,
+        itemGap:15,
+        right:20,
+        top:25,
+        feature: {
+            dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+            magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+            restore: {show: true,title:'Restaurar'},
+            myDescarga: {
+                show: true,
+                title: 'Descargar',
+                icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                onclick: function (e,o){
+                    descargaImagen(e,o,opciones)
+                }
+            }
+        },
+        emphasis:{
+            iconStyle:{
+                textPosition:'top'
+            }
         }
     },
     series : [
@@ -1625,10 +1779,37 @@ var datosPastel=[];
             type: 'scroll',
             orient: 'vertical',
             right: 10,
-            top: 20,
+            top: '10%',
             bottom: 20,
             textStyle:{
                 color:'gray'
+            }
+        },
+        
+        toolbox: {
+            orient:'horizontal',
+            itemsize:20,
+            itemGap:15,
+            right:20,
+            top:25,
+            feature: {
+                dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
+                restore: {show: true,title:'Restaurar'},
+                myDescarga: {
+                    show: true,
+                    title: 'Descargar',
+                    icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                    onclick: function (e,o){
+                        descargaImagen(e,o,opciones);
+                        
+                    }
+                }
+            },
+            emphasis:{
+                iconStyle:{
+                    textPosition:'top'
+                }
             }
         },
         calculable:true,
@@ -1733,7 +1914,9 @@ var datosPastel=[];
 
     
     window.addEventListener("resize", function(){
-        grafico.resize();
+	grafico.resize();
+        grafico.clear();
+        grafico.setOption(opciones, true);
     });
 }).fail(function() {
     
@@ -1789,7 +1972,14 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
                     dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                     magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                     restore: {show: true,title:'Restaurar'},
-                    saveAsImage: {show: true,title:'Descargar'}
+                    myDescarga: {
+                        show: true,
+                        title: 'Descargar',
+                        icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                        onclick: function (e,o){
+                            descargaImagen(e,o,opciones)
+                        }
+                    }
                 },
                 emphasis:{
                     iconStyle:{
@@ -1967,7 +2157,9 @@ var grafico=echarts.init(document.getElementById('top10Compradores'));
 
     
     window.addEventListener("resize", function(){
-        grafico.resize();
+	grafico.resize();
+        grafico.clear();
+        grafico.setOption(opciones, true);
     });
 }).fail(function() {
     
@@ -2025,7 +2217,14 @@ var opciones = {
                 dataView: {show: true, readOnly: false,title:'Vista',lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
                 magicType: {show: true, type: ['line', 'bar'],title:{line:'Linea',bar:'Barra',stack:'Pila',tiled:'Teja'}},
                 restore: {show: true,title:'Restaurar'},
-                saveAsImage: {show: true,title:'Descargar'}
+                myDescarga: {
+                    show: true,
+                    title: 'Descargar',
+                    icon:'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
+                    onclick: function (e,o){
+                        descargaImagen(e,o,opciones)
+                    }
+                }
             },
             emphasis:{
                 iconStyle:{
@@ -2308,3 +2507,46 @@ $.get(api+"/dashboardoncae/estadisticamontosdecontratos/",parametros).done(funct
     });
 }
 
+
+function descargaImagen(e,o,opciones){
+    var tituloGrafico= $(o.getDom()).parent().parent().find('.tituloGrafico .titularCajonSombreado ').text().trim();
+    var fuenteDatos=$(o.getDom()).parent().find('.fuenteDatos').text().trim();
+    var preConfiguracion=o.getOption();
+    e.scheduler.ecInstance.clear();
+    preConfiguracion['title']={
+        text:ObtenerParrafo(tituloGrafico,50),
+        subtext: ObtenerParrafo(fuenteDatos,50),
+        textAlign:'center',
+        x:'50%',
+        textStyle:{
+            fontWeight:'bolder',
+            fontFamily:'Poppins',
+            color:'gray',
+            fontSize:14
+        }
+    }
+    if(!preConfiguracion['grid']){
+        preConfiguracion['grid']={};
+    }
+    preConfiguracion['grid']['top']=150;
+    preConfiguracion['grid']['bottom']=20;
+    preConfiguracion['animation']=false;
+    var tamanoAdicion=600;
+    $(o.getDom()).height($(o.getDom()).height()+tamanoAdicion);
+    e.scheduler.ecInstance.setOption(preConfiguracion,true);
+    var imagen =e.scheduler.ecInstance.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents:['toolbox']
+    });
+    var byteString = atob(imagen.split(',')[1]);
+    var arregloBuffer = new ArrayBuffer(byteString.length);
+    var iArreglo = new Uint8Array(arregloBuffer);
+    for (var i = 0; i < byteString.length; i++) {
+        iArreglo[i] = byteString.charCodeAt(i);
+    }
+    saveAs(new Blob([arregloBuffer], {type: 'image/png'}),(tituloGrafico+'.png'));
+    $(o.getDom()).height($(o.getDom()).height()-tamanoAdicion);
+    e.scheduler.ecInstance.clear();
+    e.scheduler.ecInstance.setOption(opciones,true);
+}

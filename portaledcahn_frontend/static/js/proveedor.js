@@ -566,9 +566,9 @@ function CargarContratosProveedor(){
           $('<td>', { 'data-label': 'Nombre del Proceso', class: 'textoAlineadoCentrado' }).append(
             resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderTitle ? resultados[i]._source.extra.tenderTitle : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
         ),
-        $('<td>', { 'data-label': 'Categoría de Compras', class: 'textoAlineadoCentrado' }).append(
+        $('<td>', { 'data-label': 'Categoría de Compra', class: 'textoAlineadoCentrado' }).append(
 
-            resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderMainProcurementCategory ? (categoriaCompra[resultados[i]._source.extra.tenderMainProcurementCategory]?categoriaCompra[resultados[i]._source.extra.tenderMainProcurementCategory].titulo: resultados[i]._source.extra.tenderMainProcurementCategory) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+            (resultados[i] && resultados[i]._source && resultados[i]._source.localProcurementCategory) ? (categoriaCompra[resultados[i]._source.localProcurementCategory]?categoriaCompra[resultados[i]._source.localProcurementCategory].titulo:resultados[i]._source.localProcurementCategory):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
         ),
                 $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
                 resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
