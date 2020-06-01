@@ -31,8 +31,7 @@
       dateFormat:'yyyy-MM-dd',
       language:'es'
     });*/
-    //
-    ObtenerAniosProveedores();
+    //ObtenerAniosProveedores();
     $('.fecha').mask('0000-00-00');
   
     $('.OpcionFiltroBusquedaNumerico input').on('change',function(evento){
@@ -113,8 +112,8 @@
               resultados[i].fecha_ultimo_proceso&&resultados[i].fecha_ultimo_proceso!='NaT'?ObtenerFecha(resultados[i].fecha_ultimo_proceso,'fecha'):'No Disponible'
             )
             
-          ),
-          $('<td>',{'data-label':'Año' ,class:'textoAlineadoCentrado'}).text(ObtenerAnio())
+          )/*,
+          $('<td>',{'data-label':'Año' ,class:'textoAlineadoCentrado'}).text(ObtenerAnio())*/
         )
       )
     }
@@ -328,7 +327,7 @@ function ObtenerAniosProveedores(){
 function CargarProveedores(){
 $('#resultadosProveedores').html(
   $('<tr>').append(
-    $('<td>',{style:'height:300px;position:relative',colspan:'9',id:'cargando'})
+    $('<td>',{style:'height:300px;position:relative',colspan:'8',id:'cargando'})
   ));
 MostrarEspera('#cargando');
 var parametros=ObtenerFiltros();

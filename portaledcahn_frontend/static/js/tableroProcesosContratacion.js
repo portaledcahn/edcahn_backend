@@ -117,7 +117,7 @@ function CargarGraficos(){
 function ObtenerFiltros(){
     var parametros=ObtenerJsonFiltrosAplicados({});
     $.get(api+"/dashboardoncae/filtros/",parametros).done(function( datos ) {
-
+console.dir(datos)
     MostrarListaElastica(datos,'#elastic-list');
     MostrarEtiquetaListaElasticaAplicada();
     MostrarListaElasticaAplicados();
@@ -366,7 +366,7 @@ function ValoresLlaves(llave){
         case 'monedas':
             return {valor:'moneda',cantidad:'procesos',codigo:'moneda'};
         case 'sistemas':
-        return {valor:'id',cantidad:'ocids',codigo:'id'};
+        return {valor:'id',cantidad:'procesos',codigo:'id'};
         default:
             return {valor:'key_as_string',cantidad:'procesos',codigo:'key_as_string'};
     }
@@ -380,6 +380,9 @@ function ValoresLlaves(llave){
 function AgregarPropiedadesListaElastica(valor,llave){
     var elementos=[]
     $.each(valor,function(i,propiedades){
+        if(Validar(propiedades.procesos)&&(ObtenerNumero(propiedades.procesos) == 0)){
+            return;
+        }
        elementos.push(
         $('<li >',{
         class:'list-group-item',
