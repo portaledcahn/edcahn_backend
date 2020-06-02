@@ -3760,6 +3760,7 @@ class FiltrosDashboardONCAE(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 		masinstituciones = request.GET.get('masinstituciones', '')
+		tablero = request.GET.get('tablero', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -3931,33 +3932,6 @@ class FiltrosDashboardONCAE(APIView):
 			field='extra.parentTop.name.keyword', 
 			size=cantidadInstituciones
 		)
-
-		# s.aggs.metric(
-		# 	'aniosProcesos', 
-		# 	'date_histogram', 
-		# 	field='doc.compiledRelease.tender.datePublished', 
-		# 	interval='year', 
-		# 	format='yyyy',
-		# 	min_doc_count=1
-		# )
-
-		# ss.aggs.metric(
-		# 	'aniosContratoFechaFirma', 
-		# 	'date_histogram', 
-		# 	field='dateSigned', 
-		# 	interval='year', 
-		# 	format='yyyy',
-		# 	min_doc_count=1
-		# )
-
-		# sss.aggs.metric(
-		# 	'aniosContratoFechaInicio', 
-		# 	'date_histogram', 
-		# 	field='period.startDate', 
-		# 	interval='year', 
-		# 	format='yyyy',
-		# 	min_doc_count=1
-		# )
 
 		s.aggs.metric(
 			'categoriasProcesos', 
@@ -4147,6 +4121,7 @@ class FiltrosDashboardONCAE(APIView):
 			else:
 				anios[value["key_as_string"]] = {}
 				anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+				anios[value["key_as_string"]]["procesos"] = 0
 				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
 
 		for value in aniosFechaInicio["buckets"]:
@@ -4165,6 +4140,10 @@ class FiltrosDashboardONCAE(APIView):
 		annioActual = int(datetime.datetime.now().year)
 
 		for key, value in anios.items():
+
+			if 'contratos' not in anios[value["key_as_string"]]:
+				anios[value["key_as_string"]]["contratos"] = 0 
+
 			if int(value["key_as_string"]) <= annioActual and int(value["key_as_string"]) >= 1980:
 				years.append(value)
 
@@ -4183,17 +4162,17 @@ class FiltrosDashboardONCAE(APIView):
 					"contratos": 0
 				})
 		
-		if anio.replace(' ', ''):	
-			for codigo in institucionesContratosPC["buckets"]:
+		for codigo in institucionesContratosPC["buckets"]:
 
-				for nombre in codigo["nombre"]["buckets"]:
-					instituciones.append({
-						"codigo": codigo["key"],
-						"nombre": nombre["key"],
-						"procesos": 0,
-						"contratos": nombre["doc_count"]
-					})
+			for nombre in codigo["nombre"]["buckets"]:
+				instituciones.append({
+					"codigo": codigo["key"],
+					"nombre": nombre["key"],
+					"procesos": 0,
+					"contratos": nombre["doc_count"]
+				})
 
+		if anio.replace(' ', ''):
 			for codigo in institucionesContratosDD["buckets"]:
 
 				for nombre in codigo["nombre"]["buckets"]:
@@ -4213,7 +4192,16 @@ class FiltrosDashboardONCAE(APIView):
 				"contratos": 'sum'
 			}
 
-			dfInstituciones = dfInstituciones.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+			dfInstituciones = dfInstituciones.groupby('codigo', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfInstituciones['orden'] = dfInstituciones['contratos']
+			else: 
+				dfInstituciones.loc[dfInstituciones['procesos'] == 0, 'orden'] = dfInstituciones['contratos']
+
+				dfInstituciones.loc[dfInstituciones['procesos'] != 0, 'orden'] = dfInstituciones['procesos']
+
+			dfInstituciones = dfInstituciones.sort_values("orden", ascending=False)
 
 			instituciones = dfInstituciones.to_dict('records')
 
@@ -4244,7 +4232,16 @@ class FiltrosDashboardONCAE(APIView):
 				"contratos": 'sum'
 			}
 
-			dfMonedas = dfMonedas.groupby('moneda', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+			dfMonedas = dfMonedas.groupby('moneda', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfMonedas['orden'] = dfMonedas['contratos']
+			else: 
+				dfMonedas.loc[dfMonedas['procesos'] == 0, 'orden'] = dfMonedas['contratos']
+
+				dfMonedas.loc[dfMonedas['procesos'] != 0, 'orden'] = dfMonedas['procesos']
+
+			dfMonedas = dfMonedas.sort_values("orden", ascending=False)
 
 			monedas = dfMonedas.to_dict('records')
 
@@ -4281,7 +4278,16 @@ class FiltrosDashboardONCAE(APIView):
 				"contratos": 'sum'
 			}
 
-			dfCategorias = dfCategorias.groupby('categoria', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+			dfCategorias = dfCategorias.groupby('categoria', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfCategorias['orden'] = dfCategorias['contratos']
+			else: 
+				dfCategorias.loc[dfCategorias['procesos'] == 0, 'orden'] = dfCategorias['contratos']
+
+				dfCategorias.loc[dfCategorias['procesos'] != 0, 'orden'] = dfCategorias['procesos']
+
+			dfCategorias = dfCategorias.sort_values("orden", ascending=False)
 
 			categorias = dfCategorias.to_dict('records')
 
@@ -4318,7 +4324,16 @@ class FiltrosDashboardONCAE(APIView):
 				"contratos": 'sum'
 			}
 
-			dfModalidades = dfModalidades.groupby('modalidad', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+			dfModalidades = dfModalidades.groupby('modalidad', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfModalidades['orden'] = dfModalidades['contratos']
+			else: 
+				dfModalidades.loc[dfModalidades['procesos'] == 0, 'orden'] = dfModalidades['contratos']
+
+				dfModalidades.loc[dfModalidades['procesos'] != 0, 'orden'] = dfModalidades['procesos']
+
+			dfModalidades = dfModalidades.sort_values("orden", ascending=False)
 
 			modalidades = dfModalidades.to_dict('records')
 
@@ -4327,7 +4342,6 @@ class FiltrosDashboardONCAE(APIView):
 		for valor in sistemasProcesos["buckets"]:
 			sources.append({
 				'id': valor["key"],
-				'ocids': valor["doc_count"],
 				'procesos': valor["doc_count"],
 				'contratos': 0
 			})
@@ -4335,29 +4349,36 @@ class FiltrosDashboardONCAE(APIView):
 		for v in sistemasContratosDD["buckets"]:
 			sources.append({
 				'id': v["key"],
-				'ocids': 0,
 				'contratos': v["doc_count"],
 				'procesos':0
 			})
 
-		for v in sistemasContratosPC["buckets"]:
-			sources.append({
-				'id': v["key"],
-				'ocids': 0,
-				'contratos': v["doc_count"],
-				'procesos': 0
-			})
+		if anio.replace(' ', ''):		
+			for v in sistemasContratosPC["buckets"]:
+				sources.append({
+					'id': v["key"],
+					'contratos': v["doc_count"],
+					'procesos': 0
+				})
 
 		if sources:
 			dfSistemas = pd.DataFrame(sources)
 
 			agregaciones = {
-				"ocids": 'sum',
 				"contratos": 'sum',
 				"procesos": 'sum'
 			}
 
-			dfSistemas = dfSistemas.groupby('id', as_index=True).agg(agregaciones).reset_index().sort_values("ocids", ascending=False)
+			dfSistemas = dfSistemas.groupby('id', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfSistemas['orden'] = dfSistemas['contratos']
+			else: 
+				dfSistemas.loc[dfSistemas['procesos'] == 0, 'orden'] = dfSistemas['contratos']
+
+				dfSistemas.loc[dfSistemas['procesos'] != 0, 'orden'] = dfSistemas['procesos']
+
+			dfSistemas = dfSistemas.sort_values("orden", ascending=False)
 
 			sources = dfSistemas.to_dict('records')
 
