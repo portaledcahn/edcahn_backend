@@ -417,6 +417,8 @@ function ModalidadMontoCantidad(){
 
     
     window.addEventListener('resize', function(){
+        grafico.clear();
+        grafico.setOption(opciones, true);
         grafico.resize();
     });
     }).fail(function() {
@@ -483,8 +485,6 @@ var opciones = {
         top:25,
         feature: {
             dataView: {show: true, readOnly: false,title:"Vista",lang: ["Vista de Datos", "Cerrar", "Actualizar"] },
-            magicType: {show: true, type: ["line", "bar"],title:{line:"Linea",bar:"Barra",stack:"Pila",tiled:"Teja"}},
-            restore: {show: true,title:"Restaurar"},
             myDescarga: {
                 show: true,
                 title: "Descargar",
@@ -596,6 +596,8 @@ grafico.setOption(opciones, true);
 
 
 window.addEventListener('resize', function(){
+    grafico.clear();
+    grafico.setOption(opciones, true);
     grafico.resize();
 });
 }).fail(function() {
@@ -663,8 +665,6 @@ var datosPastel=[];
                 top:25,
                 feature: {
                     dataView: {show: true, readOnly: false,title:"Vista",lang: ["Vista de Datos", "Cerrar", "Actualizar"] },
-                    magicType: {show: true, type: ["line", "bar"],title:{line:"Linea",bar:"Barra",stack:"Pila",tiled:"Teja"}},
-                    restore: {show: true,title:"Restaurar"},
                     myDescarga: {
                         show: true,
                         title: "Descargar",
@@ -780,6 +780,8 @@ var datosPastel=[];
 
     
     window.addEventListener('resize', function(){
+        grafico.clear();
+        grafico.setOption(opciones, true);
         grafico.resize();
     });
 }).fail(function() {
@@ -1079,6 +1081,8 @@ var grafico=echarts.init(document.getElementById("top10InstitucionesMontos"));
 
     
     window.addEventListener('resize', function(){
+        grafico.clear();
+        grafico.setOption(opciones, true);
         grafico.resize();
     });
 }).fail(function() {
@@ -1379,6 +1383,8 @@ var grafico=echarts.init(document.getElementById("montoCatalogoElectronico"));
 
     
     window.addEventListener('resize', function(){
+        grafico.clear();
+        grafico.setOption(opciones, true);
         grafico.resize();
     });
 }).fail(function() {
@@ -1475,7 +1481,7 @@ function ObtenerFiltros(){
     var parametros=ObtenerJsonFiltrosAplicados({});
     parametros["tablero"]="c";
     $.get(api+'/dashboardoncae/filtros/',parametros).done(function( datos ) {
-  
+        console.dir(datos)
     MostrarListaElastica(datos,"#elastic-list");
     MostrarEtiquetaListaElasticaAplicada();
     MostrarListaElasticaAplicados();
@@ -1583,9 +1589,11 @@ function AccederUrlPagina(opciones,desUrl){
     };
     filtros=ObtenerJsonFiltrosAplicados(filtros);
     $.each(filtros,function(llave,valor){
+        if(filtrosAplicablesR[llave]){
       $("ul#ul"+ filtrosAplicablesR[llave].parametro ).find(
         "li[valor='"+(valor).toString()+"']"
       ).addClass("active");
+        }
     });
   }
 
@@ -1683,7 +1691,7 @@ function AccederUrlPagina(opciones,desUrl){
 function AgregarPropiedadesListaElastica(valor,llave){
     var elementos=[]
     $.each(valor,function(i,propiedades){
-      if(Validar(propiedades.contratos)&&(ObtenerNumero(propiedades.contratos) == 0)){
+      if((ObtenerNumero(propiedades.contratos) == 0)){
           return;
       }
       elementos.push(
@@ -2075,6 +2083,8 @@ var grafico=echarts.init(document.getElementById("montoCompraConjunta"));
 
     
     window.addEventListener('resize', function(){
+        grafico.clear();
+        grafico.setOption(opciones, true);
         grafico.resize();
     });
 }).fail(function() {
@@ -2102,14 +2112,20 @@ function descargaImagen(e,o,opciones){
         }
     }
     if(!preConfiguracion["grid"]){
-        preConfiguracion["grid"]={};
+        preConfiguracion["grid"]=[{}];
     }
-    preConfiguracion["grid"]["top"]=150;
-    preConfiguracion["grid"]["bottom"]=20;
+
+    if(preConfiguracion["grid"][0]){
+        preConfiguracion["grid"][0]["top"]=200;
+        preConfiguracion["grid"][0]["bottom"]=20;
+    }
+    
     preConfiguracion["animation"]=false;
-    var tamanoAdicion=600;
+    console.dir(preConfiguracion)
+    var tamanoAdicion=300;
     $(o.getDom()).height($(o.getDom()).height()+tamanoAdicion);
     e.scheduler.ecInstance.setOption(preConfiguracion,true);
+    e.scheduler.ecInstance.resize();
     var imagen =e.scheduler.ecInstance.getDataURL({
         pixelRatio: 2,
         backgroundColor: "#fff",
@@ -2125,4 +2141,5 @@ function descargaImagen(e,o,opciones){
     $(o.getDom()).height($(o.getDom()).height()-tamanoAdicion);
     e.scheduler.ecInstance.clear();
     e.scheduler.ecInstance.setOption(opciones,true);
+    e.scheduler.ecInstance.resize();
 }
