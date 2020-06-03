@@ -3817,7 +3817,12 @@ class FiltrosDashboardONCAE(APIView):
 			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			dateFilter = {'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)}
+			dateFilter = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
 			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=dateFilter)
 			ss = ss.filter('range', dateSigned=dateFilter)
 			sss = sss.filter('range', period__startDate=dateFilter)
@@ -4049,7 +4054,8 @@ class FiltrosDashboardONCAE(APIView):
 			field='doc.compiledRelease.tender.tenderPeriod.startDate', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ssFecha.aggs.metric(
@@ -4058,7 +4064,8 @@ class FiltrosDashboardONCAE(APIView):
 			field='dateSigned', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		sssFecha.aggs.metric(
@@ -4067,7 +4074,8 @@ class FiltrosDashboardONCAE(APIView):
 			field='period.startDate', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		procesos = s.execute()
@@ -4662,7 +4670,13 @@ class GraficarCantidadDeProcesosMes(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -4701,11 +4715,14 @@ class GraficarCantidadDeProcesosMes(APIView):
 		s.aggs.metric(
 			'procesos_por_mes', 
 			'date_histogram', 
-			field='doc.compiledRelease.date',
+			field='doc.compiledRelease.tender.tenderPeriod.startDate',
 			interval= "month",
-			format= "MM"
+			format= "MM",
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 		
+		# return DescargarProcesosCSV(request, s)
+
 		results = s.execute()
 
 		total_procesos = results.aggregations.total_procesos["value"]
@@ -4789,7 +4806,13 @@ class EstadisticaCantidadDeProcesos(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -4822,9 +4845,10 @@ class EstadisticaCantidadDeProcesos(APIView):
 		s.aggs.metric(
 			'procesos_por_mes', 
 			'date_histogram', 
-			field='doc.compiledRelease.tender.datePublished',
+			field='doc.compiledRelease.tender.tenderPeriod.startDate',
 			interval= "month",
-			format= "MM"
+			format= "MM",
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		results = s.execute()
@@ -4901,7 +4925,13 @@ class GraficarProcesosPorEtapa(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -5027,8 +5057,14 @@ class GraficarMontosDeContratosMes(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -5093,7 +5129,8 @@ class GraficarMontosDeContratosMes(APIView):
 			field='dateSigned',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ss.aggs.metric(
@@ -5102,7 +5139,8 @@ class GraficarMontosDeContratosMes(APIView):
 			field='period.startDate',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		s.aggs["procesosPorMesFechaFirma"].metric(
@@ -5258,8 +5296,14 @@ class EstadisticaCantidadDeContratos(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -5324,7 +5368,8 @@ class EstadisticaCantidadDeContratos(APIView):
 			field='dateSigned',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ss.aggs.metric(
@@ -5333,7 +5378,8 @@ class EstadisticaCantidadDeContratos(APIView):
 			field='period.startDate',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		s.aggs["procesosPorMesFechaFirma"].metric(
@@ -5487,8 +5533,14 @@ class EstadisticaMontosDeContratos(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -5553,7 +5605,8 @@ class EstadisticaMontosDeContratos(APIView):
 			field='dateSigned',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ss.aggs.metric(
@@ -5562,7 +5615,8 @@ class EstadisticaMontosDeContratos(APIView):
 			field='period.startDate',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		s.aggs["procesosPorMesFechaFirma"].metric(
@@ -5703,8 +5757,14 @@ class GraficarContratosPorCategorias(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -5876,8 +5936,14 @@ class GraficarContratosPorModalidad(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -6051,8 +6117,14 @@ class TopCompradoresPorMontoContratado(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -6258,8 +6330,14 @@ class TopProveedoresPorMontoContratado(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -6468,8 +6546,14 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
+			ss = ss.filter('range', dateSigned=filtroFecha)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -6651,8 +6735,14 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -6824,8 +6914,14 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -6906,18 +7002,12 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 		montosContratosPC = contratosPC.aggregations.contratosPorCategorias.to_dict()
 		montosContratosDD = contratosDD.aggregations.contratosPorCategorias.to_dict()
 
-		# total_monto_contratado = contratosPC.aggregations.sumaTotalContratos["value"]
-
-		# if anio.replace(' ', ''):
-		# 	total_monto_contratado += contratosDD.aggregations.sumaTotalContratos["value"]
-
 		categorias = []
 
 		for valor in montosContratosPC["buckets"]:
 			categorias.append({
 				"name": valor["key"],
 				"value": valor["doc_count"],
-				# "value": valor["conteoOCID"]["value"]
 			})
 
 		if anio.replace(' ', ''):
@@ -6925,7 +7015,6 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 				categorias.append({
 					"name": valor["key"],
 					"value": valor["doc_count"],
-					# "value": valor["conteoOCID"]["value"],
 				})
 
 		if categorias:
@@ -7004,8 +7093,14 @@ class IndicadorTopCompradores(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7230,7 +7325,13 @@ class IndicadorCatalogoElectronico(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7305,9 +7406,7 @@ class IndicadorCatalogoElectronico(APIView):
 
 		itemsCE = contratosCE.aggregations.items.porCatalogo.to_dict()
 
-		# catalogos = []
 		for c in itemsCE["buckets"]:
-
 			nombreCatalogo.append(c["key"].upper())
 			totalContratado.append(c["montoContratado"]["value"])
 			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
@@ -7379,7 +7478,13 @@ class IndicadorCompraConjunta(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7449,9 +7554,7 @@ class IndicadorCompraConjunta(APIView):
 
 		itemsCE = contratosCE.aggregations.items.porCatalogo.to_dict()
 
-		# catalogos = []
 		for c in itemsCE["buckets"]:
-
 			nombreCatalogo.append(c["key"].upper())
 			totalContratado.append(c["montoContratado"]["value"])
 			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
@@ -7526,8 +7629,14 @@ class IndicadorContratosPorModalidad(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7642,13 +7751,11 @@ class IndicadorContratosPorModalidad(APIView):
 			modalidades = dfModalidades.to_dict('records')
 
 		for m in modalidades:
-			# print(m)
 			nombreModalidades.append(m["modalidad"])
 			cantidadContratos.append(m["cantidadContratos"])
 			montosContratos.append(m["montosContratos"])
 
 		resultados = {
-			# "modalidades": modalidades,
 			"nombreModalidades": nombreModalidades,
 			"cantidadContratos": cantidadContratos,
 			"montosContratos": montosContratos
@@ -7707,8 +7814,14 @@ class CompradoresPorCantidadDeContratos(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7777,7 +7890,8 @@ class CompradoresPorCantidadDeContratos(APIView):
 			field='dateSigned',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
@@ -7786,7 +7900,8 @@ class CompradoresPorCantidadDeContratos(APIView):
 			field='period.startDate',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		contratosPC = s.execute()
@@ -7913,7 +8028,8 @@ class FiltrosVisualizacionesONCAE(APIView):
 			field='dateSigned', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		sssFecha.aggs.metric(
@@ -7922,7 +8038,8 @@ class FiltrosVisualizacionesONCAE(APIView):
 			field='period.startDate', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 		
 		ssFechaResultados = ssFecha.execute()
