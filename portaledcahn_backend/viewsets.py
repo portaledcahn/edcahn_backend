@@ -3761,6 +3761,7 @@ class FiltrosDashboardONCAE(APIView):
 		sistema = request.GET.get('sistema', '')
 		masinstituciones = request.GET.get('masinstituciones', '')
 		tablero = request.GET.get('tablero', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -3889,6 +3890,26 @@ class FiltrosDashboardONCAE(APIView):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 			sss = sss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':			
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+				sss = sss.filter('bool', must_not=qqNormativa)
+
+				sFecha = sFecha.filter('bool', must_not=qNormativa)
+				ssFecha = ssFecha.filter('bool', must_not=qqNormativa)
+				sssFecha = sssFecha.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				sss = sss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+
+				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=normativa)
+				ssFecha = ssFecha.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				sssFecha = sssFecha.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		cantidadInstituciones = 50
 
@@ -4078,6 +4099,30 @@ class FiltrosDashboardONCAE(APIView):
 			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
+		s.aggs.metric(
+			'normativasProcesos', 
+			'terms', 
+			missing='No Definido',
+			field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword', 
+			size=10000
+		)
+
+		ss.aggs.metric(
+			'normativasContratosFechaFirma', 
+			'terms', 
+			missing='No Definido',
+			field='extra.fuentesONCAE.keyword', 
+			size=10000
+		)
+
+		sss.aggs.metric(
+			'normativasContratosFechaInicio', 
+			'terms',
+			missing='No Definido', 
+			field='extra.fuentesONCAE.keyword', 
+			size=10000
+		)
+
 		procesos = s.execute()
 		contratosPC = ss.execute()
 		contratosDD = sss.execute()
@@ -4108,6 +4153,10 @@ class FiltrosDashboardONCAE(APIView):
 		sistemasContratosPC = contratosPC.aggregations.sources.to_dict()
 		sistemasContratosDD = contratosDD.aggregations.sources.to_dict()
 		sistemasProcesos = procesos.aggregations.sources.to_dict()
+
+		normativasProcesos = procesos.aggregations.normativasProcesos.to_dict()
+		normativasContratosPC = contratosPC.aggregations.normativasContratosFechaFirma.to_dict()
+		normativasContratosDD = contratosDD.aggregations.normativasContratosFechaInicio.to_dict()
 
 		#Valores para filtros por anio
 		anios = {}
@@ -4390,6 +4439,52 @@ class FiltrosDashboardONCAE(APIView):
 
 			sources = dfSistemas.to_dict('records')
 
+		#valores para filtros por categoria.
+		normativas = []
+
+		for valor in normativasProcesos["buckets"]:
+			normativas.append({
+				"normativa": valor["key"],
+				"procesos": valor["doc_count"],
+				"contratos": 0
+			})
+
+		for valor in normativasContratosPC["buckets"]:
+			normativas.append({
+				"normativa": valor["key"],
+				"procesos": 0,
+				"contratos": valor["doc_count"]
+			})
+
+		if anio.replace(' ', ''):
+			for valor in normativasContratosDD["buckets"]:
+				normativas.append({
+					"normativa": valor["key"],
+					"procesos": 0,
+					"contratos": valor["doc_count"]
+				})
+
+		if normativas:
+			dfNormativas = pd.DataFrame(normativas)
+
+			agregaciones = {
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfNormativas = dfNormativas.groupby('normativa', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfNormativas['orden'] = dfNormativas['contratos']
+			else: 
+				dfNormativas.loc[dfNormativas['procesos'] == 0, 'orden'] = dfNormativas['contratos']
+
+				dfNormativas.loc[dfNormativas['procesos'] != 0, 'orden'] = dfNormativas['procesos']
+
+			dfNormativas = dfNormativas.sort_values("orden", ascending=False)
+
+			normativas = dfNormativas.to_dict('records')
+
 		resultados = {}
 		resultados["años"] = years
 		resultados["monedas"] = monedas
@@ -4398,6 +4493,9 @@ class FiltrosDashboardONCAE(APIView):
 		resultados["modalidades"] = modalidades
 		resultados["sistemas"] = sources
 
+		if tablero != 'c':
+			resultados["Normativas"] = normativas
+
 		parametros = {}
 		parametros["institucion"] = institucion
 		parametros["idinstitucion"] = idinstitucion
@@ -4405,6 +4503,7 @@ class FiltrosDashboardONCAE(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 		parametros["masinstituciones"] = masinstituciones
 
 		context = {
@@ -4428,6 +4527,7 @@ class GraficarProcesosPorCategorias(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -4474,6 +4574,13 @@ class GraficarProcesosPorCategorias(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'totalProcesos',
@@ -4514,6 +4621,7 @@ class GraficarProcesosPorCategorias(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -4536,6 +4644,7 @@ class GraficarProcesosPorModalidad(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -4584,6 +4693,13 @@ class GraficarProcesosPorModalidad(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'totalProcesos',
@@ -4620,6 +4736,7 @@ class GraficarProcesosPorModalidad(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -4643,6 +4760,7 @@ class GraficarCantidadDeProcesosMes(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -4705,6 +4823,13 @@ class GraficarCantidadDeProcesosMes(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'total_procesos',
@@ -4761,6 +4886,7 @@ class GraficarCantidadDeProcesosMes(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -4780,6 +4906,7 @@ class EstadisticaCantidadDeProcesos(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -4841,6 +4968,13 @@ class EstadisticaCantidadDeProcesos(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+
 		#Agregados
 		s.aggs.metric(
 			'procesos_por_mes', 
@@ -4884,6 +5018,7 @@ class EstadisticaCantidadDeProcesos(APIView):
 		parametros["institucion"] = institucion
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -4906,6 +5041,7 @@ class GraficarProcesosPorEtapa(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -4960,6 +5096,13 @@ class GraficarProcesosPorEtapa(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'totalProcesos',
@@ -4996,6 +5139,7 @@ class GraficarProcesosPorEtapa(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -5021,6 +5165,7 @@ class GraficarMontosDeContratosMes(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -5096,6 +5241,15 @@ class GraficarMontosDeContratosMes(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 
@@ -5235,6 +5389,7 @@ class GraficarMontosDeContratosMes(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -5260,6 +5415,7 @@ class EstadisticaCantidadDeContratos(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -5335,6 +5491,15 @@ class EstadisticaCantidadDeContratos(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 
@@ -5472,7 +5637,8 @@ class EstadisticaCantidadDeContratos(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
-
+		parametros["normativa"] = normativa
+	
 		context = {
 			"resultados": resultados,
 			"parametros": parametros
@@ -5497,6 +5663,7 @@ class EstadisticaMontosDeContratos(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -5572,6 +5739,15 @@ class EstadisticaMontosDeContratos(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 
@@ -5706,6 +5882,7 @@ class EstadisticaMontosDeContratos(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -5728,6 +5905,7 @@ class GraficarContratosPorCategorias(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -5796,7 +5974,16 @@ class GraficarContratosPorCategorias(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
-		
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'sumaTotalContratos',
@@ -5887,7 +6074,8 @@ class GraficarContratosPorCategorias(APIView):
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
-		parametros["`modalidad"] = modalidad
+		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -5907,6 +6095,7 @@ class GraficarContratosPorModalidad(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -5976,6 +6165,15 @@ class GraficarContratosPorModalidad(APIView):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 		
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'sumaTotalContratos',
@@ -6064,7 +6262,8 @@ class GraficarContratosPorModalidad(APIView):
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
-		parametros["`modalidad"] = modalidad
+		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -6088,6 +6287,7 @@ class TopCompradoresPorMontoContratado(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -6156,6 +6356,15 @@ class TopCompradoresPorMontoContratado(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -6277,7 +6486,8 @@ class TopCompradoresPorMontoContratado(APIView):
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
-		parametros["`modalidad"] = modalidad
+		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -6303,6 +6513,7 @@ class TopProveedoresPorMontoContratado(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -6316,11 +6527,13 @@ class TopProveedoresPorMontoContratado(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -6338,8 +6551,12 @@ class TopProveedoresPorMontoContratado(APIView):
 				'lt': datetime.date(int(anio)+1, 1, 1)
 			}
 
-			s = s.filter('range', dateSigned=filtroFecha)
-			ss = ss.filter('range', period__startDate=filtroFecha)
+			filtroFechaFirma = Q('range', dateSigned=filtroFecha)
+			filtroFechaInicio =  Q('range', period__startDate=filtroFecha)
+			s = s.filter(filtroFechaFirma | filtroFechaInicio)
+
+			# s = s.filter('range', dateSigned=filtroFecha)
+			# ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -6372,6 +6589,15 @@ class TopProveedoresPorMontoContratado(APIView):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'sumaTotalContratos',
@@ -6390,7 +6616,7 @@ class TopProveedoresPorMontoContratado(APIView):
 			'terms', 
 			missing='No Definido',
 			field='suppliers.id.keyword',
-			size=30000,
+			size=1000,
 			order={'montoContratadoId': 'desc'}
 		)
 
@@ -6399,7 +6625,7 @@ class TopProveedoresPorMontoContratado(APIView):
 			'terms', 
 			missing='No Definido',
 			field='suppliers.id.keyword',
-			size=30000,
+			size=100,
 			order={'montoContratadoId': 'desc'}
 		)
 
@@ -6480,16 +6706,16 @@ class TopProveedoresPorMontoContratado(APIView):
 					"cantidadInstituciones": comprador["cantidadInstituciones"]["value"]
 				})
 
-		if anio.replace(' ', ''):
-			for valor in montosContratosDD["buckets"]:
-				for comprador in valor["nombreComprador"]["buckets"]:
-					compradores.append({
-						"codigo": valor["key"],
-						"nombre": comprador["key"],
-						"montoContratado": comprador["sumaContratos"]["value"],
-						"cantidadContratos": comprador["doc_count"],
-						"cantidadInstituciones": comprador["cantidadInstituciones"]["value"]
-					})
+		# if anio.replace(' ', ''):
+		# 	for valor in montosContratosDD["buckets"]:
+		# 		for comprador in valor["nombreComprador"]["buckets"]:
+		# 			compradores.append({
+		# 				"codigo": valor["key"],
+		# 				"nombre": comprador["key"],
+		# 				"montoContratado": comprador["sumaContratos"]["value"],
+		# 				"cantidadContratos": comprador["doc_count"],
+		# 				"cantidadInstituciones": comprador["cantidadInstituciones"]["value"]
+		# 			})
 
 		if compradores:
 			dfCompradores = pd.DataFrame(compradores)
@@ -6532,7 +6758,8 @@ class TopProveedoresPorMontoContratado(APIView):
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
-		parametros["`modalidad"] = modalidad
+		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -6555,6 +6782,7 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		pcategoria = request.GET.get('categoria', '')
 		pmodalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		pnormativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -6636,6 +6864,17 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+
+		if pnormativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword')
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=pnormativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=pnormativa)
 
 		# Agregados
 
@@ -6724,6 +6963,7 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = pcategoria
 		parametros["modalidad"] = pmodalidad
+		parametros["normativa"] = pnormativa
 
 		context = {
 			"resultados": resultados,
