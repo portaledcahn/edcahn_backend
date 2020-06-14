@@ -6293,6 +6293,8 @@ class TopProveedoresPorMontoContratado(APIView):
 		codigoProveedores = []
 		nombreProveedores = []
 		totalContratado = []
+		cantidadContratos = []
+		cantidadInstituciones = []
 
 		institucion = request.GET.get('institucion', '')
 		idinstitucion = request.GET.get('idinstitucion', '')
@@ -6388,7 +6390,8 @@ class TopProveedoresPorMontoContratado(APIView):
 			'terms', 
 			missing='No Definido',
 			field='suppliers.id.keyword',
-			size=10000
+			size=30000,
+			order={'montoContratadoId': 'desc'}
 		)
 
 		ss.aggs.metric(
@@ -6396,7 +6399,20 @@ class TopProveedoresPorMontoContratado(APIView):
 			'terms', 
 			missing='No Definido',
 			field='suppliers.id.keyword',
-			size=10000
+			size=30000,
+			order={'montoContratadoId': 'desc'}
+		)
+
+		s.aggs["contratosPorComprador"].metric(
+			'montoContratadoId',
+			'sum',
+			field='extra.LocalCurrency.amount'
+		)
+
+		ss.aggs["contratosPorComprador"].metric(
+			'montoContratadoId',
+			'sum',
+			field='extra.LocalCurrency.amount'
 		)
 
 		s.aggs["contratosPorComprador"].metric(
@@ -6404,7 +6420,7 @@ class TopProveedoresPorMontoContratado(APIView):
 			'terms', 
 			missing='No Definido',
 			field='suppliers.name.keyword',
-			size=10000
+			size=1000
 		)
 
 		ss.aggs["contratosPorComprador"].metric(
@@ -6412,7 +6428,7 @@ class TopProveedoresPorMontoContratado(APIView):
 			'terms', 
 			missing='No Definido',
 			field='suppliers.name.keyword',
-			size=10000
+			size=1000
 		)
 
 		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
@@ -6425,7 +6441,21 @@ class TopProveedoresPorMontoContratado(APIView):
 			'sumaContratos',
 			'sum',
 			field='extra.LocalCurrency.amount'
-		)		
+		)
+
+		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
+			'cantidadInstituciones',
+			'cardinality',
+			field='extra.parentTop.id.keyword',
+			precision_threshold=10000
+		)
+
+		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
+			'cantidadInstituciones',
+			'cardinality',
+			field='extra.parentTop.id.keyword',
+			precision_threshold=10000
+		)
 
 		contratosPC = s.execute()
 		contratosDD = ss.execute()
@@ -6446,6 +6476,8 @@ class TopProveedoresPorMontoContratado(APIView):
 					"codigo": valor["key"],
 					"nombre": comprador["key"],
 					"montoContratado": comprador["sumaContratos"]["value"],
+					"cantidadContratos": comprador["doc_count"],
+					"cantidadInstituciones": comprador["cantidadInstituciones"]["value"]
 				})
 
 		if anio.replace(' ', ''):
@@ -6454,7 +6486,9 @@ class TopProveedoresPorMontoContratado(APIView):
 					compradores.append({
 						"codigo": valor["key"],
 						"nombre": comprador["key"],
-						"montoContratado": comprador["sumaContratos"]["value"]
+						"montoContratado": comprador["sumaContratos"]["value"],
+						"cantidadContratos": comprador["doc_count"],
+						"cantidadInstituciones": comprador["cantidadInstituciones"]["value"]
 					})
 
 		if compradores:
@@ -6463,6 +6497,8 @@ class TopProveedoresPorMontoContratado(APIView):
 			agregaciones = {
 				"nombre": 'first',
 				"montoContratado": 'sum',
+				"cantidadContratos":"sum",
+				"cantidadInstituciones":"sum"
 			}
 
 			dfCompradores = dfCompradores.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("montoContratado", ascending=False)
@@ -6473,15 +6509,21 @@ class TopProveedoresPorMontoContratado(APIView):
 				codigoProveedores.append(c["codigo"])
 				nombreProveedores.append(c["nombre"])
 				totalContratado.append(c["montoContratado"])
+				cantidadContratos.append(c["cantidadContratos"])
+				cantidadInstituciones.append(c["cantidadInstituciones"])
 
 		codigoProveedores.reverse()
 		nombreProveedores.reverse()
 		totalContratado.reverse()
+		cantidadContratos.reverse()
+		cantidadInstituciones.reverse()
 
 		resultados = {
 			"codigoProveedores": codigoProveedores,
 			"nombreProveedores": nombreProveedores,
 			"montoContratado": totalContratado,
+			"cantidadContratos": cantidadContratos,
+			"cantidadInstituciones": cantidadInstituciones
 		}
 
 		parametros = {}
