@@ -6518,31 +6518,25 @@ class TopProveedoresPorMontoContratado(APIView):
 		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
-		ss = Search(using=cliente, index='contract')
 
 		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
-		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
 		## Solo contratos de ordenes de compra en estado impreso. 
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
-		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
-		ss = ss.exclude(sistemaDC & estadoContrato)
 		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
-			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 
 		if idinstitucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
-			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
 			filtroFecha = {
@@ -6555,57 +6549,39 @@ class TopProveedoresPorMontoContratado(APIView):
 			filtroFechaInicio =  Q('range', period__startDate=filtroFecha)
 			s = s.filter(filtroFechaFirma | filtroFechaInicio)
 
-			# s = s.filter('range', dateSigned=filtroFecha)
-			# ss = ss.filter('range', period__startDate=filtroFecha)
-
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
 				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
-				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
 				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
 				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
 				s = s.filter('bool', must_not=qqModalidad)
-				ss = ss.filter('bool', must_not=qqModalidad)
 			else:
 				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
-				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
 				qqMoneda = Q('exists', field='value.currency.keyword')
 				s = s.filter('bool', must_not=qqMoneda)
-				ss = ss.filter('bool', must_not=qqMoneda)			
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
-				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
-			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
 				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
 				s = s.filter('bool', must_not=qqNormativa)
-				ss = ss.filter('bool', must_not=qqNormativa)
 			else:
 				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
-				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
-			'sumaTotalContratos',
-			'sum',
-			field='extra.LocalCurrency.amount'
-		)
-
-		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
 			field='extra.LocalCurrency.amount'
@@ -6620,22 +6596,7 @@ class TopProveedoresPorMontoContratado(APIView):
 			order={'montoContratadoId': 'desc'}
 		)
 
-		ss.aggs.metric(
-			'contratosPorComprador', 
-			'terms', 
-			missing='No Definido',
-			field='suppliers.id.keyword',
-			size=100,
-			order={'montoContratadoId': 'desc'}
-		)
-
 		s.aggs["contratosPorComprador"].metric(
-			'montoContratadoId',
-			'sum',
-			field='extra.LocalCurrency.amount'
-		)
-
-		ss.aggs["contratosPorComprador"].metric(
 			'montoContratadoId',
 			'sum',
 			field='extra.LocalCurrency.amount'
@@ -6649,34 +6610,13 @@ class TopProveedoresPorMontoContratado(APIView):
 			size=1000
 		)
 
-		ss.aggs["contratosPorComprador"].metric(
-			'nombreComprador', 
-			'terms', 
-			missing='No Definido',
-			field='suppliers.name.keyword',
-			size=1000
-		)
-
 		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
 			'sumaContratos',
 			'sum',
 			field='extra.LocalCurrency.amount'
 		)
 
-		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
-			'sumaContratos',
-			'sum',
-			field='extra.LocalCurrency.amount'
-		)
-
 		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
-			'cantidadInstituciones',
-			'cardinality',
-			field='extra.parentTop.id.keyword',
-			precision_threshold=10000
-		)
-
-		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
 			'cantidadInstituciones',
 			'cardinality',
 			field='extra.parentTop.id.keyword',
@@ -6684,15 +6624,10 @@ class TopProveedoresPorMontoContratado(APIView):
 		)
 
 		contratosPC = s.execute()
-		contratosDD = ss.execute()
 
 		montosContratosPC = contratosPC.aggregations.contratosPorComprador.to_dict()
-		montosContratosDD = contratosDD.aggregations.contratosPorComprador.to_dict()
 
 		total_monto_contratado = contratosPC.aggregations.sumaTotalContratos["value"]
-
-		if anio.replace(' ', ''):
-			total_monto_contratado += contratosDD.aggregations.sumaTotalContratos["value"]
 
 		compradores = []
 
@@ -6705,17 +6640,6 @@ class TopProveedoresPorMontoContratado(APIView):
 					"cantidadContratos": comprador["doc_count"],
 					"cantidadInstituciones": comprador["cantidadInstituciones"]["value"]
 				})
-
-		# if anio.replace(' ', ''):
-		# 	for valor in montosContratosDD["buckets"]:
-		# 		for comprador in valor["nombreComprador"]["buckets"]:
-		# 			compradores.append({
-		# 				"codigo": valor["key"],
-		# 				"nombre": comprador["key"],
-		# 				"montoContratado": comprador["sumaContratos"]["value"],
-		# 				"cantidadContratos": comprador["doc_count"],
-		# 				"cantidadInstituciones": comprador["cantidadInstituciones"]["value"]
-		# 			})
 
 		if compradores:
 			dfCompradores = pd.DataFrame(compradores)
