@@ -2403,6 +2403,7 @@ class ProcesosDelComprador(APIView):
 class ContratosDelComprador(APIView):
 
 	def get(self, request, partieId=None, format=None):
+		anioActual = str(datetime.date.today().year)
 		page = int(request.GET.get('pagina', '1'))
 		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
 		proveedor = request.GET.get('proveedor', '')
@@ -2419,6 +2420,7 @@ class ContratosDelComprador(APIView):
 		dependencias = request.GET.get('dependencias', '0')
 		tipoIdentificador = request.GET.get('tid', 'id') #por id, nombre
 		anio = request.GET.get('year', '')
+		anios = []
 
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
@@ -2550,12 +2552,40 @@ class ContratosDelComprador(APIView):
 				filtros.append(filtro)
 
 		if anio.replace(' ', ''):
-			# Or Statement 
-			dateFilter = {'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)}
-			filtroFechaFirma = Q('range', dateSigned=dateFilter)
-			filtroFechaInicio =  Q('range', period__startDate=dateFilter)
-			filtrFecha = Q(filtroFechaFirma | filtroFechaInicio)
-			filtros.append(filtrFecha)
+			aniosLista = textoALista(anio)
+
+			for a in aniosLista:
+				try:
+					anios.append(int(a))
+				except Exception as e:
+					pass
+
+			filtroAnios = Q()
+
+			contador = 0
+
+			if not anios:
+				anios.append(int(anioActual))
+
+			for a in anios: 
+				filtroFecha = {
+					'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+					'gte': datetime.date(int(a), 1, 1), 
+					'lt': datetime.date(int(a)+1, 1, 1)
+				}
+
+				if contador == 0:
+					fDateSigned = Q('range', dateSigned=filtroFecha)
+					fStartDate = Q('range', period__startDate=filtroFecha)
+					filtroAnios = Q(fDateSigned | fStartDate)
+				else: 
+					fDateSigned = Q('range', dateSigned=filtroFecha)
+					fStartDate = Q('range', period__startDate=filtroFecha)
+					filtroAnios |= Q(fDateSigned | fStartDate)
+
+				contador += 1
+
+			filtros.append(filtroAnios)
 
 		s = s.query('bool', filter=filtros)
 
