@@ -7996,6 +7996,7 @@ class CompradoresPorCantidadDeContratos(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		anios = []
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -8004,11 +8005,6 @@ class CompradoresPorCantidadDeContratos(APIView):
 
 		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
-
-		try:
-			int(anio)
-		except Exception as e:
-			anio = anioActual
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -8020,14 +8016,40 @@ class CompradoresPorCantidadDeContratos(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			filtroFecha = {
-				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
-				'gte': datetime.date(int(anio), 1, 1), 
-				'lt': datetime.date(int(anio)+1, 1, 1)
-			}
+			aniosLista = textoALista(anio)
 
-			s = s.filter('range', dateSigned=filtroFecha)
-			ss = ss.filter('range', period__startDate=filtroFecha)
+			for a in aniosLista:
+				try:
+					anios.append(int(a))
+				except Exception as e:
+					pass
+
+			filtroAniosS = Q()
+			filtroAniosSS = Q()
+
+			contador = 0
+
+			if not anios:
+				anios.append(int(anioActual))
+
+			for a in anios: 
+				filtroFecha = {
+					'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+					'gte': datetime.date(int(a), 1, 1), 
+					'lt': datetime.date(int(a)+1, 1, 1)
+				}
+
+				if contador == 0:
+					filtroAniosS = Q('range', dateSigned=filtroFecha)
+					filtroAniosSS = Q('range', period__startDate=filtroFecha)
+				else: 
+					filtroAniosS |= Q('range', dateSigned=filtroFecha)
+					filtroAniosSS |= Q('range', period__startDate=filtroFecha)
+
+				contador += 1
+
+			s = s.filter(filtroAniosS)
+			ss = ss.filter(filtroAniosSS)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -8118,6 +8140,8 @@ class CompradoresPorCantidadDeContratos(APIView):
 
 		compradores = []
 
+		anio = listaATexto(anios).replace('\r\n','')
+
 		for valor in montosContratosPC["buckets"]:
 			for comprador in valor["nombreComprador"]["buckets"]:
 				for mes in comprador["procesosPorMes"]["buckets"]:
@@ -8154,7 +8178,9 @@ class CompradoresPorCantidadDeContratos(APIView):
 
 			compradores = dfCompradores[0:10].to_dict('records')
 
-		resultados = dfCompradores.to_dict('records')
+			resultados = dfCompradores.to_dict('records')
+		else:
+			resultados = []
 
 		parametros = {}
 		parametros["institucion"] = institucion
