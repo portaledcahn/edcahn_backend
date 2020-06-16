@@ -157,64 +157,64 @@ function AdjuntarInformacionAdjudicacion(adjudicaciones){
     elementos.push(
       $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos'}).append(
         $('<div>',{class:'contenedorProceso informacionProceso'}).append(
-          (adjudicaciones[i].title||adjudicaciones[i].description?
+          (adjudicaciones[parseInt(i)].title||adjudicaciones[parseInt(i)].description?
               $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
                   $('<table>').append(
                     $('<tbody>').append(
-                          adjudicaciones[i].title?$('<tr>').append(
-                          $('<td>',{class:'tituloTablaCaracteristicas',text:adjudicaciones[i].title,style:'color:#333'})):null,
-                          adjudicaciones[i].description?$('<tr>').append(
-                              $('<td>',{class:'',text:adjudicaciones[i].description,style:'color:#333'})):null
+                          adjudicaciones[parseInt(i)].title?$('<tr>').append(
+                          $('<td>',{class:'tituloTablaCaracteristicas',text:adjudicaciones[parseInt(i)].title,style:'color:#333'})):null,
+                          adjudicaciones[parseInt(i)].description?$('<tr>').append(
+                              $('<td>',{class:'',text:adjudicaciones[parseInt(i)].description,style:'color:#333'})):null
                     ))):null),
           $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
             $('<table>').append(
               $('<tbody>').append(
                 (procesoRecord.compiledRelease.buyer&&procesoRecord.compiledRelease.buyer.name&&procesoRecord.compiledRelease.parties ? 
                   ObtenerCompradores(procesoRecord.compiledRelease.parties,procesoRecord.compiledRelease.buyer) : null),
-                (adjudicaciones[i].suppliers&&adjudicaciones[i].suppliers.length ? 
-                  ObtenerProveedoresAdjudicados(adjudicaciones[i].suppliers) : null),
-                (adjudicaciones[i].status ? 
+                (adjudicaciones[parseInt(i)].suppliers&&adjudicaciones[parseInt(i)].suppliers.length ? 
+                  ObtenerProveedoresAdjudicados(adjudicaciones[parseInt(i)].suppliers) : null),
+                (adjudicaciones[parseInt(i)].status ? 
                   $('<tr>').append(
                     $('<td>',{class:'tituloTablaCaracteristicas',text:'Estado'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:obtenerEstadoAdjudicacion(adjudicaciones[i].status).titulo})
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:obtenerEstadoAdjudicacion(adjudicaciones[parseInt(i)].status).titulo})
                   ) : null),
-                (adjudicaciones[i].date ? 
+                (adjudicaciones[parseInt(i)].date ? 
                   $('<tr>').append(
                     $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Adjudicación'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(adjudicaciones[i].date)})
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(adjudicaciones[parseInt(i)].date)})
                   ) : null),
-                adjudicaciones[i].contractPeriod ? ([
-                  adjudicaciones[i].contractPeriod.startDate ? 
+                adjudicaciones[parseInt(i)].contractPeriod ? ([
+                  adjudicaciones[parseInt(i)].contractPeriod.startDate ? 
                   $('<tr>').append(
                     $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Inicio de Adjudicación del Contrato'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(adjudicaciones[i].contractPeriod.startDate)})
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(adjudicaciones[parseInt(i)].contractPeriod.startDate)})
                   ) : null,
-                  adjudicaciones[i].contractPeriod.endDate ?
+                  adjudicaciones[parseInt(i)].contractPeriod.endDate ?
                   $('<tr>').append(
                     $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Finalización de Adjudicación del Contrato'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(adjudicaciones[i].contractPeriod.endDate)})
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(adjudicaciones[parseInt(i)].contractPeriod.endDate)})
                   ) : null,
-                  adjudicaciones[i].contractPeriod.maxExtentDate ?
+                  adjudicaciones[parseInt(i)].contractPeriod.maxExtentDate ?
                   $('<tr>').append(
                     $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Máxima para la Renovación o Extensión de Este Período'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(adjudicaciones[i].contractPeriod.maxExtentDate)})
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(adjudicaciones[parseInt(i)].contractPeriod.maxExtentDate)})
                   ) : null,
-                  adjudicaciones[i].contractPeriod.durationInDays ?
+                  adjudicaciones[parseInt(i)].contractPeriod.durationInDays ?
                   $('<tr>').append(
                     $('<td>',{class:'tituloTablaCaracteristicas',text:'Duración en Días'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:adjudicaciones[i].contractPeriod.durationInDays})
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:adjudicaciones[parseInt(i)].contractPeriod.durationInDays})
                   ) : null             
                 ]
                 ) : null,
-                (adjudicaciones[i].id ? 
+                (adjudicaciones[parseInt(i)].id ? 
                   $('<tr>').append(
                     $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Adjudicación'}),
-                    $('<td>',{class:'contenidoTablaCaracteristicas',text:adjudicaciones[i].id})
+                    $('<td>',{class:'contenidoTablaCaracteristicas',text:adjudicaciones[parseInt(i)].id})
                   ) : null)
               )
             )
           ),
-          (adjudicaciones[i].value&&!$.isEmptyObject(adjudicaciones[i].value)?
+          (adjudicaciones[parseInt(i)].value&&!$.isEmptyObject(adjudicaciones[parseInt(i)].value)?
             $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
               $('<table>',{class:'tablaAncho'}).append(
                 $('<tbody>').append(
@@ -227,8 +227,8 @@ function AdjuntarInformacionAdjudicacion(adjudicaciones){
                         $('<div>',{class:'contenedorMonto procesoMonto'}).append(
                           $('<div>',{class:'textoColorGris',text:'Monto'}),
                           $('<div>',{class:'valorMonto'}).append(
-                            ValorMoneda(adjudicaciones[i].value.amount),
-                            $('<span>',{class:'textoColorPrimario',text:adjudicaciones[i].value.currency})
+                            ValorMoneda(adjudicaciones[parseInt(i)].value.amount),
+                            $('<span>',{class:'textoColorPrimario',text:adjudicaciones[parseInt(i)].value.currency})
                           )
     
                           
@@ -243,11 +243,11 @@ function AdjuntarInformacionAdjudicacion(adjudicaciones){
       )
     
     );/*
-    if(adjudicaciones[i].amendments){
-      elementos=elementos.concat(ObtenerEnmiendasAdjudicacion(adjudicaciones[i].amendments,adjudicaciones[i]));
+    if(adjudicaciones[parseInt(i)].amendments){
+      elementos=elementos.concat(ObtenerEnmiendasAdjudicacion(adjudicaciones[parseInt(i)].amendments,adjudicaciones[parseInt(i)]));
     }
     */
-    /*if(adjudicaciones[i].documents&&adjudicaciones[i].documents.length){
+    /*if(adjudicaciones[parseInt(i)].documents&&adjudicaciones[parseInt(i)].documents.length){
       $('#documentosTabAdjudicacion').append(
         $('<div>', {class:' cajonSombreadox '}).append(
           $('<table>',{class:'tablaGeneral'}).append(
@@ -261,7 +261,7 @@ function AdjuntarInformacionAdjudicacion(adjudicaciones){
               )
             ),
             $('<tbody>').append(
-              ObtenerDocumentos(adjudicaciones[i].documents)
+              ObtenerDocumentos(adjudicaciones[parseInt(i)].documents)
             )
           )
         )
@@ -278,12 +278,12 @@ function AdjuntarInformacionAdjudicacion(adjudicaciones){
 function ObtenerProveedoresAdjudicados(proveedores){
   var elementos=[]
   for(i=0;i<proveedores.length;i++){
-    if(proveedores[i].name){
+    if(proveedores[parseInt(i)].name){
       elementos.push(
         $('<tr>').append(
         $('<td>',{class:'tituloTablaCaracteristicas',text:'Proveedor Adjudicado'}),
         $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-          $('<a>',{text:proveedores[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+proveedores[i].id})
+          $('<a>',{text:proveedores[parseInt(i)].name,class:'enlaceTablaGeneral',href:'/proveedor/'+proveedores[parseInt(i)].id})
         )
       )
       )
@@ -296,7 +296,7 @@ function ObtenerProveedoresAdjudicados(proveedores){
 function ObtenerEnmiendasAdjudicacion(enmiendas,adjudicacion){
   var elementos=[];
   for(var i=0;i<enmiendas.length;i++){
-    if(enmiendas[i].id){
+    if(enmiendas[parseInt(i)].id){
       elementos.push(
         $('<div>',{class:'row mt-3'}).append(
           $('<h4>',{class:'col-12 col-sm-12 col-md-12 titularCajonSombreado',text:'Enmienda Adjudicación '+adjudicacion.id})
@@ -306,28 +306,28 @@ function ObtenerEnmiendasAdjudicacion(enmiendas,adjudicacion){
             $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
               $('<table>').append(
                 $('<tbody>').append(
-                  (enmiendas[i].date?
+                  (enmiendas[parseInt(i)].date?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:ObtenerFecha(enmiendas[i].date)})
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:ObtenerFecha(enmiendas[parseInt(i)].date)})
                     )
                     :null),
-                  (enmiendas[i].rationale?
+                  (enmiendas[parseInt(i)].rationale?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Razón:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[i].rationale})
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[parseInt(i)].rationale})
                     )
                     :null),
-                  (enmiendas[i].description?
+                  (enmiendas[parseInt(i)].description?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Descripción:'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[i].description})
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[parseInt(i)].description})
                     )
                     :null),
-                  (enmiendas[i].id?
+                  (enmiendas[parseInt(i)].id?
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'ID'}),
-                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[i].id})
+                      $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[parseInt(i)].id})
                     )
                     :null)
                 )
@@ -347,8 +347,8 @@ function ObtenerContratos(id){
     var contratos=procesoRecord.compiledRelease.contracts;
    
   for(var i = 0; i < contratos.length;i++){
-    if(contratos[i].awardID==id){
-      arreglo.push(contratos[i]);
+    if(contratos[parseInt(i)].awardID==id){
+      arreglo.push(contratos[parseInt(i)]);
     }else{
     }
   }
@@ -359,7 +359,7 @@ function BotonesContratosAdjudicacion(id){
   var contratos=ObtenerContratos(id);
   var elementos=[];
   for( var i = 0; i < contratos.length ; i++){
-    elementos.push($('<button>',{style:'border:none;outline:0;margin-bottom:5px;',class:'botonGeneral fondoColorSecundario',onclick:'location.href="/proceso/'+encodeURIComponent( procesoRecord.ocid)+'/?contrato='+encodeURIComponent(contratos[i].id)+'"' }).text('Ver Contrato'))
+    elementos.push($('<button>',{style:'border:none;outline:0;margin-bottom:5px;',class:'botonGeneral fondoColorSecundario',onclick:'location.href="/proceso/'+encodeURIComponent( procesoRecord.ocid)+'/?contrato='+encodeURIComponent(contratos[parseInt(i)].id)+'"' }).text('Ver Contrato'))
   }
   return elementos;
 }
@@ -394,20 +394,20 @@ function ObtenerAdjudicaciones(adjudicaciones){
   for(var i=0;i<adjudicaciones.length;i++){
     elementos.push(
       $('<tr>').append(
-        $('<td>',{'data-label':'Id Adjudicación',text:adjudicaciones[i].id}),
-        $('<td>',{'data-label':'Proveedores'}).append(ObtenerProveedores(adjudicaciones[i].suppliers)),
+        $('<td>',{'data-label':'Id Adjudicación',text:adjudicaciones[parseInt(i)].id}),
+        $('<td>',{'data-label':'Proveedores'}).append(ObtenerProveedores(adjudicaciones[parseInt(i)].suppliers)),
         $('<td>',{'data-label':'Descripción',text:'No Disponible'}),
-        /*$('<td>',{text:items[i].description}),*/
+        /*$('<td>',{text:items[parseInt(i)].description}),*/
         $('<td>',{'data-label':'Fecha de adjudicación'}).append(
-          adjudicaciones[i].date?ObtenerFecha(adjudicaciones[i].date):'No Disponible'
+          adjudicaciones[parseInt(i)].date?ObtenerFecha(adjudicaciones[parseInt(i)].date):'No Disponible'
         ),
         $('<td>',{'data-label':'Monto'}).append(
-          (adjudicaciones[i].value&&Validar(adjudicaciones[i].value.amount))?(
-          $('<span>',{class: 'textoColorPrimario'}).text(ValorMoneda(adjudicaciones[i].value.amount) ),
-          $('<span>',{class: 'textoColorPrimario'}).text(adjudicaciones[i].value.currency)):$('<span>',{class:'textoColorGris',text:'No Disponible'})
+          (adjudicaciones[parseInt(i)].value&&Validar(adjudicaciones[parseInt(i)].value.amount))?(
+          $('<span>',{class: 'textoColorPrimario'}).text(ValorMoneda(adjudicaciones[parseInt(i)].value.amount) ),
+          $('<span>',{class: 'textoColorPrimario'}).text(adjudicaciones[parseInt(i)].value.currency)):$('<span>',{class:'textoColorGris',text:'No Disponible'})
         ),
         $('<td>',{'data-label':'Contratos'}).append(
-          BotonesContratosAdjudicacion(adjudicaciones[i].id)
+          BotonesContratosAdjudicacion(adjudicaciones[parseInt(i)].id)
         )
         
       )
@@ -424,19 +424,19 @@ function ObtenerItemsAdjudicaciones(items,id){
     for(var i=0;i<items.length;i++){
       elementos.push(
         $('<tr>').append(
-          $('<td>',{'data-label':'id',text:((items[i].classification&&items[i].classification.id)?items[i].classification.id:null)}),
+          $('<td>',{'data-label':'id',text:((items[parseInt(i)].classification&&items[parseInt(i)].classification.id)?items[parseInt(i)].classification.id:null)}),
           $('<td>',{'data-label':'Id Adjudicación',text:id}),
-          $('<td>',{'data-label':'Clasificación',text:((items[i].classification&&items[i].classification.scheme)?items[i].classification.scheme:null)}),
-          $('<td>',{'data-label':'Descripción',text:((items[i].classification&&items[i].classification.description)?items[i].classification.description:null)}),
-          /*$('<td>',{text:items[i].description}),*/
-          $('<td>',{'data-label':'Cantidad',text:items[i].quantity}),
-          $('<td>',{'data-label':'Precio',text:((items[i].unit&&items[i].unit.value&&items[i].unit.value.amount)?items[i].unit.value.amount:null)}),
-          $('<td>',{'data-label':'Unidad',text:((items[i].unit&&items[i].unit.name)?items[i].unit.name:null)})
+          $('<td>',{'data-label':'Clasificación',text:((items[parseInt(i)].classification&&items[parseInt(i)].classification.scheme)?items[parseInt(i)].classification.scheme:null)}),
+          $('<td>',{'data-label':'Descripción',text:((items[parseInt(i)].classification&&items[parseInt(i)].classification.description)?items[parseInt(i)].classification.description:null)}),
+          /*$('<td>',{text:items[parseInt(i)].description}),*/
+          $('<td>',{'data-label':'Cantidad',text:items[parseInt(i)].quantity}),
+          $('<td>',{'data-label':'Precio',text:((items[parseInt(i)].unit&&items[parseInt(i)].unit.value&&items[parseInt(i)].unit.value.amount)?items[parseInt(i)].unit.value.amount:null)}),
+          $('<td>',{'data-label':'Unidad',text:((items[parseInt(i)].unit&&items[parseInt(i)].unit.name)?items[parseInt(i)].unit.name:null)})
           
         ),
         $('<tr>').append(
           $('<th>',{text:'Especificaciones',style:'vertical-align:top'}),
-          $('<td>',{'colspan':4,text:items[i].description,class:'textoAlineadoJustificado'})
+          $('<td>',{'colspan':4,text:items[parseInt(i)].description,class:'textoAlineadoJustificado'})
         )
       )
     }
@@ -449,7 +449,7 @@ function ObtenerTodoslosItemsAdjudicacion(){
   var elementos=[];
   if(procesoRecord&&procesoRecord.compiledRelease&&procesoRecord.compiledRelease.awards){
     for(var i=0;i<procesoRecord.compiledRelease.awards.length;i++){
-      elementos=elementos.concat(ObtenerItemsAdjudicaciones(procesoRecord.compiledRelease.awards[i].items,procesoRecord.compiledRelease.awards[i].id));
+      elementos=elementos.concat(ObtenerItemsAdjudicaciones(procesoRecord.compiledRelease.awards[parseInt(i)].items,procesoRecord.compiledRelease.awards[parseInt(i)].id));
     }
   }
   console.dir('items')
@@ -461,7 +461,7 @@ function ObtenerTodoslosDocumentosAdjudicacion(){
   var elementos=[];
   if(procesoRecord&&procesoRecord.compiledRelease&&procesoRecord.compiledRelease.awards){
     for(var i=0;i<procesoRecord.compiledRelease.awards.length;i++){
-      elementos=elementos.concat(ObtenerDocumentosAdjudicaciones(procesoRecord.compiledRelease.awards[i].documents,procesoRecord.compiledRelease.awards[i].id));
+      elementos=elementos.concat(ObtenerDocumentosAdjudicaciones(procesoRecord.compiledRelease.awards[parseInt(i)].documents,procesoRecord.compiledRelease.awards[parseInt(i)].id));
     }
   }
   return elementos;
@@ -474,16 +474,16 @@ function ObtenerDocumentosAdjudicaciones(documentos,id){
       elementos.push(
         $('<tr>').append(
           $('<td>',{'data-label':'Id Adjudicación',text:id}),
-          $('<td>',{'data-label':'Nombre',text:documentos[i].title}),
-          $('<td>',{'data-label':'Descripción',text:documentos[i].description}),
-          //$('<td>',{'data-label':'Tipo',text:TraduceTexto(documentos[i].documentType)}),
-          $('<td>',{'data-label':'Fecha',text:((documentos[i].datePublished)?ObtenerFecha(documentos[i].datePublished):null)}),
+          $('<td>',{'data-label':'Nombre',text:documentos[parseInt(i)].title}),
+          $('<td>',{'data-label':'Descripción',text:documentos[parseInt(i)].description}),
+          //$('<td>',{'data-label':'Tipo',text:TraduceTexto(documentos[parseInt(i)].documentType)}),
+          $('<td>',{'data-label':'Fecha',text:((documentos[parseInt(i)].datePublished)?ObtenerFecha(documentos[parseInt(i)].datePublished):null)}),
           $('<td>',{class:'textoAlineadoDerecha','data-label':''}).append(
             $('<h4>',{class:'descargaIconos'}).append(
               $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion'}).append(
-                $('<a>',{href:documentos[i].url,download:'a',class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',target:'_blank'}).append(
+                $('<a>',{href:documentos[parseInt(i)].url,download:'a',class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',target:'_blank'}).append(
                   $('<i>',{class:'fas fa-file-download'}),
-                '&nbsp;'+ObtenerExtension(documentos[i].url)
+                '&nbsp;'+ObtenerExtension(documentos[parseInt(i)].url)
                 )
                 
               )

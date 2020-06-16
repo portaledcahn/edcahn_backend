@@ -2403,6 +2403,7 @@ class ProcesosDelComprador(APIView):
 class ContratosDelComprador(APIView):
 
 	def get(self, request, partieId=None, format=None):
+		anioActual = str(datetime.date.today().year)
 		page = int(request.GET.get('pagina', '1'))
 		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
 		proveedor = request.GET.get('proveedor', '')
@@ -2419,6 +2420,7 @@ class ContratosDelComprador(APIView):
 		dependencias = request.GET.get('dependencias', '0')
 		tipoIdentificador = request.GET.get('tid', 'id') #por id, nombre
 		anio = request.GET.get('year', '')
+		anios = []
 
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
@@ -2550,12 +2552,40 @@ class ContratosDelComprador(APIView):
 				filtros.append(filtro)
 
 		if anio.replace(' ', ''):
-			# Or Statement 
-			dateFilter = {'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)}
-			filtroFechaFirma = Q('range', dateSigned=dateFilter)
-			filtroFechaInicio =  Q('range', period__startDate=dateFilter)
-			filtrFecha = Q(filtroFechaFirma | filtroFechaInicio)
-			filtros.append(filtrFecha)
+			aniosLista = textoALista(anio)
+
+			for a in aniosLista:
+				try:
+					anios.append(int(a))
+				except Exception as e:
+					pass
+
+			filtroAnios = Q()
+
+			contador = 0
+
+			if not anios:
+				anios.append(int(anioActual))
+
+			for a in anios: 
+				filtroFecha = {
+					'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+					'gte': datetime.date(int(a), 1, 1), 
+					'lt': datetime.date(int(a)+1, 1, 1)
+				}
+
+				if contador == 0:
+					fDateSigned = Q('range', dateSigned=filtroFecha)
+					fStartDate = Q('range', period__startDate=filtroFecha)
+					filtroAnios = Q(fDateSigned | fStartDate)
+				else: 
+					fDateSigned = Q('range', dateSigned=filtroFecha)
+					fStartDate = Q('range', period__startDate=filtroFecha)
+					filtroAnios |= Q(fDateSigned | fStartDate)
+
+				contador += 1
+
+			filtros.append(filtroAnios)
 
 		s = s.query('bool', filter=filtros)
 
@@ -3760,6 +3790,8 @@ class FiltrosDashboardONCAE(APIView):
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
 		masinstituciones = request.GET.get('masinstituciones', '')
+		tablero = request.GET.get('tablero', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -3816,7 +3848,12 @@ class FiltrosDashboardONCAE(APIView):
 			sssFecha = sssFecha.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			dateFilter = {'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)}
+			dateFilter = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
 			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=dateFilter)
 			ss = ss.filter('range', dateSigned=dateFilter)
 			sss = sss.filter('range', period__startDate=dateFilter)
@@ -3884,6 +3921,26 @@ class FiltrosDashboardONCAE(APIView):
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 			sss = sss.filter('match_phrase', extra__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':			
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+				sss = sss.filter('bool', must_not=qqNormativa)
+
+				sFecha = sFecha.filter('bool', must_not=qNormativa)
+				ssFecha = ssFecha.filter('bool', must_not=qqNormativa)
+				sssFecha = sssFecha.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				sss = sss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+
+				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=normativa)
+				ssFecha = ssFecha.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				sssFecha = sssFecha.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+
 		cantidadInstituciones = 50
 
 		if masinstituciones.replace(' ', '') == '1':
@@ -3931,33 +3988,6 @@ class FiltrosDashboardONCAE(APIView):
 			field='extra.parentTop.name.keyword', 
 			size=cantidadInstituciones
 		)
-
-		# s.aggs.metric(
-		# 	'aniosProcesos', 
-		# 	'date_histogram', 
-		# 	field='doc.compiledRelease.tender.datePublished', 
-		# 	interval='year', 
-		# 	format='yyyy',
-		# 	min_doc_count=1
-		# )
-
-		# ss.aggs.metric(
-		# 	'aniosContratoFechaFirma', 
-		# 	'date_histogram', 
-		# 	field='dateSigned', 
-		# 	interval='year', 
-		# 	format='yyyy',
-		# 	min_doc_count=1
-		# )
-
-		# sss.aggs.metric(
-		# 	'aniosContratoFechaInicio', 
-		# 	'date_histogram', 
-		# 	field='period.startDate', 
-		# 	interval='year', 
-		# 	format='yyyy',
-		# 	min_doc_count=1
-		# )
 
 		s.aggs.metric(
 			'categoriasProcesos', 
@@ -4075,7 +4105,8 @@ class FiltrosDashboardONCAE(APIView):
 			field='doc.compiledRelease.tender.tenderPeriod.startDate', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ssFecha.aggs.metric(
@@ -4084,7 +4115,8 @@ class FiltrosDashboardONCAE(APIView):
 			field='dateSigned', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		sssFecha.aggs.metric(
@@ -4093,7 +4125,32 @@ class FiltrosDashboardONCAE(APIView):
 			field='period.startDate', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
+		)
+
+		s.aggs.metric(
+			'normativasProcesos', 
+			'terms', 
+			missing='No Definido',
+			field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword', 
+			size=10000
+		)
+
+		ss.aggs.metric(
+			'normativasContratosFechaFirma', 
+			'terms', 
+			missing='No Definido',
+			field='extra.fuentesONCAE.keyword', 
+			size=10000
+		)
+
+		sss.aggs.metric(
+			'normativasContratosFechaInicio', 
+			'terms',
+			missing='No Definido', 
+			field='extra.fuentesONCAE.keyword', 
+			size=10000
 		)
 
 		procesos = s.execute()
@@ -4127,6 +4184,10 @@ class FiltrosDashboardONCAE(APIView):
 		sistemasContratosDD = contratosDD.aggregations.sources.to_dict()
 		sistemasProcesos = procesos.aggregations.sources.to_dict()
 
+		normativasProcesos = procesos.aggregations.normativasProcesos.to_dict()
+		normativasContratosPC = contratosPC.aggregations.normativasContratosFechaFirma.to_dict()
+		normativasContratosDD = contratosDD.aggregations.normativasContratosFechaInicio.to_dict()
+
 		#Valores para filtros por anio
 		anios = {}
 
@@ -4147,6 +4208,7 @@ class FiltrosDashboardONCAE(APIView):
 			else:
 				anios[value["key_as_string"]] = {}
 				anios[value["key_as_string"]]["key_as_string"] = value["key_as_string"]
+				anios[value["key_as_string"]]["procesos"] = 0
 				anios[value["key_as_string"]]["contratos"] = value["doc_count"]
 
 		for value in aniosFechaInicio["buckets"]:
@@ -4165,6 +4227,10 @@ class FiltrosDashboardONCAE(APIView):
 		annioActual = int(datetime.datetime.now().year)
 
 		for key, value in anios.items():
+
+			if 'contratos' not in anios[value["key_as_string"]]:
+				anios[value["key_as_string"]]["contratos"] = 0 
+
 			if int(value["key_as_string"]) <= annioActual and int(value["key_as_string"]) >= 1980:
 				years.append(value)
 
@@ -4183,17 +4249,17 @@ class FiltrosDashboardONCAE(APIView):
 					"contratos": 0
 				})
 		
-		if anio.replace(' ', ''):	
-			for codigo in institucionesContratosPC["buckets"]:
+		for codigo in institucionesContratosPC["buckets"]:
 
-				for nombre in codigo["nombre"]["buckets"]:
-					instituciones.append({
-						"codigo": codigo["key"],
-						"nombre": nombre["key"],
-						"procesos": 0,
-						"contratos": nombre["doc_count"]
-					})
+			for nombre in codigo["nombre"]["buckets"]:
+				instituciones.append({
+					"codigo": codigo["key"],
+					"nombre": nombre["key"],
+					"procesos": 0,
+					"contratos": nombre["doc_count"]
+				})
 
+		if anio.replace(' ', ''):
 			for codigo in institucionesContratosDD["buckets"]:
 
 				for nombre in codigo["nombre"]["buckets"]:
@@ -4213,7 +4279,16 @@ class FiltrosDashboardONCAE(APIView):
 				"contratos": 'sum'
 			}
 
-			dfInstituciones = dfInstituciones.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+			dfInstituciones = dfInstituciones.groupby('codigo', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfInstituciones['orden'] = dfInstituciones['contratos']
+			else: 
+				dfInstituciones.loc[dfInstituciones['procesos'] == 0, 'orden'] = dfInstituciones['contratos']
+
+				dfInstituciones.loc[dfInstituciones['procesos'] != 0, 'orden'] = dfInstituciones['procesos']
+
+			dfInstituciones = dfInstituciones.sort_values("orden", ascending=False)
 
 			instituciones = dfInstituciones.to_dict('records')
 
@@ -4244,7 +4319,16 @@ class FiltrosDashboardONCAE(APIView):
 				"contratos": 'sum'
 			}
 
-			dfMonedas = dfMonedas.groupby('moneda', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+			dfMonedas = dfMonedas.groupby('moneda', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfMonedas['orden'] = dfMonedas['contratos']
+			else: 
+				dfMonedas.loc[dfMonedas['procesos'] == 0, 'orden'] = dfMonedas['contratos']
+
+				dfMonedas.loc[dfMonedas['procesos'] != 0, 'orden'] = dfMonedas['procesos']
+
+			dfMonedas = dfMonedas.sort_values("orden", ascending=False)
 
 			monedas = dfMonedas.to_dict('records')
 
@@ -4281,7 +4365,16 @@ class FiltrosDashboardONCAE(APIView):
 				"contratos": 'sum'
 			}
 
-			dfCategorias = dfCategorias.groupby('categoria', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+			dfCategorias = dfCategorias.groupby('categoria', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfCategorias['orden'] = dfCategorias['contratos']
+			else: 
+				dfCategorias.loc[dfCategorias['procesos'] == 0, 'orden'] = dfCategorias['contratos']
+
+				dfCategorias.loc[dfCategorias['procesos'] != 0, 'orden'] = dfCategorias['procesos']
+
+			dfCategorias = dfCategorias.sort_values("orden", ascending=False)
 
 			categorias = dfCategorias.to_dict('records')
 
@@ -4318,7 +4411,16 @@ class FiltrosDashboardONCAE(APIView):
 				"contratos": 'sum'
 			}
 
-			dfModalidades = dfModalidades.groupby('modalidad', as_index=True).agg(agregaciones).reset_index().sort_values("procesos", ascending=False)
+			dfModalidades = dfModalidades.groupby('modalidad', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfModalidades['orden'] = dfModalidades['contratos']
+			else: 
+				dfModalidades.loc[dfModalidades['procesos'] == 0, 'orden'] = dfModalidades['contratos']
+
+				dfModalidades.loc[dfModalidades['procesos'] != 0, 'orden'] = dfModalidades['procesos']
+
+			dfModalidades = dfModalidades.sort_values("orden", ascending=False)
 
 			modalidades = dfModalidades.to_dict('records')
 
@@ -4327,7 +4429,6 @@ class FiltrosDashboardONCAE(APIView):
 		for valor in sistemasProcesos["buckets"]:
 			sources.append({
 				'id': valor["key"],
-				'ocids': valor["doc_count"],
 				'procesos': valor["doc_count"],
 				'contratos': 0
 			})
@@ -4335,31 +4436,84 @@ class FiltrosDashboardONCAE(APIView):
 		for v in sistemasContratosDD["buckets"]:
 			sources.append({
 				'id': v["key"],
-				'ocids': 0,
 				'contratos': v["doc_count"],
 				'procesos':0
 			})
 
-		for v in sistemasContratosPC["buckets"]:
-			sources.append({
-				'id': v["key"],
-				'ocids': 0,
-				'contratos': v["doc_count"],
-				'procesos': 0
-			})
+		if anio.replace(' ', ''):		
+			for v in sistemasContratosPC["buckets"]:
+				sources.append({
+					'id': v["key"],
+					'contratos': v["doc_count"],
+					'procesos': 0
+				})
 
 		if sources:
 			dfSistemas = pd.DataFrame(sources)
 
 			agregaciones = {
-				"ocids": 'sum',
 				"contratos": 'sum',
 				"procesos": 'sum'
 			}
 
-			dfSistemas = dfSistemas.groupby('id', as_index=True).agg(agregaciones).reset_index().sort_values("ocids", ascending=False)
+			dfSistemas = dfSistemas.groupby('id', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfSistemas['orden'] = dfSistemas['contratos']
+			else: 
+				dfSistemas.loc[dfSistemas['procesos'] == 0, 'orden'] = dfSistemas['contratos']
+
+				dfSistemas.loc[dfSistemas['procesos'] != 0, 'orden'] = dfSistemas['procesos']
+
+			dfSistemas = dfSistemas.sort_values("orden", ascending=False)
 
 			sources = dfSistemas.to_dict('records')
+
+		#valores para filtros por categoria.
+		normativas = []
+
+		for valor in normativasProcesos["buckets"]:
+			normativas.append({
+				"normativa": valor["key"],
+				"procesos": valor["doc_count"],
+				"contratos": 0
+			})
+
+		for valor in normativasContratosPC["buckets"]:
+			normativas.append({
+				"normativa": valor["key"],
+				"procesos": 0,
+				"contratos": valor["doc_count"]
+			})
+
+		if anio.replace(' ', ''):
+			for valor in normativasContratosDD["buckets"]:
+				normativas.append({
+					"normativa": valor["key"],
+					"procesos": 0,
+					"contratos": valor["doc_count"]
+				})
+
+		if normativas:
+			dfNormativas = pd.DataFrame(normativas)
+
+			agregaciones = {
+				"procesos": 'sum',
+				"contratos": 'sum'
+			}
+
+			dfNormativas = dfNormativas.groupby('normativa', as_index=True).agg(agregaciones).reset_index()
+
+			if tablero == 'c':
+				dfNormativas['orden'] = dfNormativas['contratos']
+			else: 
+				dfNormativas.loc[dfNormativas['procesos'] == 0, 'orden'] = dfNormativas['contratos']
+
+				dfNormativas.loc[dfNormativas['procesos'] != 0, 'orden'] = dfNormativas['procesos']
+
+			dfNormativas = dfNormativas.sort_values("orden", ascending=False)
+
+			normativas = dfNormativas.to_dict('records')
 
 		resultados = {}
 		resultados["años"] = years
@@ -4369,6 +4523,9 @@ class FiltrosDashboardONCAE(APIView):
 		resultados["modalidades"] = modalidades
 		resultados["sistemas"] = sources
 
+		if tablero != 'c':
+			resultados["Normativas"] = normativas
+
 		parametros = {}
 		parametros["institucion"] = institucion
 		parametros["idinstitucion"] = idinstitucion
@@ -4376,6 +4533,7 @@ class FiltrosDashboardONCAE(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 		parametros["masinstituciones"] = masinstituciones
 
 		context = {
@@ -4399,6 +4557,7 @@ class GraficarProcesosPorCategorias(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -4445,6 +4604,13 @@ class GraficarProcesosPorCategorias(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'totalProcesos',
@@ -4485,6 +4651,7 @@ class GraficarProcesosPorCategorias(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -4507,6 +4674,7 @@ class GraficarProcesosPorModalidad(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -4555,6 +4723,13 @@ class GraficarProcesosPorModalidad(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'totalProcesos',
@@ -4591,6 +4766,7 @@ class GraficarProcesosPorModalidad(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -4614,6 +4790,7 @@ class GraficarCantidadDeProcesosMes(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -4641,7 +4818,13 @@ class GraficarCantidadDeProcesosMes(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -4670,6 +4853,13 @@ class GraficarCantidadDeProcesosMes(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'total_procesos',
@@ -4680,11 +4870,14 @@ class GraficarCantidadDeProcesosMes(APIView):
 		s.aggs.metric(
 			'procesos_por_mes', 
 			'date_histogram', 
-			field='doc.compiledRelease.date',
+			field='doc.compiledRelease.tender.tenderPeriod.startDate',
 			interval= "month",
-			format= "MM"
+			format= "MM",
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 		
+		# return DescargarProcesosCSV(request, s)
+
 		results = s.execute()
 
 		total_procesos = results.aggregations.total_procesos["value"]
@@ -4723,6 +4916,7 @@ class GraficarCantidadDeProcesosMes(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -4742,6 +4936,7 @@ class EstadisticaCantidadDeProcesos(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -4768,7 +4963,13 @@ class EstadisticaCantidadDeProcesos(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -4797,13 +4998,21 @@ class EstadisticaCantidadDeProcesos(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+
 		#Agregados
 		s.aggs.metric(
 			'procesos_por_mes', 
 			'date_histogram', 
-			field='doc.compiledRelease.tender.datePublished',
+			field='doc.compiledRelease.tender.tenderPeriod.startDate',
 			interval= "month",
-			format= "MM"
+			format= "MM",
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		results = s.execute()
@@ -4839,6 +5048,7 @@ class EstadisticaCantidadDeProcesos(APIView):
 		parametros["institucion"] = institucion
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -4861,6 +5071,7 @@ class GraficarProcesosPorEtapa(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -4880,7 +5091,13 @@ class GraficarProcesosPorEtapa(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -4908,6 +5125,13 @@ class GraficarProcesosPorEtapa(APIView):
 
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				s = s.filter('bool', must_not=qNormativa)
+			else:
+				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -4945,6 +5169,7 @@ class GraficarProcesosPorEtapa(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -4970,6 +5195,7 @@ class GraficarMontosDeContratosMes(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -5006,8 +5232,14 @@ class GraficarMontosDeContratosMes(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -5039,6 +5271,15 @@ class GraficarMontosDeContratosMes(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 
@@ -5072,7 +5313,8 @@ class GraficarMontosDeContratosMes(APIView):
 			field='dateSigned',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ss.aggs.metric(
@@ -5081,7 +5323,8 @@ class GraficarMontosDeContratosMes(APIView):
 			field='period.startDate',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		s.aggs["procesosPorMesFechaFirma"].metric(
@@ -5176,6 +5419,7 @@ class GraficarMontosDeContratosMes(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -5201,6 +5445,7 @@ class EstadisticaCantidadDeContratos(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -5237,8 +5482,14 @@ class EstadisticaCantidadDeContratos(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -5270,6 +5521,15 @@ class EstadisticaCantidadDeContratos(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 
@@ -5303,7 +5563,8 @@ class EstadisticaCantidadDeContratos(APIView):
 			field='dateSigned',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ss.aggs.metric(
@@ -5312,7 +5573,8 @@ class EstadisticaCantidadDeContratos(APIView):
 			field='period.startDate',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		s.aggs["procesosPorMesFechaFirma"].metric(
@@ -5405,7 +5667,8 @@ class EstadisticaCantidadDeContratos(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
-
+		parametros["normativa"] = normativa
+	
 		context = {
 			"resultados": resultados,
 			"parametros": parametros
@@ -5430,6 +5693,7 @@ class EstadisticaMontosDeContratos(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		mm = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"] 
 
@@ -5466,8 +5730,14 @@ class EstadisticaMontosDeContratos(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -5499,6 +5769,15 @@ class EstadisticaMontosDeContratos(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 
@@ -5532,7 +5811,8 @@ class EstadisticaMontosDeContratos(APIView):
 			field='dateSigned',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ss.aggs.metric(
@@ -5541,7 +5821,8 @@ class EstadisticaMontosDeContratos(APIView):
 			field='period.startDate',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		s.aggs["procesosPorMesFechaFirma"].metric(
@@ -5631,6 +5912,7 @@ class EstadisticaMontosDeContratos(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
 		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -5653,6 +5935,7 @@ class GraficarContratosPorCategorias(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -5682,8 +5965,14 @@ class GraficarContratosPorCategorias(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -5715,7 +6004,16 @@ class GraficarContratosPorCategorias(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
-		
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'sumaTotalContratos',
@@ -5806,7 +6104,8 @@ class GraficarContratosPorCategorias(APIView):
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
-		parametros["`modalidad"] = modalidad
+		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -5826,6 +6125,7 @@ class GraficarContratosPorModalidad(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -5855,8 +6155,14 @@ class GraficarContratosPorModalidad(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -5889,6 +6195,15 @@ class GraficarContratosPorModalidad(APIView):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
 		
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+
 		# Agregados
 		s.aggs.metric(
 			'sumaTotalContratos',
@@ -5977,7 +6292,8 @@ class GraficarContratosPorModalidad(APIView):
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
-		parametros["`modalidad"] = modalidad
+		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -6001,6 +6317,7 @@ class TopCompradoresPorMontoContratado(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -6030,8 +6347,14 @@ class TopCompradoresPorMontoContratado(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -6063,6 +6386,15 @@ class TopCompradoresPorMontoContratado(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -6184,7 +6516,8 @@ class TopCompradoresPorMontoContratado(APIView):
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
-		parametros["`modalidad"] = modalidad
+		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -6200,6 +6533,8 @@ class TopProveedoresPorMontoContratado(APIView):
 		codigoProveedores = []
 		nombreProveedores = []
 		totalContratado = []
+		cantidadContratos = []
+		cantidadInstituciones = []
 
 		institucion = request.GET.get('institucion', '')
 		idinstitucion = request.GET.get('idinstitucion', '')
@@ -6208,77 +6543,75 @@ class TopProveedoresPorMontoContratado(APIView):
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		normativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='contract')
-		ss = Search(using=cliente, index='contract')
 
 		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
-		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
 		## Solo contratos de ordenes de compra en estado impreso. 
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
-		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
-		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__name__keyword=institucion)
-			ss = ss.filter('match_phrase', extra__parentTop__name__keyword=institucion)
 
 		if idinstitucion.replace(' ', ''):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
-			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			filtroFechaFirma = Q('range', dateSigned=filtroFecha)
+			filtroFechaInicio =  Q('range', period__startDate=filtroFecha)
+			s = s.filter(filtroFechaFirma | filtroFechaInicio)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
 				qqCategoria = Q('exists', field='localProcurementCategory.keyword')
 				s = s.filter('bool', must_not=qqCategoria)
-				ss = ss.filter('bool', must_not=qqCategoria)
 			else:
 				s = s.filter('match_phrase', localProcurementCategory__keyword=categoria)
-				ss = ss.filter('match_phrase', localProcurementCategory__keyword=categoria)
 
 		if modalidad.replace(' ', ''):
 			if modalidad == 'No Definido':
 				qqModalidad = Q('exists', field='extra.tenderProcurementMethodDetails.keyword')
 				s = s.filter('bool', must_not=qqModalidad)
-				ss = ss.filter('bool', must_not=qqModalidad)
 			else:
 				s = s.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
-				ss = ss.filter('match_phrase', extra__tenderProcurementMethodDetails__keyword=modalidad)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
 				qqMoneda = Q('exists', field='value.currency.keyword')
 				s = s.filter('bool', must_not=qqMoneda)
-				ss = ss.filter('bool', must_not=qqMoneda)			
 			else:
 				s = s.filter('match_phrase', value__currency__keyword=moneda)
-				ss = ss.filter('match_phrase', value__currency__keyword=moneda)
 
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', extra__sources__id__keyword=sistema)
-			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+		if normativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
-			'sumaTotalContratos',
-			'sum',
-			field='extra.LocalCurrency.amount'
-		)
-
-		ss.aggs.metric(
 			'sumaTotalContratos',
 			'sum',
 			field='extra.LocalCurrency.amount'
@@ -6289,15 +6622,14 @@ class TopProveedoresPorMontoContratado(APIView):
 			'terms', 
 			missing='No Definido',
 			field='suppliers.id.keyword',
-			size=10000
+			size=1000,
+			order={'montoContratadoId': 'desc'}
 		)
 
-		ss.aggs.metric(
-			'contratosPorComprador', 
-			'terms', 
-			missing='No Definido',
-			field='suppliers.id.keyword',
-			size=10000
+		s.aggs["contratosPorComprador"].metric(
+			'montoContratadoId',
+			'sum',
+			field='extra.LocalCurrency.amount'
 		)
 
 		s.aggs["contratosPorComprador"].metric(
@@ -6305,15 +6637,7 @@ class TopProveedoresPorMontoContratado(APIView):
 			'terms', 
 			missing='No Definido',
 			field='suppliers.name.keyword',
-			size=10000
-		)
-
-		ss.aggs["contratosPorComprador"].metric(
-			'nombreComprador', 
-			'terms', 
-			missing='No Definido',
-			field='suppliers.name.keyword',
-			size=10000
+			size=1000
 		)
 
 		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
@@ -6322,22 +6646,18 @@ class TopProveedoresPorMontoContratado(APIView):
 			field='extra.LocalCurrency.amount'
 		)
 
-		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
-			'sumaContratos',
-			'sum',
-			field='extra.LocalCurrency.amount'
-		)		
+		s.aggs["contratosPorComprador"]["nombreComprador"].metric(
+			'cantidadInstituciones',
+			'cardinality',
+			field='extra.parentTop.id.keyword',
+			precision_threshold=10000
+		)
 
 		contratosPC = s.execute()
-		contratosDD = ss.execute()
 
 		montosContratosPC = contratosPC.aggregations.contratosPorComprador.to_dict()
-		montosContratosDD = contratosDD.aggregations.contratosPorComprador.to_dict()
 
 		total_monto_contratado = contratosPC.aggregations.sumaTotalContratos["value"]
-
-		if anio.replace(' ', ''):
-			total_monto_contratado += contratosDD.aggregations.sumaTotalContratos["value"]
 
 		compradores = []
 
@@ -6347,16 +6667,9 @@ class TopProveedoresPorMontoContratado(APIView):
 					"codigo": valor["key"],
 					"nombre": comprador["key"],
 					"montoContratado": comprador["sumaContratos"]["value"],
+					"cantidadContratos": comprador["doc_count"],
+					"cantidadInstituciones": comprador["cantidadInstituciones"]["value"]
 				})
-
-		if anio.replace(' ', ''):
-			for valor in montosContratosDD["buckets"]:
-				for comprador in valor["nombreComprador"]["buckets"]:
-					compradores.append({
-						"codigo": valor["key"],
-						"nombre": comprador["key"],
-						"montoContratado": comprador["sumaContratos"]["value"]
-					})
 
 		if compradores:
 			dfCompradores = pd.DataFrame(compradores)
@@ -6364,6 +6677,8 @@ class TopProveedoresPorMontoContratado(APIView):
 			agregaciones = {
 				"nombre": 'first',
 				"montoContratado": 'sum',
+				"cantidadContratos":"sum",
+				"cantidadInstituciones":"sum"
 			}
 
 			dfCompradores = dfCompradores.groupby('codigo', as_index=True).agg(agregaciones).reset_index().sort_values("montoContratado", ascending=False)
@@ -6374,15 +6689,21 @@ class TopProveedoresPorMontoContratado(APIView):
 				codigoProveedores.append(c["codigo"])
 				nombreProveedores.append(c["nombre"])
 				totalContratado.append(c["montoContratado"])
+				cantidadContratos.append(c["cantidadContratos"])
+				cantidadInstituciones.append(c["cantidadInstituciones"])
 
 		codigoProveedores.reverse()
 		nombreProveedores.reverse()
 		totalContratado.reverse()
+		cantidadContratos.reverse()
+		cantidadInstituciones.reverse()
 
 		resultados = {
 			"codigoProveedores": codigoProveedores,
 			"nombreProveedores": nombreProveedores,
 			"montoContratado": totalContratado,
+			"cantidadContratos": cantidadContratos,
+			"cantidadInstituciones": cantidadInstituciones
 		}
 
 		parametros = {}
@@ -6391,7 +6712,8 @@ class TopProveedoresPorMontoContratado(APIView):
 		parametros["año"] = anio
 		parametros["moneda"] = moneda
 		parametros["categoria"] = categoria
-		parametros["`modalidad"] = modalidad
+		parametros["modalidad"] = modalidad
+		parametros["normativa"] = normativa
 
 		context = {
 			"resultados": resultados,
@@ -6414,6 +6736,7 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		pcategoria = request.GET.get('categoria', '')
 		pmodalidad = request.GET.get('modalidad', '')
 		sistema = request.GET.get('sistema', '')
+		pnormativa = request.GET.get('normativa', '')
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -6447,8 +6770,14 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
+			ss = ss.filter('range', dateSigned=filtroFecha)
 
 		if moneda.replace(' ', ''):
 			if moneda == 'No Definido':
@@ -6489,6 +6818,17 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		if sistema.replace(' ', ''):
 			s = s.filter('match_phrase', doc__compiledRelease__sources__id__keyword=sistema)
 			ss = ss.filter('match_phrase', extra__sources__id__keyword=sistema)
+
+
+		if pnormativa.replace(' ', ''):
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword')
+				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				s = s.filter('bool', must_not=qNormativa)
+				ss = ss.filter('bool', must_not=qqNormativa)
+			else:
+				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=pnormativa)
+				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=pnormativa)
 
 		# Agregados
 
@@ -6577,6 +6917,7 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		parametros["moneda"] = moneda
 		parametros["categoria"] = pcategoria
 		parametros["modalidad"] = pmodalidad
+		parametros["normativa"] = pnormativa
 
 		context = {
 			"resultados": resultados,
@@ -6630,8 +6971,14 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -6803,8 +7150,14 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -6885,18 +7238,12 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 		montosContratosPC = contratosPC.aggregations.contratosPorCategorias.to_dict()
 		montosContratosDD = contratosDD.aggregations.contratosPorCategorias.to_dict()
 
-		# total_monto_contratado = contratosPC.aggregations.sumaTotalContratos["value"]
-
-		# if anio.replace(' ', ''):
-		# 	total_monto_contratado += contratosDD.aggregations.sumaTotalContratos["value"]
-
 		categorias = []
 
 		for valor in montosContratosPC["buckets"]:
 			categorias.append({
 				"name": valor["key"],
 				"value": valor["doc_count"],
-				# "value": valor["conteoOCID"]["value"]
 			})
 
 		if anio.replace(' ', ''):
@@ -6904,7 +7251,6 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 				categorias.append({
 					"name": valor["key"],
 					"value": valor["doc_count"],
-					# "value": valor["conteoOCID"]["value"],
 				})
 
 		if categorias:
@@ -6983,8 +7329,14 @@ class IndicadorTopCompradores(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7209,7 +7561,13 @@ class IndicadorCatalogoElectronico(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7284,9 +7642,7 @@ class IndicadorCatalogoElectronico(APIView):
 
 		itemsCE = contratosCE.aggregations.items.porCatalogo.to_dict()
 
-		# catalogos = []
 		for c in itemsCE["buckets"]:
-
 			nombreCatalogo.append(c["key"].upper())
 			totalContratado.append(c["montoContratado"]["value"])
 			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
@@ -7358,7 +7714,13 @@ class IndicadorCompraConjunta(APIView):
 			s = s.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7428,9 +7790,7 @@ class IndicadorCompraConjunta(APIView):
 
 		itemsCE = contratosCE.aggregations.items.porCatalogo.to_dict()
 
-		# catalogos = []
 		for c in itemsCE["buckets"]:
-
 			nombreCatalogo.append(c["key"].upper())
 			totalContratado.append(c["montoContratado"]["value"])
 			cantidadProcesos.append(c["contract"]["contadorOCIDs"]["value"])
@@ -7505,8 +7865,14 @@ class IndicadorContratosPorModalidad(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+				'gte': datetime.date(int(anio), 1, 1), 
+				'lt': datetime.date(int(anio)+1, 1, 1)
+			}
+
+			s = s.filter('range', dateSigned=filtroFecha)
+			ss = ss.filter('range', period__startDate=filtroFecha)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7621,13 +7987,11 @@ class IndicadorContratosPorModalidad(APIView):
 			modalidades = dfModalidades.to_dict('records')
 
 		for m in modalidades:
-			# print(m)
 			nombreModalidades.append(m["modalidad"])
 			cantidadContratos.append(m["cantidadContratos"])
 			montosContratos.append(m["montosContratos"])
 
 		resultados = {
-			# "modalidades": modalidades,
 			"nombreModalidades": nombreModalidades,
 			"cantidadContratos": cantidadContratos,
 			"montosContratos": montosContratos
@@ -7662,6 +8026,7 @@ class CompradoresPorCantidadDeContratos(APIView):
 		moneda = request.GET.get('moneda', '')
 		categoria = request.GET.get('categoria', '')
 		modalidad = request.GET.get('modalidad', '')
+		anios = []
 
 		cliente = ElasticSearchDefaultConnection()
 
@@ -7670,11 +8035,6 @@ class CompradoresPorCantidadDeContratos(APIView):
 
 		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
-
-		try:
-			int(anio)
-		except Exception as e:
-			anio = anioActual
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -7686,8 +8046,40 @@ class CompradoresPorCantidadDeContratos(APIView):
 			ss = ss.filter('match_phrase', extra__parentTop__id__keyword=idinstitucion)
 
 		if anio.replace(' ', ''):
-			s = s.filter('range', dateSigned={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
-			ss = ss.filter('range', period__startDate={'gte': datetime.date(int(anio), 1, 1), 'lt': datetime.date(int(anio)+1, 1, 1)})
+			aniosLista = textoALista(anio)
+
+			for a in aniosLista:
+				try:
+					anios.append(int(a))
+				except Exception as e:
+					pass
+
+			filtroAniosS = Q()
+			filtroAniosSS = Q()
+
+			contador = 0
+
+			if not anios:
+				anios.append(int(anioActual))
+
+			for a in anios: 
+				filtroFecha = {
+					'time_zone':settings.ELASTICSEARCH_TIMEZONE, 
+					'gte': datetime.date(int(a), 1, 1), 
+					'lt': datetime.date(int(a)+1, 1, 1)
+				}
+
+				if contador == 0:
+					filtroAniosS = Q('range', dateSigned=filtroFecha)
+					filtroAniosSS = Q('range', period__startDate=filtroFecha)
+				else: 
+					filtroAniosS |= Q('range', dateSigned=filtroFecha)
+					filtroAniosSS |= Q('range', period__startDate=filtroFecha)
+
+				contador += 1
+
+			s = s.filter(filtroAniosS)
+			ss = ss.filter(filtroAniosSS)
 
 		if categoria.replace(' ', ''):
 			if categoria == 'No Definido':
@@ -7756,7 +8148,8 @@ class CompradoresPorCantidadDeContratos(APIView):
 			field='dateSigned',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		ss.aggs["contratosPorComprador"]["nombreComprador"].metric(
@@ -7765,7 +8158,8 @@ class CompradoresPorCantidadDeContratos(APIView):
 			field='period.startDate',
 			interval= "month",
 			format= "MM",
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		contratosPC = s.execute()
@@ -7775,6 +8169,8 @@ class CompradoresPorCantidadDeContratos(APIView):
 		montosContratosDD = contratosDD.aggregations.contratosPorComprador.to_dict()
 
 		compradores = []
+
+		anio = listaATexto(anios).replace('\r\n','')
 
 		for valor in montosContratosPC["buckets"]:
 			for comprador in valor["nombreComprador"]["buckets"]:
@@ -7812,7 +8208,9 @@ class CompradoresPorCantidadDeContratos(APIView):
 
 			compradores = dfCompradores[0:10].to_dict('records')
 
-		resultados = dfCompradores.to_dict('records')
+			resultados = dfCompradores.to_dict('records')
+		else:
+			resultados = []
 
 		parametros = {}
 		parametros["institucion"] = institucion
@@ -7892,7 +8290,8 @@ class FiltrosVisualizacionesONCAE(APIView):
 			field='dateSigned', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 
 		sssFecha.aggs.metric(
@@ -7901,7 +8300,8 @@ class FiltrosVisualizacionesONCAE(APIView):
 			field='period.startDate', 
 			interval='year', 
 			format='yyyy',
-			min_doc_count=1
+			min_doc_count=1,
+			time_zone=settings.ELASTICSEARCH_TIMEZONE
 		)
 		
 		ssFechaResultados = ssFecha.execute()

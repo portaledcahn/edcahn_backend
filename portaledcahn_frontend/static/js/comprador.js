@@ -145,11 +145,11 @@ $(function() {
     for (let i = 0; i < $('.elementoNumerico').length; i++) {
         var configuracionNumerica = {
             decimalCharacter: '.',
-            decimalPlaces: $($('.elementoNumerico')[i]).attr('decimal') == "true" ? 2 : 0,
+            decimalPlaces: $($('.elementoNumerico')[parseInt(i)]).attr('decimal') == "true" ? 2 : 0,
             digitalGroupSpacing: 3,
             digitGroupSeparator: ','
         };
-        elementosNumericos[i] = new AutoNumeric($('.elementoNumerico')[i], configuracionNumerica);
+        elementosNumericos[parseInt(i)] = new AutoNumeric($('.elementoNumerico')[parseInt(i)], configuracionNumerica);
     }
 
     $('#cajonContratos input.campoAzulBusqueda').on('change', function(evento) {
@@ -320,7 +320,7 @@ function ObtenerComprador() {
         OcultarEspera('body .tamanoMinimo');
         if (datos.id) {
             AnadirDatosComprador();
-            $('.contenedorTablas').show()
+            $('.contenedorTablas').show();
             CargarContratosComprador();
             CargarPagosComprador();
             CargarProcesosComprador();
@@ -462,8 +462,7 @@ function CargarContratosComprador() {
     EliminarEventoModalDescarga('descargaXlsxCompradorContratos');
     parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/contratos', parametros).done(function(datos) {
-        console.dir('Contratos');
-        console.dir(datos);
+
 
         AgregarResultadosContratosComprador(datos, '#resultadosContratosComprador');
         MostrarPaginacion(datos, '.ContratosComprador',
@@ -502,8 +501,7 @@ function CargarPagosComprador() {
     EliminarEventoModalDescarga('descargaXlsxCompradorPagos');
     parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/pagos', parametros).done(function(datos) {
-        console.dir('Pagos');
-        console.dir(datos);
+ 
 
         AgregarResultadosPagosComprador(datos, '#resultadosPagosComprador')
         MostrarPaginacion(datos, '.PagosComprador',
@@ -539,8 +537,7 @@ function CargarProcesosComprador() {
     EliminarEventoModalDescarga('descargaXlsxCompradorProcesos');
     parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/procesos', parametros).done(function(datos) {
-        console.dir('Procesos');
-        console.dir(datos);
+    
 
         AgregarResultadosProcesosComprador(datos, '#resultadosProcesosComprador')
         MostrarPaginacion(datos, '.ProcesosComprador',
@@ -574,32 +571,32 @@ function AgregarResultadosContratosComprador(datos, selector) {
             $('<tr>').append(
                 $('<td>', { 'data-label': 'Proveedor' }).append(
 
-                    resultados[i] && resultados[i]._source && resultados[i]._source.suppliers?ObtenerProveedoresArreglo(resultados[i]._source.suppliers):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.suppliers?ObtenerProveedoresArreglo(resultados[parseInt(i)]._source.suppliers):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
                 $('<td>', { 'data-label': 'Título de Contrato', class: 'textoAlineadoIzquierda' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.title ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.extra.ocid) + '/?contrato=' + resultados[i]._source.id, toolTexto: resultados[i]._source.title }).text(ReducirTexto(resultados[i]._source.title, 80)) : $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.extra.ocid) + '/?contrato=' + resultados[i]._source.id }).text('Sin título')
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.title ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[parseInt(i)]._source.extra.ocid) + '/?contrato=' + resultados[parseInt(i)]._source.id, toolTexto: resultados[parseInt(i)]._source.title }).text(ReducirTexto(resultados[parseInt(i)]._source.title, 80)) : $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[parseInt(i)]._source.extra.ocid) + '/?contrato=' + resultados[parseInt(i)]._source.id }).text('Sin título')
                 ),
                 $('<td>', { 'data-label': 'Descripción', class: 'textoAlineadoIzquierda' }).append(
-                    $('<span>', { text: ReducirTexto(resultados[i] && resultados[i]._source && resultados[i]._source.description ? resultados[i]._source.description : '', 80), toolTexto: resultados[i] && resultados[i]._source && resultados[i]._source.description ? resultados[i]._source.description : '' })
+                    $('<span>', { text: ReducirTexto(resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.description ? resultados[parseInt(i)]._source.description : '', 80), toolTexto: resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.description ? resultados[parseInt(i)]._source.description : '' })
 
                 ),
                 $('<td>', { 'data-label': 'Nombre del Proceso', class: 'textoAlineadoCentrado' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderTitle ? resultados[i]._source.extra.tenderTitle : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.extra && resultados[parseInt(i)]._source.extra.tenderTitle ? resultados[parseInt(i)]._source.extra.tenderTitle : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
                 
                 $('<td>', { 'data-label': 'Categoría de Compras', class: 'textoAlineadoCentrado' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.localProcurementCategory ? (categoriaCompra[resultados[i]._source.localProcurementCategory]?categoriaCompra[resultados[i]._source.localProcurementCategory].titulo: resultados[i]._source.localProcurementCategory) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.localProcurementCategory ? (categoriaCompra[resultados[parseInt(i)]._source.localProcurementCategory]?categoriaCompra[resultados[parseInt(i)]._source.localProcurementCategory].titulo: resultados[parseInt(i)]._source.localProcurementCategory) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
                 $('<td>', { 'data-label': 'Monto del Contrato', class: 'textoAlineadoDerecha' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.value && Validar(resultados[i]._source.value.amount) ? [ValorMoneda(resultados[i]._source.value.amount), $('<span>', { class: 'textoColorPrimario', text: ' ' + resultados[i]._source.value.currency })] : ''
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.value && Validar(resultados[parseInt(i)]._source.value.amount) ? [ValorMoneda(resultados[parseInt(i)]._source.value.amount), $('<span>', { class: 'textoColorPrimario', text: ' ' + resultados[parseInt(i)]._source.value.currency })] : ''
                 ),
                 $('<td>', { 'data-label': 'Fecha de Firma del Contrato', class: 'textoAlineadoCentrado' }).append(
-                    $('<span>', { class: resultados[i] && resultados[i]._source && resultados[i]._source.dateSigned && resultados[i]._source.dateSigned != 'NaT' ? '' : 'textoColorGris' }).text(
-                        resultados[i] && resultados[i]._source && resultados[i]._source.dateSigned && resultados[i]._source.dateSigned != 'NaT' ? ObtenerFecha(resultados[i]._source.dateSigned, 'fecha') : 'No Disponible'
+                    $('<span>', { class: resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.dateSigned && resultados[parseInt(i)]._source.dateSigned != 'NaT' ? '' : 'textoColorGris' }).text(
+                        resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.dateSigned && resultados[parseInt(i)]._source.dateSigned != 'NaT' ? ObtenerFecha(resultados[parseInt(i)]._source.dateSigned, 'fecha') : 'No Disponible'
                     )
                 ),
                 $('<td>', { 'data-label': 'Estado', class: 'textoAlineadoCentrado' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.status ? (estadosContrato[resultados[i]._source.status]? estadosContrato[resultados[i]._source.status].titulo:resultados[i]._source.status) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.status ? (estadosContrato[resultados[parseInt(i)]._source.status]? estadosContrato[resultados[parseInt(i)]._source.status].titulo:resultados[parseInt(i)]._source.status) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 )
             )
         );
@@ -627,18 +624,18 @@ function ObtenerFilasSubTablaPagos(datos){
                 $('<tr>').append(
                     $('<td>', { 'data-label': 'Descripción de la Transacción' }).append(
                         
-                        ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations) && ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations).length && ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations)[0].description? $('<span>', { text: ReducirTexto(ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations)[0].description, 80), toolTexto: ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations)[0].description}) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                        ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations) && ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations).length && ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations)[0].description? $('<span>', { text: ReducirTexto(ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations)[0].description, 80), toolTexto: ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations)[0].description}) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                     ),
                     $('<td>', { 'data-label': 'Objeto de Gasto' }).append(
                         datos && datos.extra && datos.extra.objetosGasto && datos.extra.objetosGasto.length ? $('<span>', { text: ReducirTexto(datos.extra.objetosGasto.join(', '), 80), toolTexto: datos.extra.objetosGasto.join(', ')}) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                         
                     ),
                     $('<td>', { 'data-label': 'Monto del Pago' }).append(
-                        datos.implementation.transactions[i].value && Validar(datos.implementation.transactions[i].value.amount) ? [ValorMoneda(datos.implementation.transactions[i].value.amount), $('<span>', { class: 'textoColorPrimario', text: ' '+(datos.implementation.transactions[i].date.currency?datos.implementation.transactions[i].date.currency:'HNL') })] : ''
+                        datos.implementation.transactions[parseInt(i)].value && Validar(datos.implementation.transactions[parseInt(i)].value.amount) ? [ValorMoneda(datos.implementation.transactions[parseInt(i)].value.amount), $('<span>', { class: 'textoColorPrimario', text: ' '+(datos.implementation.transactions[parseInt(i)].date.currency?datos.implementation.transactions[parseInt(i)].date.currency:'HNL') })] : ''
                     ),
                     $('<td>', { 'data-label': 'Fecha del Pago' }).append(
-                        $('<span>', { class: datos.implementation.transactions[i].date&&datos.implementation.transactions[i].date != 'NaT' ? '' : 'textoColorGris' }).text(
-                            datos.implementation.transactions[i].date && datos.implementation.transactions[i].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[i].date, 'fecha') : 'No Disponible'
+                        $('<span>', { class: datos.implementation.transactions[parseInt(i)].date&&datos.implementation.transactions[parseInt(i)].date != 'NaT' ? '' : 'textoColorGris' }).text(
+                            datos.implementation.transactions[parseInt(i)].date && datos.implementation.transactions[parseInt(i)].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[parseInt(i)].date, 'fecha') : 'No Disponible'
                         )
                     )
                 )
@@ -686,7 +683,7 @@ function AgregarFilaPago(resultados,selector,i){
                                             )
                                         ),
                                         $('<tbody>').append(
-                                            ObtenerFilasSubTablaPagos(resultados[i]._source)
+                                            ObtenerFilasSubTablaPagos(resultados[parseInt(i)]._source)
                                         )
                                     )
 
@@ -707,29 +704,29 @@ function AgregarFilaPago(resultados,selector,i){
             }
         }).append(
             $('<td>', { 'data-label': 'Comprador' }).append(
-                resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.buyer&&resultados[i]._source.extra.buyer.id ? $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.extra.buyer.id) }).text(resultados[i]._source.extra.buyerFullName) : ''
+                resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.extra && resultados[parseInt(i)]._source.extra.buyer&&resultados[parseInt(i)]._source.extra.buyer.id ? $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[parseInt(i)]._source.extra.buyer.id) }).text(resultados[parseInt(i)]._source.extra.buyerFullName) : ''
             ),
             $('<td>', { 'data-label': 'Proveedor' }).append(
-                resultados[i] && resultados[i]._source && resultados[i]._source.implementation && resultados[i]._source.implementation.transactions&& resultados[i]._source.implementation.transactions.length? ObtenerProveedoresTransacciones(resultados[i]._source.implementation.transactions):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.implementation && resultados[parseInt(i)]._source.implementation.transactions&& resultados[parseInt(i)]._source.implementation.transactions.length? ObtenerProveedoresTransacciones(resultados[parseInt(i)]._source.implementation.transactions):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
                
             ),
             $('<td>', { 'data-label': 'Título de Contrato', class: 'textoAlineadoIzquierda' }).append(
-                resultados[i] && resultados[i]._source && resultados[i]._source.title ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.extra.ocid) + '/?contrato=' + resultados[i]._source.id, toolTexto: resultados[i]._source.title }).text(ReducirTexto(resultados[i]._source.title, 80)) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.title ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[parseInt(i)]._source.extra.ocid) + '/?contrato=' + resultados[parseInt(i)]._source.id, toolTexto: resultados[parseInt(i)]._source.title }).text(ReducirTexto(resultados[parseInt(i)]._source.title, 80)) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
             ),
             $('<td>', { 'data-label': 'Monto del Contrato', class: 'textoAlineadoDerecha' }).append(
-                resultados[i] && resultados[i]._source && resultados[i]._source.value && Validar(resultados[i]._source.value.amount) ? [ValorMoneda(resultados[i]._source.value.amount), $('<span>', { class: 'textoColorPrimario', text: ' ' + resultados[i]._source.value.currency })] : ''
+                resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.value && Validar(resultados[parseInt(i)]._source.value.amount) ? [ValorMoneda(resultados[parseInt(i)]._source.value.amount), $('<span>', { class: 'textoColorPrimario', text: ' ' + resultados[parseInt(i)]._source.value.currency })] : ''
 
 
             ),
             $('<td>', { 'data-label': 'Suma de Todos los Pagos', class: 'textoAlineadoDerecha' }).append(
-                resultados[i] && resultados[i]._source && resultados[i]._source.extra && Validar(resultados[i]._source.extra.sumTransactions) ? [ValorMoneda(resultados[i]._source.extra.sumTransactions), $('<span>', { class: 'textoColorPrimario', text: ' HNL' })] : ''
+                resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.extra && Validar(resultados[parseInt(i)]._source.extra.sumTransactions) ? [ValorMoneda(resultados[parseInt(i)]._source.extra.sumTransactions), $('<span>', { class: 'textoColorPrimario', text: ' HNL' })] : ''
 
 
             ),
 
             $('<td>', { 'data-label': 'Fecha de Último Pago', class: 'textoAlineadoCentrado' }).append(
-                $('<span>', { class: resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.transactionLastDate && resultados[i]._source.extra.transactionLastDate != 'NaT' ? '' : 'textoColorGris' }).text(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.transactionLastDate && resultados[i]._source.extra.transactionLastDate != 'NaT' ? ObtenerFecha(resultados[i]._source.extra.transactionLastDate, 'fecha') : 'No Disponible'
+                $('<span>', { class: resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.extra && resultados[parseInt(i)]._source.extra.transactionLastDate && resultados[parseInt(i)]._source.extra.transactionLastDate != 'NaT' ? '' : 'textoColorGris' }).text(
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.extra && resultados[parseInt(i)]._source.extra.transactionLastDate && resultados[parseInt(i)]._source.extra.transactionLastDate != 'NaT' ? ObtenerFecha(resultados[parseInt(i)]._source.extra.transactionLastDate, 'fecha') : 'No Disponible'
                 )
 
             )
@@ -746,9 +743,9 @@ function AgregarFilaPago(resultados,selector,i){
 function ObtenerProveedoresTransacciones(transacciones){
     var elementos=[];
     for (var i=0; i< transacciones.length; i++) {
-        if(transacciones[i].payee&&transacciones[i].payee.id){
+        if(transacciones[parseInt(i)].payee&&transacciones[parseInt(i)].payee.id){
             elementos.push(
-                $('<a>',{text:transacciones[i].payee.name,class:'enlaceTablaGeneral',href:'/proveedor/'+transacciones[i].payee.id})
+                $('<a>',{text:transacciones[parseInt(i)].payee.name,class:'enlaceTablaGeneral',href:'/proveedor/'+transacciones[parseInt(i)].payee.id})
             );
         }
     }
@@ -783,9 +780,9 @@ function ObtenerProveedoresArreglo(datos) {
     var elementos = [];
     if (datos && datos.length) {
         for (let i = 0; i < datos.length; i++) {
-            if (datos[i].id) {
+            if (datos[parseInt(i)].id) {
                 elementos.push(
-                    $('<a>', { class: 'enlaceTablaGeneral', href: '/proveedor/' + encodeURIComponent(datos[i].id) }).text(datos[i].name)
+                    $('<a>', { class: 'enlaceTablaGeneral', href: '/proveedor/' + encodeURIComponent(datos[parseInt(i)].id) }).text(datos[parseInt(i)].name)
                 )
                 elementos.push(' ');
             }
@@ -806,38 +803,38 @@ function AgregarResultadosProcesosComprador(datos, selector) {
         $(selector).append(
             $('<tr>').append(
                 $('<td>', { 'data-label': 'Comprador' }).append(
-                resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.buyer && resultados[i]._source.doc.compiledRelease.buyer.id ?
-                $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[i]._source.doc.compiledRelease.buyer.id)}).text(
-                    resultados[i]._source.extra&&resultados[i]._source.extra.buyerFullName?resultados[i]._source.extra.buyerFullName:'Comprador'
+                resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.doc && resultados[parseInt(i)]._source.doc.compiledRelease && resultados[parseInt(i)]._source.doc.compiledRelease.buyer && resultados[parseInt(i)]._source.doc.compiledRelease.buyer.id ?
+                $('<a>', { class: 'enlaceTablaGeneral', href: '/comprador/' + encodeURIComponent(resultados[parseInt(i)]._source.doc.compiledRelease.buyer.id)}).text(
+                    resultados[parseInt(i)]._source.extra&&resultados[parseInt(i)]._source.extra.buyerFullName?resultados[parseInt(i)]._source.extra.buyerFullName:'Comprador'
                     ) :  $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
                 $('<td>', { 'data-label': 'Id del Proceso' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.ocid ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.doc.ocid) }).text(resultados[i]._source.doc.ocid) : ''
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.doc && resultados[parseInt(i)]._source.doc.ocid ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[parseInt(i)]._source.doc.ocid) }).text(resultados[parseInt(i)]._source.doc.ocid) : ''
                 ),
                 $('<td>', { 'data-label': 'Título del Proceso' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.tender && resultados[i]._source.doc.compiledRelease.tender.title ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[i]._source.doc.ocid) }).text(resultados[i]._source.doc.compiledRelease.tender.title) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.doc && resultados[parseInt(i)]._source.doc.compiledRelease && resultados[parseInt(i)]._source.doc.compiledRelease.tender && resultados[parseInt(i)]._source.doc.compiledRelease.tender.title ? $('<a>', { class: 'enlaceTablaGeneral', href: '/proceso/' + encodeURIComponent(resultados[parseInt(i)]._source.doc.ocid) }).text(resultados[parseInt(i)]._source.doc.compiledRelease.tender.title) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
                 $('<td>', { 'data-label': 'Modalidad de Compra' }).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.tender && resultados[i]._source.doc.compiledRelease.tender.procurementMethodDetails ? resultados[i]._source.doc.compiledRelease.tender.procurementMethodDetails : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.doc && resultados[parseInt(i)]._source.doc.compiledRelease && resultados[parseInt(i)]._source.doc.compiledRelease.tender && resultados[parseInt(i)]._source.doc.compiledRelease.tender.procurementMethodDetails ? resultados[parseInt(i)]._source.doc.compiledRelease.tender.procurementMethodDetails : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
 
                 $('<td>', { 'data-label': 'Fecha de Publicación de la Licitación', class: 'textoAlineadoCentrado' }).append(
-                    $('<span>', { class: resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.date && resultados[i]._source.doc.compiledRelease.date != 'NaT' ? '' : 'textoColorGris' }).text(
-                        resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.date && resultados[i]._source.doc.compiledRelease.date != 'NaT' ? ObtenerFecha(resultados[i]._source.doc.compiledRelease.date, 'fecha') : 'No Disponible'
+                    $('<span>', { class: resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.doc && resultados[parseInt(i)]._source.doc.compiledRelease && resultados[parseInt(i)]._source.doc.compiledRelease.date && resultados[parseInt(i)]._source.doc.compiledRelease.date != 'NaT' ? '' : 'textoColorGris' }).text(
+                        resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.doc && resultados[parseInt(i)]._source.doc.compiledRelease && resultados[parseInt(i)]._source.doc.compiledRelease.date && resultados[parseInt(i)]._source.doc.compiledRelease.date != 'NaT' ? ObtenerFecha(resultados[parseInt(i)]._source.doc.compiledRelease.date, 'fecha') : 'No Disponible'
                     )
                 ),
                 $('<td>', { 'data-label': 'Fecha de Recepción de Ofertas', class: 'textoAlineadoCentrado' }).append(
-                    $('<span>', { class: resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.tender && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate != 'NaT' ? '' : 'textoColorGris' }).text(
-                        resultados[i] && resultados[i]._source && resultados[i]._source.doc && resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.tender && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate && resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate != 'NaT' ? ObtenerFecha(resultados[i]._source.doc.compiledRelease.tender.tenderPeriod.endDate, 'fecha') : 'No Disponible'
+                    $('<span>', { class: resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.doc && resultados[parseInt(i)]._source.doc.compiledRelease && resultados[parseInt(i)]._source.doc.compiledRelease.tender && resultados[parseInt(i)]._source.doc.compiledRelease.tender.tenderPeriod && resultados[parseInt(i)]._source.doc.compiledRelease.tender.tenderPeriod.endDate && resultados[parseInt(i)]._source.doc.compiledRelease.tender.tenderPeriod.endDate != 'NaT' ? '' : 'textoColorGris' }).text(
+                        resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.doc && resultados[parseInt(i)]._source.doc.compiledRelease && resultados[parseInt(i)]._source.doc.compiledRelease.tender && resultados[parseInt(i)]._source.doc.compiledRelease.tender.tenderPeriod && resultados[parseInt(i)]._source.doc.compiledRelease.tender.tenderPeriod.endDate && resultados[parseInt(i)]._source.doc.compiledRelease.tender.tenderPeriod.endDate != 'NaT' ? ObtenerFecha(resultados[parseInt(i)]._source.doc.compiledRelease.tender.tenderPeriod.endDate, 'fecha') : 'No Disponible'
                     )
 
                 ),
                 $('<td>', { 'data-label': 'Estado' , class: 'textoAlineadoCentrado'}).append(
-                    resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.lastSection ? (estadoProceso[resultados[i]._source.extra.lastSection]?estadoProceso[resultados[i]._source.extra.lastSection].titulo: resultados[i]._source.extra.lastSection)
+                    resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.extra && resultados[parseInt(i)]._source.extra.lastSection ? (estadoProceso[resultados[parseInt(i)]._source.extra.lastSection]?estadoProceso[resultados[parseInt(i)]._source.extra.lastSection].titulo: resultados[parseInt(i)]._source.extra.lastSection)
                      : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 ),
                 $('<td>', { 'data-label': 'Monto Contratado', class: 'textoAlineadoDerecha' }).append(
-                    resultados[i]._source.doc.compiledRelease && resultados[i]._source.doc.compiledRelease.tender && resultados[i]._source.doc.compiledRelease.tender.extra && resultados[i]._source.doc.compiledRelease.tender.extra && Validar(resultados[i]._source.doc.compiledRelease.tender.extra.sumContracts) ? [ValorMoneda(resultados[i]._source.doc.compiledRelease.tender.extra.sumContracts), $('<span>', { class: 'textoColorPrimario', text: ' HNL' })] : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                    resultados[parseInt(i)]._source.doc.compiledRelease && resultados[parseInt(i)]._source.doc.compiledRelease.tender && resultados[parseInt(i)]._source.doc.compiledRelease.tender.extra && resultados[parseInt(i)]._source.doc.compiledRelease.tender.extra && Validar(resultados[parseInt(i)]._source.doc.compiledRelease.tender.extra.sumContracts) ? [ValorMoneda(resultados[parseInt(i)]._source.doc.compiledRelease.tender.extra.sumContracts), $('<span>', { class: 'textoColorPrimario', text: ' HNL' })] : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 )
             )
         );
@@ -870,16 +867,16 @@ function MostrarPaginacion(datos, selector, funcion) {
         );
     }
     for (var i = 0; i < paginacion.length; i++) {
-        if (paginacion[i] == '...') {
+        if (paginacion[parseInt(i)] == '...') {
             $('.navegacionTablaGeneral' + selector).append(
-                $('<a href="javascript:void(0)" class="numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral">').append($('<span>').text(paginacion[i]))
+                $('<a href="javascript:void(0)" class="numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral">').append($('<span>').text(paginacion[parseInt(i)]))
             );
         } else {
             $('.navegacionTablaGeneral' + selector).append(
-                $('<a href="javascript:void(0)" pagina="' + paginacion[i] + '"  class="numerosNavegacionTablaGeneral ' + ((paginacion[i] == datos.paginador.page) ? 'current' : '') + '">').on({
+                $('<a href="javascript:void(0)" pagina="' + paginacion[parseInt(i)] + '"  class="numerosNavegacionTablaGeneral ' + ((paginacion[parseInt(i)] == datos.paginador.page) ? 'current' : '') + '">').on({
                     click: funcion
 
-                }).append($('<span>').text(paginacion[i]))
+                }).append($('<span>').text(paginacion[parseInt(i)]))
             );
         }
     }
@@ -1357,8 +1354,7 @@ function InicializarDescargas(){
     parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
     parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/procesos',parametros).done(function( datos ) {*/
-      console.dir('Descargas Comprador Procesos')
-      console.dir(datos);
+
       AgregarEventoModalDescarga('descargaJsonCompradorProcesos',function(){
         var descarga=datos.resultados.map(function(e){
           return e._source.doc.compiledRelease;
@@ -1397,8 +1393,7 @@ function InicializarDescargas(){
     parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
     parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/contratos',parametros).done(function( datos ) {*/
-      console.dir('Descargas Comprador Contratos')
-      console.dir(datos);
+
       AgregarEventoModalDescarga('descargaJsonCompradorContratos',function(){
         var descarga=datos.resultados.map(function(e){
           return e._source;
@@ -1435,8 +1430,7 @@ function InicializarDescargas(){
     parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
     parametros['tid']='id';
     $.get(api + "/compradores/" + encodeURIComponent(compradorId) + '/pagos',parametros).done(function( datos ) {*/
-      console.dir('Descargas Comprador Pagos')
-      console.dir(datos);
+   
       AgregarEventoModalDescarga('descargaJsonCompradorPagos',function(){
         var descarga=datos.resultados.map(function(e){
           return e._source;

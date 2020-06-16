@@ -44,9 +44,7 @@ function ObtenerFiltros(selector){
     DebugFecha();
     $.get(api+"/visualizacionesoncae/filtros/",{}).done(function( datos ) {
       OcultarEspera('#VisualizacionGeneral')
-        console.dir('filtros')
-        DebugFecha()
-    console.dir(datos);
+        DebugFecha();
 
         if(datos&&datos.respuesta&&datos.respuesta.length){
           $('#'+selector).html('').append(
@@ -117,12 +115,43 @@ function ObtenerFiltros(selector){
 
           arregloAnos.forEach(function(elemento) {
             $('#'+selector+' .contenedorFechas').append(
-              $('<div>',{class:'botonGeneral fondoColorPrimario cursorMano'+((ObtenerNumero(decodeURIComponent(ObtenerValor('año')))==elemento)?' fondoColorSecundario':''),href:'javascript:void(0)',text:elemento, style:'color:white;margin:3px;display:inline-block;', fecha:elemento,
+              $('<div>',{class:'botonGeneral fondoColorPrimario cursorMano'+(((ObtenerTexto(decodeURIComponent(ObtenerValor('año'))).split(',')).includes(ObtenerTexto(elemento)))?' fondoColorSecundario':''),href:'javascript:void(0)',text:elemento, style:'color:white;margin:3px;display:inline-block;', fecha:elemento,
             on:{
               click:function(e){
-                //$(e.currentTarget).attr('fecha')
+               
+                if($(e.currentTarget).hasClass('fondoColorSecundario')){
+                  if($(e.currentTarget).parent().find('.botonGeneral.fondoColorPrimario.cursorMano.fondoColorSecundario').length>1){
+                    $(e.currentTarget).removeClass('fondoColorSecundario');
+                  }
+                }else{
+                  $(e.currentTarget).addClass('fondoColorSecundario');
+                }
+                
+                var fechas=[];
+                $(e.currentTarget).parent().find('.botonGeneral.fondoColorPrimario.cursorMano.fondoColorSecundario').each(function(indice,ano){
+                  return fechas.push($(ano).attr('fecha'));
+                });
+                
+                var parametros=ObtenerJsonFiltrosAplicados({});
+                  parametros['año']=fechas.join(',');
+                  if(parametros.institucion){
+                    delete parametros.institucion;
+                  }
+
+                  if($('#PesosContratosGrafico').length){
+                    $('#PesosContratosGrafico').empty();
+                  }
+                  $('#PesosContratos').html('');
+                  $('#PesosContratos').hide();
+
+                  AccederUrlPagina(parametros);
+                  PushDireccion(AccederUrlPagina(parametros,true));
+                  MostrarContratosGenerales();
+                /* Selección de un solo año
                 $(e.currentTarget).parent().find('.botonGeneral.fondoColorPrimario.cursorMano').removeClass('fondoColorSecundario');
                   $(e.currentTarget).addClass('fondoColorSecundario');
+
+
                 var parametros=ObtenerJsonFiltrosAplicados({});
                   parametros['año']=$(e.currentTarget).attr('fecha');
                   if(parametros.institucion){
@@ -137,7 +166,7 @@ function ObtenerFiltros(selector){
 
                   AccederUrlPagina(parametros);
                   PushDireccion(AccederUrlPagina(parametros,true));
-                  MostrarContratosGenerales();
+                  MostrarContratosGenerales();*/
               }
             }})
             )

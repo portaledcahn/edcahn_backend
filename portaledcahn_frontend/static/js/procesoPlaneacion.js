@@ -214,19 +214,19 @@ function DefinirElementosPlaneacion(){
   function ObtenerProporcionadoresFondos(fondos){
     var elementos=[]
     for(i=0;i<fondos.length;i++){
-      if(fondos[i].description){
+      if(fondos[parseInt(i)].description){
         elementos.push(
           $('<tr>').append(
           $('<td>',{class:'tituloTablaCaracteristicas',text:'Origen de Fondos'}),
-          $('<td>',{class:'contenidoTablaCaracteristicas',text:fondos[i].description})
+          $('<td>',{class:'contenidoTablaCaracteristicas',text:fondos[parseInt(i)].description})
         )
         )
       }
-      if(fondos[i].sourceParty&&fondos[i].sourceParty.name){
+      if(fondos[parseInt(i)].sourceParty&&fondos[parseInt(i)].sourceParty.name){
         elementos.push(
           $('<tr>').append(
           $('<td>',{class:'tituloTablaCaracteristicas',text:'Fuente del Presupuesto'}),
-          $('<td>',{class:'contenidoTablaCaracteristicas',text:fondos[i].sourceParty.name})
+          $('<td>',{class:'contenidoTablaCaracteristicas',text:fondos[parseInt(i)].sourceParty.name})
         )
         )
       }
@@ -241,18 +241,18 @@ function DefinirElementosPlaneacion(){
       for(var i=0;i<desglosePresupuesto.length;i++){
         var comprometido=[];
         var precomprometido=[];
-        if(desglosePresupuesto[i].measures){
-          if(desglosePresupuesto[i].measures.ajusteComprometido){
-            comprometido=comprometido.concat(desglosePresupuesto[i].measures.ajusteComprometido.map(function(e){e["type"]='ajusteComprometido';e["name"]='Ajuste Comprometido';return e;}));
+        if(desglosePresupuesto[parseInt(i)].measures){
+          if(desglosePresupuesto[parseInt(i)].measures.ajusteComprometido){
+            comprometido=comprometido.concat(desglosePresupuesto[parseInt(i)].measures.ajusteComprometido.map(function(e){e["type"]='ajusteComprometido';e["name"]='Ajuste Comprometido';return e;}));
           }
-          if(desglosePresupuesto[i].measures.comprometido){
-            comprometido=comprometido.concat(desglosePresupuesto[i].measures.comprometido.map(function(e){e["type"]='comprometido';e["name"]='Comprometido';return e;}));
+          if(desglosePresupuesto[parseInt(i)].measures.comprometido){
+            comprometido=comprometido.concat(desglosePresupuesto[parseInt(i)].measures.comprometido.map(function(e){e["type"]='comprometido';e["name"]='Comprometido';return e;}));
           }
-          if(desglosePresupuesto[i].measures.ajustePrecomprometido){
-            precomprometido=precomprometido.concat(desglosePresupuesto[i].measures.ajustePrecomprometido.map(function(e){e["type"]='ajustePrecomprometido';e["name"]='Ajuste Pre-Comprometido';return e;}));
+          if(desglosePresupuesto[parseInt(i)].measures.ajustePrecomprometido){
+            precomprometido=precomprometido.concat(desglosePresupuesto[parseInt(i)].measures.ajustePrecomprometido.map(function(e){e["type"]='ajustePrecomprometido';e["name"]='Ajuste Pre-Comprometido';return e;}));
           }
-          if(desglosePresupuesto[i].measures.precomprometido){
-            precomprometido=precomprometido.concat(desglosePresupuesto[i].measures.precomprometido.map(function(e){e["type"]='precomprometido';;e["name"]='Pre-Comprometido';return e;}));
+          if(desglosePresupuesto[parseInt(i)].measures.precomprometido){
+            precomprometido=precomprometido.concat(desglosePresupuesto[parseInt(i)].measures.precomprometido.map(function(e){e["type"]='precomprometido';;e["name"]='Pre-Comprometido';return e;}));
           }
           historico.push({
             "precomprometido":precomprometido.sort(function(a,b){return  new Date(a.releaseDate) - new Date(b.releaseDate);}),
@@ -268,7 +268,7 @@ function DefinirElementosPlaneacion(){
 function DefinirHistorialPresupuesto(){
     var historial=ObtenerHistorialPresupuesto();
     for(var i=0;i<historial.length;i++){
-    var desglose=historial[i];
+    var desglose=historial[parseInt(i)];
     var precomprometido=desglose.precomprometido.filter(function(arreglo) {
         return arreglo.value!=0;
     })
@@ -322,15 +322,15 @@ function ObternerElementosSuma(datos,reversion){
     var elementos=[];
     var suma=0;
     for(var i=0;i<datos.length;i++){
-        suma+=ObtenerNumero(datos[i].value);
+        suma+=ObtenerNumero(datos[parseInt(i)].value);
         elementos.push(
             $('<tr>').append(
-                $('<td>',{class:'textoAlineadoIzquierda textoColorGris titularColor fuente18',text:datos[i].name,'colspan':2})
+                $('<td>',{class:'textoAlineadoIzquierda textoColorGris titularColor fuente18',text:datos[parseInt(i)].name,'colspan':2})
             ),
             $('<tr>').append(
-                $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoCentrado textoColorGrisNormal ',text:ObtenerFecha(datos[i].releaseDate)}),
+                $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoCentrado textoColorGrisNormal ',text:ObtenerFecha(datos[parseInt(i)].releaseDate)}),
                 $('<td>',{class:'textoAlineadoDerecha titularColor textoColorGrisNormal fuente18'}).append(
-                    ValorMoneda(datos[i].value),
+                    ValorMoneda(datos[parseInt(i)].value),
                     $('<span>',{class:'textoColorPrimario',text:' HNL'})
                 )
               ) 
@@ -348,7 +348,7 @@ function ObternerElementosSuma(datos,reversion){
     return elementos;
 }
 function VerificarReversion(i){
-    var desglose=procesoRecord.compiledRelease.planning.budget.budgetBreakdown[i];
+    var desglose=procesoRecord.compiledRelease.planning.budget.budgetBreakdown[parseInt(i)];
     return(
         desglose.measures&&
         desglose.measures.ajusteComprometido===0&&

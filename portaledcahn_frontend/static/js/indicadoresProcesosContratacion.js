@@ -15,7 +15,8 @@ var filtrosAplicables={
     proveedores: {titulo:"Proveedor",parametro:"proveedor"},
     categorias: {titulo:/*"Categoría de Compra"*/"Tipo de Contrato",parametro:"categoria"},
     modalidades : {titulo:"Modalidad de Compra",parametro:"modalidad"},
-    sistemas :{titulo:"Sistema de Origen", parametro: "sistema"}
+    sistemas :{titulo:"Sistema de Origen", parametro: "sistema"},
+    Normativas :{titulo:"Normativa", parametro: "normativa"}
     
   };
 
@@ -30,14 +31,15 @@ var filtrosAplicables={
     proveedor: {titulo:"Proveedor",parametro:"proveedores"},
     modalidad: {titulo:"Modalidad de Compra",parametro:"modalidades"},
     categoria : {titulo:/*"Categoría de Compra"*/"Tipo de Contrato",parametro:"categorias"},
-    sistema: {titulo:"Sistema de Origen", parametro:"sistemas"}
+    sistema: {titulo:"Sistema de Origen", parametro:"sistemas"},
+    normativa :{titulo:"Normativa", parametro: "Normativas"}
   };
 
 /**
  * Arreglo para definir el orden en el que se presentan los filtros
  * @type {string[]} 
  */
-  var ordenFiltros=["años","monedas","instituciones","categorias","modalidades","sistemas"];
+  var ordenFiltros=["años","monedas","instituciones","categorias","modalidades","sistemas","Normativas"];
 
 /**
  * Objeto para obtener traducciones e informacion de algunos códigos el OCDS
@@ -77,6 +79,8 @@ function ValoresLlaves(llave){
             return {valor:"moneda",cantidad:"contratos",codigo:"moneda"};
         case "sistemas":
             return {valor:"id",cantidad:"contratos",codigo:"id"};
+        case "Normativas":
+        return {valor:"normativa",cantidad:"contratos",codigo:"normativa"};
         default:
             return {valor:"key_as_string",cantidad:"contratos",codigo:"key_as_string"};
     }
@@ -1463,6 +1467,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor("sistema"))){
         parametros["sistema"]=decodeURIComponent(ObtenerValor("sistema"));
     }
+    if(Validar(ObtenerValor("normativa"))){
+        parametros["normativa"]=decodeURIComponent(ObtenerValor("normativa"));
+    }
     if(Validar(ObtenerValor("masinstituciones"))){
         parametros["masinstituciones"]=decodeURIComponent(ObtenerValor("masinstituciones"));
     }
@@ -1512,6 +1519,7 @@ function AccederUrlPagina(opciones,desUrl){
     (ValidarCadena(opciones.categoria)? "&categoria="+encodeURIComponent(opciones.categoria): (ValidarCadena(ObtenerValor("categoria"))&&!desUrl?"&categoria="+ObtenerValor("categoria"):""))+
     (ValidarCadena(opciones.modalidad) ? "&modalidad="+encodeURIComponent(opciones.modalidad):(ValidarCadena(ObtenerValor("modalidad"))&&!desUrl?"&modalidad="+ObtenerValor("modalidad"):""))+
     (ValidarCadena(opciones.sistema) ? "&sistema="+encodeURIComponent(opciones.sistema):(ValidarCadena(ObtenerValor("sistema"))&&!desUrl?"&sistema="+ObtenerValor("sistema"):""))+
+    (ValidarCadena(opciones.normativa) ? "&normativa="+encodeURIComponent(opciones.normativa):(ValidarCadena(ObtenerValor("normativa"))&&!desUrl?"&normativa="+ObtenerValor("normativa"):""))+
     (ValidarCadena(opciones.masproveedores) ? "&masproveedores="+encodeURIComponent(opciones.masproveedores):(ValidarCadena(ObtenerValor("masproveedores"))&&!desUrl?"&masproveedores="+ObtenerValor("masproveedores"):""))+
     (ValidarCadena(opciones.masinstituciones) ? "&masinstituciones="+encodeURIComponent(opciones.masinstituciones):(ValidarCadena(ObtenerValor("masinstituciones"))&&!desUrl?"&masinstituciones="+ObtenerValor("masinstituciones"):""))
   
@@ -2135,7 +2143,7 @@ function descargaImagen(e,o,opciones){
     var arregloBuffer = new ArrayBuffer(byteString.length);
     var iArreglo = new Uint8Array(arregloBuffer);
     for (var i = 0; i < byteString.length; i++) {
-        iArreglo[i] = byteString.charCodeAt(i);
+        iArreglo[parseInt(i)] = byteString.charCodeAt(i);
     }
     saveAs(new Blob([arregloBuffer], {type: "image/png"}),(tituloGrafico+".png"));
     $(o.getDom()).height($(o.getDom()).height()-tamanoAdicion);

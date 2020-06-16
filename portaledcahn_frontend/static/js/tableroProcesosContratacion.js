@@ -15,7 +15,8 @@ var filtrosAplicables={
     proveedores: {titulo:"Proveedor",parametro:"proveedor"},
     categorias: {titulo:/*"Categoría de Compra"*/"Tipo de Contrato",parametro:"categoria"},
     modalidades : {titulo:"Modalidad de Compra",parametro:"modalidad"},
-    sistemas :{titulo:"Sistema de Origen", parametro: "sistema"}
+    sistemas :{titulo:"Sistema de Origen", parametro: "sistema"},
+    Normativas :{titulo:"Normativa", parametro: "normativa"}
     
   };
 
@@ -30,7 +31,8 @@ var filtrosAplicables={
     proveedor: {titulo:"Proveedor",parametro:"proveedores"},
     modalidad: {titulo:"Modalidad de Compra",parametro:"modalidades"},
     categoria : {titulo:/*"Categoría de Compra"*/"Tipo de Contrato",parametro:"categorias"},
-    sistema: {titulo:"Sistema de Origen", parametro:"sistemas"}
+    sistema: {titulo:"Sistema de Origen", parametro:"sistemas"},
+    normativa :{titulo:"Normativa", parametro: "Normativas"}
     
   };
 
@@ -38,7 +40,7 @@ var filtrosAplicables={
  * Arreglo para definir el orden en el que se presentan los filtros
  * @type {string[]} 
  */
-  var ordenFiltros=["años","monedas","instituciones","categorias","modalidades","sistemas"];
+  var ordenFiltros=["años","monedas","instituciones","categorias","modalidades","sistemas","Normativas"];
 
   /**
  * Objeto para obtener traducciones e informacion de algunos códigos el OCDS
@@ -157,6 +159,9 @@ function ObtenerJsonFiltrosAplicados(parametros){
     if(Validar(ObtenerValor("sistema"))){
         parametros["sistema"]=decodeURIComponent(ObtenerValor("sistema"));
     }
+    if(Validar(ObtenerValor("normativa"))){
+        parametros["normativa"]=decodeURIComponent(ObtenerValor("normativa"));
+    }
     if(Validar(ObtenerValor("masinstituciones"))){
         parametros["masinstituciones"]=decodeURIComponent(ObtenerValor("masinstituciones"));
     }
@@ -184,6 +189,7 @@ function ObtenerJsonFiltrosAplicados(parametros){
     (ValidarCadena(opciones.categoria)? "&categoria="+encodeURIComponent(opciones.categoria): (ValidarCadena(ObtenerValor("categoria"))&&!desUrl?"&categoria="+ObtenerValor("categoria"):""))+
     (ValidarCadena(opciones.modalidad) ? "&modalidad="+encodeURIComponent(opciones.modalidad):(ValidarCadena(ObtenerValor("modalidad"))&&!desUrl?"&modalidad="+ObtenerValor("modalidad"):""))+
     (ValidarCadena(opciones.sistema) ? "&sistema="+encodeURIComponent(opciones.sistema):(ValidarCadena(ObtenerValor("sistema"))&&!desUrl?"&sistema="+ObtenerValor("sistema"):""))+
+    (ValidarCadena(opciones.normativa) ? "&normativa="+encodeURIComponent(opciones.normativa):(ValidarCadena(ObtenerValor("normativa"))&&!desUrl?"&normativa="+ObtenerValor("normativa"):""))+
     (ValidarCadena(opciones.masproveedores) ? "&masproveedores="+encodeURIComponent(opciones.masproveedores):(ValidarCadena(ObtenerValor("masproveedores"))&&!desUrl?"&masproveedores="+ObtenerValor("masproveedores"):""))+
     (ValidarCadena(opciones.masinstituciones) ? "&masinstituciones="+encodeURIComponent(opciones.masinstituciones):(ValidarCadena(ObtenerValor("masinstituciones"))&&!desUrl?"&masinstituciones="+ObtenerValor("masinstituciones"):""))
   
@@ -369,6 +375,8 @@ function ValoresLlaves(llave){
             return {valor:"moneda",cantidad:"procesos",codigo:"moneda"};
         case "sistemas":
         return {valor:"id",cantidad:"procesos",codigo:"id"};
+        case "Normativas":
+        return {valor:"normativa",cantidad:"procesos",codigo:"normativa"};
         default:
             return {valor:"key_as_string",cantidad:"procesos",codigo:"key_as_string"};
     }
@@ -1928,7 +1936,6 @@ function Top10Compradores(){
     MostrarReloj("#top10Compradores",true);
 $.get(api+'/dashboardoncae/topcompradores/',parametros).done(function( datos ) {
 
-    
 OcultarReloj("#top10Compradores");
 if(datos&&datos.resultados&&Array.isArray(datos.resultados.montoContratado)  && datos.resultados.montoContratado.length==0){
     MostrarSinDatos("#top10Compradores",true);
@@ -1954,6 +1961,7 @@ var grafico=echarts.init(document.getElementById("top10Compradores"));
                     e.forEach(function(valor,indice){
                         cadena=cadena+" "+valor.marker+" "+valor.seriesName+" "+(valor.seriesIndex==0?ValorMoneda(valor.value) :valor.value) +" "+(valor.seriesIndex==0?"HNL":"")+"<br>"
                     });
+                    //cadena=cadena+" "+valor.marker+" "+valor.seriesName+" "+(valor.seriesIndex==0?ValorMoneda(valor.value) :valor.value) +" "+(valor.seriesIndex==0?"HNL":"")+"<br>"
                     return cadena;
                 }
             },
@@ -2172,8 +2180,11 @@ function Top10Proveedores(){
     
     MostrarReloj("#top10Proveedores",true);
 $.get(api+'/dashboardoncae/topproveedores/',parametros).done(function( datos ) {
-
-    
+/*
+datos.resultados.cantidadContratos=datos.resultados.cantidadContratos.reverse();
+datos.resultados.cantidadInstituciones=datos.resultados.cantidadInstituciones.reverse();
+datos.resultados.nombreProveedores=datos.resultados.nombreProveedores.reverse(); 
+datos.resultados.montoContratado=datos.resultados.montoContratado.reverse()*/
 OcultarReloj("#top10Proveedores");
 if(datos&&datos.resultados&&Array.isArray(datos.resultados.montoContratado)  && datos.resultados.montoContratado.length==0){
     MostrarSinDatos("#top10Proveedores",true);
@@ -2197,8 +2208,11 @@ var opciones = {
                 var cadena=ObtenerParrafo(e[0].name,40).replace(/\n/g,"<br>")+"<br>";
 
                 e.forEach(function(valor,indice){
-                    cadena=cadena+" "+valor.marker+" "+valor.seriesName+" "+(valor.seriesIndex==0?ValorMoneda(valor.value) :valor.value) +" "+(valor.seriesIndex==0?"HNL":"")+"<br>"
+                    cadena=cadena+" "+valor.marker+" "+valor.seriesName+" "+(valor.seriesIndex==0?ValorMoneda(valor.value) :valor.value) +" "+(valor.seriesIndex==0?"HNL":"")+"<br>";
+                    cadena=cadena+" "+"<span style='display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:transparent;'></span>"+" "+"Cantidad de Contratos"+" "+(ValorNumerico(datos.resultados.cantidadContratos[valor.dataIndex]) ) +" "+"<br>";
+                    cadena=cadena+" "+"<span style='display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:transparent;'></span>"+" "+"Cantidad de Instituciones"+" "+(ValorNumerico(datos.resultados.cantidadInstituciones[valor.dataIndex]) ) +" "+"<br>";
                 });
+                
                 return cadena;
             }
         },
@@ -2248,7 +2262,7 @@ var opciones = {
             {
                 name:"Proveedores",
                 type: "category",
-                data: datos.resultados.nombreProveedores.reverse(),
+                data: datos.resultados.nombreProveedores,
                 axisPointer: {
                     type: "shadow",
                     label:{
@@ -2272,7 +2286,7 @@ var opciones = {
             {
                 name:"Monto Contratado",
                 type:"bar",
-                data:datos.resultados.montoContratado.reverse(),
+                data:datos.resultados.montoContratado,
                 itemStyle:{
                     color: ObtenerColores("Pastel1")[2]
                 },
@@ -2313,7 +2327,7 @@ var opciones = {
                     {
                         name:"Proveedores",
                         type: "category",
-                        data: datos.resultados.nombreProveedores.reverse(),
+                        data: datos.resultados.nombreProveedores,
                         axisPointer: {
                             type: "shadow",
                             label:{
@@ -2353,7 +2367,7 @@ var opciones = {
                 series: [
                     {
                         type:"bar",
-                        data:datos.resultados.montoContratado.reverse(),
+                        data:datos.resultados.montoContratado,
                         itemStyle:{
                             color: ObtenerColores("Pastel1")[2]
                         },
@@ -2544,7 +2558,7 @@ function descargaImagen(e,o,opciones){
     var arregloBuffer = new ArrayBuffer(byteString.length);
     var iArreglo = new Uint8Array(arregloBuffer);
     for (var i = 0; i < byteString.length; i++) {
-        iArreglo[i] = byteString.charCodeAt(i);
+        iArreglo[parseInt(i)] = byteString.charCodeAt(i);
     }
     saveAs(new Blob([arregloBuffer], {type: "image/png"}),(tituloGrafico+".png"));
     $(o.getDom()).height($(o.getDom()).height()-tamanoAdicion);

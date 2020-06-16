@@ -29,7 +29,7 @@ $(function(){
         }
         var propiedades=["documentos","historial","invitados","solicitados","informacion"];
         for(var i=0;i<propiedades.length;i++){
-          MostrarPropiedadProceso(estado,propiedades[i]);
+          MostrarPropiedadProceso(estado,propiedades[parseInt(i)]);
         }
       }
     });
@@ -78,7 +78,7 @@ function MostrarPrimerProceso(){
     }
     var propiedades=["informacion","documentos","historial","invitados","solicitados"];
     for(var i=0;i<propiedades.length;i++){
-      MostrarPropiedadProceso(estado,propiedades[i]);
+      MostrarPropiedadProceso(estado,propiedades[parseInt(i)]);
     }
   }
   
@@ -148,7 +148,7 @@ function ObtenerProceso(){
 function DeshabilitarItems(){
   var pasos=["planificacion","convocatoria","adjudicacion","contrato","implementacion"];
   for(var i=0;i<pasos.length;i++){
-    DeshabilitarPaso(pasos[i]);
+    DeshabilitarPaso(pasos[parseInt(i)]);
   }
   $("#etapasProceso").show();
 }
@@ -161,7 +161,7 @@ function ContarPropiedades(paso){
   var numeroPropiedades=0;
   var propiedades=["informacion","documentos","historial","invitados","solicitados"];
   for(var i=0;i<propiedades.length;i++){
-    if($("."+paso+"."+propiedades[i]).html().trim()!=""){
+    if($("."+paso+"."+propiedades[parseInt(i)]).html().trim()!=""){
       numeroPropiedades++;
     }
   }
@@ -171,8 +171,8 @@ function ObtenerPropiedades(paso){
   var procesoPropiedades=[];
   var propiedades=["informacion","documentos","historial","invitados","solicitados"];
   for(var i=0;i<propiedades.length;i++){
-    if($("."+paso+"."+propiedades[i]).html().trim()!=""){
-      procesoPropiedades.push(propiedades[i])
+    if($("."+paso+"."+propiedades[parseInt(i)]).html().trim()!=""){
+      procesoPropiedades.push(propiedades[parseInt(i)])
     }
   }
   return procesoPropiedades;
@@ -191,18 +191,18 @@ function ObtenerItems(items){
   for(var i=0;i<items.length;i++){
     elementos.push(
       $("<tr>").append(
-        $("<td>",{"data-label":"id",text:((items[i].classification&&items[i].classification.id)?items[i].classification.id:null)}),
-        $("<td>",{"data-label":"Clasificación",text:((items[i].classification&&items[i].classification.scheme)?items[i].classification.scheme:null)}),
-        $("<td>",{"data-label":"Descripción",text:((items[i].classification&&items[i].classification.description)?items[i].classification.description:null)}),
-        /*$("<td>",{text:items[i].description}),*/
-        $("<td>",{"data-label":"Cantidad",text:items[i].quantity}),
-        $("<td>",{"data-label":"Precio",text:((items[i].unit&&items[i].unit.value&&items[i].unit.value.amount)?items[i].unit.value.amount:null)}),
-        $("<td>",{"data-label":"Unidad",text:((items[i].unit&&items[i].unit.name)?items[i].unit.name:null)})
+        $("<td>",{"data-label":"id",text:((items[parseInt(i)].classification&&items[parseInt(i)].classification.id)?items[parseInt(i)].classification.id:null)}),
+        $("<td>",{"data-label":"Clasificación",text:((items[parseInt(i)].classification&&items[parseInt(i)].classification.scheme)?items[parseInt(i)].classification.scheme:null)}),
+        $("<td>",{"data-label":"Descripción",text:((items[parseInt(i)].classification&&items[parseInt(i)].classification.description)?items[parseInt(i)].classification.description:null)}),
+        /*$("<td>",{text:items[parseInt(i)].description}),*/
+        $("<td>",{"data-label":"Cantidad",text:items[parseInt(i)].quantity}),
+        $("<td>",{"data-label":"Precio",text:((items[parseInt(i)].unit&&items[parseInt(i)].unit.value&&items[parseInt(i)].unit.value.amount)?items[parseInt(i)].unit.value.amount:null)}),
+        $("<td>",{"data-label":"Unidad",text:((items[parseInt(i)].unit&&items[parseInt(i)].unit.name)?items[parseInt(i)].unit.name:null)})
         
       ),
       $("<tr>").append(
         $("<th>",{text:"Especificaciones",style:"vertical-align:top"}),
-        $("<td>",{"colspan":4,text:items[i].description,class:"textoAlineadoJustificado"})
+        $("<td>",{"colspan":4,text:items[parseInt(i)].description,class:"textoAlineadoJustificado"})
       )
     )
   }
@@ -211,12 +211,12 @@ function ObtenerItems(items){
 function ObtenerCompradores(partes,comprador){
   var elementos=[]
   for(i=0;i<partes.length;i++){
-    if(partes[i].roles&&partes[i].roles.includes("buyer")){
+    if(partes[parseInt(i)].roles&&partes[parseInt(i)].roles.includes("buyer")){
       elementos.push(
         $("<tr>").append(
-        $("<td>",{class:"tituloTablaCaracteristicas",text:partes[i].memberOf&&partes[i].memberOf.length ? "Unidad Ejecutora:": "Comprador"}),
+        $("<td>",{class:"tituloTablaCaracteristicas",text:partes[parseInt(i)].memberOf&&partes[parseInt(i)].memberOf.length ? "Unidad Ejecutora:": "Comprador"}),
         $("<td>",{class:"contenidoTablaCaracteristicas"}).append(
-          $("<a>",{text:partes[i].name,class:"enlaceTablaGeneral",href:"/comprador/"+partes[i].id})
+          $("<a>",{text:partes[parseInt(i)].name,class:"enlaceTablaGeneral",href:"/comprador/"+partes[parseInt(i)].id})
         )
       )
       )
@@ -228,63 +228,63 @@ function ObtenerCompradores(partes,comprador){
 function ObtenerDatosContacto(partes,tipo,nombres){
   var elementos=[]
   for(i=0;i<partes.length;i++){
-    if(partes[i].roles&&partes[i].roles.includes(tipo)){
+    if(partes[parseInt(i)].roles&&partes[parseInt(i)].roles.includes(tipo)){
       elementos.push(
         $("<div>",{class:"col-md-6"}).append(
-          $("<h4>",{class:"titularCajonSombreado",text:"Datos de Contacto de "+((partes[i].memberOf&&partes[i].memberOf.length) ? nombres[0]: nombres[1])}),
+          $("<h4>",{class:"titularCajonSombreado",text:"Datos de Contacto de "+((partes[parseInt(i)].memberOf&&partes[parseInt(i)].memberOf.length) ? nombres[0]: nombres[1])}),
           $("<div>",{class:"cajonSombreado"}).append(
             $("<div>",{class:"contenedorProceso informacionProceso"}).append(
               $("<div>",{class:"contenedorTablaCaracteristicas"}).append(
                 $("<table>").append(
                   $("<tbody>").append(
                     
-                    partes[i].address&&partes[i].address.region ? 
+                    partes[parseInt(i)].address&&partes[parseInt(i)].address.region ? 
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Departamento:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].address.region})
+                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].address.region})
                     )
                     : null,
-                    partes[i].address&&partes[i].address.locality ? 
+                    partes[parseInt(i)].address&&partes[parseInt(i)].address.locality ? 
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Municipio:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].address.locality})
+                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].address.locality})
                     )
                     : null,
-                    partes[i].address&&partes[i].address.streetAddress ? 
+                    partes[parseInt(i)].address&&partes[parseInt(i)].address.streetAddress ? 
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Dirección:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].address.streetAddress})
+                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].address.streetAddress})
                     )
                     : null,
-                    partes[i].contactPoint&&partes[i].contactPoint.name ? 
+                    partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.name ? 
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Encargado:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].contactPoint.name})
+                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].contactPoint.name})
                     )
                     : null,
-                    partes[i].contactPoint&&partes[i].contactPoint.email ? 
+                    partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.email ? 
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Correo Electrónico:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].contactPoint.email})
+                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].contactPoint.email})
                     )
                     : null,
-                    partes[i].contactPoint&&partes[i].contactPoint.telephone ? 
+                    partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.telephone ? 
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Teléfono:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].contactPoint.telephone})
+                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].contactPoint.telephone})
                     )
                     : null,
-                    partes[i].contactPoint&&partes[i].contactPoint.faxNumber ? 
+                    partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.faxNumber ? 
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Fax:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].contactPoint.faxNumber})
+                      $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].contactPoint.faxNumber})
                     )
                     : null,
-                    partes[i].contactPoint&&partes[i].contactPoint.url ? 
+                    partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.url ? 
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Sitio:"}),
                       $("<td>",{class:"contenidoTablaCaracteristicas"}).append(
-                        $("<a>",{text:partes[i].contactPoint.url,class:"enlaceTablaGeneral",href:partes[i].contactPoint.url})
+                        $("<a>",{text:partes[parseInt(i)].contactPoint.url,class:"enlaceTablaGeneral",href:partes[parseInt(i)].contactPoint.url})
                       )
                     )
                     : null
@@ -308,84 +308,84 @@ function ObtenerDatosContacto(partes,tipo,nombres){
 function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
   var elementos=[]
   for(var i=0;i<desglosePresupuesto.length;i++){
-    if(desglosePresupuesto[i].classifications){
+    if(desglosePresupuesto[parseInt(i)].classifications){
       elementos.push(
         /*$("<div>", {class:" cajonSombreado contenedorDetalleProcesoDatos mt-1"}).append(*/
           $("<div>",{class:"contenedorProceso informacionProceso"}).append(
             $("<div>",{class:"contenedorTablaCaracteristicas"}).append(
               $("<table>").append(
                 $("<tbody>").append(
-                  (desglosePresupuesto[i].classifications.gestion?
+                  (desglosePresupuesto[parseInt(i)].classifications.gestion?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Periodo de Gestión:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.gestion})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.gestion})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.institucion?
+                  (desglosePresupuesto[parseInt(i)].classifications.institucion?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Institución:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.institucion})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.institucion})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.programa?
+                  (desglosePresupuesto[parseInt(i)].classifications.programa?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Programa:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.programa})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.programa})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.subPrograma?
+                  (desglosePresupuesto[parseInt(i)].classifications.subPrograma?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Sub Programa:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.subPrograma})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.subPrograma})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.proyecto?
+                  (desglosePresupuesto[parseInt(i)].classifications.proyecto?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Proyecto:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.proyecto})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.proyecto})
                     )
                     :null),
                         
-                  (desglosePresupuesto[i].classifications.actividadObra?
+                  (desglosePresupuesto[parseInt(i)].classifications.actividadObra?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Actividad Obra:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.actividadObra})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.actividadObra})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.ga?
+                  (desglosePresupuesto[parseInt(i)].classifications.ga?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Gerencia Administrativa:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.ga})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.ga})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.ue?
+                  (desglosePresupuesto[parseInt(i)].classifications.ue?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Unidad Ejecutora:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.ue})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.ue})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.fuente?
+                  (desglosePresupuesto[parseInt(i)].classifications.fuente?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Fuente de Financiamiento:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.fuente})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.fuente})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.organismo?
+                  (desglosePresupuesto[parseInt(i)].classifications.organismo?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Organismo Financiador:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.organismo})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.organismo})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.objeto?
+                  (desglosePresupuesto[parseInt(i)].classifications.objeto?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Objeto del Gasto:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.objeto})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.objeto})
                     )
                     :null),
-                  (desglosePresupuesto[i].classifications.trfBeneficiario?
+                  (desglosePresupuesto[parseInt(i)].classifications.trfBeneficiario?
                     $("<tr>").append(
                       $("<td>",{class:"tituloTablaCaracteristicas",text:"Beneficiario de Transferencia:"}),
-                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[i].classifications.trfBeneficiario})
+                      $("<td>",{class:"contenidoTablaCaracteristicas textoAlineadoJustificado",text:desglosePresupuesto[parseInt(i)].classifications.trfBeneficiario})
                     )
                     :null)
                 )
@@ -417,19 +417,19 @@ function ObtenerEstructuraPresupuestaria(desglosePresupuesto){
 function ObtenerProporcionadoresFondos(fondos){
   var elementos=[]
   for(i=0;i<fondos.length;i++){
-    if(fondos[i].description){
+    if(fondos[parseInt(i)].description){
       elementos.push(
         $("<tr>").append(
         $("<td>",{class:"tituloTablaCaracteristicas",text:"Origen de Fondos"}),
-        $("<td>",{class:"contenidoTablaCaracteristicas",text:fondos[i].description})
+        $("<td>",{class:"contenidoTablaCaracteristicas",text:fondos[parseInt(i)].description})
       )
       )
     }
-    if(fondos[i].sourceParty&&fondos[i].sourceParty.name){
+    if(fondos[parseInt(i)].sourceParty&&fondos[parseInt(i)].sourceParty.name){
       elementos.push(
         $("<tr>").append(
         $("<td>",{class:"tituloTablaCaracteristicas",text:"Fuente del Presupuesto"}),
-        $("<td>",{class:"contenidoTablaCaracteristicas",text:fondos[i].sourceParty.name})
+        $("<td>",{class:"contenidoTablaCaracteristicas",text:fondos[parseInt(i)].sourceParty.name})
       )
       )
     }
@@ -443,16 +443,16 @@ function ObtenerDocumentos(documentos){
   for(var i=0;i<documentos.length;i++){
     elementos.push(
       $("<tr>").append(
-        $("<td>",{"data-label":"Nombre",text:documentos[i].title}),
-        $("<td>",{"data-label":"Descripción",text:documentos[i].description}),
-        //$("<td>",{"data-label":"Tipo",text:TraduceTexto(documentos[i].documentType)}),
-        $("<td>",{"data-label":"Fecha",text:((documentos[i].datePublished)?ObtenerFecha(documentos[i].datePublished):null)}),
+        $("<td>",{"data-label":"Nombre",text:documentos[parseInt(i)].title}),
+        $("<td>",{"data-label":"Descripción",text:documentos[parseInt(i)].description}),
+        //$("<td>",{"data-label":"Tipo",text:TraduceTexto(documentos[parseInt(i)].documentType)}),
+        $("<td>",{"data-label":"Fecha",text:((documentos[parseInt(i)].datePublished)?ObtenerFecha(documentos[parseInt(i)].datePublished):null)}),
         $("<td>",{class:"textoAlineadoDerecha","data-label":""}).append(
           $("<h4>",{class:"descargaIconos"}).append(
             $("<span>",{class:"textoColorGris textoAlineadoDerecha p-1 cursorMano transicion"}).append(
-              $("<a>",{href:documentos[i].url,download:"a",class:"textoColorGris textoAlineadoDerecha p-1 cursorMano transicion",target:"_blank"}).append(
+              $("<a>",{href:documentos[parseInt(i)].url,download:"a",class:"textoColorGris textoAlineadoDerecha p-1 cursorMano transicion",target:"_blank"}).append(
                 $("<i>",{class:"fas fa-file-download"}),
-              "&nbsp;"+ObtenerExtension(documentos[i].url)
+              "&nbsp;"+ObtenerExtension(documentos[parseInt(i)].url)
               )
               
             )
@@ -465,7 +465,7 @@ function ObtenerDocumentos(documentos){
   return elementos;
 }
 
-//$("<a>",{text:contratos[i].buyer.name,class:"enlaceTablaGeneral",href:"/comprador/"+contratos[i].buyer.id})
+//$("<a>",{text:contratos[parseInt(i)].buyer.name,class:"enlaceTablaGeneral",href:"/comprador/"+contratos[parseInt(i)].buyer.id})
 function download(content, fileName, contentType) {
   var a = document.createElement('a');
   var file = new Blob([content], {type: contentType});
@@ -510,60 +510,60 @@ function AnadirElementosPartes(partes){
       elementos.push(
         $("<div>",{class:"col-md-12"}).append(
           $("<h4>",{class:"titularCajonSombreado"}).append(
-            ObtenerElementosParte( partes[i].id,procesoRecord.compiledRelease,"comprador")
+            ObtenerElementosParte( partes[parseInt(i)].id,procesoRecord.compiledRelease,"comprador")
             ),
           $("<div class='contenedorProceso informacionProceso'>").append(
             $("<div class='contenedorTablaCaracteristicas'>").append(
               $("<table>").append(
                 $("<tbody>").append(
                       
-                  partes[i].address&&partes[i].address.region ? 
+                  partes[parseInt(i)].address&&partes[parseInt(i)].address.region ? 
                   $("<tr>").append(
                     $("<td>",{class:"tituloTablaCaracteristicas",text:"Departamento:",toolTexto:"parties["+i+"].address.region"}),
-                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].address.region})
+                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].address.region})
                   )
                   : null,
-                  partes[i].address&&partes[i].address.locality ? 
+                  partes[parseInt(i)].address&&partes[parseInt(i)].address.locality ? 
                   $("<tr>").append(
                     $("<td>",{class:"tituloTablaCaracteristicas",text:"Municipio:",toolTexto:"parties["+i+"].address.locality"}),
-                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].address.locality})
+                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].address.locality})
                   )
                   : null,
-                  partes[i].address&&partes[i].address.streetAddress ? 
+                  partes[parseInt(i)].address&&partes[parseInt(i)].address.streetAddress ? 
                   $("<tr>").append(
                     $("<td>",{class:"tituloTablaCaracteristicas",text:"Dirección:",toolTexto:"parties["+i+"].address.streetAddress"}),
-                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].address.streetAddress})
+                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].address.streetAddress})
                   )
                   : null,
-                  partes[i].contactPoint&&partes[i].contactPoint.name ? 
+                  partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.name ? 
                   $("<tr>").append(
                     $("<td>",{class:"tituloTablaCaracteristicas",text:"Encargado:",toolTexto:"parties["+i+"].contactPoint.name"}),
-                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].contactPoint.name})
+                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].contactPoint.name})
                   )
                   : null,
-                  partes[i].contactPoint&&partes[i].contactPoint.email ? 
+                  partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.email ? 
                   $("<tr>").append(
                     $("<td>",{class:"tituloTablaCaracteristicas",text:"Correo Electrónico:",toolTexto:"parties["+i+"].contactPoint.email"}),
-                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].contactPoint.email})
+                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].contactPoint.email})
                   )
                   : null,
-                  partes[i].contactPoint&&partes[i].contactPoint.telephone ? 
+                  partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.telephone ? 
                   $("<tr>").append(
                     $("<td>",{class:"tituloTablaCaracteristicas",text:"Teléfono:",toolTexto:"parties["+i+"].contactPoint.telephone"}),
-                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].contactPoint.telephone})
+                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].contactPoint.telephone})
                   )
                   : null,
-                  partes[i].contactPoint&&partes[i].contactPoint.faxNumber ? 
+                  partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.faxNumber ? 
                   $("<tr>").append(
                     $("<td>",{class:"tituloTablaCaracteristicas",text:"Fax:",toolTexto:"parties["+i+"].contactPoint.faxNumber"}),
-                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[i].contactPoint.faxNumber})
+                    $("<td>",{class:"contenidoTablaCaracteristicas",text:partes[parseInt(i)].contactPoint.faxNumber})
                   )
                   : null,
-                  partes[i].contactPoint&&partes[i].contactPoint.url ? 
+                  partes[parseInt(i)].contactPoint&&partes[parseInt(i)].contactPoint.url ? 
                   $("<tr>").append(
                     $("<td>",{class:"tituloTablaCaracteristicas",text:"Sitio:",toolTexto:"parties["+i+"].contactPoint.url"}),
                     $("<td>",{class:"contenidoTablaCaracteristicas"}).append(
-                      $("<a>",{text:partes[i].contactPoint.url,class:"enlaceTablaGeneral",href:partes[i].contactPoint.url})
+                      $("<a>",{text:partes[parseInt(i)].contactPoint.url,class:"enlaceTablaGeneral",href:partes[parseInt(i)].contactPoint.url})
                     )
                   )
                   : null
@@ -584,8 +584,8 @@ function AnadirElementosPartes(partes){
 function VerificarAgregarPartes(partes){
   var partesDatos=[];
   for(var i=0;i<partes.length;i++){
-    if((partes[i].contactPoint&&!$.isEmptyObject(partes[i].contactPoint))||(partes[i].address&&!$.isEmptyObject(partes[i].address))){
-      partesDatos.push(partes[i]);
+    if((partes[parseInt(i)].contactPoint&&!$.isEmptyObject(partes[parseInt(i)].contactPoint))||(partes[parseInt(i)].address&&!$.isEmptyObject(partes[parseInt(i)].address))){
+      partesDatos.push(partes[parseInt(i)]);
     }
   }
   return partesDatos; 

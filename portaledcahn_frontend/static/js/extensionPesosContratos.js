@@ -14,10 +14,7 @@ function MostrarContratosInstitucion(todos,inicio) {
 	}
 	
     $.get(api + "/compradores/" + encodeURIComponent(filtros.institucion) + '/contratos',{tid:'id',year:filtros.año,dependencias:1,pagina:1,paginarPor: todos?todos:250,ordenarPor:'desc(montoCon)'}).done(function(datos) {
-        console.dir('DATOS JSON COMRPADOR')
-       
-		console.dir(datos)
-		
+
 		OcultarEspera('#PesosContratos');
 		var resultados=[];
 		
@@ -92,6 +89,7 @@ function MostrarContratosGenerales(){
     
 }
 var anioActual = ((new Date().getFullYear())), nivelActual = "", entidadActual, chart = null, popactual = null, data, height;
+var meses=["01","02","03","04","05","06","07","08","09","10","11","12"];
 var es_ES = {
 	"decimal" : ".",
 	"thousands" : "\xa0",
@@ -354,8 +352,7 @@ var initForce = function(datos) {
 
     var msg = "Mostrando " + datos.contratos.length.toString() + " contratos de un total de " + datos.cantidad + ".";
     if(datos.contratos.length < datos.cantidad){
-		console.dir(datos.contratos.length)
-		console.dir(datos.cantidad)
+
         msg += " Ver todos los contratos haciendo click <a id='MostrarTodos' href='javascript:void(0)'>aquí</a>."
     }
     if(datos.contratos.length > maximoBurbujas){
@@ -556,11 +553,11 @@ function tick (centers, varname,datos) {
 	//console.dir(datos.contratos)dia
     var foci = {}; // Making an object here for quick look-up
     for (var i = 0; i < centers.length; i++) {
-      foci[centers[i].name] = centers[i];
+      foci[centers[parseInt(i)].name] = centers[parseInt(i)];
     }
     return function (e) { //A
       for (var i = 0; i < datos.contratos.length; i++) {
-		var o = datos.contratos[i];
+		var o = datos.contratos[parseInt(i)];
         var key = (varname === 'dia') ?( o[varname]) : o.dia.toString() + o[varname];
         var f = foci[key];
         if(!f){
@@ -611,7 +608,7 @@ function tick (centers, varname,datos) {
 
   function DibujarContratosGenerales(datos, nivel, rScale) {
     var nestData = d3.nest().key(function(d) {
-            var entAbr = getEntidadAbreviada(d.nombre.toUpperCase());
+            var entAbr = d.codigo /*getEntidadAbreviada(d.nombre.toUpperCase())*/;
             return entAbr;
         
         }).rollup(function(rows) {
@@ -628,7 +625,7 @@ function tick (centers, varname,datos) {
 
 
 var initChart = function(nivel, rScale,datos, datosCompletos) {
-    // console.log(data.length);
+
 	var selector='ContratosGenerales';
     if(!$('#ContratosGeneralesGrafico').length){
         $('#'+selector).append(
@@ -648,7 +645,7 @@ var initChart = function(nivel, rScale,datos, datosCompletos) {
 					if(ValidarCadena($('#campoBusquedaInstitucion').val().trim())){
 						var filtrados=datosCompletos.filter(function(e){
 							var regular=new RegExp($('#campoBusquedaInstitucion').val().trim().toLowerCase(), "g");
-							return regular.test(e.key.toString().toLowerCase());
+							return regular.test(e.values.contratos[0].nombre.toString().toLowerCase());
 						});
 						if(filtrados.length==0){alerty.toasts('Sin Resultados', {place: 'top',time:2000});}
 						initChart(nivel, rScale,filtrados,datosCompletos);
@@ -661,7 +658,7 @@ var initChart = function(nivel, rScale,datos, datosCompletos) {
 					if(ValidarCadena($('#campoBusquedaInstitucion').val().trim())){
 						var filtrados=datosCompletos.filter(function(e){
 							var regular=new RegExp($('#campoBusquedaInstitucion').val().trim().toLowerCase(), "g");
-							return regular.test(e.key.toString().toLowerCase());
+							return regular.test(e.values.contratos[0].nombre.toString().toLowerCase());
 						});
 						if(filtrados.length==0){alerty.toasts('Sin Resultados', {place: 'top',time:2000});}
 						initChart(nivel, rScale,filtrados,datosCompletos);
@@ -765,7 +762,7 @@ var initChart = function(nivel, rScale,datos, datosCompletos) {
 		g.append("text").attr("y", j * 50 + 85).attr("x", -450).attr(
 				"class", "label")
 		// .text(truncate(data[j]['key'],40,"..."))
-		.text(/*datos[j]['key']*/ truncate(datos[j]['key'],70,"...")).style("fill", function(d) {
+		.text(/*datos[j]['key']*/ truncate( getEntidadAbreviada(ObtenerTexto(datos[j]['values']['contratos'][0]['nombre']).toUpperCase()),70,"...")).style("fill", function(d) {
 			return c(j);
 		}).on("click",click).on("mouseover", mouseover).on("mouseout", mouseout);
 	};
@@ -800,7 +797,6 @@ var initChart = function(nivel, rScale,datos, datosCompletos) {
 		 * Obtener el nombre de la entidad en la que hizo click para pasarle al
 		 * grafico 2
 		 */
-        console.dir('HICE CLICK EN UN MINISTERIO');
         var datos =d3.select(d3.select(this).node().parentNode).select('circle').data()[0];
         var parametros=ObtenerJsonFiltrosAplicados({});
             parametros['institucion']=datos.codigo;
@@ -861,7 +857,7 @@ function groupBy(vname,datos){
     
     var foci = {}; // Making an object here for quick look-up
     for (var i = 0; i < centers.length; i++) {
-        foci[centers[i].name] = centers[i];
+        foci[centers[parseInt(i)].name] = centers[parseInt(i)];
     }
     force.on("tick", tick(centers, vname,datos));
     force.start();
@@ -894,8 +890,8 @@ function drawLabels(number, vname) {
 			.attr("dy", 0)
     	    .attr("dx", 0)
 			.attr("class", "label")
-			//.call(wrap, labels[i]);
-			.text(labels[i]);
+			//.call(wrap, labels[parseInt(i)]);
+			.text(labels[parseInt(i)]);
     });
 }
 

@@ -42,32 +42,32 @@ function DefinirElementosImplementacion(){
       elementos.push(
         $('<div>',{class:'cajonSombreado contenedorDetalleProcesoDatos'}).append(
           $('<div>',{class:'contenedorProceso informacionProceso'}).append(
-            (contratos[i].title||contratos[i].description?
+            (contratos[parseInt(i)].title||contratos[parseInt(i)].description?
                 $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
                     $('<table>').append(
                       $('<tbody>').append(
-                            contratos[i].title?$('<tr>').append(
-                            $('<td>',{class:'tituloTablaCaracteristicas',text:contratos[i].title,style:'color:#333'})):null,
-                            contratos[i].description?$('<tr>').append(
-                                $('<td>',{class:'',text:contratos[i].description,style:'color:#333'})):null
+                            contratos[parseInt(i)].title?$('<tr>').append(
+                            $('<td>',{class:'tituloTablaCaracteristicas',text:contratos[parseInt(i)].title,style:'color:#333'})):null,
+                            contratos[parseInt(i)].description?$('<tr>').append(
+                                $('<td>',{class:'',text:contratos[parseInt(i)].description,style:'color:#333'})):null
                       ))):null),
             $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
               $('<table>').append(
                 $('<tbody>').append(
-                  (contratos[i].buyer&&contratos[i].buyer.name ? 
+                  (contratos[parseInt(i)].buyer&&contratos[parseInt(i)].buyer.name ? 
                     $('<tr>').append(
                       $('<td>',{class:'tituloTablaCaracteristicas',text:'Comprador'}),
                       $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                        $('<a>',{text:contratos[i].buyer.name,class:'enlaceTablaGeneral',href:'/comprador/'+contratos[i].buyer.id})
+                        $('<a>',{text:contratos[parseInt(i)].buyer.name,class:'enlaceTablaGeneral',href:'/comprador/'+contratos[parseInt(i)].buyer.id})
                       )
                     ) : null),
-                  (contratos[i].suppliers&&contratos[i].suppliers.length ? 
-                    ObtenerProveedoresContratos(contratos[i].suppliers) : null)
+                  (contratos[parseInt(i)].suppliers&&contratos[parseInt(i)].suppliers.length ? 
+                    ObtenerProveedoresContratos(contratos[parseInt(i)].suppliers) : null)
                   ,
-                  (contratos[i].dateSigned ? 
+                  (contratos[parseInt(i)].dateSigned ? 
                       $('<tr>').append(
                         $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Firma'}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(contratos[i].dateSigned)})
+                        $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(contratos[parseInt(i)].dateSigned)})
                       ) : null),
                   $('<tr>').append(
                     $('<td>',{class:'tituloTablaCaracteristicas',text:'ID Proceso (OCID):'}),
@@ -76,7 +76,7 @@ function DefinirElementosImplementacion(){
                   )
                   )
             ),
-            (contratos[i].value&&contratos[i].value.amount?
+            (contratos[parseInt(i)].value&&contratos[parseInt(i)].value.amount?
               $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
                 $('<table>',{class:'tablaAncho'}).append(
                   $('<tbody>').append(
@@ -89,8 +89,8 @@ function DefinirElementosImplementacion(){
                           $('<div>',{class:'contenedorMonto procesoMonto'}).append(
                             $('<div>',{class:'textoColorGris',text:'Monto'}),
                             $('<div>',{class:'valorMonto'}).append(
-                              ValorMoneda(contratos[i].value.amount),
-                              $('<span>',{class:'textoColorPrimario',text:contratos[i].value.currency})
+                              ValorMoneda(contratos[parseInt(i)].value.amount),
+                              $('<span>',{class:'textoColorPrimario',text:contratos[parseInt(i)].value.currency})
                             )
   
                             
@@ -103,12 +103,12 @@ function DefinirElementosImplementacion(){
               ):null)
           )
         ),
-          (procesoRecord.compiledRelease.parties&&procesoRecord.compiledRelease.contracts[i]&&procesoRecord.compiledRelease.contracts[i].suppliers ? 
+          (procesoRecord.compiledRelease.parties&&procesoRecord.compiledRelease.contracts[parseInt(i)]&&procesoRecord.compiledRelease.contracts[parseInt(i)].suppliers ? 
           $('<div>',{class:'row mb-5 mt-5'}).append(
             ObtenerDatosContacto(procesoRecord.compiledRelease.parties,'supplier',['Unidad de Proveedor:','Proveedor:'])
           ) : null)
       );
-      if(contratos[i].items&&contratos[i].items.length){
+      if(contratos[parseInt(i)].items&&contratos[parseInt(i)].items.length){
         $('.contrato.solicitados').append(
           $('<div>', {class:' cajonSombreado '}).append(
             $('<table>',{class:'tablaGeneral'}).append(
@@ -124,13 +124,13 @@ function DefinirElementosImplementacion(){
                 )
               ),
               $('<tbody>').append(
-                ObtenerItems(contratos[i].items)
+                ObtenerItems(contratos[parseInt(i)].items)
               )
             )
           )
         )
       }
-      if(contratos[i].documents&&contratos[i].documents.length){
+      if(contratos[parseInt(i)].documents&&contratos[parseInt(i)].documents.length){
         $('.contrato.documentos').append(
           $('<div>', {class:' cajonSombreado '}).append(
             $('<table>',{class:'tablaGeneral'}).append(
@@ -144,7 +144,7 @@ function DefinirElementosImplementacion(){
                 )
               ),
               $('<tbody>').append(
-                ObtenerDocumentos(contratos[i].documents)
+                ObtenerDocumentos(contratos[parseInt(i)].documents)
               )
             )
           )
@@ -157,12 +157,12 @@ function DefinirElementosImplementacion(){
   function ObtenerProveedoresContratos(proveedores){
     var elementos=[]
     for(i=0;i<proveedores.length;i++){
-      if(proveedores[i].name){
+      if(proveedores[parseInt(i)].name){
         elementos.push(
           $('<tr>').append(
           $('<td>',{class:'tituloTablaCaracteristicas',text:'Contrato de Proveedor'}),
           $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-            $('<a>',{text:proveedores[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+proveedores[i].id})
+            $('<a>',{text:proveedores[parseInt(i)].name,class:'enlaceTablaGeneral',href:'/proveedor/'+proveedores[parseInt(i)].id})
           )
         )
         );

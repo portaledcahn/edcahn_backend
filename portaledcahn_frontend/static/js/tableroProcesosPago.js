@@ -1855,7 +1855,7 @@ function descargaImagen(e,o,opciones){
     var arregloBuffer = new ArrayBuffer(byteString.length);
     var iArreglo = new Uint8Array(arregloBuffer);
     for (var i = 0; i < byteString.length; i++) {
-        iArreglo[i] = byteString.charCodeAt(i);
+        iArreglo[parseInt(i)] = byteString.charCodeAt(i);
     }
     saveAs(new Blob([arregloBuffer], {type: "image/png"}),(tituloGrafico+".png"));
     $(o.getDom()).height($(o.getDom()).height()-tamanoAdicion);
