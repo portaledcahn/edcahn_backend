@@ -273,6 +273,7 @@ proceso_csv = dict([
 	("Fecha de Inicio", "doc.compiledRelease.tender.tenderPeriod.startDate"),
 	("Fecha Recepción Ofertas", "doc.compiledRelease.tender.tenderPeriod.endDate"),
 	("Fecha de publicación", "doc.compiledRelease.tender.datePublished"),
+	("Estado OCDS", "doc.compiledRelease.tender.status"),
 	("Estado del proceso", "doc.compiledRelease.tender.statusDetails"),
 	("Periodo de invitación - Recepción de ofertas", "extra.daysTenderPeriod"),
 	("Etapa OCDS", "extra.lastSection"),
