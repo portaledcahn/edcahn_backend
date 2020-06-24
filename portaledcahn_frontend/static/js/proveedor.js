@@ -347,6 +347,18 @@ function AnadirDatosProveedor(){
                                                 
                                         )
                                   ))):null),
+
+                        (datosProveedor.identifier.scheme?
+                            $('<div>',{class:'contenedorTablaCaracteristicas',style:'width:100%'}).append(
+                                $('<table>').append(
+                                  $('<tbody>').append(
+                                    $('<tr>').append(
+                                        $('<td>',{class:'tituloTablaCaracteristicas',toolTexto:"parties[n].identifier.scheme"}).text('Esquema de identificación:'),
+                                        $('<td>',{class:'contenidoTablaCaracteristicas'})).append(
+                                            $('<span>').text(datosProveedor.identifier.scheme),                                              
+                                        )
+                                  ))):null),
+
                         (datosProveedor.address&&datosProveedor.address.streetAddress?
                         $('<div>',{class:'contenedorTablaCaracteristicas',style:'width:100%'}).append(
                             $('<table>').append(

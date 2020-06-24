@@ -34,14 +34,14 @@ var apiJSON=[
       }, 
       {
         tipo : "GET",
-        descripcionCorta : "Muestra los Releases de un Determinado OCID",
-        url : "/api/v1/release/{OCID}",
+        descripcionCorta : "Muestra los Releases de un Determinado ID",
+        url : "/api/v1/release/{release.id}",
         urlReal:api+"/v1/release/P2017-801-1-57-2017-12-22T08:53:42Z",
         parametros : [
           {
-            nombre : "OCID",
-            valor: "ocds-XXX-CCC-999",
-            descripcion: "El ID de Contrataciones Abiertas (ocid) es un identificador único global utilizado para unir los datos en todas las etapas de un proceso de contratación",
+            nombre : "release.id",
+            valor: "ocds-lcuori-XXX-CCC-999",
+            descripcion: "Un identificador para esta entrega de información particular. Un identificador de entrega debe ser único en el ámbito del proceso de contrataciones relacionado (definido por un ocid común)",
             tipoUso : "path",
             tipoDato : "string"
           }
@@ -67,12 +67,12 @@ var apiJSON=[
       {
         tipo : "GET",
         descripcionCorta : "Muestra el Record de un Determinado OCID",
-        url : "/api/v1/record/{OCID}",
+        url : "/api/v1/record/{ocid}",
         urlReal:api+"/v1/record/ocds-lcuori-Zr5zxL-LPN-MPC-GAF-01-2015-2/",
         parametros : [
           {
-            nombre : "OCID",
-            valor: "ocds-XXX-CCC-999",
+            nombre : "ocid",
+            valor: "ocds-lcuori-XXX-CCC-999",
             descripcion: "El ID de Contrataciones Abiertas (ocid) es un identificador único global utilizado para unir los datos en todas las etapas de un proceso de contratación",
             tipoUso : "path",
             tipoDato : "string"
