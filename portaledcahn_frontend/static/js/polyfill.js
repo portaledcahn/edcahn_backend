@@ -37,7 +37,7 @@ if (!Array.prototype.includes) {
         while (k < len) {
           // a. Dejar que elementK sea el resultado de ? Get(O, ! ToString(k)).
           // b. Si SameValueZero(searchElement, elementK) es true, devuelve true.
-          if (sameValueZero(o[k], searchElement)) {
+          if (sameValueZero(o[parseInt(k)], searchElement)) {
             return true;
           }
           // c. Incrementa k por 1.
@@ -105,7 +105,7 @@ if (!Array.prototype.map) {
 
         // i. Let kValue be the result of calling the Get internal 
         //    method of O with argument Pk.
-        kValue = O[k];
+        kValue = O[parseInt(k)];
 
         // ii. Let mappedValue be the result of calling the Call internal 
         //     method of callback with T as the this value and argument 
@@ -129,7 +129,7 @@ if (!Array.prototype.map) {
         // });
 
         // For best browser support, use the following:
-        A[k] = mappedValue;
+        A[parseInt(k)] = mappedValue;
       }
       // d. Increase k by 1.
       k++;
@@ -153,14 +153,14 @@ if (!Array.prototype.filter)
       while (++i !== len)
         // checks to see if the key was set
         if (i in this)
-          if (func(t[i], i, t))
-            res[parseInt(c++)] = t[i];
+          if (func(t[parseInt(i)], i, t))
+            res[parseInt(c++)] = t[parseInt(i)];
     else
       while (++i !== len)
         // checks to see if the key was set
         if (i in this)
-          if (func.call(thisArg, t[i], i, t))
-            res[parseInt(c++)] = t[i];
+          if (func.call(thisArg, t[parseInt(i)], i, t))
+            res[parseInt(c++)] = t[parseInt(i)];
 
     res.length = c; // shrink down array to proper size
     return res;

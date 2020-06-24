@@ -266,8 +266,8 @@ function ObtenerResultadosFiltrados(){
       return true;
     }
     for(let i=0;i<comparar.length;i++){
-      var termino=$(selector+' .campoFiltrado input.campoBlancoTextoSeleccion[identificador="'+comparar[i]+'"]').val().trim();
-      if(!ContenerCadena(elemento[comparar[i]],termino)){
+      var termino=$(selector+' .campoFiltrado input.campoBlancoTextoSeleccion[identificador="'+comparar[parseInt(i)]+'"]').val().trim();
+      if(!ContenerCadena(elemento[comparar[parseInt(i)]],termino)){
         return false;
       }
     }
@@ -350,13 +350,13 @@ function MostrarPaginacion(pagina){
   }
   
   for(var i=0; i<paginacion.length;i++){
-    if(paginacion[i]=='...'){
+    if(paginacion[parseInt(i)]=='...'){
       $(selector+'.navegacionTablaGeneral').append(
-        $('<a href="javascript:void(0)" class="numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral">').append($('<span>').text(paginacion[i]))
+        $('<a href="javascript:void(0)" class="numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral">').append($('<span>').text(paginacion[parseInt(i)]))
       );
     }else{
       $(selector+' .navegacionTablaGeneral').append(
-        $('<a href="javascript:AgregarResultados('+paginacion[i]+')" class="numerosNavegacionTablaGeneral '+((paginacion[i]==pagina)?'current':'')+'">').append($('<span>').text(paginacion[i]))
+        $('<a href="javascript:AgregarResultados('+paginacion[parseInt(i)]+')" class="numerosNavegacionTablaGeneral '+((paginacion[parseInt(i)]==pagina)?'current':'')+'">').append($('<span>').text(paginacion[parseInt(i)]))
       );
     }
   }

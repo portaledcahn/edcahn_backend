@@ -159,9 +159,9 @@ function ObtenerCookie(nombre){
     var vs = document.cookie.split(';');
     if(vs.length>0){
       for(let i=0;i<vs.length;i++){
-        var index=Number(vs[i].indexOf('='));
-        if(vs[i].substring(0, index).trim()==nombre){
-          return vs[i].substring(index+1);
+        var index=parseInt(vs[parseInt(i)].indexOf('='));
+        if(vs[parseInt(i)].substring(0, index).trim()==nombre){
+          return vs[parseInt(i)].substring(index+1);
         }
       }
     }
@@ -426,9 +426,9 @@ function ObtenerObligacionesTransaccion(transaccion,obligaciones){
     var arregloObligaciones=[];
     if(transaccion.financialObligationIds && transaccion.financialObligationIds.length && obligaciones && obligaciones.length){
       for(i=0;i<obligaciones.length;i++){
-        if(transaccion.financialObligationIds.includes(obligaciones[i].id)){
+        if(transaccion.financialObligationIds.includes(obligaciones[parseInt(i)].id)){
           arregloObligaciones.push(
-            obligaciones[i]
+            obligaciones[parseInt(i)]
           )
         }
       }
@@ -744,11 +744,11 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     }
     var partes=fuente&&fuente.parties?fuente.parties:((typeof(procesoRecord)!='undefined')&&procesoRecord.compiledRelease&&procesoRecord.compiledRelease.parties?procesoRecord.compiledRelease.parties:[]);
     for(var i = 0; i < partes.length;i++){
-        if(partes[i].id == id){
-          elementos.push(partes[i]);
-          if(partes[i].memberOf){
-            for(var j = 0; j < partes[i].memberOf.length;j++){
-              ObtenerEnlaceParte(partes[i].memberOf[j].id,elementos,fuente);
+        if(partes[parseInt(i)].id == id){
+          elementos.push(partes[parseInt(i)]);
+          if(partes[parseInt(i)].memberOf){
+            for(var j = 0; j < partes[parseInt(i)].memberOf.length;j++){
+              ObtenerEnlaceParte(partes[parseInt(i)].memberOf[j].id,elementos,fuente);
             }
   
           }
@@ -768,10 +768,10 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     var elementos=[];
     for(var i=0;i<parte.length;i++){
       elementos.push(
-        parte[i].roles.includes('buyer')?($('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent( parte[i].id)})):(parte[i].roles.includes('supplier')?(
-          $('<a>',{text:parte[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[i].id})
+        parte[parseInt(i)].roles.includes('buyer')?($('<a>',{text:parte[parseInt(i)].name,class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent( parte[parseInt(i)].id)})):(parte[parseInt(i)].roles.includes('supplier')?(
+          $('<a>',{text:parte[parseInt(i)].name,class:'enlaceTablaGeneral',href:'/proveedor/'+parte[parseInt(i)].id})
         ):(
-          $('<span>',{text:parte[i].name})
+          $('<span>',{text:parte[parseInt(i)].name})
           ) 
         ) 
       )
@@ -792,7 +792,7 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     var elementos=[];
     if(proveedores){
       for(var i=0;i<proveedores.length;i++){
-        elementos=elementos.concat(ObtenerElementosParte(proveedores[i].id,fuente));
+        elementos=elementos.concat(ObtenerElementosParte(proveedores[parseInt(i)].id,fuente));
       }
     }
     
@@ -819,12 +819,12 @@ function ObtenerEnlaceParte(id,arreglo,fuente){
     }
     for(var i=0;i<paginas.length;i++){
         if(contador){
-            if (paginas[i]-contador!=1) {
+            if (paginas[parseInt(i)]-contador!=1) {
                 paginasPuntos.push('...');
             }
         }
-        paginasPuntos.push(paginas[i]);
-        contador=paginas[i];
+        paginasPuntos.push(paginas[parseInt(i)]);
+        contador=paginas[parseInt(i)];
     }
     return paginasPuntos;
 }
@@ -947,7 +947,7 @@ function DescargarXLSX(arreglo,nombre){
 function s2ab(s) { 
     var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
     var view = new Uint8Array(buf);  //create uint8array as viewer
-    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+    for (var i=0; i<s.length; i++) view[parseInt(i)] = s.charCodeAt(i) & 0xFF; //convert to octet
     return buf;    
 }
 

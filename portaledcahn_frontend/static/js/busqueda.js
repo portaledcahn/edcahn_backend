@@ -33,10 +33,6 @@ function EliminarFiltrosMetodo(datos){
     if(datos.filtros.categorias){
       delete datos.filtros.categorias
     }
-    /*
-    if(datos.filtros.años){
-      delete datos.filtros.años
-    }*/
     break;
     case "contrato":
       if(datos.filtros.organismosFinanciadores){
@@ -114,19 +110,13 @@ function MostrarOrdenSeleccinado(){
 
     var checkboxOrden="#ordenBusqueda";
     if( /desc\(/.test(filtros.ordenarPor)){
-      $('#ordenBusqueda').prop('checked', false);
+      $("#ordenBusqueda").prop("checked", false);
     }else{
-      $('#ordenBusqueda').prop('checked', true);
+      $("#ordenBusqueda").prop("checked", true);
     }
     
   }
 
-  /*
-  
-  $(".id_100 option")
-     .removeAttr("selected")
-     .filter("[value=val1]")
-         .attr("selected", true)*/
 }
 var traducciones={
   "goods":{titulo:"Bienes y provisiones",descripcion:"El proceso de contrataciones involucra bienes o suministros físicos o electrónicos."},
@@ -152,40 +142,22 @@ $(".opcionFiltroBusquedaPagina").on("click",function(e){
  
   $(".botonAzulFiltroBusqueda,.cerrarContenedorFiltrosBusqueda").on("click",function(e){
     $(".contenedorFiltrosBusqueda").toggle("slide");
-    /*
-    if($(".contenedorFiltrosBusqueda").hasClass("cerrado")){
-      $(".contenedorFiltrosBusqueda").removeClass("cerrado");
-      //$(".contenedorFiltrosBusqueda").show("slide", {direction: "right"}, 1000);
-      
-    }else{
-      $(".contenedorFiltrosBusqueda").addClass("cerrado");
-      //$(".contenedorFiltrosBusqueda").hide("slide", {direction: "left"}, 1000);
-    }*/
   });
   $( window ).resize(function() {
    if($(window).width()>767){
     $(".contenedorFiltrosBusqueda").show();
    }
   });
-/*
-  $(".metodoBusquedaContenedor input[type='radio']").on("change",function(e){
-    if($(e.currentTarget).is(":checked")){
-      location.href="/busqueda?q="+$("#campoBusquedaProceso").val()+"&metodo="+$(e.currentTarget).attr("metodo")
-    }
-  });*/
   $(".metodoBusquedaContenedor a[name='metodoBusqueda']").on("click",function(e){
-      //location.href="/busqueda?term="+$("#campoBusquedaProceso").val()+"&metodo="+$(e.currentTarget).attr("metodo");
       location.href=AccederBusqueda({metodo:$(e.currentTarget).attr("metodo")},true);
   });
 
 $("#botonBusquedaProceso").on("click",function(e){
-    //window.location.href='/busqueda?term='+$("#botonBusquedaProceso").val()+"&metodo=proceso";
     location.href=AccederBusqueda({term:encodeURIComponent($("#campoBusquedaProceso").val().trim())});
 });
 $("#campoBusquedaProceso").on("keydown",function(e){
     teclaCodigo=e.keyCode ? e.keyCode : e.which;
     if(teclaCodigo=="13"){
-        //window.location.href='/busqueda?term='+$("#campoBusquedaProceso").val()+"&metodo=proceso";
         location.href=AccederBusqueda({term: encodeURIComponent($("#campoBusquedaProceso").val().trim()) });
     }
 });  
@@ -227,9 +199,8 @@ function CargarElementosBusqueda(cargaFiltro){
   EliminarEventoModalDescarga("descargaJsonBusqueda");
   EliminarEventoModalDescarga("descargaCsvBusqueda");
   EliminarEventoModalDescarga("descargaXlsxBusqueda");
-  $.get(api+'/buscador',parametros).done(function( datos ) {
+  $.get(api+"/buscador",parametros).done(function( datos ) {
   
-    console.dir(datos);
     
     CargandoResultadosEncabezados(false);
     resultadosTotal=datos;
@@ -291,13 +262,13 @@ function MostrarResultados(datos){
   for(var i=0;i<datos.resultados.length;i++){
     switch(ObtenerValor("metodo")){
       case "contrato":
-      AgregarResultadoContrato(datos.resultados[i]._source.doc.compiledRelease);
+      AgregarResultadoContrato(datos.resultados[parseInt(i)]._source.doc.compiledRelease);
       break;
       case "pago":
-      AgregarResultadoPago(datos.resultados[i]._source.doc.compiledRelease);
+      AgregarResultadoPago(datos.resultados[parseInt(i)]._source.doc.compiledRelease);
       break;
       case "proceso":
-      AgregarResultadoProceso(datos.resultados[i]._source.doc.compiledRelease);
+      AgregarResultadoProceso(datos.resultados[parseInt(i)]._source.doc.compiledRelease);
       break;
     }
   }
@@ -316,13 +287,13 @@ function MostrarPaginacion(datos){
   }
   
   for(var i=0; i<paginacion.length;i++){
-    if(paginacion[i]=="..."){
+    if(paginacion[parseInt(i)]=="..."){
       $(".navegacionTablaGeneral").append(
-        $("<a href='javascript:void(0)' class='numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral'>").append($("<span>").text(paginacion[i]))
+        $("<a href='javascript:void(0)' class='numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral'>").append($("<span>").text(paginacion[parseInt(i)]))
       );
     }else{
       $(".navegacionTablaGeneral").append(
-        $("<a href='"+AccederBusqueda({pagina:paginacion[i]})+"' class='numerosNavegacionTablaGeneral "+((paginacion[i]==datos.paginador.page)?"current":"")+"'>").append($("<span>").text(paginacion[i]))
+        $("<a href='"+AccederBusqueda({pagina:paginacion[parseInt(i)]})+"' class='numerosNavegacionTablaGeneral "+((paginacion[parseInt(i)]==datos.paginador.page)?"current":"")+"'>").append($("<span>").text(paginacion[parseInt(i)]))
       );
     }
   }
@@ -363,8 +334,8 @@ function AccederBusqueda(opciones,desUrl){
 function AsignarValor(arreglo,propiedad,valor,cantidad){
   var contador=0;
   for(var i=0;i<arreglo.length;i++){
-      if(!Validar(arreglo[i][propiedad])){
-        arreglo[i][propiedad]=valor;
+      if(!Validar(arreglo[parseInt(i)][propiedad])){
+        arreglo[parseInt(i)][propiedad]=valor;
         contador++;
         if(contador>=cantidad){
           break;
@@ -398,14 +369,12 @@ CargarElementosBusqueda();
     llenarSeleccionOrden();
     $("#parametrosOrden").on("change",function(e){
       if(ValidarCadena($(e.currentTarget).val())){
-        console.dir(
-          ($("#ordenBusqueda").is(':checked')?"asc":"desc")+"("+ $(e.currentTarget).val()+")"
-        )
+   
 
 
         var filtros={
           pagina:1,
-          ordenarPor: ($("#ordenBusqueda").is(':checked')?"asc":"desc")+"("+ $(e.currentTarget).val()+")"
+          ordenarPor: ($("#ordenBusqueda").is(":checked")?"asc":"desc")+"("+ $(e.currentTarget).val()+")"
         };
         $("li.list-group-item.active").each(function(cla,val){
           filtros[filtrosAplicables[$(val).attr("llave")]?filtrosAplicables[$(val).attr("llave")].parametro:"" ]=$(val).attr("valor");
@@ -424,12 +393,10 @@ CargarElementosBusqueda();
     });
     $("#ordenBusqueda").on("change",function(e){
       if(ValidarCadena($("#parametrosOrden").val())){
-        console.dir(
-          ($(e.currentTarget).is(':checked')?"asc":"desc")+"("+ $("#parametrosOrden").val()+")"
-        )
+       
         var filtros={
           pagina:1,
-          ordenarPor:($(e.currentTarget).is(':checked')?"asc":"desc")+"("+ $("#parametrosOrden").val()+")"
+          ordenarPor:($(e.currentTarget).is(":checked")?"asc":"desc")+"("+ $("#parametrosOrden").val()+")"
         };
         $("li.list-group-item.active").each(function(cla,val){
           filtros[filtrosAplicables[$(val).attr("llave")]?filtrosAplicables[$(val).attr("llave")].parametro:"" ]=$(val).attr("valor");
@@ -913,8 +880,8 @@ function ObtenerTransacciones(datos){
   var transacciones=[];
   if(datos.contracts){
   for(var i =0; i<datos.contracts.length;i++){
-    if(datos.contracts[i].implementation&&datos.contracts[i].implementation.transactions){
-      transacciones=transacciones.concat(datos.contracts[i].implementation.transactions);
+    if(datos.contracts[parseInt(i)].implementation&&datos.contracts[parseInt(i)].implementation.transactions){
+      transacciones=transacciones.concat(datos.contracts[parseInt(i)].implementation.transactions);
     }
   }
   }
@@ -929,14 +896,14 @@ var contratos=[];
 var Montos={};
 if(datos.contracts){
   for(var i =0; i<datos.contracts.length;i++){
-    if(datos.contracts[i].value&&Validar(datos.contracts[i].value.amount)){
-      if(!Validar(datos.contracts[i].value.currency)){
-        datos.contracts[i].value["currency"]=defaultMoneda;
+    if(datos.contracts[parseInt(i)].value&&Validar(datos.contracts[parseInt(i)].value.amount)){
+      if(!Validar(datos.contracts[parseInt(i)].value.currency)){
+        datos.contracts[parseInt(i)].value["currency"]=defaultMoneda;
       }
-      if(Validar(Montos[datos.contracts[i].value.currency])){
-        Montos[ObtenerTexto(datos.contracts[i].value.currency).trim()]+=ObtenerNumero(datos.contracts[i].value.amount);
+      if(Validar(Montos[datos.contracts[parseInt(i)].value.currency])){
+        Montos[ObtenerTexto(datos.contracts[parseInt(i)].value.currency).trim()]+=ObtenerNumero(datos.contracts[parseInt(i)].value.amount);
       }else{
-        Montos[ObtenerTexto(datos.contracts[i].value.currency).trim()]=ObtenerNumero(datos.contracts[i].value.amount);
+        Montos[ObtenerTexto(datos.contracts[parseInt(i)].value.currency).trim()]=ObtenerNumero(datos.contracts[parseInt(i)].value.amount);
       }
     }
   }
@@ -953,10 +920,10 @@ function TotalTransacciones(datos){
   var Montos={};
   if(datos.contracts){
     for(var i =0; i<datos.contracts.length;i++){
-      if(datos.contracts[i].implementation&&datos.contracts[i].implementation.transactions&&datos.contracts[i].implementation.transactions.length){
-        datos.contracts[i].implementation.transactions.forEach(function (transaccion) {
+      if(datos.contracts[parseInt(i)].implementation&&datos.contracts[parseInt(i)].implementation.transactions&&datos.contracts[parseInt(i)].implementation.transactions.length){
+        datos.contracts[parseInt(i)].implementation.transactions.forEach(function (transaccion) {
           if(transaccion.value&&Validar(transaccion.value.amount)){
-            if(!Validar(datos.contracts[i].value.currency)){
+            if(!Validar(datos.contracts[parseInt(i)].value.currency)){
               transaccion.value["currency"]=defaultMoneda;
             }
             if(Validar(Montos[transaccion.value.currency])){
@@ -982,8 +949,8 @@ function MostrarTotalContratos(datos){
   for(var i=0;i<datos.length;i++){
     elementos.push(
       $("<div>",{class:"valorMonto"}).append(
-        ValorMoneda(datos[i].amount),
-        $("<span>",{class:"textoColorPrimario",text:" "+datos[i].currency})
+        ValorMoneda(datos[parseInt(i)].amount),
+        $("<span>",{class:"textoColorPrimario",text:" "+datos[parseInt(i)].currency})
       )
     );
   }
@@ -994,8 +961,8 @@ function MostrarTotalComprometido(datos){
   for(var i=0;i<datos.length;i++){
     elementos.push(
       $("<div>",{class:""}).append(
-        ValorMoneda(datos[i].amount),
-        $("<span>",{class:"textoColorPrimario",text:" "+datos[i].currency})
+        ValorMoneda(datos[parseInt(i)].amount),
+        $("<span>",{class:"textoColorPrimario",text:" "+datos[parseInt(i)].currency})
       )
     );
   }
@@ -1016,8 +983,8 @@ function MostrarListaElastica(datos,selector){
               var texto=$(e.currentTarget).val();
               if (texto.length > 0) {
                 texto = texto.toLocaleLowerCase();
-                var regla = ' ul#' + "ul"+llave + " li[formato*='" + texto + "']{display:block;} ";
-                regla += ' ul#' + "ul"+llave + " li:not([formato*='" + texto + "']){display:none;}";
+                var regla = " ul#" + "ul"+llave + " li[formato*='" + texto + "']{display:block;} ";
+                regla += " ul#" + "ul"+llave + " li:not([formato*='" + texto + "']){display:none;}";
                 $("#style"+llave).html(regla);
               } else {
                 $("#style"+llave).html("");

@@ -13,7 +13,7 @@
       }
      var elementosNumericos=[];
      for(let i=0;i<5;i++){
-      elementosNumericos[i]= new AutoNumeric($(".elementoNumerico")[i], configuracionNumerica );
+      elementosNumericos[parseInt(i)]= new AutoNumeric($(".elementoNumerico")[parseInt(i)], configuracionNumerica );
      }
 
     //ObtenerAniosProveedores();
@@ -82,17 +82,17 @@
       $(selector).append(
         $("<tr>").append(
           $("<td>",{"data-label":"Proveedor"}).append(
-            $("<a>",{class:"enlaceTablaGeneral",href:"/proveedor/"+encodeURIComponent(resultados[i].id)}).text(resultados[i].name)
+            $("<a>",{class:"enlaceTablaGeneral",href:"/proveedor/"+encodeURIComponent(resultados[parseInt(i)].id)}).text(resultados[parseInt(i)].name)
           ),
-          $("<td>",{"data-label":"RTN" ,class:"textoAlineadoDerecha"}).text(resultados[i].id),
-          $("<td>",{"data-label":"Contratos" ,class:"textoAlineadoCentrado"}).text(ValorNumerico(resultados[i].procesos)),
-          $("<td>",{"data-label":"Total de Monto Pagado" ,class:"textoAlineadoDerecha"}).append(ValorMoneda(resultados[i].total_monto_pagado),$("<span>",{class:"textoColorPrimario",text:" HNL"})),
-          $("<td>",{"data-label":"Promedio de Monto Pagado" ,class:"textoAlineadoDerecha"}).append(ValorMoneda(resultados[i].promedio_monto_pagado),$("<span>",{class:"textoColorPrimario",text:" HNL"})),
-          $("<td>",{"data-label":"Mayor Monto Pagado" ,class:"textoAlineadoDerecha"}).append(ValorMoneda(resultados[i].mayor_monto_pagado),$("<span>",{class:"textoColorPrimario",text:" HNL"})),
-          $("<td>",{"data-label":"Menor Monto Pagado" ,class:"textoAlineadoDerecha"}).append(ValorMoneda(resultados[i].menor_monto_pagado),$("<span>",{class:"textoColorPrimario",text:" HNL"})),
+          $("<td>",{"data-label":"RTN" ,class:"textoAlineadoDerecha"}).text(resultados[parseInt(i)].id),
+          $("<td>",{"data-label":"Contratos" ,class:"textoAlineadoCentrado"}).text(ValorNumerico(resultados[parseInt(i)].procesos)),
+          $("<td>",{"data-label":"Total de Monto Pagado" ,class:"textoAlineadoDerecha"}).append(ValorMoneda(resultados[parseInt(i)].total_monto_pagado),$("<span>",{class:"textoColorPrimario",text:" HNL"})),
+          $("<td>",{"data-label":"Promedio de Monto Pagado" ,class:"textoAlineadoDerecha"}).append(ValorMoneda(resultados[parseInt(i)].promedio_monto_pagado),$("<span>",{class:"textoColorPrimario",text:" HNL"})),
+          $("<td>",{"data-label":"Mayor Monto Pagado" ,class:"textoAlineadoDerecha"}).append(ValorMoneda(resultados[parseInt(i)].mayor_monto_pagado),$("<span>",{class:"textoColorPrimario",text:" HNL"})),
+          $("<td>",{"data-label":"Menor Monto Pagado" ,class:"textoAlineadoDerecha"}).append(ValorMoneda(resultados[parseInt(i)].menor_monto_pagado),$("<span>",{class:"textoColorPrimario",text:" HNL"})),
           $("<td>",{"data-label":"Fecha de Última Transacción" ,class:"textoAlineadoCentrado"}).append(
-            $("<span>",{class:resultados[i].fecha_ultimo_proceso&&resultados[i].fecha_ultimo_proceso!="NaT"?"":"textoColorGris" }).text(
-              resultados[i].fecha_ultimo_proceso&&resultados[i].fecha_ultimo_proceso!="NaT"?ObtenerFecha(resultados[i].fecha_ultimo_proceso,"fecha"):"No Disponible"
+            $("<span>",{class:resultados[parseInt(i)].fecha_ultimo_proceso&&resultados[parseInt(i)].fecha_ultimo_proceso!="NaT"?"":"textoColorGris" }).text(
+              resultados[parseInt(i)].fecha_ultimo_proceso&&resultados[parseInt(i)].fecha_ultimo_proceso!="NaT"?ObtenerFecha(resultados[parseInt(i)].fecha_ultimo_proceso,"fecha"):"No Disponible"
             )
             
           )/*,
@@ -189,18 +189,18 @@ function MostrarPaginacion(datos){
   }
   
   for(var i=0; i<paginacion.length;i++){
-    if(paginacion[i]=="..."){
+    if(paginacion[parseInt(i)]=="..."){
       $(".navegacionTablaGeneral").append(
-        $("<a href='javascript:void(0)' class='numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral'>").append($("<span>").text(paginacion[i]))
+        $("<a href='javascript:void(0)' class='numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral'>").append($("<span>").text(paginacion[parseInt(i)]))
       );
     }else{
       $(".navegacionTablaGeneral").append(
-        $("<a href='javascript:void(0)' pagina='"+paginacion[i]+"'  class='numerosNavegacionTablaGeneral "+((paginacion[i]==datos.paginador.page)?"current":"")+"'>").on({
+        $("<a href='javascript:void(0)' pagina='"+paginacion[parseInt(i)]+"'  class='numerosNavegacionTablaGeneral "+((paginacion[parseInt(i)]==datos.paginador.page)?"current":"")+"'>").on({
           click:function(e){
             Pagina($(e.currentTarget).attr("pagina"))
           }
           
-        }).append($("<span>").text(paginacion[i]))
+        }).append($("<span>").text(paginacion[parseInt(i)]))
       );
     }
   }

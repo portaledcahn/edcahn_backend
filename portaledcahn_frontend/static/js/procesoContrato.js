@@ -74,7 +74,7 @@ function DefinirElementosContrato(){
           "aria-selected":"true",
           text:contratos[parseInt(i)].id
         })
-        /*$('<a class="nav-link enlaceContrato transicion '+(i===0?'active':'')+'" id="'+'X'+SanitizarId(contratos[i].id)+'ContratoTab" data-toggle="pill" href="#'+'X'+SanitizarId(contratos[i].id)+'ContratoContenido" role="tab" aria-controls="'+'X'+SanitizarId(contratos[i].id)+'ContratoContenido" aria-selected="true"></a>').text(contratos[i].id
+        /*$('<a class="nav-link enlaceContrato transicion '+(i===0?'active':'')+'" id="'+'X'+SanitizarId(contratos[parseInt(i)].id)+'ContratoTab" data-toggle="pill" href="#'+'X'+SanitizarId(contratos[parseInt(i)].id)+'ContratoContenido" role="tab" aria-controls="'+'X'+SanitizarId(contratos[parseInt(i)].id)+'ContratoContenido" aria-selected="true"></a>').text(contratos[parseInt(i)].id
         )*/
       )
     }
@@ -84,65 +84,65 @@ function DefinirElementosContrato(){
     var elementos=[];
     for(var i = 0; i< contratos.length;i++){
       elementos.push(
-        $('<div class="tab-pane fade '+(i===0?'active show':'')+'" id="'+'X'+SanitizarId(contratos[i].id)+'ContratoContenido" role="tabpanel" aria-labelledby="'+'X'+SanitizarId(contratos[i].id)+'ContratoTab">').append(
+        $('<div class="tab-pane fade '+(i===0?'active show':'')+'" id="'+'X'+SanitizarId(contratos[parseInt(i)].id)+'ContratoContenido" role="tabpanel" aria-labelledby="'+'X'+SanitizarId(contratos[parseInt(i)].id)+'ContratoTab">').append(
           $('<nav>').append(
             $('<div>',{class:'nav nav-tabs',role:'tablist'}).append(
-            $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabContrato'+'X'+SanitizarId(contratos[i].id),href:'#informacionTabContrato'+'X'+SanitizarId(contratos[i].id),'aria-selected':'true'}).append(
+            $('<a>',{class:'nav-item nav-link active','data-toggle':'tab',role:'tab','aria-controls':'informacionTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),href:'#informacionTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),'aria-selected':'true'}).append(
               $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Información'})
             ),
-            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'itemsTabContrato'+'X'+SanitizarId(contratos[i].id),href:'#itemsTabContrato'+'X'+SanitizarId(contratos[i].id),'aria-selected':'true'}).append(
+            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'itemsTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),href:'#itemsTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),'aria-selected':'true'}).append(
               $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Artículos Solicitados'})
             )
             ,
-            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'documentosTabContrato'+'X'+SanitizarId(contratos[i].id),href:'#documentosTabContrato'+'X'+SanitizarId(contratos[i].id),'aria-selected':'true'}).append(
+            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'documentosTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),href:'#documentosTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),'aria-selected':'true'}).append(
               $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Documentos'})
             )
             ,
-            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'implementacionTabContrato'+'X'+SanitizarId(contratos[i].id),href:'#implementacionTabContrato'+'X'+SanitizarId(contratos[i].id),'aria-selected':'true'}).append(
+            $('<a>',{class:'nav-item nav-link ','data-toggle':'tab',role:'tab','aria-controls':'implementacionTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),href:'#implementacionTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),'aria-selected':'true'}).append(
               $('<h4>',{class:'titularColor', style:'font-size: 15px',text:'Implementación'})
             )
               )
           ),
-          $('<div>',{class:'tab-content cajonSombreado',id:'contenedorTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
-            $('<div>',{class:'tab-pane fade show active',role:'tabpanel','aria-labelledby':'informacionTabContrato'+'X'+SanitizarId(contratos[i].id),id:'informacionTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
-              (contratos[i].title||contratos[i].description?
+          $('<div>',{class:'tab-content cajonSombreado',id:'contenedorTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id)}).append(
+            $('<div>',{class:'tab-pane fade show active',role:'tabpanel','aria-labelledby':'informacionTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),id:'informacionTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id)}).append(
+              (contratos[parseInt(i)].title||contratos[parseInt(i)].description?
                 $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
                     $('<table>').append(
                       $('<tbody>').append(
-                            contratos[i].title?$('<tr>').append(
+                            contratos[parseInt(i)].title?$('<tr>').append(
                             $('<td>',{class:'tituloTablaCaracteristicas',style:'color:#333',toolTexto:"contracts["+i+"].title"}).append(
                               $('<b>',{text:'Título '}),
-                              contratos[i].title
+                              contratos[parseInt(i)].title
                             )):null,
-                            contratos[i].description?$('<tr>').append(
+                            contratos[parseInt(i)].description?$('<tr>').append(
                                 $('<td>',{class:'tituloTablaCaracteristicas',style:'color:#333',toolTexto:"contracts["+i+"].description"}).append(
                                   $('<b>',{text:'Descripción '}),
-                                  contratos[i].description
+                                  contratos[parseInt(i)].description
                                 )
                                 ):null
                       ))):null),
             $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
               $('<table>').append(
                 $('<tbody>').append(
-                    contratos[i].buyer&&contratos[i].buyer.name ? 
+                    contratos[parseInt(i)].buyer&&contratos[parseInt(i)].buyer.name ? 
                       $('<tr>').append(
                         $('<td>',{class:'tituloTablaCaracteristicas',text:'Comprador:',toolTexto:"contracts["+i+"].buyer"}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas'}).append(ObtenerElementosParte(contratos[i].buyer.id))
+                        $('<td>',{class:'contenidoTablaCaracteristicas'}).append(ObtenerElementosParte(contratos[parseInt(i)].buyer.id))
                       ) : null,
-                      contratos[i].suppliers ? 
+                      contratos[parseInt(i)].suppliers ? 
                       $('<tr>').append(
                         $('<td>',{class:'tituloTablaCaracteristicas',text:'Proveedores:',toolTexto:"contracts["+i+"].suppliers"}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas'}).append(ObtenerProveedores(contratos[i].suppliers))
+                        $('<td>',{class:'contenidoTablaCaracteristicas'}).append(ObtenerProveedores(contratos[parseInt(i)].suppliers))
                       ) : null,
-                  (contratos[i].dateSigned ? 
+                  (contratos[parseInt(i)].dateSigned ? 
                       $('<tr>').append(
                         $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha de Firma'}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(contratos[i].dateSigned)})
+                        $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(contratos[parseInt(i)].dateSigned)})
                       ) : null)
                   )
                   )
             ),
-            (contratos[i].value&&contratos[i].value.amount?
+            (contratos[parseInt(i)].value&&contratos[parseInt(i)].value.amount?
               $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
                 $('<table>',{class:'tablaAncho'}).append(
                   $('<tbody>').append(
@@ -154,8 +154,8 @@ function DefinirElementosContrato(){
                           $('<div>',{class:'contenedorMonto procesoMonto'}).append(
                             $('<div>',{class:'textoColorGris',text:'Monto'}),
                             $('<div>',{class:'valorMonto'}).append(
-                              $('<span>',{toolTexto:"contracts["+i+"].value.amount"}).append(ValorMoneda(contratos[i].value.amount)),
-                              $('<span>',{class:'textoColorPrimario',text:contratos[i].value.currency,toolTexto:"contracts["+i+"].value.currency"})
+                              $('<span>',{toolTexto:"contracts["+i+"].value.amount"}).append(ValorMoneda(contratos[parseInt(i)].value.amount)),
+                              $('<span>',{class:'textoColorPrimario',text:contratos[parseInt(i)].value.currency,toolTexto:"contracts["+i+"].value.currency"})
                             )
   
                             
@@ -167,8 +167,8 @@ function DefinirElementosContrato(){
                     )
               ):null)
             ),
-            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'itemsTabContrato'+'X'+SanitizarId(contratos[i].id),id:'itemsTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
-              (contratos[i].items)?
+            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'itemsTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),id:'itemsTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id)}).append(
+              (contratos[parseInt(i)].items)?
               
                 $('<div>', {class:' cajonSombreadox '}).append(
                   $('<table>',{class:'tablaGeneral'}).append(
@@ -184,15 +184,15 @@ function DefinirElementosContrato(){
                       )
                     ),
                     $('<tbody>').append(
-                      ObtenerItems(contratos[i].items)
+                      ObtenerItems(contratos[parseInt(i)].items)
                     )
                   )
                 )
               
               : $('<h4 class="titularColor textoColorPrimario mt-3">Esta contrato no posee artículos</h4>')
             ),
-            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'documentosTabContrato'+'X'+SanitizarId(contratos[i].id),id:'documentosTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
-              (contratos[i].documents)?$('<div>', {class:' cajonSombreadox '}).append(
+            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'documentosTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),id:'documentosTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id)}).append(
+              (contratos[parseInt(i)].documents)?$('<div>', {class:' cajonSombreadox '}).append(
                 $('<table>',{class:'tablaGeneral'}).append(
                   $('<thead>').append(
                     $('<tr>').append(
@@ -204,17 +204,17 @@ function DefinirElementosContrato(){
                     )
                   ),
                   $('<tbody>').append(
-                    ObtenerDocumentos(contratos[i].documents)
+                    ObtenerDocumentos(contratos[parseInt(i)].documents)
                   )
                 )
               ):$('<h4 class="titularColor textoColorPrimario mt-3">Esta etapa no posee documentos</h4>')
             ),
-            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'implementacionTabContrato'+'X'+SanitizarId(contratos[i].id),id:'implementacionTabContrato'+'X'+SanitizarId(contratos[i].id)}).append(
+            $('<div>',{class:'tab-pane fade',role:'tabpanel','aria-labelledby':'implementacionTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id),id:'implementacionTabContrato'+'X'+SanitizarId(contratos[parseInt(i)].id)}).append(
               $('<h4 class="titularCajonSombreado" style="color:black">Transacciones</h4>'),
-              (contratos[i].implementation&&contratos[i].implementation.transactions)?ObtenerTransacciones(contratos[i].implementation.transactions,contratos[i].implementation):$('<h4 class="titularColor textoColorPrimario mt-3">No hay transacciones disponibles.</h4>'),
+              (contratos[parseInt(i)].implementation&&contratos[parseInt(i)].implementation.transactions)?ObtenerTransacciones(contratos[parseInt(i)].implementation.transactions,contratos[parseInt(i)].implementation):$('<h4 class="titularColor textoColorPrimario mt-3">No hay transacciones disponibles.</h4>'),
               
               $('<h4 class="titularCajonSombreado">Obligaciones Financieras</h4>'),
-              (contratos[i].implementation&&contratos[i].implementation.financialObligations)?ObtenerObligacionesFinancieras(contratos[i].implementation.financialObligations):$('<h4 class="titularColor textoColorPrimario mt-3">No hay obligaciones financieras disponibles.</h4>'),
+              (contratos[parseInt(i)].implementation&&contratos[parseInt(i)].implementation.financialObligations)?ObtenerObligacionesFinancieras(contratos[parseInt(i)].implementation.financialObligations):$('<h4 class="titularColor textoColorPrimario mt-3">No hay obligaciones financieras disponibles.</h4>'),
             )
           )
           )
@@ -232,43 +232,43 @@ function ObtenerTransacciones(transacciones,implementacion){
         $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
           $('<table>').append(
             $('<tbody>').append(
-              transacciones[i].date ?
+              transacciones[parseInt(i)].date ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha',toolTexto:"contracts[n].transactions["+i+"].date"}),
-                $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(transacciones[i].date)})
+                $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(transacciones[parseInt(i)].date)})
               ) : null,
-              (transacciones[i].payer&&transacciones[i].payer.name) ?
+              (transacciones[parseInt(i)].payer&&transacciones[parseInt(i)].payer.name) ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas',text:'Proveedor de Fondos',toolTexto:"contracts[n].transactions["+i+"].payer.name"}),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                  transacciones[i].payer.name
-                  /*'/comprador/'+encodeURIComponent(resultados[i].id)}).text(resultados[i].name)$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(transacciones[i].payer.id)}).text(transacciones[i].payer.name)*/
+                  transacciones[parseInt(i)].payer.name
+                  /*'/comprador/'+encodeURIComponent(resultados[parseInt(i)].id)}).text(resultados[parseInt(i)].name)$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(transacciones[parseInt(i)].payer.id)}).text(transacciones[parseInt(i)].payer.name)*/
                   
-                  /*ObtenerElementosParte(transacciones[i].payer.id)*/
+                  /*ObtenerElementosParte(transacciones[parseInt(i)].payer.id)*/
 
 
                   
                 )
               ) : null,
-              (transacciones[i].payee&&transacciones[i].payee.name) ?
+              (transacciones[parseInt(i)].payee&&transacciones[parseInt(i)].payee.name) ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas',text:'Receptor de Fondos',toolTexto:"contracts[n].transactions["+i+"].payee.name"}),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                  /*$('<a>',{class:'enlaceTablaGeneral',href:'/proveedor/'+encodeURIComponent(transacciones[i].payee.id)}).text(transacciones[i].payee.name)*/
-                  ObtenerElementosParte(transacciones[i].payee.id)
+                  /*$('<a>',{class:'enlaceTablaGeneral',href:'/proveedor/'+encodeURIComponent(transacciones[parseInt(i)].payee.id)}).text(transacciones[parseInt(i)].payee.name)*/
+                  ObtenerElementosParte(transacciones[parseInt(i)].payee.id)
                 )
               ) : null,
-              (ObtenerObligacionesTransaccion(transacciones[i],implementacion.financialObligations).length) ?
+              (ObtenerObligacionesTransaccion(transacciones[parseInt(i)],implementacion.financialObligations).length) ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas',text:'Obligaciones Financieras',toolTexto:"contracts[n].financialObligations[n]"}),
                 $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-                  ObtenerObligacionesFinancieras(ObtenerObligacionesTransaccion(transacciones[i],implementacion.financialObligations))
+                  ObtenerObligacionesFinancieras(ObtenerObligacionesTransaccion(transacciones[parseInt(i)],implementacion.financialObligations))
                 )
               ) : null
             )
           )
         ),
-        transacciones[i].value?$('<div>',{
+        transacciones[parseInt(i)].value?$('<div>',{
           class:'montoTotalProceso pb-3',style:'width:100%;display:block;text-align:right'
         }).append(
           /*$('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),*/
@@ -276,10 +276,10 @@ function ObtenerTransacciones(transacciones,implementacion){
             $('<div>',{class:'textoColorGris',text:'Monto'}),
             $('<div>',{class:'valorMonto'}).append(
               $('<span>',{toolTexto:"contracts[n].transactions["+i+"].amount.amount"}).append(
-                ValorMoneda(transacciones[i].value.amount)
+                ValorMoneda(transacciones[parseInt(i)].value.amount)
               )
               ,
-              $('<span>',{class:'textoColorPrimario',text:transacciones[i].value.currency,toolTexto:"contracts[n].transactions["+i+"].amount.currency"})
+              $('<span>',{class:'textoColorPrimario',text:transacciones[parseInt(i)].value.currency,toolTexto:"contracts[n].transactions["+i+"].amount.currency"})
             )
 
             
@@ -301,43 +301,43 @@ function ObtenerObligacionesFinancieras(obligaciones){
         $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
           $('<table>').append(
             $('<tbody>').append(
-              obligaciones[i].approvalDate ?
+              obligaciones[parseInt(i)].approvalDate ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas', style:'color:black',text:'Fecha de Aprobacion',toolTexto:"contracts[n].implementation. financialObligations["+i+"].approvalDate"}),
-                $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(obligaciones[i].approvalDate)})
+                $('<td>',{class:'contenidoTablaCaracteristicas',text:ObtenerFecha(obligaciones[parseInt(i)].approvalDate)})
               ) : null,
-              (obligaciones[i].id) ?
+              (obligaciones[parseInt(i)].id) ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas', style:'color:black',text:'Identificador',toolTexto:"contracts[n].implementation. financialObligations["+i+"].id"}),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(obligaciones[i].id)
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(obligaciones[parseInt(i)].id)
               ) : null,
-              (obligaciones[i].description) ?
+              (obligaciones[parseInt(i)].description) ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas', style:'color:black',text:'Descripción',toolTexto:"contracts[n].implementation. financialObligations["+i+"].description"}),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(obligaciones[i].description)
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(obligaciones[parseInt(i)].description)
               ) : null,
-              (obligaciones[i].retentions&&obligaciones[i].retentions.length) ?
+              (obligaciones[parseInt(i)].retentions&&obligaciones[parseInt(i)].retentions.length) ?
               $('<tr>').append(
                 $('<td>',{class:'tituloTablaCaracteristicas', style:'color:black',text:'Retenciones',toolTexto:"contracts[n].implementation. financialObligations["+i+"].retentions"}),
-                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(ObtenerRetenciones(obligaciones[i].retentions))
+                $('<td>',{class:'contenidoTablaCaracteristicas'}).append(ObtenerRetenciones(obligaciones[parseInt(i)].retentions))
               ) : null
               
               
             )
           )
         ),
-        obligaciones[i].bill&&obligaciones[i].bill.amount?$('<div>',{
+        obligaciones[parseInt(i)].bill&&obligaciones[parseInt(i)].bill.amount?$('<div>',{
           class:'montoTotalProceso pb-3'
         }).append(
           /*$('<img>',{class:'imagenMonto mr-1',src:'/static/img/otros/monedasHonduras.png'}),*/
           $('<div>',{class:'contenedorMonto procesoMonto'}).append(
-            $('<div>',{class:'textoColorGris',style:'font-size:20px',text:'Factura #'+obligaciones[i].bill.id+', '+ObtenerFecha(obligaciones[i].bill.date,'fecha')}),
+            $('<div>',{class:'textoColorGris',style:'font-size:20px',text:'Factura #'+obligaciones[parseInt(i)].bill.id+', '+ObtenerFecha(obligaciones[parseInt(i)].bill.date,'fecha')}),
             $('<div>',{class:'valorMonto',style:'font-size:20px'}).append(
               $('<span>',{toolTexto:"contracts[n].implementation.financialObligations["+i+"].bill.amount.amount"}).append(
-                ValorMoneda(obligaciones[i].bill.amount.amount)
+                ValorMoneda(obligaciones[parseInt(i)].bill.amount.amount)
               )
               ,
-              $('<span>',{class:'textoColorPrimario',text:obligaciones[i].bill.amount.currency,toolTexto:"contracts[n].transactions["+i+"].amount.currency"})
+              $('<span>',{class:'textoColorPrimario',text:obligaciones[parseInt(i)].bill.amount.currency,toolTexto:"contracts[n].transactions["+i+"].amount.currency"})
             )
 
             
@@ -352,15 +352,15 @@ function ObtenerObligacionesFinancieras(obligaciones){
 function ObtenerRetenciones(retenciones){
   var elementos=[];
   for(var i =0; i < retenciones.length ; i++){
-    if(retenciones[i].amount&&Validar(retenciones[i].amount.amount)){
+    if(retenciones[parseInt(i)].amount&&Validar(retenciones[parseInt(i)].amount.amount)){
       elementos.push(
-        $('<div>',{class:'textoColorNegro',text:retenciones[i].name}),
+        $('<div>',{class:'textoColorNegro',text:retenciones[parseInt(i)].name}),
         $('<div>',{class:'valorMonto',style:'font-weight:700;font-size:20px;font-family:poppins'}).append(
           $('<span>',{toolTexto:"contracts[n].implementation. financialObligations[n].retentions["+i+"].amount.amount"}).append(
-            ValorMoneda(retenciones[i].amount.amount)
+            ValorMoneda(retenciones[parseInt(i)].amount.amount)
           )
           ,
-          $('<span>',{class:'textoColorAdvertencia',text:retenciones[i].amount.currency,toolTexto:"contracts[n].implementation. financialObligations[n].retentions["+i+"].amount.currency"})
+          $('<span>',{class:'textoColorAdvertencia',text:retenciones[parseInt(i)].amount.currency,toolTexto:"contracts[n].implementation. financialObligations[n].retentions["+i+"].amount.currency"})
         )
         );
     }
@@ -372,12 +372,12 @@ function ObtenerRetenciones(retenciones){
   function ObtenerProveedoresContratos(proveedores){
     var elementos=[]
     for(i=0;i<proveedores.length;i++){
-      if(proveedores[i].name){
+      if(proveedores[parseInt(i)].name){
         elementos.push(
           $('<tr>').append(
           $('<td>',{class:'tituloTablaCaracteristicas',text:'Contrato de Proveedor'}),
           $('<td>',{class:'contenidoTablaCaracteristicas'}).append(
-            $('<a>',{text:proveedores[i].name,class:'enlaceTablaGeneral',href:'/proveedor/'+proveedores[i].id})
+            $('<a>',{text:proveedores[parseInt(i)].name,class:'enlaceTablaGeneral',href:'/proveedor/'+proveedores[parseInt(i)].id})
           )
         )
         );

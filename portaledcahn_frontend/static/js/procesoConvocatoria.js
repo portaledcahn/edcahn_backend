@@ -493,9 +493,9 @@ function DefinirElementosConvocatoria(){
     for(var i=0;i<ofertadores.length;i++){
       elementos.push(
         $('<tr>').append(
-          $('<td>',{class:'',text:ofertadores[i].id,'data-label':'Identificador'}),
+          $('<td>',{class:'',text:ofertadores[parseInt(i)].id,'data-label':'Identificador'}),
           $('<td>',{class:'','data-label':'Ofertador'}).append(
-            $('<a>',{text:ObtenerTexto(ofertadores[i].name) ,class:'enlaceTablaGeneral',href:url+'/proveedor/'+ofertadores[i].id})
+            $('<a>',{text:ObtenerTexto(ofertadores[parseInt(i)].name) ,class:'enlaceTablaGeneral',href:url+'/proveedor/'+ofertadores[parseInt(i)].id})
           )
         )
       );
@@ -506,7 +506,7 @@ function DefinirElementosConvocatoria(){
   function ObtenerEnmiendasConvocatoria(enmiendas){
     var elementos=[];
     for(var i=0;i<enmiendas.length;i++){
-      if(enmiendas[i].id){
+      if(enmiendas[parseInt(i)].id){
         elementos.push(
           $('<div>',{class:'row mt-3'}).append(
             $('<h4>',{class:'col-12 col-sm-12 col-md-12 titularCajonSombreado',text:'Enmienda Convocatoria'})
@@ -516,28 +516,28 @@ function DefinirElementosConvocatoria(){
               $('<div>',{class:'contenedorTablaCaracteristicas'}).append(
                 $('<table>').append(
                   $('<tbody>').append(
-                    (enmiendas[i].date?
+                    (enmiendas[parseInt(i)].date?
                       $('<tr>').append(
                         $('<td>',{class:'tituloTablaCaracteristicas',text:'Fecha:'}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:ObtenerFecha(enmiendas[i].date)})
+                        $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:ObtenerFecha(enmiendas[parseInt(i)].date)})
                       )
                       :null),
-                    (enmiendas[i].rationale?
+                    (enmiendas[parseInt(i)].rationale?
                       $('<tr>').append(
                         $('<td>',{class:'tituloTablaCaracteristicas',text:'Razón:'}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[i].rationale})
+                        $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[parseInt(i)].rationale})
                       )
                       :null),
-                    (enmiendas[i].description?
+                    (enmiendas[parseInt(i)].description?
                       $('<tr>').append(
                         $('<td>',{class:'tituloTablaCaracteristicas',text:'Descripción:'}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[i].description})
+                        $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[parseInt(i)].description})
                       )
                       :null),
-                    (enmiendas[i].id?
+                    (enmiendas[parseInt(i)].id?
                       $('<tr>').append(
                         $('<td>',{class:'tituloTablaCaracteristicas',text:'ID'}),
-                        $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[i].id})
+                        $('<td>',{class:'contenidoTablaCaracteristicas textoAlineadoJustificado',text:enmiendas[parseInt(i)].id})
                       )
                       :null)
                   )

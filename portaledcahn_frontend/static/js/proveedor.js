@@ -112,11 +112,11 @@ $(function(){
      for(let i=0;i<$('.elementoNumerico').length;i++){
       var configuracionNumerica={ 
         decimalCharacter:'.',
-        decimalPlaces:$($('.elementoNumerico')[i]).attr('decimal')=="true"?2:0,
+        decimalPlaces:$($('.elementoNumerico')[parseInt(i)]).attr('decimal')=="true"?2:0,
         digitalGroupSpacing:3,
         digitGroupSeparator:','
         }
-      elementosNumericos[i]= new AutoNumeric($('.elementoNumerico')[i], configuracionNumerica );
+      elementosNumericos[parseInt(i)]= new AutoNumeric($('.elementoNumerico')[parseInt(i)], configuracionNumerica );
      }
 /*
     $('#cajonContratos .OpcionFiltroBusquedaNumerico input').on('change',function(evento){
@@ -437,9 +437,7 @@ function CargarContratosProveedor(){
     EliminarEventoModalDescarga('descargaCsvProveedorContratos');
     EliminarEventoModalDescarga('descargaXlsxProveedorContratos');
     $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/contratos',parametros).done(function( datos ) {
-      console.dir('Contratos')
-      console.dir(datos);
-    
+
       AgregarResultadosContratosProveedor(datos,'#resultadosContratosProveedor');
       MostrarPaginacion(datos,'.ContratosProveedor',
         function(e){
@@ -476,8 +474,7 @@ function CargarContratosProveedor(){
       EliminarEventoModalDescarga('descargaCsvProveedorPagos');
       EliminarEventoModalDescarga('descargaXlsxProveedorPagos');
       $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/pagos',parametros).done(function( datos ) {
-        console.dir('Pagos')
-        console.dir(datos);
+
       
        // AgregarResultadosPagosProveedor(datos,'#resultadosPagosProveedor');
        AgregarResultadosPagosProveedor(datos,'#resultadosPagosProveedor')
@@ -516,8 +513,7 @@ function CargarContratosProveedor(){
     EliminarEventoModalDescarga('descargaCsvProveedorProductos');
     EliminarEventoModalDescarga('descargaXlsxProveedorProductos');
         $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/productos',parametros).done(function( datos ) {
-          console.dir('Productos')
-          console.dir(datos);
+
         
          AgregarResultadosProductosProveedor(datos,'#resultadosProductosProveedor')
           MostrarPaginacion(datos,'.ProductosProveedor',
@@ -554,50 +550,52 @@ function CargarContratosProveedor(){
       $(selector).append(
         $('<tr>').append(
           $('<td>',{'data-label':'Comprador'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyer&&resultados[i]._source.extra.buyer.id?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyer.id)}).text( resultados[i]._source.extra.buyerFullName):''
+            resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.extra&&resultados[parseInt(i)]._source.extra.buyer&&resultados[parseInt(i)]._source.extra.buyer.id?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[parseInt(i)]._source.extra.buyer.id)}).text( resultados[parseInt(i)]._source.extra.buyerFullName):''
           ),
           $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoIzquierda'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id, toolTexto:resultados[i]._source.title}).text( ReducirTexto(resultados[i]._source.title,80)) :''
+            resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[parseInt(i)]._source.extra.ocid)+'/?contrato='+resultados[parseInt(i)]._source.id, toolTexto:resultados[parseInt(i)]._source.title}).text( ReducirTexto(resultados[parseInt(i)]._source.title,80)) :''
           ),
           $('<td>',{'data-label':'Descripción' ,class:'textoAlineadoIzquierda'}).append(
-            $('<span>',{text: ReducirTexto(resultados[i]&&resultados[i]._source&&resultados[i]._source.description?resultados[i]._source.description:'',80) , toolTexto:resultados[i]&&resultados[i]._source&&resultados[i]._source.description?resultados[i]._source.description:''})
+            $('<span>',{text: ReducirTexto(resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.description?resultados[parseInt(i)]._source.description:'',80) , toolTexto:resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.description?resultados[parseInt(i)]._source.description:''})
             
           ),
           $('<td>', { 'data-label': 'Nombre del Proceso', class: 'textoAlineadoCentrado' }).append(
-            resultados[i] && resultados[i]._source && resultados[i]._source.extra && resultados[i]._source.extra.tenderTitle ? resultados[i]._source.extra.tenderTitle : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+            resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.extra && resultados[parseInt(i)]._source.extra.tenderTitle ? resultados[parseInt(i)]._source.extra.tenderTitle : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
         ),
         $('<td>', { 'data-label': 'Categoría de Compra', class: 'textoAlineadoCentrado' }).append(
 
-            (resultados[i] && resultados[i]._source && resultados[i]._source.localProcurementCategory) ? (categoriaCompra[resultados[i]._source.localProcurementCategory]?categoriaCompra[resultados[i]._source.localProcurementCategory].titulo:resultados[i]._source.localProcurementCategory):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
+            (resultados[parseInt(i)] && resultados[parseInt(i)]._source && resultados[parseInt(i)]._source.localProcurementCategory) ? (categoriaCompra[resultados[parseInt(i)]._source.localProcurementCategory]?categoriaCompra[resultados[parseInt(i)]._source.localProcurementCategory].titulo:resultados[parseInt(i)]._source.localProcurementCategory):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
         ),
                 $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
-                resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
-                [ValorMoneda(resultados[i]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.value.currency})]:''
+                resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.value&&Validar(resultados[parseInt(i)]._source.value.amount)?
+                [ValorMoneda(resultados[parseInt(i)]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[parseInt(i)]._source.value.currency})]:''
                 
                 
                 ),
                 
           $('<td>',{'data-label':'Fecha de Firma del Contrato' ,class:'textoAlineadoCentrado'}).append(
             /*
-            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
-                resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible'
+            $('<span>',{class:resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.period&&resultados[parseInt(i)]._source.period.startDate&&resultados[parseInt(i)]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
+                resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.period&&resultados[parseInt(i)]._source.period.startDate&&resultados[parseInt(i)]._source.period.startDate!='NaT'?ObtenerFecha(resultados[parseInt(i)]._source.period.startDate,'fecha'):'No Disponible'
             )*/
 
-            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
-              resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?ObtenerFecha(resultados[i]._source.dateSigned,'fecha'):'No Disponible'
+            $('<span>',{class:resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.dateSigned&&resultados[parseInt(i)]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
+              resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.dateSigned&&resultados[parseInt(i)]._source.dateSigned!='NaT'?ObtenerFecha(resultados[parseInt(i)]._source.dateSigned,'fecha'):'No Disponible'
           )
             
             ),          
           $('<td>',{'data-label':'Fecha de Inicio del Contrato' ,class:'textoAlineadoCentrado'}).append(
-           /* $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
-                resultados[i]&&resultados[i]._source&&resultados[i]._source.dateSigned&&resultados[i]._source.dateSigned!='NaT'?ObtenerFecha(resultados[i]._source.dateSigned,'fecha'):'No Disponible'
+           /* $('<span>',{class:resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.dateSigned&&resultados[parseInt(i)]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
+                resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.dateSigned&&resultados[parseInt(i)]._source.dateSigned!='NaT'?ObtenerFecha(resultados[parseInt(i)]._source.dateSigned,'fecha'):'No Disponible'
             )*/
-            $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
-              resultados[i]&&resultados[i]._source&&resultados[i]._source.period&&resultados[i]._source.period.startDate&&resultados[i]._source.period.startDate!='NaT'?ObtenerFecha(resultados[i]._source.period.startDate,'fecha'):'No Disponible'
-          ) 
+
+            $('<span>',{class:resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.period&&resultados[parseInt(i)]._source.period.startDate&&resultados[parseInt(i)]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
+              resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.period&&resultados[parseInt(i)]._source.period.startDate&&resultados[parseInt(i)]._source.period.startDate!='NaT'?ObtenerFecha(resultados[parseInt(i)]._source.period.startDate,'fecha'):'No Disponible'
+          )
+            
             ),
             $('<td>',{'data-label':'Estado' ,class:'textoAlineadoCentrado'}).append(
-                resultados[i]&&resultados[i]._source&&resultados[i]._source.status ?(estadosContrato[resultados[i]._source.status]? estadosContrato[resultados[i]._source.status].titulo:resultados[i]._source.status):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.status ?(estadosContrato[resultados[parseInt(i)]._source.status]? estadosContrato[resultados[parseInt(i)]._source.status].titulo:resultados[parseInt(i)]._source.status):$('<span>', { class: 'textoColorGris' }).text('No Disponible')
                 )
         )
       );
@@ -624,18 +622,18 @@ function CargarContratosProveedor(){
                 $('<tr>').append(
                     $('<td>', { 'data-label': 'Descripción de la Transacción' }).append(
                         
-                        ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations) && ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations).length && ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations)[0].description? $('<span>', { text: ReducirTexto(ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations)[0].description, 80), toolTexto: ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations)[0].description}) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
+                        ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations) && ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations).length && ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations)[0].description? $('<span>', { text: ReducirTexto(ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations)[0].description, 80), toolTexto: ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations)[0].description}) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                     ),
                     $('<td>', { 'data-label': 'Objeto de Gasto' }).append(
                         datos && datos.extra && datos.extra.objetosGasto && datos.extra.objetosGasto.length ? $('<span>', { text: ReducirTexto(datos.extra.objetosGasto.join(', '), 80), toolTexto: datos.extra.objetosGasto.join(', ')}) : $('<span>', { class: 'textoColorGris' }).text('No Disponible')
                         
                     ),
                     $('<td>', { 'data-label': 'Monto del Pago' }).append(
-                        datos.implementation.transactions[i].value && Validar(datos.implementation.transactions[i].value.amount) ? [ValorMoneda(datos.implementation.transactions[i].value.amount), $('<span>', { class: 'textoColorPrimario', text: ' '+(datos.implementation.transactions[i].date.currency?datos.implementation.transactions[i].date.currency:'HNL') })] : ''
+                        datos.implementation.transactions[parseInt(i)].value && Validar(datos.implementation.transactions[parseInt(i)].value.amount) ? [ValorMoneda(datos.implementation.transactions[parseInt(i)].value.amount), $('<span>', { class: 'textoColorPrimario', text: ' '+(datos.implementation.transactions[parseInt(i)].date.currency?datos.implementation.transactions[parseInt(i)].date.currency:'HNL') })] : ''
                     ),
                     $('<td>', { 'data-label': 'Fecha del Pago' }).append(
-                        $('<span>', { class: datos.implementation.transactions[i].date&&datos.implementation.transactions[i].date != 'NaT' ? '' : 'textoColorGris' }).text(
-                            datos.implementation.transactions[i].date && datos.implementation.transactions[i].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[i].date, 'fecha') : 'No Disponible'
+                        $('<span>', { class: datos.implementation.transactions[parseInt(i)].date&&datos.implementation.transactions[parseInt(i)].date != 'NaT' ? '' : 'textoColorGris' }).text(
+                            datos.implementation.transactions[parseInt(i)].date && datos.implementation.transactions[parseInt(i)].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[parseInt(i)].date, 'fecha') : 'No Disponible'
                         )
                     )
                 )
@@ -683,17 +681,17 @@ function AgregarFilaPago(resultados,selector,i){
                                         )
                                     ),
                                     $('<tbody>').append(
-                                        ObtenerFilasSubTablaPagos(resultados[i]._source)
+                                        ObtenerFilasSubTablaPagos(resultados[parseInt(i)]._source)
                                     )
                                 ),
                                 $('<div>',{class:'col-md-12 textoAlineadoDerecha mb-5'}).append(
                                   $('<h4>',{class:'textoAlineadoDerecha mb-0 descargaIconos enLinea alineadoArriba',style:'margin-top:18px'}).append(
                                     $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',on:{click:function(e){
-                                      var datos=resultados[i]._source;
+                                      var datos=resultados[parseInt(i)]._source;
                                       var pagos=[];
                                       if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
                                         for (let i = 0; i < datos.implementation.transactions.length; i++) {
-                                          var obligaciones=ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations);
+                                          var obligaciones=ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations);
                                           pagos.push(
                                             {
                                               'descripcion':(obligaciones&& obligaciones.length ?obligaciones.map(function(e){return Validar(e.description)?e.description:'';}).join(', '): ''),
@@ -701,18 +699,18 @@ function AgregarFilaPago(resultados,selector,i){
                                                 datos && datos.extra && datos.extra.objetosGasto && datos.extra.objetosGasto.length ? datos.extra.objetosGasto.join(', ') :''
                                               ),
                                               'montoPago':(
-                                                datos.implementation.transactions[i].value && Validar(datos.implementation.transactions[i].value.amount) ?( 
-                                                  ValorMoneda(datos.implementation.transactions[i].value.amount)+ ' '+ (datos.implementation.transactions[i].date.currency?datos.implementation.transactions[i].date.currency:'HNL') ): ''
+                                                datos.implementation.transactions[parseInt(i)].value && Validar(datos.implementation.transactions[parseInt(i)].value.amount) ?( 
+                                                  ValorMoneda(datos.implementation.transactions[parseInt(i)].value.amount)+ ' '+ (datos.implementation.transactions[parseInt(i)].date.currency?datos.implementation.transactions[parseInt(i)].date.currency:'HNL') ): ''
                                               ),
                                               'fechaPago':(
-                                                datos.implementation.transactions[i].date && datos.implementation.transactions[i].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[i].date, 'fecha') : ''
+                                                datos.implementation.transactions[parseInt(i)].date && datos.implementation.transactions[parseInt(i)].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[parseInt(i)].date, 'fecha') : ''
                                               )
                                             }
                                           );
 
                                         }
                                       }
-                                      DescargarJSON(pagos,'Pagos de '+resultados[i]._source.extra.buyerFullName);
+                                      DescargarJSON(pagos,'Pagos de '+resultados[parseInt(i)]._source.extra.buyerFullName);
 
                                     
 
@@ -722,11 +720,11 @@ function AgregarFilaPago(resultados,selector,i){
                                       '&nbsp;.JSON'
                                     ),
                                     $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',on:{click:function(e){
-                                      var datos=resultados[i]._source;
+                                      var datos=resultados[parseInt(i)]._source;
                                       var pagos=[];
                                       if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
                                         for (let i = 0; i < datos.implementation.transactions.length; i++) {
-                                          var obligaciones=ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations);
+                                          var obligaciones=ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations);
                                           pagos.push(
                                             {
                                               'descripcion':(obligaciones&& obligaciones.length ?obligaciones.map(function(e){return Validar(e.description)?e.description:'';}).join(', '): ''),
@@ -734,18 +732,18 @@ function AgregarFilaPago(resultados,selector,i){
                                                 datos && datos.extra && datos.extra.objetosGasto && datos.extra.objetosGasto.length ? datos.extra.objetosGasto.join(', ') :''
                                               ),
                                               'montoPago':(
-                                                datos.implementation.transactions[i].value && Validar(datos.implementation.transactions[i].value.amount) ?( 
-                                                  ValorMoneda(datos.implementation.transactions[i].value.amount)+ ' '+ (datos.implementation.transactions[i].date.currency?datos.implementation.transactions[i].date.currency:'HNL') ): ''
+                                                datos.implementation.transactions[parseInt(i)].value && Validar(datos.implementation.transactions[parseInt(i)].value.amount) ?( 
+                                                  ValorMoneda(datos.implementation.transactions[parseInt(i)].value.amount)+ ' '+ (datos.implementation.transactions[parseInt(i)].date.currency?datos.implementation.transactions[parseInt(i)].date.currency:'HNL') ): ''
                                               ),
                                               'fechaPago':(
-                                                datos.implementation.transactions[i].date && datos.implementation.transactions[i].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[i].date, 'fecha') : ''
+                                                datos.implementation.transactions[parseInt(i)].date && datos.implementation.transactions[parseInt(i)].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[parseInt(i)].date, 'fecha') : ''
                                               )
                                             }
                                           );
 
                                         }
                                       }
-                                      DescargarCSV(ObtenerMatrizObjeto(pagos) ,'Pagos de '+resultados[i]._source.extra.buyerFullName);
+                                      DescargarCSV(ObtenerMatrizObjeto(pagos) ,'Pagos de '+resultados[parseInt(i)]._source.extra.buyerFullName);
 
                                     
 
@@ -755,11 +753,11 @@ function AgregarFilaPago(resultados,selector,i){
                                       '&nbsp;.CSV'
                                     ),
                                     $('<span>',{class:'textoColorGris textoAlineadoDerecha p-1 cursorMano transicion',on:{click:function(e){
-                                      var datos=resultados[i]._source;
+                                      var datos=resultados[parseInt(i)]._source;
                                       var pagos=[];
                                       if (datos && datos.implementation && datos.implementation.transactions && datos.implementation.transactions.length) {
                                         for (let i = 0; i < datos.implementation.transactions.length; i++) {
-                                          var obligaciones=ObtenerObligacionesTransaccion(datos.implementation.transactions[i],datos.implementation.financialObligations);
+                                          var obligaciones=ObtenerObligacionesTransaccion(datos.implementation.transactions[parseInt(i)],datos.implementation.financialObligations);
                                           pagos.push(
                                             {
                                               'descripcion':(obligaciones&& obligaciones.length ?obligaciones.map(function(e){return Validar(e.description)?e.description:'';}).join(', '): ''),
@@ -767,18 +765,18 @@ function AgregarFilaPago(resultados,selector,i){
                                                 datos && datos.extra && datos.extra.objetosGasto && datos.extra.objetosGasto.length ? datos.extra.objetosGasto.join(', ') :''
                                               ),
                                               'montoPago':(
-                                                datos.implementation.transactions[i].value && Validar(datos.implementation.transactions[i].value.amount) ?( 
-                                                  ValorMoneda(datos.implementation.transactions[i].value.amount)+ ' '+ (datos.implementation.transactions[i].date.currency?datos.implementation.transactions[i].date.currency:'HNL') ): ''
+                                                datos.implementation.transactions[parseInt(i)].value && Validar(datos.implementation.transactions[parseInt(i)].value.amount) ?( 
+                                                  ValorMoneda(datos.implementation.transactions[parseInt(i)].value.amount)+ ' '+ (datos.implementation.transactions[parseInt(i)].date.currency?datos.implementation.transactions[parseInt(i)].date.currency:'HNL') ): ''
                                               ),
                                               'fechaPago':(
-                                                datos.implementation.transactions[i].date && datos.implementation.transactions[i].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[i].date, 'fecha') : ''
+                                                datos.implementation.transactions[parseInt(i)].date && datos.implementation.transactions[parseInt(i)].date != 'NaT' ? ObtenerFecha(datos.implementation.transactions[parseInt(i)].date, 'fecha') : ''
                                               )
                                             }
                                           );
 
                                         }
                                       }
-                                      DescargarXLSX(ObtenerMatrizObjeto(pagos) ,'Pagos de '+resultados[i]._source.extra.buyerFullName);
+                                      DescargarXLSX(ObtenerMatrizObjeto(pagos) ,'Pagos de '+resultados[parseInt(i)]._source.extra.buyerFullName);
 
                                     
 
@@ -814,27 +812,27 @@ function AgregarFilaPago(resultados,selector,i){
         }
     }).append(
       $('<td>',{'data-label':'Comprador'}).append(
-        resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.buyer&&resultados[i]._source.extra.buyer.id?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[i]._source.extra.buyer.id)}).text(resultados[i]._source.extra.buyerFullName):''
+        resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.extra&&resultados[parseInt(i)]._source.extra.buyer&&resultados[parseInt(i)]._source.extra.buyer.id?$('<a>',{class:'enlaceTablaGeneral',href:'/comprador/'+encodeURIComponent(resultados[parseInt(i)]._source.extra.buyer.id)}).text(resultados[parseInt(i)]._source.extra.buyerFullName):''
       ),
       $('<td>',{'data-label':'Título de Contrato',class:'textoAlineadoIzquierda'}).append(
-        resultados[i]&&resultados[i]._source&&resultados[i]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[i]._source.extra.ocid)+'/?contrato='+resultados[i]._source.id, toolTexto:resultados[i]._source.title}).text( ReducirTexto(resultados[i]._source.title,80)) :''
+        resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.title?$('<a>',{class:'enlaceTablaGeneral',href:'/proceso/'+encodeURIComponent(resultados[parseInt(i)]._source.extra.ocid)+'/?contrato='+resultados[parseInt(i)]._source.id, toolTexto:resultados[parseInt(i)]._source.title}).text( ReducirTexto(resultados[parseInt(i)]._source.title,80)) :''
       ),
             $('<td>',{'data-label':'Monto del Contrato' ,class:'textoAlineadoDerecha'}).append(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.value&&Validar(resultados[i]._source.value.amount)?
-            [ValorMoneda(resultados[i]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[i]._source.value.currency})]:''
+            resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.value&&Validar(resultados[parseInt(i)]._source.value.amount)?
+            [ValorMoneda(resultados[parseInt(i)]._source.value.amount),$('<span>',{class:'textoColorPrimario',text:' '+resultados[parseInt(i)]._source.value.currency})]:''
             
             
             ),
             $('<td>',{'data-label':'Suma de Todos los Pagos' ,class:'textoAlineadoDerecha'}).append(
-              resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&Validar(resultados[i]._source.extra.sumTransactions)?
-              [ValorMoneda(resultados[i]._source.extra.sumTransactions),$('<span>',{class:'textoColorPrimario',text:' HNL'})]:''
+              resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.extra&&Validar(resultados[parseInt(i)]._source.extra.sumTransactions)?
+              [ValorMoneda(resultados[parseInt(i)]._source.extra.sumTransactions),$('<span>',{class:'textoColorPrimario',text:' HNL'})]:''
               
               
               ),
       
       $('<td>',{'data-label':'Fecha de Último Pago' ,class:'textoAlineadoCentrado'}).append(
-        $('<span>',{class:resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?'':'textoColorGris' }).text(
-            resultados[i]&&resultados[i]._source&&resultados[i]._source.extra&&resultados[i]._source.extra.transactionLastDate&&resultados[i]._source.extra.transactionLastDate!='NaT'?ObtenerFecha(resultados[i]._source.extra.transactionLastDate,'fecha'):'No Disponible'
+        $('<span>',{class:resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.extra&&resultados[parseInt(i)]._source.extra.transactionLastDate&&resultados[parseInt(i)]._source.extra.transactionLastDate!='NaT'?'':'textoColorGris' }).text(
+            resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.extra&&resultados[parseInt(i)]._source.extra.transactionLastDate&&resultados[parseInt(i)]._source.extra.transactionLastDate!='NaT'?ObtenerFecha(resultados[parseInt(i)]._source.extra.transactionLastDate,'fecha'):'No Disponible'
         )
         
         )
@@ -876,14 +874,14 @@ function AgregarFilaPago(resultados,selector,i){
       $(selector).append(
         $('<tr>').append(
           $('<td>',{'data-label':'Clasificación'}).append(
-            resultados[i]&&resultados[i].clasificacion?$('<a>').text(resultados[i].clasificacion):''
+            resultados[parseInt(i)]&&resultados[parseInt(i)].clasificacion?$('<a>').text(resultados[parseInt(i)].clasificacion):''
           ),
           $('<td>',{'data-label':'Cantidad de Contratos',class:'textoAlineadoCentrado'}).append(
-            resultados[i]&&Validar(resultados[i].cantidadContratos)?ValorNumerico(resultados[i].cantidadContratos) :''
+            resultados[parseInt(i)]&&Validar(resultados[parseInt(i)].cantidadContratos)?ValorNumerico(resultados[parseInt(i)].cantidadContratos) :''
           ),
                 $('<td>',{'data-label':'Monto de Productos Adjudicados' ,class:'textoAlineadoDerecha'}).append(
-                resultados[i]&&Validar(resultados[i].monto)?
-                [ValorMoneda(resultados[i].monto),$('<span>',{class:'textoColorPrimario',text:' HNL'})]:''
+                resultados[parseInt(i)]&&Validar(resultados[parseInt(i)].monto)?
+                [ValorMoneda(resultados[parseInt(i)].monto),$('<span>',{class:'textoColorPrimario',text:' HNL'})]:''
                 
                 
                 )
@@ -920,16 +918,16 @@ function AgregarFilaPago(resultados,selector,i){
     }
     
     for(var i=0; i<paginacion.length;i++){
-      if(paginacion[i]=='...'){
+      if(paginacion[parseInt(i)]=='...'){
         $('.navegacionTablaGeneral'+selector).append(
-          $('<a href="javascript:void(0)" class="numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral">').append($('<span>').text(paginacion[i]))
+          $('<a href="javascript:void(0)" class="numerosNavegacionTablaGeneral numeroNormalNavegacionTablaGeneral">').append($('<span>').text(paginacion[parseInt(i)]))
         );
       }else{
         $('.navegacionTablaGeneral'+selector).append(
-          $('<a href="javascript:void(0)" pagina="'+paginacion[i]+'"  class="numerosNavegacionTablaGeneral '+((paginacion[i]==datos.paginador.page)?'current':'')+'">').on({
+          $('<a href="javascript:void(0)" pagina="'+paginacion[parseInt(i)]+'"  class="numerosNavegacionTablaGeneral '+((paginacion[parseInt(i)]==datos.paginador.page)?'current':'')+'">').on({
             click:funcion
             
-          }).append($('<span>').text(paginacion[i]))
+          }).append($('<span>').text(paginacion[parseInt(i)]))
         );
       }
     }
@@ -1360,8 +1358,7 @@ function ObtenerDescargaProveedorProductos(datos){
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
   $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/productos',parametros).done(function( datos ) {*/
-    console.dir('Descargas ProveedorProductos')
-    console.dir(datos);
+
     AgregarEventoModalDescarga('descargaJsonProveedorProductos',function(){
       var descarga=datos.resultados.map(function(e){
         return e/*{
@@ -1408,8 +1405,7 @@ function ObtenerDescargaProveedorContratos(datos){
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
   $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/contratos',parametros).done(function( datos ) {*/
-    console.dir('Descargas Proveedor Contratos')
-    console.dir(datos);
+    
     AgregarEventoModalDescarga('descargaJsonProveedorContratos',function(){
       var descarga=datos.resultados.map(function(e){
         return e._source;
@@ -1445,8 +1441,7 @@ function ObtenerDescargaProveedorPagos(datos){
   parametros['pagina']=1;
   parametros['paginarPor']=resultados.paginador['total.items']?resultados.paginador['total.items']:5;
   $.get(api+"/proveedores/"+encodeURIComponent(proveedorId)+'/pagos',parametros).done(function( datos ) {*/
-    console.dir('Descargas Proveedor Pagos');
-    console.dir(datos);
+  
     AgregarEventoModalDescarga('descargaJsonProveedorPagos',function(){
       var descarga=datos.resultados.map(function(e){
         return e._source;
