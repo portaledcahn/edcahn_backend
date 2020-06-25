@@ -4469,7 +4469,7 @@ class FiltrosDashboardONCAE(APIView):
 
 			sources = dfSistemas.to_dict('records')
 
-		#valores para filtros por categoria.
+		#valores para filtros por normativa.
 		normativas = []
 
 		for valor in normativasProcesos["buckets"]:
@@ -4523,7 +4523,8 @@ class FiltrosDashboardONCAE(APIView):
 		resultados["modalidades"] = modalidades
 		resultados["sistemas"] = sources
 
-		if tablero != 'c':
+		# Quitar false cuando la importacion de datos este lista.
+		if tablero != 'c' and False:
 			resultados["Normativas"] = normativas
 
 		parametros = {}
