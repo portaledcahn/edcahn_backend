@@ -357,6 +357,7 @@ class Buscador(APIView):
 		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
+		# ss = Search(using=cliente, index='contract')
 
 		#Source
 		campos = ['doc.compiledRelease', 'extra']
@@ -417,10 +418,14 @@ class Buscador(APIView):
 		)
 
 		if metodo == 'proceso':
-			s = s.filter('exists', field='doc.compiledRelease.tender.id')
-
-			# Temporal
+			#Filtro temporal mientras tender/status=withdraw
 			s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+			sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+			sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+			s = s.exclude(sistemaDDC & sistemaHC1)
 
 			s.aggs.metric(
 				'procesos_total', 
@@ -430,7 +435,7 @@ class Buscador(APIView):
 
 		if metodo == 'contrato':
 			filtro_contrato = Q('exists', field='doc.compiledRelease.contracts.id')
-			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 			s = s.query('nested', path='doc.compiledRelease.contracts', query=filtro_contrato)
 
 			s.aggs["contratos"].metric(
@@ -566,9 +571,14 @@ class Buscador(APIView):
 			"total.items": results.hits.total
 		}
 
+		aniosBuckets = results.aggregations.años.to_dict()
+		aniosLista = aniosBuckets["buckets"]
+		aniosLista.reverse()
+		aniosBuckets["buckets"] = aniosLista
+
 		filtros = {}
 		filtros["monedas"] = results.aggregations.contratos.monedas.to_dict()
-		filtros["años"] = results.aggregations.años.to_dict()
+		filtros["años"] = aniosBuckets
 		filtros["categorias"] = results.aggregations.categorias.to_dict()
 		filtros["instituciones"] = results.aggregations.instituciones.to_dict()
 		filtros["metodos_de_seleccion"] = results.aggregations.metodos_de_seleccion.to_dict()
