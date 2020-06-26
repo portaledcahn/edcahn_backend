@@ -332,7 +332,6 @@ class Buscador(APIView):
 
 	def get(self, request, format=None):
 		precision = 40000
-		sourceSEFIN = 'HN.SIAFI2'
 		noMoneda = 'Sin monto de contrato'
 		noMonedaPago = 'Sin monto pagado'
 
@@ -379,9 +378,25 @@ class Buscador(APIView):
 		s.aggs.metric('organismosFinanciadores', 'terms', field='doc.compiledRelease.planning.budget.budgetBreakdown.classifications.organismo.keyword', size=2000)
 
 		if metodo == 'pago' or metodo == 'contrato':
-			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.date', interval='year', format='yyyy', min_doc_count=1)
+			s.aggs.metric(
+				'años', 
+				'date_histogram', 
+				field='doc.compiledRelease.date', 
+				interval='year', 
+				format='yyyy', 
+				min_doc_count=1,
+				time_zone=settings.ELASTICSEARCH_TIMEZONE
+			)
 		else:
-			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy', min_doc_count=1)
+			s.aggs.metric(
+				'años',
+				'date_histogram', 
+				field='doc.compiledRelease.tender.tenderPeriod.startDate', 
+				interval='year', 
+				format='yyyy', 
+				min_doc_count=1,
+				time_zone=settings.ELASTICSEARCH_TIMEZONE
+			)
 
 		#resumen
 		s.aggs["contratos"].metric(
@@ -419,6 +434,7 @@ class Buscador(APIView):
 
 		if metodo == 'proceso':
 			#Filtro temporal mientras tender/status=withdraw
+			s = s.filter('exists', field='doc.compiledRelease.tender.id')
 			s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
 			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
@@ -446,7 +462,7 @@ class Buscador(APIView):
 			)
 
 		if metodo == 'pago':
-			s = s.filter('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+			s = s.filter('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 
 			s.aggs.metric(
 				'procesos_total', 
@@ -475,9 +491,15 @@ class Buscador(APIView):
 
 		if year.replace(' ', ''):
 			if metodo == 'pago' or metodo == 'contrato':
-				s = s.filter('range', doc__compiledRelease__date={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
+				filtroFecha = {
+					'time_zone':settings.ELASTICSEARCH_TIMEZONE,
+					'gte': datetime.date(int(year), 1, 1), 
+					'lt': datetime.date(int(year)+1, 1, 1)
+				}
+
+				s = s.filter('range', doc__compiledRelease__date=filtroFecha)
 			else:
-				s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
+				s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
 
 		if term: 
 			if metodo == 'proceso':
@@ -7560,7 +7582,7 @@ class IndicadorCatalogoElectronico(APIView):
 		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
 		# s = s.source(campos)
 
-		# Excluir compra conjunta asd
+		# Excluir compra conjunta
 		qTerm = Q('match', items__attributes__value='compra conjunta')
 		s = s.exclude('nested', path='items', query=qTerm)
 
