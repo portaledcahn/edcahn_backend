@@ -2201,8 +2201,12 @@ class ProcesosDelComprador(APIView):
 		# Sección de filtros
 		filtros = []
 
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id__keyword=sourceSEFIN)
-		s = s.filter('exists', field='doc.compiledRelease.tender')
+		# Solo procesos de contratación
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+		sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s = s.exclude(sistemaDDC & sistemaHC1)
 
 		if comprador.replace(' ',''):
 			filtro = Q("match", extra__buyerFullName=comprador)
