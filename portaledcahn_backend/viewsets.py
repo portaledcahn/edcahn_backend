@@ -234,6 +234,9 @@ class Index(APIView):
 		contratos = contratos.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 		sefin = sefin.filter('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 
+		# Quitando procesos eliminados en el sistema fuente. 
+		oncae = oncae.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+
 		## Solo contratos de ordenes de compra en estado impreso. 
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
@@ -320,7 +323,6 @@ class Buscador(APIView):
 		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
-		# ss = Search(using=cliente, index='contract')
 
 		#Source
 		campos = ['doc.compiledRelease', 'extra']
@@ -397,10 +399,8 @@ class Buscador(APIView):
 		)
 
 		if metodo == 'proceso':
-			#Filtro temporal mientras tender/status=withdraw
 			s = s.filter('exists', field='doc.compiledRelease.tender.id')
-			s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
-
+			s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
 			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 			s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
 			sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
@@ -453,13 +453,13 @@ class Buscador(APIView):
 			s = s.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory=categoria)
 
 		if year.replace(' ', ''):
-			if metodo == 'pago' or metodo == 'contrato':
-				filtroFecha = {
-					'time_zone':settings.ELASTICSEARCH_TIMEZONE,
-					'gte': datetime.date(int(year), 1, 1), 
-					'lt': datetime.date(int(year)+1, 1, 1)
-				}
+			filtroFecha = {
+				'time_zone':settings.ELASTICSEARCH_TIMEZONE,
+				'gte': datetime.date(int(year), 1, 1), 
+				'lt': datetime.date(int(year)+1, 1, 1)
+			}
 
+			if metodo == 'pago' or metodo == 'contrato':
 				s = s.filter('range', doc__compiledRelease__date=filtroFecha)
 			else:
 				s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
@@ -1259,6 +1259,8 @@ class ContratosDelProveedor(APIView):
 
 		qPartieId = Q('match_phrase', suppliers__id=partieId) 
 		s = s.query('nested', path='suppliers', query=qPartieId)
+
+		s = s.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
 		# Sección de filtros
 		filtros = []
@@ -2201,7 +2203,8 @@ class ProcesosDelComprador(APIView):
 		# Sección de filtros
 		filtros = []
 
-		# Solo procesos de contratación
+		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+		s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
 		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
@@ -3811,23 +3814,40 @@ class FiltrosDashboardONCAE(APIView):
 		ssFecha = ssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 		sssFecha = sssFecha.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
+		#Solo procesos que tengan la seccion de tender
+		s = s.filter('exists', field='doc.compiledRelease.tender.id')
+		sFecha = sFecha.filter('exists', field='doc.compiledRelease.tender.id')
+
+		#Excluyendo catalogo electronico de procesos
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+		sFecha = sFecha.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+
+		#Excluyendo procesos eliminados en HC1
+		s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+		sFecha = sFecha.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+
+		#Excluyendo contratos de difusion directa no relacionados a procesos
+		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+		sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s = s.exclude(sistemaDDC & sistemaHC1)
+		sFecha = sFecha.exclude(sistemaDDC & sistemaHC1)
+
 		## Solo contratos de ordenes de compra en estado impreso. 
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
+		
 		sss = sss.exclude(sistemaCE & estadoOC)
 		sssFecha = sssFecha.exclude(sistemaCE & estadoOC)
+		
 		ss = ss.exclude(sistemaCE & estadoOC)
 		ssFecha = ssFecha.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
+		
 		sss = sss.exclude(sistemaDC & estadoContrato)
 		sssFecha = sssFecha.exclude(sistemaDC & estadoContrato)
-			
-		#Temporal
-		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
-		sFecha = sFecha.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
 
 		# Filtros
 		if institucion.replace(' ', ''):
@@ -4565,9 +4585,14 @@ class GraficarProcesosPorCategorias(APIView):
 
 		s = Search(using=cliente, index='edca')
 
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		# Filtrar procesos de contratacion
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
-		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+		s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+		sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s = s.exclude(sistemaDDC & sistemaHC1)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -4682,11 +4707,14 @@ class GraficarProcesosPorModalidad(APIView):
 
 		s = Search(using=cliente, index='edca')
 
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		# Filtrar procesos de contratacion
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
-
-		#Temporal
-		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+		s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+		sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s = s.exclude(sistemaDDC & sistemaHC1)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -4806,11 +4834,14 @@ class GraficarCantidadDeProcesosMes(APIView):
 
 		s = Search(using=cliente, index='edca')
 
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		# Filtrar procesos de contratacion
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
-
-		# Temporal 
-		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+		s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+		sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s = s.exclude(sistemaDDC & sistemaHC1)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -4951,11 +4982,14 @@ class EstadisticaCantidadDeProcesos(APIView):
 
 		s = Search(using=cliente, index='edca')
 
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		# Filtrar procesos de contratacion
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
-
-		# Temporal 
-		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+		s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+		sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s = s.exclude(sistemaDDC & sistemaHC1)
 
 		# Filtros
 		if institucion.replace(' ', ''):
@@ -5079,11 +5113,14 @@ class GraficarProcesosPorEtapa(APIView):
 
 		s = Search(using=cliente, index='edca')
 
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		# Filtrar procesos de contratacion
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
-
-		# Temporal 
-		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+		s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+		sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s = s.exclude(sistemaDDC & sistemaHC1)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -6757,12 +6794,17 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 		s = Search(using=cliente, index='edca')
 		ss = Search(using=cliente, index='contract')
 
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		# Filtrar procesos de contratacion
 		s = s.filter('exists', field='doc.compiledRelease.tender.id')
-		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+		sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s = s.exclude(sistemaDDC & sistemaHC1)
 
-		# Temporal 
-		s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+		## Excluyendo contratos de SEFIN
+		ss = ss.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
 
 		## Solo contratos de ordenes de compra en estado impreso. 
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
