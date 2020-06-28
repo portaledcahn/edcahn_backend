@@ -23,7 +23,9 @@ class DSEPaginator(Paginator):
 
 # Create your views here.
 def Inicio(request):
-    return render(request,'inicio/inicio.html')
+    context = {}
+
+    return render(request,'inicio/inicio.html', context)
 
 def Proceso(request,ocid=''):
     return render(request,'proceso/proceso.html',{'ocid':ocid.replace('"','')})
@@ -158,6 +160,17 @@ def Compradores(request):
 
 def Descargas(request):
     return render(request,'descargas/descargas.html')
+
+def DescargarArchivo(request, file):
+  path_to_file = "C:\\Users\\Isaias Zelaya\\Desktop/"
+
+  file_path = os.path.join(settings.MEDIA_ROOT, path_to_file + file)
+  if os.path.exists(file_path):
+    with open(file_path, 'rb') as fh:
+      response = HttpResponse(fh.read(), content_type="application/force-download")
+      response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+      return response
+  raise Http404
 
 def Preguntas(request):
     return render(request,'preguntas/preguntas.html')

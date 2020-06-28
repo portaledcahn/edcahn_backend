@@ -220,110 +220,74 @@ class Index(APIView):
 
 	def get(self, request, format=None):
 
-		precision = 40000
-		sourceSEFIN = 'HN.SIAFI2'
+		precision = 1000
 
 		cliente = ElasticSearchDefaultConnection()
 
 		oncae = Search(using=cliente, index='edca')
 		sefin = Search(using=cliente, index='edca')
 		todos = Search(using=cliente, index='edca')
-		sp = Search(using=cliente, index='edca')
+		contratos = Search(using=cliente, index='contract')
+		proveedores = Search(using=cliente, index='supplier')
 
-		oncae = oncae.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+		oncae = oncae.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		contratos = contratos.exclude('match_phrase', extra__sources__id=settings.SOURCE_SEFIN_ID)
+		sefin = sefin.filter('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 
-		sefin = sefin.filter('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+		## Solo contratos de ordenes de compra en estado impreso. 
+		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
+		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
+		contratos = contratos.exclude(sistemaCE & estadoOC)
 
-		oncae.aggs.metric(
-			'contratos', 
-			'nested', 
-			path='doc.compiledRelease.contracts'
+		## Quitando contratos cancelados en difusion directa. 
+		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
+		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
+		contratos = contratos.exclude(sistemaDC & estadoContrato)
+
+		contratos.aggs.metric(
+			'cantidad',
+			'value_count',
+			field='id.keyword'
 		)
 
-		sefin.aggs.metric(
-			'contratos', 
-			'nested', 
-			path='doc.compiledRelease.contracts'
-		)
-
-		sefin.aggs.metric(
-			'procesos_pagos', 
-			'value_count', 
-			field='doc.compiledRelease.ocid.keyword'
-		)
-
-		todos.aggs.metric(
-			'contratos', 
-			'nested', 
-			path='doc.compiledRelease.contracts'
-		)
-
-		# todos.aggs["contratos"].metric(
-		# 	'distinct_suppliers', 
-		# 	'cardinality', 
-		# 	precision_threshold=precision, 
-		# 	field='doc.compiledRelease.contracts.suppliers.id.keyword'
-		# )
-		
-		todos.aggs.metric(
-			'distinct_buyers', 
+		proveedores.aggs.metric(
+			'total', 
 			'cardinality', 
-			precision_threshold=precision, 
-			field='doc.compiledRelease.buyer.id.keyword' 
+			precision_threshold=precision,
+			field='id.keyword' 
 		)
 		
-		oncae.aggs["contratos"].metric(
-			'distinct_contracts', 
+		todos.aggs.metric(
+			'distinct_buyers',
 			'cardinality',
-			precision_threshold=precision, 
-			field='doc.compiledRelease.contracts.id.keyword'
+			precision_threshold=precision,
+			field='doc.compiledRelease.buyer.id.keyword'
 		)
-		
+				
 		oncae.aggs.metric(
-			'procesos_contratacion', 
+			'procesos_contratacion',
 			'value_count',
 			field='doc.compiledRelease.ocid.keyword'
 		)
 
-		#Proveedores terms
-		oncae.aggs["contratos"].metric(
-			'proveedores_oncae',
-			'terms',
-			field='doc.compiledRelease.contracts.suppliers.id.keyword',
-			size=100000
-		)
-
-		sefin.aggs["contratos"].metric(
-			'proveedores_sefin',
-			'terms',
-			field='doc.compiledRelease.contracts.implementation.transactions.payee.id.keyword',
-			size=100000
+		sefin.aggs.metric(
+			'procesos_pagos',
+			'value_count',
+			field='doc.compiledRelease.ocid.keyword'
 		)
 
 		resultsONCAE = oncae.execute()
 		resultsSEFIN = sefin.execute()
 		resultsTODOS = todos.execute()
-
-		diccionario_proveedores = []
-		dfProveedores = pd.DataFrame(resultsSEFIN.aggregations.contratos.proveedores_sefin.to_dict()["buckets"])
-		
-		if resultsONCAE.aggregations.contratos.proveedores_oncae.to_dict()["buckets"]:
-			dfProveedores = dfProveedores.append(resultsONCAE.aggregations.contratos.proveedores_oncae.to_dict()["buckets"])
-		
-		if not dfProveedores.empty:
-			cantidad_proveedores = dfProveedores['key'].nunique()
-		else:
-			cantidad_proveedores = 0
-
-		# dfProveedores.to_csv(r'proveedores.csv', sep='\t', encoding='utf-8')
+		resultContratos = contratos.execute()
+		resultProveedores = proveedores.execute()
 
 		context = {
-			# "elasticsearch": cantidad_proveedores,
-			"contratos": resultsONCAE.aggregations.contratos.distinct_contracts.value,
+			"contratos": resultContratos.aggregations.cantidad.value,
 			"procesos": resultsONCAE.aggregations.procesos_contratacion.value,
 			"pagos": resultsSEFIN.aggregations.procesos_pagos.value,
 			"compradores": resultsTODOS.aggregations.distinct_buyers.value,
-			"proveedores": cantidad_proveedores
+			"proveedores": resultProveedores.aggregations.total.value
 		}
 
 		return Response(context)
@@ -332,7 +296,6 @@ class Buscador(APIView):
 
 	def get(self, request, format=None):
 		precision = 40000
-		sourceSEFIN = 'HN.SIAFI2'
 		noMoneda = 'Sin monto de contrato'
 		noMonedaPago = 'Sin monto pagado'
 
@@ -357,6 +320,7 @@ class Buscador(APIView):
 		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
+		# ss = Search(using=cliente, index='contract')
 
 		#Source
 		campos = ['doc.compiledRelease', 'extra']
@@ -369,7 +333,7 @@ class Buscador(APIView):
 
 		s.aggs["contratos"]["monedas"].metric("nProcesos", "reverse_nested")
 
-		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword')
+		s.aggs.metric('metodos_de_seleccion', 'terms', field='doc.compiledRelease.tender.procurementMethodDetails.keyword', size=50)
 
 		s.aggs.metric('instituciones', 'terms', field='extra.parentTop.name.keyword', size=10000)
 
@@ -378,9 +342,25 @@ class Buscador(APIView):
 		s.aggs.metric('organismosFinanciadores', 'terms', field='doc.compiledRelease.planning.budget.budgetBreakdown.classifications.organismo.keyword', size=2000)
 
 		if metodo == 'pago' or metodo == 'contrato':
-			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.date', interval='year', format='yyyy', min_doc_count=1)
+			s.aggs.metric(
+				'años', 
+				'date_histogram', 
+				field='doc.compiledRelease.date', 
+				interval='year', 
+				format='yyyy', 
+				min_doc_count=1,
+				time_zone=settings.ELASTICSEARCH_TIMEZONE
+			)
 		else:
-			s.aggs.metric('años', 'date_histogram', field='doc.compiledRelease.tender.tenderPeriod.startDate', interval='year', format='yyyy', min_doc_count=1)
+			s.aggs.metric(
+				'años',
+				'date_histogram', 
+				field='doc.compiledRelease.tender.tenderPeriod.startDate', 
+				interval='year', 
+				format='yyyy', 
+				min_doc_count=1,
+				time_zone=settings.ELASTICSEARCH_TIMEZONE
+			)
 
 		#resumen
 		s.aggs["contratos"].metric(
@@ -417,10 +397,15 @@ class Buscador(APIView):
 		)
 
 		if metodo == 'proceso':
+			#Filtro temporal mientras tender/status=withdraw
 			s = s.filter('exists', field='doc.compiledRelease.tender.id')
-
-			# Temporal
 			s = s.filter('exists', field='doc.compiledRelease.tender.localProcurementCategory')
+
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+			sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+			sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+			s = s.exclude(sistemaDDC & sistemaHC1)
 
 			s.aggs.metric(
 				'procesos_total', 
@@ -430,18 +415,17 @@ class Buscador(APIView):
 
 		if metodo == 'contrato':
 			filtro_contrato = Q('exists', field='doc.compiledRelease.contracts.id')
-			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 			s = s.query('nested', path='doc.compiledRelease.contracts', query=filtro_contrato)
 
 			s.aggs["contratos"].metric(
 				'procesos_total', 
-				'cardinality', 
-				precision_threshold=precision, 
+				'value_count', 
 				field='doc.compiledRelease.contracts.id.keyword'
 			)
 
 		if metodo == 'pago':
-			s = s.filter('match_phrase', doc__compiledRelease__sources__id=sourceSEFIN)
+			s = s.filter('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 
 			s.aggs.metric(
 				'procesos_total', 
@@ -470,9 +454,15 @@ class Buscador(APIView):
 
 		if year.replace(' ', ''):
 			if metodo == 'pago' or metodo == 'contrato':
-				s = s.filter('range', doc__compiledRelease__date={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
+				filtroFecha = {
+					'time_zone':settings.ELASTICSEARCH_TIMEZONE,
+					'gte': datetime.date(int(year), 1, 1), 
+					'lt': datetime.date(int(year)+1, 1, 1)
+				}
+
+				s = s.filter('range', doc__compiledRelease__date=filtroFecha)
 			else:
-				s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate={'gte': datetime.date(int(year), 1, 1), 'lt': datetime.date(int(year)+1, 1, 1)})
+				s = s.filter('range', doc__compiledRelease__tender__tenderPeriod__startDate=filtroFecha)
 
 		if term: 
 			if metodo == 'proceso':
@@ -566,9 +556,14 @@ class Buscador(APIView):
 			"total.items": results.hits.total
 		}
 
+		aniosBuckets = results.aggregations.años.to_dict()
+		aniosLista = aniosBuckets["buckets"]
+		aniosLista.reverse()
+		aniosBuckets["buckets"] = aniosLista
+
 		filtros = {}
 		filtros["monedas"] = results.aggregations.contratos.monedas.to_dict()
-		filtros["años"] = results.aggregations.años.to_dict()
+		filtros["años"] = aniosBuckets
 		filtros["categorias"] = results.aggregations.categorias.to_dict()
 		filtros["instituciones"] = results.aggregations.instituciones.to_dict()
 		filtros["metodos_de_seleccion"] = results.aggregations.metodos_de_seleccion.to_dict()
@@ -2206,8 +2201,12 @@ class ProcesosDelComprador(APIView):
 		# Sección de filtros
 		filtros = []
 
-		s = s.exclude('match_phrase', doc__compiledRelease__sources__id__keyword=sourceSEFIN)
-		s = s.filter('exists', field='doc.compiledRelease.tender')
+		# Solo procesos de contratación
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+		s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+		sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+		sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+		s = s.exclude(sistemaDDC & sistemaHC1)
 
 		if comprador.replace(' ',''):
 			filtro = Q("match", extra__buyerFullName=comprador)
@@ -3817,6 +3816,8 @@ class FiltrosDashboardONCAE(APIView):
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		sss = sss.exclude(sistemaCE & estadoOC)
 		sssFecha = sssFecha.exclude(sistemaCE & estadoOC)
+		ss = ss.exclude(sistemaCE & estadoOC)
+		ssFecha = ssFecha.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
@@ -4469,7 +4470,7 @@ class FiltrosDashboardONCAE(APIView):
 
 			sources = dfSistemas.to_dict('records')
 
-		#valores para filtros por categoria.
+		#valores para filtros por normativa.
 		normativas = []
 
 		for valor in normativasProcesos["buckets"]:
@@ -4523,7 +4524,8 @@ class FiltrosDashboardONCAE(APIView):
 		resultados["modalidades"] = modalidades
 		resultados["sistemas"] = sources
 
-		if tablero != 'c':
+		# Quitar false cuando la importacion de datos este lista.
+		if tablero != 'c' and False:
 			resultados["Normativas"] = normativas
 
 		parametros = {}
@@ -5216,11 +5218,13 @@ class GraficarMontosDeContratosMes(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -5466,11 +5470,13 @@ class EstadisticaCantidadDeContratos(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -5714,11 +5720,13 @@ class EstadisticaMontosDeContratos(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -5949,11 +5957,13 @@ class GraficarContratosPorCategorias(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -6139,11 +6149,13 @@ class GraficarContratosPorModalidad(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -6331,11 +6343,13 @@ class TopCompradoresPorMontoContratado(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -6955,11 +6969,13 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -7134,11 +7150,13 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -7313,11 +7331,13 @@ class IndicadorTopCompradores(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):
@@ -7549,7 +7569,7 @@ class IndicadorCatalogoElectronico(APIView):
 		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
 		# s = s.source(campos)
 
-		# Excluir compra conjunta asd
+		# Excluir compra conjunta
 		qTerm = Q('match', items__attributes__value='compra conjunta')
 		s = s.exclude('nested', path='items', query=qTerm)
 
@@ -7849,11 +7869,13 @@ class IndicadorContratosPorModalidad(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
+		s = s.exclude(sistemaCE & estadoOC)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
 		ss = ss.exclude(sistemaDC & estadoContrato)
+		s = s.exclude(sistemaDC & estadoContrato)
 
 		# # Filtros
 		if institucion.replace(' ', ''):

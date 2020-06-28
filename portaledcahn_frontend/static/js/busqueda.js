@@ -163,7 +163,9 @@ $("#campoBusquedaProceso").on("keydown",function(e){
 });  
 
 
+
 var resultadosTotal=[];
+
 function CargarElementosBusqueda(cargaFiltro){
   var parametros={
     pagina : ObtenerNumero(ObtenerValor("pagina")) ? ObtenerNumero(ObtenerValor("pagina")) : 1,
@@ -633,17 +635,10 @@ function AgregarResultadoProceso(datos){
 
 function ObtenerEstadoProceso(datos){
   var estado="";
-  if(datos.planning){
-    estado="Planificación";
-  }
-  if(datos.tender){
-    estado="Licitación";
-  }
-  if(datos.awards){
-    estado="Adjudicación";
-  }
   if(datos.contracts){
-    estado="Contrato";
+    estado="Contratado";
+  }else{
+    estado=datos.tender.statusDetails
   }
   return estado;
 }
@@ -683,15 +678,15 @@ function AgregarResultadoContrato(datos){
                   $("<a>",{class:"enlaceTablaGeneral",text:datos.ocid,href:"/proceso/"+datos.ocid})
                 )
               ):null,
+              contrato.status?$("<tr>",{class:""}).append(
+                $("<td>",{class:"tituloTablaCaracteristicas",text:"Estado:",toolTexto:"contracts[n].statusDetails"}),
+                $("<td>",{class:"contenidoTablaCaracteristicas"}).append($("<span>",{text: contrato.statusDetails?contrato.statusDetails:""}))
+              ):null,              
               datos.buyer?$("<tr>",{class:""}).append(
                 $("<td>",{class:"tituloTablaCaracteristicas",text:"Comprador:",toolTexto:"buyer.name"}).append(),
                 $("<td>",{class:"contenidoTablaCaracteristicas"}).append(
                   ObtenerElementosParte(datos.buyer.id,datos)
                 )
-              ):null,
-              contrato.status?$("<tr>",{class:""}).append(
-                $("<td>",{class:"tituloTablaCaracteristicas",text:"Estado:",toolTexto:"contracts[n].status"}),
-                $("<td>",{class:"contenidoTablaCaracteristicas"}).append($("<span>",{text: estadosContrato[contrato.status]?estadosContrato[contrato.status].titulo:"",toolTexto:estadosContrato[contrato.status]?estadosContrato[contrato.status].descripcion:""}))
               ):null,
               contrato.suppliers?$("<tr>",{class:""}).append(
                 $("<td>",{class:"tituloTablaCaracteristicas",text:"Proveedor:",toolTexto:"contracts[n].suppliers[n].name"}).append(),
@@ -702,7 +697,7 @@ function AgregarResultadoContrato(datos){
               contrato.dateSigned?$("<tr>",{class:""}).append(
                 $("<td>",{class:"tituloTablaCaracteristicas",text:"Fecha de Firma:",toolTexto:"contracts[n].dateSigned"}),
                 $("<td>",{class:"contenidoTablaCaracteristicas"}).append(
-                  $("<span>",{toolTexto:"Fecha en que fue firmado el contrato por todas las partes",text:ObtenerFecha(datos.dateSigned)})
+                  $("<span>",{toolTexto:"Fecha en que fue firmado el contrato por todas las partes",text:ObtenerFecha(contrato.dateSigned)})
                 )
               ):null
               

@@ -44,8 +44,8 @@
                Busca, explora y visualiza las contrataciones <br>de las instituciones del gobierno de Honduras
             </h1>
          </div>
-         <div class="row mt-5 mb-3 contenedorEstadisticaInicial animated fadeIn" style="display:none">
 
+         <div class="row mt-5 mb-3 contenedorEstadisticaInicial animated fadeIn" style="display:none">
             <div class="col-6 col-sm-2 col-md-2 col-lg-2 offset-lg-1 offset-md-1 offset-sm-1 p-2">
                <div class="numeroTitularEstadistico textoColorBlanco tiempo" data-speed="1000" data-refresh-interval="20" data-from="0" data-to="0" id="proveedores" toolTexto="<b>Cantidad de Proveedores</b><br><div style='text-align:left'>Fuente de Datos:<br>- HonduCompras 1.0 - Módulo de Difusión de Compras y Contrataciones.<br>- Módulo de Difusión Directa de Contratos.<br>- Catálogo Electrónico.<br>- Sistema de Administración Financiera Integrada (SIAFI).<div>">0</div>
                <div class="divisorNumeroTitularEstadistico fondoColorBlanco"></div>
@@ -120,5 +120,15 @@
 
 {% block script_content %}
 <script src="{% static 'js/inicio.js' %}"></script>
+
+<script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", function () {
+      var form = document.getElementById("form_buscar");
+
+      document.getElementById("botonBusquedaProceso").addEventListener("click", function () {
+        form.submit();
+      });
+    });
+</script>
 {% endblock %}
 

@@ -65,17 +65,16 @@ function DefinirElementosContrato(){
     for(var i = 0; i< contratos.length;i++){
       elementos.push(
         $("<a>",{
-          class:"nav-link enlaceContrato transicion "+(i===0?"active":""),
-          id:"'X"+SanitizarId(contratos[parseInt(i)].id)+"ContratoTab",
+          class:("nav-link enlaceContrato transicion "+(i===0?"active":"")),
+          id:"X"+SanitizarId(contratos[parseInt(i)].id)+"ContratoTab",
           "data-toggle":"pill",
-          href:"X"+SanitizarId(contratos[parseInt(i)].id)+"ContratoContenido",
+          href:"#X"+SanitizarId(contratos[parseInt(i)].id)+"ContratoContenido",
           role:"tab",
           "aria-controls":"X"+SanitizarId(contratos[parseInt(i)].id)+"ContratoContenido",
           "aria-selected":"true",
           text:contratos[parseInt(i)].id
         })
-        /*$('<a class="nav-link enlaceContrato transicion '+(i===0?'active':'')+'" id="'+'X'+SanitizarId(contratos[parseInt(i)].id)+'ContratoTab" data-toggle="pill" href="#'+'X'+SanitizarId(contratos[parseInt(i)].id)+'ContratoContenido" role="tab" aria-controls="'+'X'+SanitizarId(contratos[parseInt(i)].id)+'ContratoContenido" aria-selected="true"></a>').text(contratos[parseInt(i)].id
-        )*/
+    
       )
     }
     return elementos;

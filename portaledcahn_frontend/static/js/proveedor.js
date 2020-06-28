@@ -347,6 +347,18 @@ function AnadirDatosProveedor(){
                                                 
                                         )
                                   ))):null),
+
+                        (datosProveedor.identifier.scheme?
+                            $('<div>',{class:'contenedorTablaCaracteristicas',style:'width:100%'}).append(
+                                $('<table>').append(
+                                  $('<tbody>').append(
+                                    $('<tr>').append(
+                                        $('<td>',{class:'tituloTablaCaracteristicas',toolTexto:"parties[n].identifier.scheme"}).text('Esquema de identificación:'),
+                                        $('<td>',{class:'contenidoTablaCaracteristicas'})).append(
+                                            $('<span>').text(datosProveedor.identifier.scheme),                                              
+                                        )
+                                  ))):null),
+
                         (datosProveedor.address&&datosProveedor.address.streetAddress?
                         $('<div>',{class:'contenedorTablaCaracteristicas',style:'width:100%'}).append(
                             $('<table>').append(
@@ -572,7 +584,7 @@ function CargarContratosProveedor(){
                 
                 
                 ),
-          
+                
           $('<td>',{'data-label':'Fecha de Firma del Contrato' ,class:'textoAlineadoCentrado'}).append(
             /*
             $('<span>',{class:resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.period&&resultados[parseInt(i)]._source.period.startDate&&resultados[parseInt(i)]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
@@ -583,11 +595,12 @@ function CargarContratosProveedor(){
               resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.dateSigned&&resultados[parseInt(i)]._source.dateSigned!='NaT'?ObtenerFecha(resultados[parseInt(i)]._source.dateSigned,'fecha'):'No Disponible'
           )
             
-            ),
+            ),          
           $('<td>',{'data-label':'Fecha de Inicio del Contrato' ,class:'textoAlineadoCentrado'}).append(
            /* $('<span>',{class:resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.dateSigned&&resultados[parseInt(i)]._source.dateSigned!='NaT'?'':'textoColorGris' }).text(
                 resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.dateSigned&&resultados[parseInt(i)]._source.dateSigned!='NaT'?ObtenerFecha(resultados[parseInt(i)]._source.dateSigned,'fecha'):'No Disponible'
             )*/
+
             $('<span>',{class:resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.period&&resultados[parseInt(i)]._source.period.startDate&&resultados[parseInt(i)]._source.period.startDate!='NaT'?'':'textoColorGris' }).text(
               resultados[parseInt(i)]&&resultados[parseInt(i)]._source&&resultados[parseInt(i)]._source.period&&resultados[parseInt(i)]._source.period.startDate&&resultados[parseInt(i)]._source.period.startDate!='NaT'?ObtenerFecha(resultados[parseInt(i)]._source.period.startDate,'fecha'):'No Disponible'
           )
@@ -1053,6 +1066,7 @@ function AgregarFilaPago(resultados,selector,i){
     (ValidarCadena(opciones.tituloPag)? '&tituloPag='+encodeURIComponent(opciones.tituloPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
     (ValidarCadena(opciones.montoPag) ? '&montoPag='+encodeURIComponent(reemplazarValor(opciones.montoPag,',','')):(ValidarCadena(ObtenerValor('montoPag'))&&!desUrl?'&montoPag='+ObtenerValor('montoPag'):''))+
     (ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(reemplazarValor(opciones.pagosPag,',','')): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
+    
     //(ValidarCadena(opciones.pagosPag)? '&pagosPag='+encodeURIComponent(opciones.pagosPag): (ValidarCadena(ObtenerValor('tituloPag'))&&!desUrl?'&tituloPag='+ObtenerValor('tituloPag'):''))+
     (ValidarCadena(opciones.fechaPag) ? '&fechaPag='+encodeURIComponent(reemplazarValor(opciones.fechaPag,',','')):(ValidarCadena(ObtenerValor('fechaPag'))&&!desUrl?'&fechaPag='+ObtenerValor('fechaPag'):''))+
     (ValidarCadena(opciones.ordenarPorPag) ? '&ordenarPorPag='+encodeURIComponent(opciones.ordenarPorPag):(ValidarCadena(ObtenerValor('ordenarPorPag'))&&!desUrl?'&ordenarPorPag='+ObtenerValor('ordenarPorPag'):''))+
