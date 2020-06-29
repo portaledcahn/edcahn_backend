@@ -94,7 +94,7 @@ function ObtenerProceso(){
     EliminarEventoModalDescarga("descargaCsvProceso");
     EliminarEventoModalDescarga("descargaXlsxProceso");
     $.get(api+'/record/'+procesoOcid/*url+'/static/'+procesoOcid+'.json'*/,function(datos){
-      console.dir(datos)
+    
       if(datos&&!datos.detail){
        // download(JSON.stringify(datos), "json.txt", "text/plain");
         $("#procesoCargaContedor").show();
@@ -113,7 +113,7 @@ function ObtenerProceso(){
         VerificarIntroduccion("INTROJS_PROCESO",1);
         
         OcultarEspera("body .tamanoMinimo");
-        console.dir(datos)
+        
         InicializarDescargas();
         
 
@@ -505,8 +505,7 @@ function AnadirElementosPartes(partes){
       )
     )
     for(var i=0;i<partes.length;i++){
-      console.dir("PARTES");
-      console.dir(partes);
+     
       elementos.push(
         $("<div>",{class:"col-md-12"}).append(
           $("<h4>",{class:"titularCajonSombreado"}).append(

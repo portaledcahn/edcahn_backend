@@ -149,7 +149,7 @@ $(".opcionFiltroBusquedaPagina").on("click",function(e){
    }
   });
   $(".metodoBusquedaContenedor a[name='metodoBusqueda']").on("click",function(e){
-      location.href=AccederBusqueda({metodo:$(e.currentTarget).attr("metodo")},true);
+      location.href=AccederBusqueda({metodo:$(e.currentTarget).attr("metodo"),pagina:1},true);
   });
 
 $("#botonBusquedaProceso").on("click",function(e){
