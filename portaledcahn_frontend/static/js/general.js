@@ -307,7 +307,31 @@ function ContenerCadena(texto,palabra){
  */
 function SanitizarId(texto){
     texto=ObtenerTexto(texto);
-    return reemplazarValor(reemplazarValor(reemplazarValor(texto,'\\\\',''),'/',''),' ','');
+    texto=reemplazarValor(texto,'\\\\','_1');
+    texto=reemplazarValor(texto,'\\/','_2');
+    texto=reemplazarValor(texto,' ','_3');
+    texto=reemplazarValor(texto,'\\.','_4');
+    texto=reemplazarValor(texto,'\n','_5');
+    texto=reemplazarValor(texto,'\t','_6');
+    texto=reemplazarValor(texto,'"','_7');
+    texto=reemplazarValor(texto,"'",'_8');
+    texto=reemplazarValor(texto,",",'_9');
+    texto=reemplazarValor(texto,"\\+",'_10');
+    texto=reemplazarValor(texto,"\\*",'_11');
+    texto=reemplazarValor(texto,"=",'_12');
+    texto=reemplazarValor(texto,"\\(",'_13');
+    texto=reemplazarValor(texto,"\\)",'_14');
+    texto=reemplazarValor(texto,"\\}",'_15');
+    texto=reemplazarValor(texto,"\\{",'_16');
+    texto=reemplazarValor(texto,"\\]",'_17');
+    texto=reemplazarValor(texto,"\\[",'_18');
+    texto=reemplazarValor(texto,"#",'_19');
+    texto=reemplazarValor(texto,"$",'_20');
+    texto=reemplazarValor(texto,"%",'_21');
+    texto=reemplazarValor(texto,"&",'_22');
+    texto=reemplazarValor(texto,"\\?",'_23');
+    texto=reemplazarValor(texto,"¿",'_24');
+    return texto;
 }
 
 /**
@@ -320,9 +344,7 @@ function SanitizarId(texto){
 function reemplazarValor(texto,nombre,reemplazo)
 {   
     var regular=new RegExp(nombre, "g");
-    while(regular.test(texto)){
-      texto=texto.replace(nombre,reemplazo);
-    }
+    texto=texto.replace(regular,reemplazo);
     return texto;
   }
 /**
@@ -892,7 +914,7 @@ function DescargarCSV(arreglo,nombre){
 if(arreglo.length>1){
     var cadenaCSV='';
     arreglo.forEach(function(fila,indice){
-        fila=fila.map(function(e){return '"'+reemplazarValor(/*reemplazarValor(reemplazarValor(e,'\n',' '),',','.')*/e,'"',"'")+'"';});
+        fila=fila.map(function(e){return '"'+reemplazarValor(e,'"',"'")+'"';});
         cadenaCSV+=fila.join(',')+((indice<arreglo.length-1)?'\n':'');
     });
 

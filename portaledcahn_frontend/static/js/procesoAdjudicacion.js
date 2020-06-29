@@ -452,8 +452,7 @@ function ObtenerTodoslosItemsAdjudicacion(){
       elementos=elementos.concat(ObtenerItemsAdjudicaciones(procesoRecord.compiledRelease.awards[parseInt(i)].items,procesoRecord.compiledRelease.awards[parseInt(i)].id));
     }
   }
-  console.dir('items')
-  console.dir(elementos)
+
   return elementos;
 }
 
