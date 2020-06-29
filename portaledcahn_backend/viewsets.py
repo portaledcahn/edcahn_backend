@@ -4552,7 +4552,7 @@ class FiltrosDashboardONCAE(APIView):
 		resultados["sistemas"] = sources
 
 		# Quitar false cuando la importacion de datos este lista.
-		if tablero != 'c' and False:
+		if tablero != 'c':
 			resultados["Normativas"] = normativas
 
 		parametros = {}
