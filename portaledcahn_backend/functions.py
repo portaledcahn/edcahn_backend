@@ -277,6 +277,7 @@ proceso_csv = dict([
 	("Estado del proceso", "doc.compiledRelease.tender.statusDetails"),
 	("Periodo de invitación - Recepción de ofertas", "extra.daysTenderPeriod"),
 	("Etapa OCDS", "extra.lastSection"),
+	("Normativa", "doc.compiledRelease.tender.legalBasis.description"),
 	("Fuente de datos", "doc.compiledRelease.sources.0.name"),
 ])
 
@@ -302,6 +303,7 @@ contrato_csv = dict([
 	("Estado","statusDetails"),
 	("Tipo Adquisición", "localProcurementCategory"),
 	("Modalidad", "extra.tenderProcurementMethodDetails"),
+	("Normativa", "extra.tenderLegalBasis.description"),
 	("Fuente de datos","extra.sources.0.name"),
 ])
 

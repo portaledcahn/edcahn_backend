@@ -3943,9 +3943,9 @@ class FiltrosDashboardONCAE(APIView):
 			sss = sss.filter('match_phrase', extra__sources__id__keyword=sistema)
 
 		if normativa.replace(' ', ''):
-			if normativa == 'No Definido':			
-				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
-				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+			if normativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.tender.legalBasis.description.keyword') 
+				qqNormativa = Q('exists', field='extra.tenderLegalBasis.description.keyword')
 				s = s.filter('bool', must_not=qNormativa)
 				ss = ss.filter('bool', must_not=qqNormativa)
 				sss = sss.filter('bool', must_not=qqNormativa)
@@ -3954,13 +3954,13 @@ class FiltrosDashboardONCAE(APIView):
 				ssFecha = ssFecha.filter('bool', must_not=qqNormativa)
 				sssFecha = sssFecha.filter('bool', must_not=qqNormativa)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
-				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
-				sss = sss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__legalBasis__description__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
+				sss = sss.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
 
-				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__localProcurementCategory__keyword=normativa)
-				ssFecha = ssFecha.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
-				sssFecha = sssFecha.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				sFecha = sFecha.filter('match_phrase', doc__compiledRelease__tender__legalBasis__description__keyword=normativa)
+				ssFecha = ssFecha.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
+				sssFecha = sssFecha.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
 
 		cantidadInstituciones = 50
 
@@ -4154,7 +4154,7 @@ class FiltrosDashboardONCAE(APIView):
 			'normativasProcesos', 
 			'terms', 
 			missing='No Definido',
-			field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword', 
+			field='doc.compiledRelease.tender.legalBasis.description.keyword', 
 			size=10000
 		)
 
@@ -4162,7 +4162,7 @@ class FiltrosDashboardONCAE(APIView):
 			'normativasContratosFechaFirma', 
 			'terms', 
 			missing='No Definido',
-			field='extra.fuentesONCAE.keyword', 
+			field='extra.tenderLegalBasis.description.keyword', 
 			size=10000
 		)
 
@@ -4170,7 +4170,7 @@ class FiltrosDashboardONCAE(APIView):
 			'normativasContratosFechaInicio', 
 			'terms',
 			missing='No Definido', 
-			field='extra.fuentesONCAE.keyword', 
+			field='extra.tenderLegalBasis.description.keyword', 
 			size=10000
 		)
 
@@ -4544,8 +4544,7 @@ class FiltrosDashboardONCAE(APIView):
 		resultados["modalidades"] = modalidades
 		resultados["sistemas"] = sources
 
-		# Quitar false cuando la importacion de datos este lista.
-		if tablero != 'c' and False:
+		if tablero != 'c':
 			resultados["Normativas"] = normativas
 
 		parametros = {}
@@ -4633,10 +4632,10 @@ class GraficarProcesosPorCategorias(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				qNormativa = Q('exists', field='doc.compiledRelease.tender.legalBasis.description.keyword') 
 				s = s.filter('bool', must_not=qNormativa)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__legalBasis__description__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -4755,10 +4754,10 @@ class GraficarProcesosPorModalidad(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				qNormativa = Q('exists', field='doc.compiledRelease.tender.legalBasis.description.keyword') 
 				s = s.filter('bool', must_not=qNormativa)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__legalBasis__description__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -4888,10 +4887,10 @@ class GraficarCantidadDeProcesosMes(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				qNormativa = Q('exists', field='doc.compiledRelease.tender.legalBasis.description.keyword') 
 				s = s.filter('bool', must_not=qNormativa)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__legalBasis__description__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -5036,10 +5035,10 @@ class EstadisticaCantidadDeProcesos(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				qNormativa = Q('exists', field='doc.compiledRelease.tender.legalBasis.description.keyword') 
 				s = s.filter('bool', must_not=qNormativa)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__legalBasis__description__keyword=normativa)
 
 		#Agregados
 		s.aggs.metric(
@@ -5167,10 +5166,10 @@ class GraficarProcesosPorEtapa(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword') 
+				qNormativa = Q('exists', field='doc.compiledRelease.tender.legalBasis.description.keyword') 
 				s = s.filter('bool', must_not=qNormativa)
 			else:
-				s = s.filter('match_phrase', doc__compiledRelease__planning__budget__budgetBreakdown__sourceParty__name__keyword=normativa)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__legalBasis__description__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -5315,12 +5314,12 @@ class GraficarMontosDeContratosMes(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				qqNormativa = Q('exists', field='extra.tenderLegalBasis.description.keyword')
 				s = s.filter('bool', must_not=qqNormativa)
 				ss = ss.filter('bool', must_not=qqNormativa)
 			else:
-				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
-				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				s = s.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
 
 		# Agregados
 
@@ -5567,12 +5566,12 @@ class EstadisticaCantidadDeContratos(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				qqNormativa = Q('exists', field='extra.tenderLegalBasis.description.keyword')
 				s = s.filter('bool', must_not=qqNormativa)
 				ss = ss.filter('bool', must_not=qqNormativa)
 			else:
-				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
-				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				s = s.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
 
 		# Agregados
 
@@ -5817,12 +5816,12 @@ class EstadisticaMontosDeContratos(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				qqNormativa = Q('exists', field='extra.tenderLegalBasis.description.keyword')
 				s = s.filter('bool', must_not=qqNormativa)
 				ss = ss.filter('bool', must_not=qqNormativa)
 			else:
-				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
-				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				s = s.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
 
 		# Agregados
 
@@ -6054,12 +6053,12 @@ class GraficarContratosPorCategorias(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				qqNormativa = Q('exists', field='extra.tenderLegalBasis.description.keyword')
 				s = s.filter('bool', must_not=qqNormativa)
 				ss = ss.filter('bool', must_not=qqNormativa)
 			else:
-				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
-				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				s = s.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -6246,12 +6245,12 @@ class GraficarContratosPorModalidad(APIView):
 		
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				qqNormativa = Q('exists', field='extra.tenderLegalBasis.description.keyword')
 				s = s.filter('bool', must_not=qqNormativa)
 				ss = ss.filter('bool', must_not=qqNormativa)
 			else:
-				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
-				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				s = s.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -6440,12 +6439,12 @@ class TopCompradoresPorMontoContratado(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				qqNormativa = Q('exists', field='extra.tenderLegalBasis.description.keyword')
 				s = s.filter('bool', must_not=qqNormativa)
 				ss = ss.filter('bool', must_not=qqNormativa)
 			else:
-				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
-				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				s = s.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
+				ss = ss.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -6656,10 +6655,10 @@ class TopProveedoresPorMontoContratado(APIView):
 
 		if normativa.replace(' ', ''):
 			if normativa == 'No Definido':
-				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+				qqNormativa = Q('exists', field='extra.tenderLegalBasis.description.keyword')
 				s = s.filter('bool', must_not=qqNormativa)
 			else:
-				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=normativa)
+				s = s.filter('match_phrase', extra__tenderLegalBasis__description__keyword=normativa)
 
 		# Agregados
 		s.aggs.metric(
@@ -6877,14 +6876,14 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 
 
 		if pnormativa.replace(' ', ''):
-			if normativa == 'No Definido':
-				qNormativa = Q('exists', field='doc.compiledRelease.planning.budget.budgetBreakdown.sourceParty.name.keyword')
-				qqNormativa = Q('exists', field='extra.fuentesONCAE.keyword')
+			if pnormativa == 'No Definido':
+				qNormativa = Q('exists', field='doc.compiledRelease.tender.legalBasis.description.keyword')
+				qqNormativa = Q('exists', field='extra.tenderLegalBasis.description.keyword')
 				s = s.filter('bool', must_not=qNormativa)
 				ss = ss.filter('bool', must_not=qqNormativa)
 			else:
-				s = s.filter('match_phrase', extra__fuentesONCAE__keyword=pnormativa)
-				ss = ss.filter('match_phrase', extra__fuentesONCAE__keyword=pnormativa)
+				s = s.filter('match_phrase', doc__compiledRelease__tender__legalBasis__description__keyword=pnormativa)
+				ss = ss.filter('match_phrase', extra__tenderLegalBasis__description__keyword=pnormativa)
 
 		# Agregados
 
@@ -6924,6 +6923,9 @@ class GraficarProcesosTiposPromediosPorEtapa(APIView):
 			field='extra.tiempoContrato'
 		)
 		
+		# return DescargarProcesosCSV(request, s)
+		# return DescargarContratosCSV(request, ss)
+
 		results = s.execute()
 		results2 = ss.execute()
 
