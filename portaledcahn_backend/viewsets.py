@@ -323,6 +323,7 @@ class Buscador(APIView):
 		cliente = ElasticSearchDefaultConnection()
 
 		s = Search(using=cliente, index='edca')
+		# ss = Search(using=cliente, index='contract')
 
 		#Source
 		campos = ['doc.compiledRelease', 'extra']
@@ -401,6 +402,12 @@ class Buscador(APIView):
 		if metodo == 'proceso':
 			s = s.filter('exists', field='doc.compiledRelease.tender.id')
 			s = s.exclude('match_phrase', doc__compiledRelease__tender__status__keyword='withdrawn')
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
+			s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
+			sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
+			sistemaHC1 = ~Q('match_phrase', doc__compiledRelease__sources__id='honducompras-1')
+			s = s.exclude(sistemaDDC & sistemaHC1)
+
 			s = s.exclude('match_phrase', doc__compiledRelease__sources__id=settings.SOURCE_SEFIN_ID)
 			s = s.exclude('match_phrase', doc__compiledRelease__sources__id='catalogo-electronico')
 			sistemaDDC = Q('match_phrase', doc__compiledRelease__sources__id='difusion-directa-contrato')
@@ -3838,7 +3845,7 @@ class FiltrosDashboardONCAE(APIView):
 		
 		sss = sss.exclude(sistemaCE & estadoOC)
 		sssFecha = sssFecha.exclude(sistemaCE & estadoOC)
-		
+
 		ss = ss.exclude(sistemaCE & estadoOC)
 		ssFecha = ssFecha.exclude(sistemaCE & estadoOC)
 
@@ -4544,7 +4551,8 @@ class FiltrosDashboardONCAE(APIView):
 		resultados["modalidades"] = modalidades
 		resultados["sistemas"] = sources
 
-		if tablero != 'c':
+		# Quitar false cuando la importacion de datos este lista.
+		if tablero != 'c' and False:
 			resultados["Normativas"] = normativas
 
 		parametros = {}
