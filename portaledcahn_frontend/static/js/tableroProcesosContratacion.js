@@ -1146,7 +1146,7 @@ function TiempoPromedioEtapas(){
             grid: {
                 left: "3%",
                 right: "4%",
-                bottom: "3%",
+                bottom: "6%",
                 containLabel: true
             },
             toolbox: {
