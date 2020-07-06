@@ -242,6 +242,10 @@ class Index(APIView):
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		contratos = contratos.exclude(sistemaCE & estadoOC)
 
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		contratos = contratos.exclude(sistemaCE & sinMonto)
+
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
@@ -3849,6 +3853,15 @@ class FiltrosDashboardONCAE(APIView):
 		ss = ss.exclude(sistemaCE & estadoOC)
 		ssFecha = ssFecha.exclude(sistemaCE & estadoOC)
 
+		## Solo ordenes de compra con monto contratado. 
+		sinMonto = ~Q('exists', field='value.amount') 
+
+		sss = sss.exclude(sistemaCE & sinMonto)
+		sssFecha = sssFecha.exclude(sistemaCE & sinMonto)
+
+		ss = ss.exclude(sistemaCE & sinMonto)
+		ssFecha = ssFecha.exclude(sistemaCE & sinMonto)
+
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
@@ -5298,6 +5311,11 @@ class GraficarMontosDeContratosMes(APIView):
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
 
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
+
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
@@ -5550,6 +5568,11 @@ class EstadisticaCantidadDeContratos(APIView):
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
 
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
+
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
@@ -5800,6 +5823,11 @@ class EstadisticaMontosDeContratos(APIView):
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
 
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
+
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
@@ -6037,6 +6065,11 @@ class GraficarContratosPorCategorias(APIView):
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
 
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
+
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
@@ -6228,6 +6261,11 @@ class GraficarContratosPorModalidad(APIView):
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
+
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
@@ -6422,6 +6460,11 @@ class TopCompradoresPorMontoContratado(APIView):
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
+
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
@@ -6647,6 +6690,10 @@ class TopProveedoresPorMontoContratado(APIView):
 		sistemaCE = Q('match_phrase', extra__sources__id='catalogo-electronico')
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		s = s.exclude(sistemaCE & estadoOC)
+
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		s = s.exclude(sistemaCE & sinMonto)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
@@ -7057,6 +7104,11 @@ class IndicadorMontoContratadoPorCategoria(APIView):
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
 
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
+
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
@@ -7238,6 +7290,11 @@ class IndicadorCantidadProcesosPorCategoria(APIView):
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
 
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
+
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
 		estadoContrato = Q('match_phrase', statusDetails='Cancelado')
@@ -7418,6 +7475,11 @@ class IndicadorTopCompradores(APIView):
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
+
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
@@ -7651,6 +7713,10 @@ class IndicadorCatalogoElectronico(APIView):
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		s = s.exclude(estadoOC)
 
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount') 
+		s = s.exclude(sinMonto)
+
 		# Source 
 		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
 		# s = s.source(campos)
@@ -7804,6 +7870,10 @@ class IndicadorCompraConjunta(APIView):
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		s = s.exclude(estadoOC)
 
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount') 
+		s = s.exclude(sinMonto)
+
 		# Source 
 		campos = ['items.unit','items.quantity', 'items.extra', 'items.attributes']
 		# s = s.source(campos)
@@ -7956,6 +8026,11 @@ class IndicadorContratosPorModalidad(APIView):
 		estadoOC = ~Q('match_phrase', statusDetails='Impreso')
 		ss = ss.exclude(sistemaCE & estadoOC)
 		s = s.exclude(sistemaCE & estadoOC)
+
+		## Solo contratos de ordenes de compra con monto contratado.
+		sinMonto = ~Q('exists', field='value.amount')
+		ss = ss.exclude(sistemaCE & sinMonto)
+		s = s.exclude(sistemaCE & sinMonto)
 
 		## Quitando contratos cancelados en difusion directa. 
 		sistemaDC = Q('match_phrase', extra__sources__id='difusion-directa-contrato')
