@@ -5190,16 +5190,50 @@ class GraficarProcesosPorEtapa(APIView):
 			'procesosPorSeccion', 
 			'terms', 
 			missing='No Definido',
-			field='extra.lastSection.keyword' 
+			field='doc.compiledRelease.tender.statusDetails.keyword'
 		)
 		
+		s.aggs["procesosPorSeccion"].metric(
+			'seccion',
+			'terms',
+			field='extra.lastSection.keyword'
+		)
+
 		results = s.execute()
 
 		totalProcesos = results.aggregations.totalProcesos["value"]
 
 		aggs = results.aggregations.procesosPorSeccion.to_dict()
 
+		print(aggs)
+
+		sortEtapas = {
+			"Elaboración": 1,
+			"Revisado": 2,
+			"Recepción de Ofertas": 3,
+			"Evaluación": 4,
+			"Adjudicado": 5,
+			"Contrato": 6,
+			"Desierto": 7,
+			"Fracasados": 8,
+		}
+
 		for bucket in aggs["buckets"]:
+			if bucket["key"] in sortEtapas:
+				bucket["sort"] = sortEtapas[bucket["key"]]
+
+			if bucket["key"] == 'Adjudicado':
+				for seccion in bucket["seccion"]["buckets"]:
+					if seccion['key'] == 'contracts':
+						seccion['key'] = 'Contrato'
+						bucket["doc_count"] = bucket["doc_count"] - seccion['doc_count']
+						seccion["sort"] = sortEtapas[seccion["key"]]
+
+						aggs["buckets"].append(seccion)
+		
+		aggsOrdenado = sorted(aggs["buckets"], key=lambda k: k['sort'], reverse=False) 
+
+		for bucket in aggsOrdenado:
 			secciones.append(bucket["key"])
 			procesosSeccion.append(bucket["doc_count"])
 

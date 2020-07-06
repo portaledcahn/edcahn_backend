@@ -1018,7 +1018,10 @@ function CantidadProcesosEtapas(){
                     },
                     name :"Etapas",
                     axisLabel:{
-                        showMinLabel:true
+                        showMinLabel:true,
+                        formatter:function(e){
+                          return ObtenerParrafo(e, 11)
+                        }
                     }
                 }
             ],

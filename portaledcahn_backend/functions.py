@@ -304,6 +304,7 @@ contrato_csv = dict([
 	("Tipo Adquisición", "localProcurementCategory"),
 	("Modalidad", "extra.tenderProcurementMethodDetails"),
 	("Normativa", "extra.tenderLegalBasis.description"),
+	("Fecha fin recepción de ofertas", "extra.tenderPeriodEndDate"),	
 	("Fuente de datos","extra.sources.0.name"),
 ])
 
