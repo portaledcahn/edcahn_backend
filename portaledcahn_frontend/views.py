@@ -55,8 +55,8 @@ def Comprador(request,id=''):
         "fechaFirmaCon" : request.GET.get('fechaFirmaCon','').replace(">", "").replace("<", "").replace("==", ""),
         "fechaInicioCon" : request.GET.get('fechaInicioCon','').replace(">", "").replace("<", "").replace("==", ""),
         "montoCon" : request.GET.get('montoCon','').replace(">", "").replace("<", "").replace("==", ""),
-        "dependencias" : int(request.GET.get('dependencias','0')),
-        "paginarPorCon" : int(request.GET.get('paginarPorCon','5')),
+        "dependencias" : request.GET.get('dependencias','0'),
+        "paginarPorCon" : request.GET.get('paginarPorCon','5'),
         "ordenarPorCon" : request.GET.get('ordenarPorCon',''),
         "id":id.replace('"',''),
         "compradorPag" : request.GET.get('compradorPag',''),
@@ -66,7 +66,7 @@ def Comprador(request,id=''):
         "fechaPag" : request.GET.get('fechaPag','').replace(">", "").replace("<", "").replace("==", ""),
         "montoPag" : request.GET.get('montoPag','').replace(">", "").replace("<", "").replace("==", ""),
         "pagosPag" : request.GET.get('pagosPag','').replace(">", "").replace("<", "").replace("==", ""),
-        "paginarPorPag" : int(request.GET.get('paginarPorPag','5')),
+        "paginarPorPag" : request.GET.get('paginarPorPag','5'),
         "ordenarPorPag" : request.GET.get('ordenarPorPag',''),
 
         "compradorPro" : request.GET.get('compradorPro',''),
@@ -79,7 +79,7 @@ def Comprador(request,id=''):
         "fechaRecepcionPro" : request.GET.get('fechaRecepcionPro','').replace(">", "").replace("<", "").replace("==", ""),
         "fechaPublicacionPro" : request.GET.get('fechaPublicacionPro','').replace(">", "").replace("<", "").replace("==", ""),
         
-        "paginarPorPro" : int(request.GET.get('paginarPorPro','5')),
+        "paginarPorPro" : request.GET.get('paginarPorPro','5'),
         "ordenarPorPro" : request.GET.get('ordenarPorPro','')
     }
     parametros['operadorfechaFirmaCon'] = verificarOperador(request.GET.get('fechaFirmaCon',''))
@@ -138,7 +138,7 @@ def Compradores(request):
       "cp" : request.GET.get('cp','').replace(">", "").replace("<", "").replace("==", ""),
       "dependencias" : request.GET.get('dependencias','0'),
       "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("==", ""),
-      "paginarPor" : int(request.GET.get('paginarPor','5')),
+      "paginarPor" : request.GET.get('paginarPor','5'),
       "ordenarPor" : request.GET.get('ordenarPor','')
     }
     parametros['operadortmc'] = verificarOperador(request.GET.get('tmc',''))
@@ -192,7 +192,7 @@ def Proveedor(request,id=''):
       "fechaFirmaCon" : request.GET.get('fechaFirmaCon','').replace(">", "").replace("<", "").replace("==", ""),
       "fechaInicioCon" : request.GET.get('fechaInicioCon','').replace(">", "").replace("<", "").replace("==", ""),
       "montoCon" : request.GET.get('montoCon','').replace(">", "").replace("<", "").replace("==", ""),
-      "paginarPorCon" : int(request.GET.get('paginarPorCon','5')),
+      "paginarPorCon" : request.GET.get('paginarPorCon','5'),
       "ordenarPorCon" : request.GET.get('ordenarPorCon',''),
       "id":id.replace('"',''),
       "compradorPag" : request.GET.get('compradorPag',''),
@@ -201,12 +201,12 @@ def Proveedor(request,id=''):
       "fechaPag" : request.GET.get('fechaPag','').replace(">", "").replace("<", "").replace("==", ""),
       "montoPag" : request.GET.get('montoPag','').replace(">", "").replace("<", "").replace("==", ""),
       "pagosPag" : request.GET.get('pagosPag','').replace(">", "").replace("<", "").replace("==", ""),
-      "paginarPorPag" : int(request.GET.get('paginarPorPag','5')),
+      "paginarPorPag" : request.GET.get('paginarPorPag','5'),
       "ordenarPorPag" : request.GET.get('ordenarPorPag',''),
       "clasificacionPro" : request.GET.get('clasificacionPro',''),
       "montoPro" : request.GET.get('montoPro','').replace(">", "").replace("<", "").replace("==", ""),
       "cantidadContratosPro" : request.GET.get('cantidadContratosPro','').replace(">", "").replace("<", "").replace("==", ""),
-      "paginarPorPro" : int(request.GET.get('paginarPorPro','5')),
+      "paginarPorPro" : request.GET.get('paginarPorPro','5'),
       "ordenarPorPro" : request.GET.get('ordenarPorPro',''),
     }
     parametros['operadorfechaFirmaCon'] = verificarOperador(request.GET.get('fechaFirmaCon',''))
@@ -263,7 +263,7 @@ def Proveedores(request):
       "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("==", ""),
       "fua" : request.GET.get('fua','').replace(">", "").replace("<", "").replace("==", ""),
       "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("==", ""),
-      "paginarPor" : int(request.GET.get('paginarPor','5')),
+      "paginarPor" : request.GET.get('paginarPor','5'),
       "ordenarPor" : request.GET.get('ordenarPor','')
     }
     parametros['operadortmc'] = verificarOperador(request.GET.get('tmc',''))
@@ -293,7 +293,7 @@ def ProveedoresSefin(request):
     "mamc" : request.GET.get('mamc','').replace(">", "").replace("<", "").replace("==", ""),
     "fua" : request.GET.get('fua','').replace(">", "").replace("<", "").replace("==", ""),
     "memc" : request.GET.get('memc','').replace(">", "").replace("<", "").replace("==", ""),
-    "paginarPor" : int(request.GET.get('paginarPor','5')),
+    "paginarPor" : request.GET.get('paginarPor','5'),
     "ordenarPor" : request.GET.get('ordenarPor','')
   }
   parametros['operadortmc'] = verificarOperador(request.GET.get('tmc',''))

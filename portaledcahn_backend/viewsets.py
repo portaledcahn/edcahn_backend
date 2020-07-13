@@ -306,7 +306,7 @@ class Buscador(APIView):
 		noMoneda = 'Sin monto de contrato'
 		noMonedaPago = 'Sin monto pagado'
 
-		page = int(request.GET.get('pagina', '1'))
+		page = request.GET.get('pagina', '1')
 		metodo = request.GET.get('metodo', 'proceso')
 		moneda = request.GET.get('moneda', '')
 		metodo_seleccion = request.GET.get('metodo_seleccion', '')
@@ -316,6 +316,12 @@ class Buscador(APIView):
 		organismo = request.GET.get('organismo', '')
 
 		ordenarPor = request.GET.get('ordenarPor','')
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		term = request.GET.get('term', '')
 		start = (page-1) * settings.PAGINATE_BY
@@ -691,7 +697,7 @@ class FiltroAniosProveedoresSEFIN(APIView):
 class Proveedores(APIView):
 
 	def get(self, request, format=None):
-		page = int(request.GET.get('pagina', '1'))
+		page = request.GET.get('pagina', '1')
 		metodo = request.GET.get('metodo', None)
 		nombre = request.GET.get('nombre', '')
 		identificacion = request.GET.get('identificacion', '')
@@ -709,7 +715,19 @@ class Proveedores(APIView):
 		cp = request.GET.get('cp', '')
 
 		ordenarPor = request.GET.get('ordenarPor', '')
-		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
+
+		validarNumero = validarNumeroEntero(paginarPor)
+		if validarNumero["respuesta"]:
+			paginarPor = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		start = (page-1) * paginarPor
 		end = start + paginarPor
@@ -959,7 +977,7 @@ class Proveedores(APIView):
 class ProveedoresSEFIN(APIView):
 
 	def get(self, request, format=None):
-		page = int(request.GET.get('pagina', '1'))
+		page = request.GET.get('pagina', '1')
 		metodo = request.GET.get('metodo', None)
 		nombre = request.GET.get('nombre', '')
 		identificacion = request.GET.get('identificacion', '')
@@ -976,7 +994,19 @@ class ProveedoresSEFIN(APIView):
 		fua = request.GET.get('fua', '')
 		cp = request.GET.get('cp', '')
 		ordenarPor = request.GET.get('ordenarPor', '')
-		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
+
+		validarNumero = validarNumeroEntero(paginarPor)
+		if validarNumero["respuesta"]:
+			paginarPor = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		start = (page-1) * paginarPor
 		end = start + paginarPor
@@ -1249,8 +1279,8 @@ class Proveedor(APIView):
 class ContratosDelProveedor(APIView):
 
 	def get(self, request, partieId=None, format=None):
-		page = int(request.GET.get('pagina', '1'))
-		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		page = request.GET.get('pagina', '1')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 		comprador = request.GET.get('comprador', '')
 		titulo = request.GET.get('titulo', '')
 		descripcion = request.GET.get('descripcion', '')
@@ -1261,6 +1291,18 @@ class ContratosDelProveedor(APIView):
 		fechaFirma = request.GET.get('fechaFirma', '')
 		fechaInicio = request.GET.get('fechaInicio', '')
 		ordenarPor = request.GET.get('ordenarPor', '')
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
+
+		validarNumero = validarNumeroEntero(paginarPor)
+		if validarNumero["respuesta"]:
+			paginarPor = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		start = (page-1) * paginarPor
 		end = start + paginarPor
@@ -1352,9 +1394,6 @@ class ContratosDelProveedor(APIView):
 				operador = validarMonto["operador"]
 				valor = validarMonto["valor"]
 
-				print("validarMonto")
-				print(validarMonto)
-
 				if operador == "==":
 					filtro = Q('match', value__amount=valor)
 				elif operador == "<":
@@ -1445,14 +1484,26 @@ class ContratosDelProveedor(APIView):
 class PagosDelProveedor(APIView):
 
 	def get(self, request, partieId=None, format=None):
-		page = int(request.GET.get('pagina', '1'))
-		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		page = request.GET.get('pagina', '1')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 		comprador = request.GET.get('comprador', '')
 		titulo = request.GET.get('titulo', '')
 		monto = request.GET.get('monto', '')
 		pagos = request.GET.get('pagos', '')
 		fecha = request.GET.get('fecha', '')
 		ordenarPor = request.GET.get('ordenarPor', '')
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
+
+		validarNumero = validarNumeroEntero(paginarPor)
+		if validarNumero["respuesta"]:
+			paginarPor = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		start = (page-1) * paginarPor
 		end = start + paginarPor
@@ -1608,8 +1659,8 @@ class PagosDelProveedor(APIView):
 class ProductosDelProveedor(APIView):
 
 	def get(self, request, partieId=None, format=None):
-		page = int(request.GET.get('pagina', '1'))
-		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		page = request.GET.get('pagina', '1')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 
 		clasificacion = request.GET.get('clasificacion', '')
 		monto = request.GET.get('monto', '')
@@ -1617,6 +1668,18 @@ class ProductosDelProveedor(APIView):
 		proceso = request.GET.get('proceso', 'contrato')
 
 		ordenarPor = request.GET.get('ordenarPor', '')
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
+
+		validarNumero = validarNumeroEntero(paginarPor)
+		if validarNumero["respuesta"]:
+			paginarPor = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		start = (page-1) * paginarPor
 		end = start + paginarPor
@@ -1758,7 +1821,7 @@ class ProductosDelProveedor(APIView):
 class Compradores(APIView):
 
 	def get(self, request, format=None):
-		page = int(request.GET.get('pagina', '1'))
+		page = request.GET.get('pagina', '1')
 		nombre = request.GET.get('nombre', '') #nombre
 		identificacion = request.GET.get('identificacion', '') # identificacion
 		dependencias = request.GET.get('dependencias', '0')
@@ -1769,6 +1832,12 @@ class Compradores(APIView):
 		memc = request.GET.get('memc', '') # menor monto contratado
 		fup = request.GET.get('fup', '') # fecha ultimo proceso
 		cp = request.GET.get('cp', '') # cantidad de procesos
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		ordenarPor = request.GET.get('ordenarPor', '')
 		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
@@ -2156,8 +2225,8 @@ class ProcesosDelComprador(APIView):
 
 	def get(self, request, partieId=None, format=None):
 		sourceSEFIN = 'HN.SIAFI2'
-		page = int(request.GET.get('pagina', '1'))
-		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		page = request.GET.get('pagina', '1')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 		
 		comprador = request.GET.get('comprador', '')
 		ocid = request.GET.get('ocid', '')
@@ -2172,6 +2241,18 @@ class ProcesosDelComprador(APIView):
 		ordenarPor = request.GET.get('ordenarPor', '')
 		dependencias = request.GET.get('dependencias', '0')
 		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
+
+		validarNumero = validarNumeroEntero(paginarPor)
+		if validarNumero["respuesta"]:
+			paginarPor = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
@@ -2417,8 +2498,8 @@ class ContratosDelComprador(APIView):
 
 	def get(self, request, partieId=None, format=None):
 		anioActual = str(datetime.date.today().year)
-		page = int(request.GET.get('pagina', '1'))
-		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		page = request.GET.get('pagina', '1')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 		proveedor = request.GET.get('proveedor', '')
 		titulo = request.GET.get('titulo', '')
 		descripcion = request.GET.get('descripcion', '')
@@ -2434,6 +2515,18 @@ class ContratosDelComprador(APIView):
 		tipoIdentificador = request.GET.get('tid', 'id') #por id, nombre
 		anio = request.GET.get('year', '')
 		anios = []
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
+
+		validarNumero = validarNumeroEntero(paginarPor)
+		if validarNumero["respuesta"]:
+			paginarPor = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
@@ -2685,8 +2778,8 @@ class ContratosDelComprador(APIView):
 class PagosDelComprador(APIView):
 
 	def get(self, request, partieId=None, format=None):
-		page = int(request.GET.get('pagina', '1'))
-		paginarPor = int(request.GET.get('paginarPor', settings.PAGINATE_BY))
+		page = request.GET.get('pagina', '1')
+		paginarPor = request.GET.get('paginarPor', settings.PAGINATE_BY)
 		comprador = request.GET.get('comprador', '')
 		proveedor = request.GET.get('proveedor', '')
 		titulo = request.GET.get('titulo', '')
@@ -2697,6 +2790,18 @@ class PagosDelComprador(APIView):
 		dependencias = request.GET.get('dependencias', '0')
 
 		tipoIdentificador = request.GET.get('tid', 'nombre') #por id, nombre
+
+		validarNumero = validarNumeroEntero(page)
+		if validarNumero["respuesta"]:
+			page = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
+
+		validarNumero = validarNumeroEntero(paginarPor)
+		if validarNumero["respuesta"]:
+			paginarPor = validarNumero["valor"]
+		else:
+			return errorBadRequest(validarNumero["mensaje"])
 
 		if tipoIdentificador not in ['id', 'nombre']:
 			tipoIdentificador = 'nombre'
@@ -4564,7 +4669,6 @@ class FiltrosDashboardONCAE(APIView):
 		resultados["modalidades"] = modalidades
 		resultados["sistemas"] = sources
 
-		# Quitar false cuando la importacion de datos este lista.
 		if tablero != 'c':
 			resultados["Normativas"] = normativas
 
@@ -5217,8 +5321,6 @@ class GraficarProcesosPorEtapa(APIView):
 		totalProcesos = results.aggregations.totalProcesos["value"]
 
 		aggs = results.aggregations.procesosPorSeccion.to_dict()
-
-		print(aggs)
 
 		sortEtapas = {
 			"Elaboración": 1,

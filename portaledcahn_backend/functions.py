@@ -1,6 +1,8 @@
 #Funciones compartidas. 
 import re, datetime, dateutil, io, csv, os, flattentool, shutil
 from zipfile import ZipFile, ZIP_DEFLATED
+from rest_framework import status
+from rest_framework.response import Response
 
 def validateSortParam(param):
 	pattern = '^desc\(([^)]+)\)$|^asc\(([^)]+)\)$'
@@ -483,3 +485,24 @@ def textoALista(texto):
 			lista.append(column)
 
 	return lista
+
+def validarNumeroEntero(valor):
+	try:
+		numero = int(valor)
+		res = True
+		msj = ''
+	except Exception as e:
+		res = False
+		msj = str(e)
+		numero = None
+
+	respuesta = {
+		"respuesta": res,
+		"mensaje": msj,
+		"valor": numero
+	}
+
+	return respuesta
+
+def errorBadRequest(mensaje):
+	return Response({"Error":mensaje}, status.HTTP_400_BAD_REQUEST)
