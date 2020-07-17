@@ -28,10 +28,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'https://www.contratacionesabiertas.gob.hn', 
-    'http://www.contratacionesabiertas.gob.hn',
-    'www.contratacionesabiertas.gob.hn', 
-    'contratacionesabiertas.gob.hn'
+    'https://www.dominio.com', 
 ]
 
 # Application definition
