@@ -34,24 +34,19 @@ def obtenerRelasesCSV():
 
     select = """
         SELECT
-            r.release_id,
-            r.ocid,
+            ru.release_id,
+            ru.ocid,
             d.hash_md5,
-            r.package_data_id,
+            ru.package_data_id,
             d."data" as "release",
-            pd."data" as "package" 
-        FROM release r
-            INNER JOIN data d on r.data_id = d.id 
-            INNER JOIN package_data pd on r.package_data_id = pd.id
-        GROUP BY 
-            r.release_id, 
-            r.ocid, 
-            d.hash_md5, 
-            r.package_data_id, 
-            d.data, 
-            pd.data
+            pd."data" as "package"
+        FROM (select r.*, row_number() over(partition by release_id order by id desc) as rn from release r) ru
+            INNER JOIN data d on ru.data_id = d.id 
+            INNER JOIN package_data pd on ru.package_data_id = pd.id
+        WHERE 
+            ru.rn = 1
         ORDER BY
-            r.release_id
+            ru.release_id
         --LIMIT 2
     """
 
