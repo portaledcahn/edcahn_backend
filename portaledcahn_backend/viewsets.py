@@ -8688,6 +8688,27 @@ class Descargar(APIView):
 		response['X-Accel-Redirect'] = '/protectedMedia/' + file_name
 		return response
 
+class DescargasIAIP(APIView):
+
+	def get(self, request, format=None):
+
+		listaArchivos = []
+		urlDescargas = '/api/v1/descargas/'
+
+		archivosIAIP = [
+			'IAIP_EmergenciaCovid19_CompiledReleasePackague.json',
+			'IAIP_EmergenciaCovid19_CompiledReleasePackague.xlsx',
+			'IAIP_EmergenciaCovid19_CompiledReleasePackague.zip',
+			'IAIP_EmergenciaCovid19_ReleasePackague.json',
+			'IAIP_EmergenciaCovid19_ReleasePackague.xlsx',
+			'IAIP_EmergenciaCovid19_ReleasePackague.zip'
+		]
+
+		for archivo in archivosIAIP:
+			listaArchivos.append(request.build_absolute_uri(urlDescargas + archivo))
+
+		return Response(listaArchivos)
+
 def DescargarProcesosCSV(request, search):
 	nombreArchivo = 'portaledcahn-procesos-'
 	pseudo_buffer = Echo()
