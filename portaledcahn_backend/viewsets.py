@@ -8691,23 +8691,68 @@ class Descargar(APIView):
 class DescargasIAIP(APIView):
 
 	def get(self, request, format=None):
-
+		metadata = {}
 		listaArchivos = []
-		urlDescargas = '/api/v1/descargas/'
+		urlDescargas = '/api/v1/descargas/{0}'
+		pMetadata = "ocds_bulk_download,archivos_estaticos,releases,descargas,metadataIAIP.json".split(",")
+		metadata["publicador"] = 'IAIP - Emergenia Covid 19'
+		metadata["fechaActualizacion"] = None
+		dMetadata = os.path.join(*pMetadata)
+		pPath = os.path.abspath(os.path.dirname(__name__))
+		pathArchivo = os.path.join(pPath, dMetadata)
 
-		archivosIAIP = [
-			'IAIP_EmergenciaCovid19_CompiledReleasePackague.json',
-			'IAIP_EmergenciaCovid19_CompiledReleasePackague.xlsx',
-			'IAIP_EmergenciaCovid19_CompiledReleasePackague.zip',
-			'IAIP_EmergenciaCovid19_ReleasePackague.json',
-			'IAIP_EmergenciaCovid19_ReleasePackague.xlsx',
-			'IAIP_EmergenciaCovid19_ReleasePackague.zip'
-		]
+		try:
+			with open(pathArchivo, encoding='utf-8') as json_file:
+				metadata = json.load(json_file)
+		except Exception as e:
+			print("Error: ", e)
 
-		for archivo in archivosIAIP:
-			listaArchivos.append(request.build_absolute_uri(urlDescargas + archivo))
+		releasePackageJson = 'IAIP_EmergenciaCovid19_ReleasePackague.json'
+		releasePackageExcel = 'IAIP_EmergenciaCovid19_ReleasePackague.xlsx'
+		releasePackageCsv = 'IAIP_EmergenciaCovid19_ReleasePackague.zip'
+		compiledReleasePackageJson = 'IAIP_EmergenciaCovid19_CompiledReleasePackague.json'
+		compiledReleasePackageExcel = 'IAIP_EmergenciaCovid19_CompiledReleasePackague.xlsx'
+		compiledReleasePackageCsv = 'IAIP_EmergenciaCovid19_CompiledReleasePackague.zip'
 
-		return Response(listaArchivos)
+		respuesta = {
+			'metadata': metadata,
+			'releasePackage':[
+				{
+					'fileName':'Release Package IAIP formato .json',
+					'url': request.build_absolute_uri(urlDescargas.format(releasePackageJson)),
+					'type': 'application/json'
+				},
+				{
+					'fileName':'Release Package IAIP formato .xlsx',
+					'url': request.build_absolute_uri(urlDescargas.format(releasePackageExcel)),
+					'type': 'application/vnd.ms-excel'
+				},
+				{
+					'fileName':'Release Package IAIP formato .csv',
+					'url': request.build_absolute_uri(urlDescargas.format(releasePackageCsv)),
+					'type': 'application/zip'
+				}	
+			],
+			'compiledReleasePackage':[
+				{
+					'fileName':'Compiled Release Package IAIP formato .json',
+					'url': request.build_absolute_uri(urlDescargas.format(compiledReleasePackageJson)),
+					'type': 'application/json'
+				},
+				{
+					'fileName':'Compiled Release Package IAIP formato .xlsx',
+					'url': request.build_absolute_uri(urlDescargas.format(compiledReleasePackageExcel)),
+					'type': 'application/vnd.ms-excel'
+				},
+				{
+					'fileName':'Compiled Release Package IAIP formato .csv',
+					'url': request.build_absolute_uri(urlDescargas.format(compiledReleasePackageCsv)),
+					'type': 'application/zip'
+				}	
+			]
+		}
+
+		return Response(respuesta)
 
 def DescargarProcesosCSV(request, search):
 	nombreArchivo = 'portaledcahn-procesos-'
