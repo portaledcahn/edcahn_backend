@@ -11,7 +11,7 @@ urlpatterns = [
 	path('v1/record/', viewsets.Records.as_view()),
 	path('v1/descargas/<path:pk>/', viewsets.Descargar.as_view()),
 	path('v1/descargas/', viewsets.Descargas.as_view()),
-	path('v1/iaip_emergenciacovid19/', viewsets.DescargasIAIP.as_view()),
+	path('v1/iaip_datosabiertos/', viewsets.DescargasIAIP.as_view()),
 	path('v1/', viewsets.PublicAPI.as_view()),
 
 	path('record/<path:pk>/', viewsets.RecordDetail.as_view()),

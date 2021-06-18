@@ -8695,61 +8695,81 @@ class DescargasIAIP(APIView):
 		listaArchivos = []
 		urlDescargas = '/api/v1/descargas/{0}'
 		pMetadata = "ocds_bulk_download,archivos_estaticos,releases,descargas,metadataIAIP.json".split(",")
-		metadata["publicador"] = 'IAIP - Emergenia Covid 19'
+		metadata["publicador"] = 'Instituto de Aacceso a la Información Pública'
 		metadata["fechaActualizacion"] = None
 		dMetadata = os.path.join(*pMetadata)
 		pPath = os.path.abspath(os.path.dirname(__name__))
 		pathArchivo = os.path.join(pPath, dMetadata)
 
+		archivoMetadata = {}
+		listaArchivosOficio = []
+
 		try:
 			with open(pathArchivo, encoding='utf-8') as json_file:
-				metadata = json.load(json_file)
+				archivoMetadata = json.load(json_file)
 		except Exception as e:
 			print("Error: ", e)
 
-		releasePackageJson = 'IAIP_EmergenciaCovid19_ReleasePackague.json'
-		releasePackageExcel = 'IAIP_EmergenciaCovid19_ReleasePackague.xlsx'
-		releasePackageCsv = 'IAIP_EmergenciaCovid19_ReleasePackague.zip'
-		compiledReleasePackageJson = 'IAIP_EmergenciaCovid19_CompiledReleasePackague.json'
-		compiledReleasePackageExcel = 'IAIP_EmergenciaCovid19_CompiledReleasePackague.xlsx'
-		compiledReleasePackageCsv = 'IAIP_EmergenciaCovid19_CompiledReleasePackague.zip'
+		if 'metadata' in archivoMetadata:
+			if 'archivosOficio' in archivoMetadata['metadata']:
+				for archivo in archivoMetadata['metadata']['archivosOficio']:
+					listaArchivosOficio.append({
+						'nombreArchivo':archivo['nombreArchivo'],
+						'anio': archivo['anio'],
+						'mes': archivo['mes'],
+						'excel': request.build_absolute_uri(urlDescargas.format(archivo["excel"])),
+						'csv': request.build_absolute_uri(urlDescargas.format(archivo["csv"])),
+						'Json': request.build_absolute_uri(urlDescargas.format(archivo["json"]))
+					})
+
+			if 'fechaActualizacion' in archivoMetadata['metadata']:
+				metadata['fechaActualizacion'] = archivoMetadata['metadata']['fechaActualizacion']
+
+		covid19_ReleasePackageJson = 'IAIP_EmergenciaCovid19_ReleasePackague.json'
+		covid19_ReleasePackageExcel = 'IAIP_EmergenciaCovid19_ReleasePackague.xlsx'
+		covid19_ReleasePackageCsv = 'IAIP_EmergenciaCovid19_ReleasePackague.zip'
+		covid19_CompiledReleasePackageJson = 'IAIP_EmergenciaCovid19_CompiledReleasePackague.json'
+		covid19_CompiledReleasePackageExcel = 'IAIP_EmergenciaCovid19_CompiledReleasePackague.xlsx'
+		covid19_CompiledReleasePackageCsv = 'IAIP_EmergenciaCovid19_CompiledReleasePackague.zip'
+
+		huracanes_ReleasePackageJson = 'IAIP_ETA_IOTA_ReleasePackague.json'
+		huracanes_ReleasePackageExcel = 'IAIP_ETA_IOTA_ReleasePackague.xlsx'
+		huracanes_ReleasePackageCsv = 'IAIP_ETA_IOTA_ReleasePackague.zip'
+		huracanes_CompiledReleasePackageJson = 'IAIP_ETA_IOTA_CompiledReleasePackague.json'
+		huracanes_CompiledReleasePackageExcel = 'IAIP_ETA_IOTA_CompiledReleasePackague.xlsx'
+		huracanes_CompiledReleasePackageCsv = 'IAIP_ETA_IOTA_CompiledReleasePackague.zip'
 
 		respuesta = {
 			'metadata': metadata,
-			'releasePackage':[
+			'covid19':[
 				{
-					'fileName':'Release Package IAIP formato .json',
-					'url': request.build_absolute_uri(urlDescargas.format(releasePackageJson)),
-					'type': 'application/json'
+					'nombreArchivo':'Release Package IAIP - Emergencia Covid 19',
+					'excel': request.build_absolute_uri(urlDescargas.format(covid19_ReleasePackageExcel)),
+					'csv': request.build_absolute_uri(urlDescargas.format(covid19_ReleasePackageCsv)),
+					'Json': request.build_absolute_uri(urlDescargas.format(covid19_ReleasePackageJson))
 				},
 				{
-					'fileName':'Release Package IAIP formato .xlsx',
-					'url': request.build_absolute_uri(urlDescargas.format(releasePackageExcel)),
-					'type': 'application/vnd.ms-excel'
-				},
-				{
-					'fileName':'Release Package IAIP formato .csv',
-					'url': request.build_absolute_uri(urlDescargas.format(releasePackageCsv)),
-					'type': 'application/zip'
-				}	
+					'nombre':'Compiled Release Package IAIP - Emergencia Covid 19',
+					'Json': request.build_absolute_uri(urlDescargas.format(covid19_CompiledReleasePackageJson)),
+					'excel': request.build_absolute_uri(urlDescargas.format(covid19_CompiledReleasePackageExcel)),
+					'csv': request.build_absolute_uri(urlDescargas.format(covid19_CompiledReleasePackageCsv)),
+				}				
 			],
-			'compiledReleasePackage':[
+			'huracanes':[
 				{
-					'fileName':'Compiled Release Package IAIP formato .json',
-					'url': request.build_absolute_uri(urlDescargas.format(compiledReleasePackageJson)),
-					'type': 'application/json'
+					'nombreArchivo':'Release Package IAIP - Emergencia Huracan Eta',
+					'excel': request.build_absolute_uri(urlDescargas.format(huracanes_ReleasePackageExcel)),
+					'csv': request.build_absolute_uri(urlDescargas.format(huracanes_ReleasePackageCsv)),
+					'Json': request.build_absolute_uri(urlDescargas.format(huracanes_ReleasePackageJson))
 				},
 				{
-					'fileName':'Compiled Release Package IAIP formato .xlsx',
-					'url': request.build_absolute_uri(urlDescargas.format(compiledReleasePackageExcel)),
-					'type': 'application/vnd.ms-excel'
-				},
-				{
-					'fileName':'Compiled Release Package IAIP formato .csv',
-					'url': request.build_absolute_uri(urlDescargas.format(compiledReleasePackageCsv)),
-					'type': 'application/zip'
-				}	
-			]
+					'nombre':'Compiled Release Package IAIP - Emergencia Huracan Eta',
+					'Json': request.build_absolute_uri(urlDescargas.format(huracanes_CompiledReleasePackageJson)),
+					'excel': request.build_absolute_uri(urlDescargas.format(huracanes_CompiledReleasePackageExcel)),
+					'csv': request.build_absolute_uri(urlDescargas.format(huracanes_CompiledReleasePackageCsv)),
+				}				
+			],
+			'oficio':listaArchivosOficio
 		}
 
 		return Response(respuesta)
