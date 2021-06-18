@@ -8710,20 +8710,19 @@ class DescargasIAIP(APIView):
 		except Exception as e:
 			print("Error: ", e)
 
-		if 'metadata' in archivoMetadata:
-			if 'archivosOficio' in archivoMetadata['metadata']:
-				for archivo in archivoMetadata['metadata']['archivosOficio']:
-					listaArchivosOficio.append({
-						'nombreArchivo':archivo['nombreArchivo'],
-						'anio': archivo['anio'],
-						'mes': archivo['mes'],
-						'excel': request.build_absolute_uri(urlDescargas.format(archivo["excel"])),
-						'csv': request.build_absolute_uri(urlDescargas.format(archivo["csv"])),
-						'Json': request.build_absolute_uri(urlDescargas.format(archivo["json"]))
-					})
+		if 'archivosOficio' in archivoMetadata:
+			for archivo in archivoMetadata['archivosOficio']:
+				listaArchivosOficio.append({
+					'nombreArchivo':archivo['nombreArchivo'],
+					'anio': archivo['anio'],
+					'mes': archivo['mes'],
+					'excel': request.build_absolute_uri(urlDescargas.format(archivo["excel"])),
+					'csv': request.build_absolute_uri(urlDescargas.format(archivo["csv"])),
+					'Json': request.build_absolute_uri(urlDescargas.format(archivo["json"]))
+				})
 
-			if 'fechaActualizacion' in archivoMetadata['metadata']:
-				metadata['fechaActualizacion'] = archivoMetadata['metadata']['fechaActualizacion']
+		if 'fechaActualizacion' in archivoMetadata:
+			metadata['fechaActualizacion'] = archivoMetadata['fechaActualizacion']
 
 		covid19_ReleasePackageJson = 'IAIP_EmergenciaCovid19_ReleasePackague.json'
 		covid19_ReleasePackageExcel = 'IAIP_EmergenciaCovid19_ReleasePackague.xlsx'
