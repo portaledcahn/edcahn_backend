@@ -8718,7 +8718,7 @@ class DescargasIAIP(APIView):
 					'mes': archivo['mes'],
 					'excel': request.build_absolute_uri(urlDescargas.format(archivo["excel"])),
 					'csv': request.build_absolute_uri(urlDescargas.format(archivo["csv"])),
-					'Json': request.build_absolute_uri(urlDescargas.format(archivo["json"]))
+					'json': request.build_absolute_uri(urlDescargas.format(archivo["json"]))
 				})
 
 		if 'fechaActualizacion' in archivoMetadata:
@@ -8745,13 +8745,13 @@ class DescargasIAIP(APIView):
 					'nombreArchivo':'Release Package IAIP - Emergencia Covid 19',
 					'excel': request.build_absolute_uri(urlDescargas.format(covid19_ReleasePackageExcel)),
 					'csv': request.build_absolute_uri(urlDescargas.format(covid19_ReleasePackageCsv)),
-					'Json': request.build_absolute_uri(urlDescargas.format(covid19_ReleasePackageJson))
+					'json': request.build_absolute_uri(urlDescargas.format(covid19_ReleasePackageJson))
 				},
 				{
 					'nombre':'Compiled Release Package IAIP - Emergencia Covid 19',
-					'Json': request.build_absolute_uri(urlDescargas.format(covid19_CompiledReleasePackageJson)),
 					'excel': request.build_absolute_uri(urlDescargas.format(covid19_CompiledReleasePackageExcel)),
 					'csv': request.build_absolute_uri(urlDescargas.format(covid19_CompiledReleasePackageCsv)),
+					'json': request.build_absolute_uri(urlDescargas.format(covid19_CompiledReleasePackageJson))
 				}				
 			],
 			'huracanes':[
@@ -8759,19 +8759,21 @@ class DescargasIAIP(APIView):
 					'nombreArchivo':'Release Package IAIP - Emergencia Huracan Eta',
 					'excel': request.build_absolute_uri(urlDescargas.format(huracanes_ReleasePackageExcel)),
 					'csv': request.build_absolute_uri(urlDescargas.format(huracanes_ReleasePackageCsv)),
-					'Json': request.build_absolute_uri(urlDescargas.format(huracanes_ReleasePackageJson))
+					'json': request.build_absolute_uri(urlDescargas.format(huracanes_ReleasePackageJson))
 				},
 				{
 					'nombre':'Compiled Release Package IAIP - Emergencia Huracan Eta',
-					'Json': request.build_absolute_uri(urlDescargas.format(huracanes_CompiledReleasePackageJson)),
 					'excel': request.build_absolute_uri(urlDescargas.format(huracanes_CompiledReleasePackageExcel)),
 					'csv': request.build_absolute_uri(urlDescargas.format(huracanes_CompiledReleasePackageCsv)),
+					'json': request.build_absolute_uri(urlDescargas.format(huracanes_CompiledReleasePackageJson))
 				}				
 			],
 			'oficio':listaArchivosOficio
 		}
 
-		return Response(respuesta)
+		jsonResponse = Response(respuesta)
+		jsonResponse['Access-Control-Allow-Origin'] = '*'
+		return jsonResponse
 
 def DescargarProcesosCSV(request, search):
 	nombreArchivo = 'portaledcahn-procesos-'
