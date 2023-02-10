@@ -1,6 +1,7 @@
 from elasticsearch_dsl import analyzer
 from elasticsearch_dsl.connections import connections
-from django_elasticsearch_dsl import DocType, Index, fields 
+from django_elasticsearch_dsl import Document, Index, fields 
+from django_elasticsearch_dsl.registries import registry
 from portaledcahn_backend import models as articles_models
 
 data_index = Index('edca')
@@ -16,15 +17,17 @@ html_strip = analyzer(
 	char_filter=["html_strip"]
 )
 
-@data_index.doc_type
-class DataDocument(DocType):
-	data = fields.ObjectField()
+@registry.register_document
+@data_index.document
+class DataDocument(Document):
+	class Django:
+		data = fields.ObjectField()
 
-	class Meta:
 		model = articles_models.Data
+		
 		fields = [
-			'id', 
-			'hash_md5', 
+			# 'data', 
+			# 'hash_md5', 
 		]
 
 	def prepare_data(self, instance):
@@ -36,12 +39,13 @@ record_index.settings(
 	number_of_replicas=0
 )
 
-@record_index.doc_type
-class RecordDocument(DocType):
+@registry.register_document
+@record_index.document
+class RecordDocument(Document):
 
-	class Meta:
+	class Django:
 		model = articles_models.Record
-		fields = [
-			'id', 
-			'ocid', 
+
+		fields = [ 
+			# 'ocid', 
 		]

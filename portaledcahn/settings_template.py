@@ -31,6 +31,13 @@ ALLOWED_HOSTS = [
     'https://www.dominio.com', 
 ]
 
+CORS_ORIGIN_ALLOW_ALL=False
+
+CORS_ORIGIN_WHITELIST = [
+    'https://portalunico.iaip.gob.hn/datosabierto/',
+    'https://portalunico.iaip.gob.hn/'
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,9 +51,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'portaledcahn_frontend',
     'django_elasticsearch_dsl',
-    'django_elasticsearch_dsl_drf',
     'django.contrib.humanize',
     'ocds_bulk_download',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'portaledcahn.urls'

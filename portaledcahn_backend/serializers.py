@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
 
-from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
+# from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from portaledcahn_backend import documents as articles_documents
 
 class ReleaseSerializer(serializers.BaseSerializer):
@@ -52,19 +52,19 @@ class DataSerializer(serializers.ModelSerializer):
         model = Data
         fields = ['id', 'hash_md5', 'data']
 
-class DataDocumentSerializer(DocumentSerializer):
-    class Meta:
-        document = articles_documents.DataDocument
-        fields = (
-            'id',
-            'hash_md5',
-            'data',
-        )
+# class DataDocumentSerializer(DocumentSerializer):
+#     class Meta:
+#         document = articles_documents.DataDocument
+#         fields = (
+#             'id',
+#             'hash_md5',
+#             'data',
+#         )
 
-class RecordDocumentSerializer(DocumentSerializer):
-    class Meta:
-        document = articles_documents.RecordDocument
-        fields = (
-            'id',
-            'ocid',
-        )
+# class RecordDocumentSerializer(DocumentSerializer):
+#     class Meta:
+#         document = articles_documents.RecordDocument
+#         fields = (
+#             'id',
+#             'ocid',
+#         )

@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework import pagination
 from rest_framework import status
@@ -19,7 +19,7 @@ import json, copy, urllib.parse, datetime, operator, statistics, csv, flattentoo
 import pandas as pd 
 import mimetypes, os.path, math
 
-from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
+# from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from portaledcahn_backend import documents as articles_documents
 from portaledcahn_backend import serializers as articles_serializers
 
@@ -623,12 +623,14 @@ class Buscador(APIView):
 		parametros["organismo"] = organismo
 		parametros["ordenarPor"] = ordenarPor
 
+		data = [hit.to_dict() for hit in results.hits.hits]
+
 		context = {
 			"paginador": pagination,
 			"parametros": parametros,
 			"resumen": resumen,
 			"filtros": filtros,
-			"resultados": results.hits.hits,
+			"resultados": data,
 			"ocids": ocidsEncoding
 		}
 
@@ -657,7 +659,7 @@ class RecordDetail(APIView):
 		context = results.hits.hits
 
 		if context:
-			response = context[0]["_source"]["doc"]
+			response = context[0]["_source"]["doc"].to_dict()
 			return Response(response)
 		else:
 			raise Http404
@@ -933,8 +935,7 @@ class Proveedores(APIView):
 
 		results = s[start:end].execute()
 		paginator = Paginator(search_results, paginarPor)
-
-		proveedores =  [hit["_source"] for hit in results.hits.hits]
+		proveedores = [hit["_source"].to_dict() for hit in results.hits.hits]
 
 		try:
 			posts = paginator.page(page)
@@ -1214,7 +1215,7 @@ class ProveedoresSEFIN(APIView):
 		results = s[start:end].execute()
 		paginator = Paginator(search_results, paginarPor)
 
-		proveedores =  [hit["_source"] for hit in results.hits.hits]
+		proveedores =  [hit["_source"].to_dict() for hit in results.hits.hits]
 
 		try:
 			posts = paginator.page(page)
@@ -1442,6 +1443,8 @@ class ContratosDelProveedor(APIView):
 		results = s[start:end].execute()
 		paginator = Paginator(search_results, paginarPor)
 
+		data =  [hit.to_dict() for hit in results.hits.hits]
+
 		try:
 			posts = paginator.page(page)
 		except PageNotAnInteger:
@@ -1476,7 +1479,7 @@ class ContratosDelProveedor(APIView):
 		context = {
 			"paginador": pagination,
 			"parametros": parametros,
-			"resultados": results.hits.hits
+			"resultados": data
 		}
 
 		return Response(context)
@@ -1619,6 +1622,7 @@ class PagosDelProveedor(APIView):
 		search_results = SearchResults(s)
 		results = s[start:end].execute()
 		paginator = Paginator(search_results, paginarPor)
+		data = [hit.to_dict() for hit in results.hits.hits]
 
 		try:
 			posts = paginator.page(page)
@@ -1651,7 +1655,7 @@ class PagosDelProveedor(APIView):
 			# "elastic": results.to_dict(),
 			"paginador": pagination,
 			"parametros": parametros,
-			"resultados": results.hits.hits
+			"resultados": data
 		}
 
 		return Response(context)
@@ -2486,10 +2490,12 @@ class ProcesosDelComprador(APIView):
 		parametros["pagianrPor"] = paginarPor
 		parametros["pagina"] = page
 
+		data = [hit.to_dict() for hit in results.hits.hits]
+
 		context = {
 			"paginador": pagination,
 			"parametros": parametros,
-			"resultados": results.hits.hits
+			"resultados": data
 		}
 
 		return Response(context)
@@ -2767,10 +2773,12 @@ class ContratosDelComprador(APIView):
 		parametros["pagianrPor"] = paginarPor
 		parametros["pagina"] = page
 
+		data = [hit.to_dict() for hit in results.hits.hits]
+
 		context = {
 			"paginador": pagination,
 			"parametros": parametros,
-			"resultados": results.hits.hits
+			"resultados": data
 		}
 
 		return Response(context)
@@ -2970,10 +2978,12 @@ class PagosDelComprador(APIView):
 		parametros["pagianrPor"] = paginarPor
 		parametros["pagina"] = page
 
+		data = [hit.to_dict() for hit in results.hits.hits]
+
 		context = {
 			"paginador": pagination,
 			"parametros": parametros,
-			"resultados": results.hits.hits
+			"resultados": data
 		}
 
 		return Response(context)
@@ -8647,6 +8657,9 @@ class FiltrosVisualizacionesONCAE(APIView):
 
 # Descargas
 
+class CustomException(Exception):
+    pass
+
 class Descargas(APIView):
 
 	def get(self, request, format=None):
@@ -8659,20 +8672,28 @@ class Descargas(APIView):
 			row = cursor.fetchone()
 		
 		if row:
-			for value in row[0].values():
-				for extension in value["urls"]:
-					value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
 
-				if 'finalizo' in value: 
-					del value['finalizo']
+			json_descargas = row[0]
 
-				if 'md5_hash' in value: 
-					del value['md5_hash']
+			try:
+				row_descargas = json.loads(json_descargas)
 
-				if 'md5_json' in value: 
-					del value['md5_json']
+				for value in row_descargas.values():
+					for extension in value["urls"]:
+						value["urls"][extension] = request.build_absolute_uri(urlDescargas + value["urls"][extension])
 
-				listaArchivos.append(value)
+					if 'finalizo' in value: 
+						del value['finalizo']
+
+					if 'md5_hash' in value: 
+						del value['md5_hash']
+
+					if 'md5_json' in value: 
+						del value['md5_json']
+
+					listaArchivos.append(value)
+			except Exception as e:
+				raise CustomException(f"Error en el endpoint de descargas: {e}")
 	
 			return Response(listaArchivos)
 		else:
